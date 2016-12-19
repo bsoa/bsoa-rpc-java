@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>io.bsoa.rpc</groupId>
+    <artifactId>bsoa-rpc-java</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>bsoa-rpc</name>
+    <description>[Beyond SOA] RPC Framework of Java</description>
+
+    <!-- users -->
+    <organization>
+        <name>Beyond SOA</name>
+        <url>http://www.bsoa.io</url>
+    </organization>
+    <developers>
+        <developer>
+            <name>Geng Zhang</name>
+            <email>ujjboy@qq.com</email>
+            <organization>Beyond SOA</organization>
+        </developer>
+    </developers>
+
+</project>
