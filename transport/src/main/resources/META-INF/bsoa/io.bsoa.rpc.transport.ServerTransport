@@ -1,0 +1,1 @@
+netty4=io.bsoa.rpc.transport.netty.NettyServerTransport
