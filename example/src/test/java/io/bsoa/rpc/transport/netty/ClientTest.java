@@ -19,7 +19,7 @@
 package io.bsoa.rpc.transport.netty;
 
 import io.bsoa.rpc.client.Provider;
-import io.bsoa.rpc.message.HandshakeRequest;
+import io.bsoa.rpc.message.NegotiatorRequest;
 import io.bsoa.rpc.transport.ClientTransport;
 import io.bsoa.rpc.transport.ClientTransportConfig;
 import io.bsoa.rpc.transport.ClientTransportFactory;
@@ -49,7 +49,7 @@ public class ClientTest {
         }
 
 
-        HandshakeRequest request = new HandshakeRequest();
+        NegotiatorRequest request = new NegotiatorRequest();
         request.setRequestId(2345);
         transport.syncSend(request, 5000);
 

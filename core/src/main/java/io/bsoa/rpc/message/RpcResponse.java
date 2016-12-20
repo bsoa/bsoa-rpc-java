@@ -15,12 +15,14 @@
  */
 package io.bsoa.rpc.message;
 
+import java.io.Serializable;
+
 /**
  * Created by zhanggeng on 16-6-7.
  *
  * @author <a href=mailto:ujjboy@qq.com>Geng Zhang</a>
  */
-public class RpcResponse {
+public class RpcResponse extends BaseMessage implements Serializable {
 
     protected Object returnData;
 

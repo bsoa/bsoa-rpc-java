@@ -22,26 +22,17 @@ import java.io.Serializable;
  *
  * @author <a href=mailto:ujjboy@qq.com>Geng Zhang</a>
  */
-public class HandshakeRequest extends HasBodyMessage implements Serializable {
+public class NegotiatorResponse extends BaseMessage implements Serializable {
 
-    private static final long serialVersionUID = 7947584366795439228L;
+    private static final long serialVersionUID = 7881204238549761441L;
 
-    private String cmd;
-    private String data;
+    private String res;
 
-    public String getCmd() {
-        return cmd;
+    public String getRes() {
+        return res;
     }
 
-    public void setCmd(String cmd) {
-        this.cmd = cmd;
-    }
-
-    public String getData() {
-        return data;
-    }
-
-    public void setData(String data) {
-        this.data = data;
+    public void setRes(String res) {
+        this.res = res;
     }
 }

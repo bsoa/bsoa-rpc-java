@@ -29,7 +29,7 @@ import io.bsoa.rpc.common.type.HeadKey;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public class RPCMessage extends HasBodyMessage {
+public class RPCMessage extends BaseMessage {
 
     private int length; // 总长度
     private int headLength;

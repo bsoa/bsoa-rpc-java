@@ -20,8 +20,7 @@ import java.util.List;
 
 import io.bsoa.rpc.ext.Extensible;
 import io.bsoa.rpc.listener.ResponseFuture;
-import io.bsoa.rpc.message.HasBodyMessage;
-import io.bsoa.rpc.message.NoBodyMessage;
+import io.bsoa.rpc.message.BaseMessage;
 
 /**
  * Created by zhangg on 2016/7/17 15:37.
@@ -85,7 +84,7 @@ public interface ClientTransport {
      * @param timeout the timeout 超时时间
      * @return 异步Future
      */
-    public ResponseFuture asyncSend(HasBodyMessage request, int timeout);
+    public ResponseFuture asyncSend(BaseMessage request, int timeout);
 
     /**
      * 同步调用
@@ -94,6 +93,6 @@ public interface ClientTransport {
      * @param timeout the timeout 超时时间
      * @return ResponseMessage
      */
-    public NoBodyMessage syncSend(HasBodyMessage request, int timeout);
+    public BaseMessage syncSend(BaseMessage request, int timeout);
 
 }

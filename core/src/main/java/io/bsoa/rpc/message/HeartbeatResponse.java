@@ -25,7 +25,6 @@ import java.io.Serializable;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public class HeartbeatResponse extends NoBodyMessage implements Serializable {
+public class HeartbeatResponse extends BaseMessage implements Serializable {
 
-    private String message;
 }

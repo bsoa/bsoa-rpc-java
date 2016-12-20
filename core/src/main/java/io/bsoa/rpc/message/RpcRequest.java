@@ -16,6 +16,7 @@
  */
 package io.bsoa.rpc.message;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,7 +25,7 @@ import java.util.Map;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public class RpcRequest extends RPCMessage {
+public class RpcRequest extends BaseMessage implements Serializable {
 
     private transient String ifaceId; // 接口id， 有的时候不传递className和argsType
 

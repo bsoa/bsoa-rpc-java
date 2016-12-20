@@ -27,8 +27,7 @@ import io.bsoa.rpc.exception.BsoaRpcException;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
 import io.bsoa.rpc.ext.Extension;
 import io.bsoa.rpc.listener.ResponseFuture;
-import io.bsoa.rpc.message.HasBodyMessage;
-import io.bsoa.rpc.message.NoBodyMessage;
+import io.bsoa.rpc.message.BaseMessage;
 import io.bsoa.rpc.transport.AbstractClientTransport;
 import io.bsoa.rpc.transport.BsoaChannel;
 import io.netty.bootstrap.Bootstrap;
@@ -138,12 +137,12 @@ public class NettyClientTransport extends AbstractClientTransport {
     }
 
     @Override
-    public ResponseFuture asyncSend(HasBodyMessage request, int timeout) {
+    public ResponseFuture asyncSend(BaseMessage request, int timeout) {
         return null;
     }
 
     @Override
-    public NoBodyMessage syncSend(HasBodyMessage request, int timeout) {
+    public BaseMessage syncSend(BaseMessage request, int timeout) {
         ChannelFuture future=  getChannel().writeAndFlush(request.getRequestId()+"");
         return null;
     }

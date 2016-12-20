@@ -92,15 +92,15 @@ public class ClientProxyInvoker implements Invoker {
         request.setAlias(consumerConfig.getAlias());
         request.setClassName(consumerConfig.getInterfaceId());
 
-        // 是否缓存，减少valueof操作？
-        request.setProtocolType(ProtocolType.valueOf(consumerConfig.getProtocol()).value());
-        request.setSerializationType(SerializationType.valueOf(consumerConfig.getSerialization()).value());
-        String compress = (String) consumerConfig.getMethodConfigValue(methodName,
-                BsoaConstants.CONFIG_KEY_COMPRESS, consumerConfig.getCompress());
-        if (compress != null) {
-            request.setCompressType(CompressType.valueOf(compress).value());
-        }
-        request.addHeadKey(HeadKey.timeout, consumerConfig.getMethodTimeout(methodName));
+        // 是否缓存，减少valueof操作？ TODO
+//        request.setProtocolType(ProtocolType.valueOf(consumerConfig.getProtocol()).value());
+//        request.setSerializationType(SerializationType.valueOf(consumerConfig.getSerialization()).value());
+//        String compress = (String) consumerConfig.getMethodConfigValue(methodName,
+//                BsoaConstants.CONFIG_KEY_COMPRESS, consumerConfig.getCompress());
+//        if (compress != null) {
+//            request.setCompressType(CompressType.valueOf(compress).value());
+//        }
+//        request.addHeadKey(HeadKey.timeout, consumerConfig.getMethodTimeout(methodName));
 
         // 将接口的<jsf:param />的配置复制到invocation
         Map params = consumerConfig.getParameters();
