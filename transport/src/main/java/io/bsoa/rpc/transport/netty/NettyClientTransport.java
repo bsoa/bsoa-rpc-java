@@ -20,14 +20,21 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.bsoa.rpc.common.utils.NetUtils;
+import io.bsoa.rpc.context.BsoaContext;
 import io.bsoa.rpc.exception.BsoaRpcException;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
 import io.bsoa.rpc.ext.Extension;
 import io.bsoa.rpc.listener.ResponseFuture;
 import io.bsoa.rpc.message.BaseMessage;
+import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.transport.AbstractClientTransport;
 import io.bsoa.rpc.transport.BsoaChannel;
 import io.netty.bootstrap.Bootstrap;
@@ -47,6 +54,23 @@ import io.netty.channel.socket.nio.NioSocketChannel;
  */
 @Extension("netty4")
 public class NettyClientTransport extends AbstractClientTransport {
+
+    /**
+     * slf4j Logger for this class
+     */
+    private final static Logger LOGGER = LoggerFactory.getLogger(NettyClientTransport.class);
+
+    /**
+     * 正在发送的调用数量
+     */
+    protected AtomicInteger currentRequests = new AtomicInteger(0);
+    /**
+     * 请求id计数器（一个Transport一个）
+     */
+    private final AtomicInteger requestId = new AtomicInteger();
+
+    private final ConcurrentHashMap<Integer, MessageFuture> futureMap = new ConcurrentHashMap<Integer, MessageFuture>();
+
 
     private List<BsoaChannel> channels = new ArrayList<>();
 
@@ -123,7 +147,7 @@ public class NettyClientTransport extends AbstractClientTransport {
         return channels;
     }
 
-    Random random = new Random();
+    private Random random = new Random();
 
     private Channel getChannel() {
         if (channels.size() == 0) {
@@ -131,20 +155,114 @@ public class NettyClientTransport extends AbstractClientTransport {
         } else if (channels.size() == 1) {
             return ((NettyChannel) channels.get(0)).getChannel();
         } else {
-            NettyChannel channel = (NettyChannel) channels.get(random.nextInt(channels.size()));
-            return channel.getChannel();
+            do {
+                NettyChannel nettyChannel = (NettyChannel) channels.get(random.nextInt(channels.size()));
+                Channel tmp = nettyChannel.getChannel();
+                if (tmp.isOpen()) {
+                    return tmp;
+                } else {
+                    channels.remove(nettyChannel);
+                }
+            } while (channels.size() > 0); // TODO
+            throw new BsoaRpcException(22222, "No connected channel in client transport");
         }
     }
 
     @Override
-    public ResponseFuture asyncSend(BaseMessage request, int timeout) {
-        return null;
+    public ResponseFuture<BaseMessage> asyncSend(BaseMessage message, int timeout) {
+        if (message == null) {
+            throw new BsoaRpcException(22222, "msg cannot be null.");
+        }
+        final MessageFuture messageFuture = new MessageFuture(getChannel(), message.getRequestId(), timeout);
+        this.addFuture(message,messageFuture);
+
+        Channel channel = getChannel();
+
+        if (message instanceof RpcRequest) {
+            RpcRequest request = (RpcRequest) message;
+
+//            // 序列话Request  主要是body
+//            ByteBuf byteBuf = NettyTransportHelper.getBuffer();
+//            Protocol protocol = ProtocolFactory.getProtocol(request.getProtocolType());
+//            request = callBackHandler(request);
+//            try {
+//                if (providerJsfVersion != null) { // 供序列化时特殊判断
+//                    messageFuture.setProviderJsfVersion(providerJsfVersion); // 记录下请求值
+//                }
+//                byteBuf = protocol.encode(request, byteBuf);
+//            } finally {
+//                if (providerJsfVersion != null) {
+//                    RpcContext.getContext().removeAttachment(Constants.HIDDEN_KEY_DST_JSF_VERSION);
+//                }
+//            }
+//            request.setMsg(byteBuf);
+//            Invocation invocation = request.getInvocationBody();
+//            if (invocation != null) {
+//                // 客户端批量发送默认开启
+//                RingBufferHolder clientRingBufferHolder = RingBufferHolder.getClientRingbuffer(invocation.getClazzName());
+//                if (clientRingBufferHolder != null) { // 批量发送
+//                    request.setChannel(this.channel);
+//                    clientRingBufferHolder.submit(request);
+//                } else {
+//                    channel.writeAndFlush(request, channel.voidPromise());
+//                }
+//            } else {  // heartbeat等
+//                channel.writeAndFlush(request, channel.voidPromise());
+//            }
+        } else {
+            channel.writeAndFlush(message, channel.voidPromise());
+        }
+        messageFuture.setSentTime(BsoaContext.now());// 置为已发送
+        return messageFuture;
     }
 
     @Override
     public BaseMessage syncSend(BaseMessage request, int timeout) {
-        ChannelFuture future=  getChannel().writeAndFlush(request.getRequestId()+"");
-        return null;
+        Integer msgId = null;
+        try {
+            currentRequests.incrementAndGet();
+            request.setRequestId(genarateRequestId());
+
+            ResponseFuture<BaseMessage> f = asyncSend(request, timeout);
+            //futureMap.putIfAbsent(msgId,future); 子类已实现
+            MessageFuture<BaseMessage> future = (MessageFuture) f;
+            return future.get(timeout, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            throw new BsoaRpcException(22222, "[JSF-22113]Client request thread interrupted");
+        } catch (BsoaRpcException e) {
+            try {
+                if (msgId != null) {
+                    futureMap.remove(msgId);
+                }
+            } catch (Exception e1) {
+                LOGGER.error(e1.getMessage(), e1);
+            }
+            throw e;
+        } finally {
+            currentRequests.decrementAndGet();
+        }
+    }
+
+    private Integer genarateRequestId() {
+        return requestId.getAndIncrement() & 0x7FFFFFFF;
+    }
+
+    /*
+ *different FutureMap for different Request msg type
+ */
+    protected void addFuture(BaseMessage message, MessageFuture msgFuture) {
+//        int msgType = msg.getMsgHeader().getMsgType();
+//        Integer msgId = msg.getMsgHeader().getMsgId();
+//        if (msgType == Constants.REQUEST_MSG
+//                || msgType == Constants.CALLBACK_REQUEST_MSG
+//                || msgType == Constants.HEARTBEAT_REQUEST_MSG) {
+            this.futureMap.put(message.getRequestId(), msgFuture);
+//
+//        } else {
+//            LOGGER.error("cannot handle Future for this Msg:{}", msg);
+//        }
+
+
     }
 
     public void removeFutureWhenChannelInactive() {

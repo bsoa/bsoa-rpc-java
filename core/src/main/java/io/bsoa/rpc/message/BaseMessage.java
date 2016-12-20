@@ -23,8 +23,12 @@ package io.bsoa.rpc.message;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public class BaseMessage {
-    private int requestId;
+public abstract class BaseMessage {
+
+    /**
+     * 请求ID
+     */
+    protected int requestId;
 
     public void setRequestId(int requestId) {
         this.requestId = requestId;

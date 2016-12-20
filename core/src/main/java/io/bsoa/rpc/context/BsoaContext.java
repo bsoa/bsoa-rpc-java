@@ -505,4 +505,8 @@ public class BsoaContext {
     public static ConcurrentHashMap<String, String> getClassNameIfaceIdMap() {
         return classNameIfaceIdMap == null ? new ConcurrentHashMap<String, String>() : classNameIfaceIdMap;
     }
+
+    public static long now() {
+        return System.currentTimeMillis();
+    }
 }

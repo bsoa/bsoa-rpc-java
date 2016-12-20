@@ -14,21 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.bsoa.rpc.listener;
-
-import java.util.concurrent.Future;
-
-import io.bsoa.rpc.ext.Extensible;
+package io.bsoa.rpc.message;
 
 /**
  * <p></p>
  *
- * Created by zhangg on 2016/12/15 23:09. <br/>
+ * Created by zhangg on 2016/12/20 21:45. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-@Extensible(singleton = false)
-public interface ResponseFuture<V> extends Future<V> {
+public class StreamMessage extends BaseMessage {
 
+    protected short frameId;
 
+    public short getFrameId() {
+        return frameId;
+    }
+
+    public void setFrameId(short frameId) {
+        this.frameId = frameId;
+    }
 }

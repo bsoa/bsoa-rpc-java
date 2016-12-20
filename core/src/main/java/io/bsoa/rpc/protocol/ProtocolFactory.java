@@ -18,6 +18,7 @@ package io.bsoa.rpc.protocol;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+import io.bsoa.rpc.common.type.ProtocolType;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
 import io.bsoa.rpc.ext.ExtensionLoader;
 import io.bsoa.rpc.ext.ExtensionLoaderFactory;
@@ -42,6 +43,10 @@ public class ProtocolFactory {
     public static Protocol getProtocol(String alias) {
         // 工厂模式 托管给ExtensionLoader
         return extensionLoader.getExtension(alias);
+    }
+
+    public static Protocol getProtocol(ProtocolType type) {
+        return extensionLoader.getExtension(type.name());
     }
 
     private static int maxMagicOffset = 2; // 最大偏移量，用于一个端口支持多协议时使用

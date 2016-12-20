@@ -25,7 +25,7 @@ import java.util.Map;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public class RpcRequest extends BaseMessage implements Serializable {
+public class RpcRequest extends RPCMessage implements Serializable {
 
     private transient String ifaceId; // 接口id， 有的时候不传递className和argsType
 

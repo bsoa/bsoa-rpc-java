@@ -14,21 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.bsoa.rpc.listener;
-
-import java.util.concurrent.Future;
-
-import io.bsoa.rpc.ext.Extensible;
+package io.bsoa.rpc.transport.netty;
 
 /**
  * <p></p>
  *
- * Created by zhangg on 2016/12/15 23:09. <br/>
+ * Created by zhangg on 2016/12/20 23:20. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-@Extensible(singleton = false)
-public interface ResponseFuture<V> extends Future<V> {
+public interface ResultObserver {
 
-
+    boolean operationComplete(MessageFuture future);
 }

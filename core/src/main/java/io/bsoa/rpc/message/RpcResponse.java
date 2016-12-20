@@ -22,7 +22,7 @@ import java.io.Serializable;
  *
  * @author <a href=mailto:ujjboy@qq.com>Geng Zhang</a>
  */
-public class RpcResponse extends BaseMessage implements Serializable {
+public class RpcResponse extends RPCMessage implements Serializable {
 
     protected Object returnData;
 
