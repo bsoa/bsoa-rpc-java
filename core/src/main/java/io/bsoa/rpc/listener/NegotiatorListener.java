@@ -14,14 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.bsoa.rpc.message;
+package io.bsoa.rpc.listener;
+
+import io.bsoa.rpc.message.NegotiatorRequest;
+import io.bsoa.rpc.message.NegotiatorResponse;
 
 /**
  * <p></p>
  *
- * Created by zhangg on 2016/12/20 21:44. <br/>
+ * Created by zhangg on 2016/12/22 22:43. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public class StreamResponse extends StreamMessage {
+public interface NegotiatorListener {
+
+    public String handshake(String cmd, String data);
+
+    NegotiatorResponse handshake(NegotiatorRequest negotiatorRequest);
 }

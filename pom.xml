@@ -16,7 +16,7 @@
         <!--<module>codec</module>-->
         <!--<module>config</module>-->
         <!--<module>client</module>-->
-        <!--<module>server</module>-->
+        <module>server</module>
         <module>transport</module>
         <module>example</module>
         <!--<module>all</module>-->

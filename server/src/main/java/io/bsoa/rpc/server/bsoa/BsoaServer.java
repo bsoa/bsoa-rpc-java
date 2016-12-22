@@ -19,7 +19,7 @@ package io.bsoa.rpc.server.bsoa;
 import io.bsoa.rpc.Invoker;
 import io.bsoa.rpc.config.ProviderConfig;
 import io.bsoa.rpc.config.ServerConfig;
-import io.bsoa.rpc.ext.Extensible;
+import io.bsoa.rpc.ext.Extension;
 import io.bsoa.rpc.server.Server;
 
 /**
@@ -29,7 +29,7 @@ import io.bsoa.rpc.server.Server;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-@Extensible("bsoa")
+@Extension("bsoa")
 public class BsoaServer implements Server {
 
     @Override

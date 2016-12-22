@@ -12,6 +12,12 @@
   "json.serializer.features":	false,//	json序列化的时候，开启的特性	string	默认空，参见com.jd.fastjson.serializer.SerializerFeature，多个逗号分隔	1.6.0
   "json.parser.features":	false,//	json解析的时候，开启的特性	string	默认空，参见com.jd.fastjson.parser.Feature，多个逗号分隔	1.6.0
 
+
+  "transport.heart.io" : true, // 心跳在IO线程吗？ TODO
+  "transport.negotiator.async" : false, // 协商请求在IO线程执行吗？ TODO
+
+
+
   "extension.load.path" : ["META-INF/bsoa/", "META-INF/services/"], // 扩展点加载的路径
 
   "default.protocol" : "bsoa",
@@ -43,7 +49,6 @@
   "consumer.heartbeat.period" : 30000, //心跳发送间隔
   "consumer.reconnect.period" : 30000, //心跳发送间隔
   "consumer.share.reconnect.thread" : false, //是否所有客户端共享一个重连线程
-
 
   "client.connect.timeout" : 5000, //默认consumer连provider超时时间
   "client.disconnect.timeout" : 10000, //默认consumer断开时等待结果的超时时间

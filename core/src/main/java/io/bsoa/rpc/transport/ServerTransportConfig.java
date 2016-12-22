@@ -1,3 +1,4 @@
+
 /**
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -21,6 +22,8 @@ import java.util.Map;
 
 import io.bsoa.rpc.common.type.ProtocolType;
 import io.bsoa.rpc.listener.ChannelListener;
+import io.bsoa.rpc.listener.NegotiatorListener;
+import io.bsoa.rpc.server.ServerHandler;
 
 import static io.bsoa.rpc.common.BsoaConfigs.*;
 
@@ -56,8 +59,6 @@ public class ServerTransportConfig {
 
     private int ioThreads = getIntValue(TRANSPORT_SERVER_IO_THREADS); // worker线程==IO线程，一个长连接绑定到一个线程
 
-    private List<ChannelListener> channelListeners;
-
     private int maxConnection = getIntValue(TRANSPORT_SERVER_MAX_CONNECTION); // 最大连接数 default set to 100
     private int payload = getIntValue(TRANSPORT_PAYLOAD_MAX); // 最大数据包 default set to 8M
     private int buffer = getIntValue(TRANSPORT_BUFFER_SIZE); // 缓冲器大小
@@ -65,6 +66,10 @@ public class ServerTransportConfig {
     private String dispatcher = getStringValue(TRANSPORT_SERVER_DISPATCHER); // 线程方法模型
     private boolean daemon = getBooleanValue(TRANSPORT_SERVER_DAEMON); // 是否守护线程，true随主线程退出而退出，false需要主动退出
     private Map<String, String> parameters;//其他一些参数配置
+
+    private List<ChannelListener> channelListeners;
+    private ServerHandler serverHandler;
+    private NegotiatorListener negotiatorListener;
 
 //    private boolean printMessage = false; // 是否debug模式打印消息体
 
@@ -197,14 +202,6 @@ public class ServerTransportConfig {
         this.ioThreads = ioThreads;
     }
 
-    public List<ChannelListener> getChannelListeners() {
-        return channelListeners;
-    }
-
-    public void setChannelListeners(List<ChannelListener> channelListeners) {
-        this.channelListeners = channelListeners;
-    }
-
     public int getMaxConnection() {
         return maxConnection;
     }
@@ -259,5 +256,29 @@ public class ServerTransportConfig {
 
     public void setParameters(Map<String, String> parameters) {
         this.parameters = parameters;
+    }
+
+    public List<ChannelListener> getChannelListeners() {
+        return channelListeners;
+    }
+
+    public void setChannelListeners(List<ChannelListener> channelListeners) {
+        this.channelListeners = channelListeners;
+    }
+
+    public NegotiatorListener getNegotiatorListener() {
+        return negotiatorListener;
+    }
+
+    public void setNegotiatorListener(NegotiatorListener negotiatorListener) {
+        this.negotiatorListener = negotiatorListener;
+    }
+
+    public ServerHandler getServerHandler() {
+        return serverHandler;
+    }
+
+    public void setServerHandler(ServerHandler serverHandler) {
+        this.serverHandler = serverHandler;
     }
 }

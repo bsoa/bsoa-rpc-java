@@ -28,13 +28,13 @@ public abstract class BaseMessage {
     /**
      * 请求ID
      */
-    protected int requestId;
+    protected int messageId;
 
-    public void setRequestId(int requestId) {
-        this.requestId = requestId;
+    public void setMessageId(int messageId) {
+        this.messageId = messageId;
     }
 
-    public int getRequestId() {
-        return requestId;
+    public int getMessageId() {
+        return messageId;
     }
 }

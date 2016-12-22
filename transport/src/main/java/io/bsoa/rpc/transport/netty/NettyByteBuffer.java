@@ -23,14 +23,14 @@ import io.netty.buffer.ByteBuf;
 
 /**
  * <p></p>
- *
+ * <p>
  * Created by zhangg on 2016/12/18 15:37. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
 public class NettyByteBuffer implements ByteBufferHolder {
 
-   ByteBuf byteBuf;
+    ByteBuf byteBuf;
 
     public NettyByteBuffer(ByteBuf byteBuf) {
         this.byteBuf = byteBuf;

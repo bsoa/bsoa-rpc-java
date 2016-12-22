@@ -14,14 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.bsoa.rpc.message;
+package io.bsoa.rpc.server.bsoa;
+
+import io.bsoa.rpc.ext.Extension;
+import io.bsoa.rpc.message.RpcRequest;
+import io.bsoa.rpc.server.ServerHandler;
+import io.bsoa.rpc.transport.AbstractChannel;
 
 /**
  * <p></p>
  *
- * Created by zhangg on 2016/12/20 21:44. <br/>
+ * Created by zhangg on 2016/12/22 23:05. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public class StreamResponse extends StreamMessage {
+@Extension("bsoa")
+public class BsoaServerHandler implements ServerHandler {
+
+    public void handleRpcRequest(RpcRequest rpcRequest, AbstractChannel channel) {
+        // 丢到业务线程池去执行 TODO
+    }
 }

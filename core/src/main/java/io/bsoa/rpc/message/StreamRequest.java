@@ -23,7 +23,9 @@ package io.bsoa.rpc.message;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public class StreamRequest extends BaseMessage {
+public class StreamRequest extends StreamMessage {
 
     private int frameId;
+
+
 }

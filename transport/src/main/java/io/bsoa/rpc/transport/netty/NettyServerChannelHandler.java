@@ -24,12 +24,19 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.corba.se.impl.protocol.giopmsgheaders.RequestMessage;
 import io.bsoa.rpc.common.utils.NetUtils;
 import io.bsoa.rpc.exception.BsoaRpcException;
 import io.bsoa.rpc.listener.ChannelListener;
+import io.bsoa.rpc.listener.NegotiatorListener;
+import io.bsoa.rpc.message.HeartbeatRequest;
+import io.bsoa.rpc.message.HeartbeatResponse;
+import io.bsoa.rpc.message.MessageBuilder;
+import io.bsoa.rpc.message.NegotiatorRequest;
+import io.bsoa.rpc.message.NegotiatorResponse;
 import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.message.RpcResponse;
+import io.bsoa.rpc.message.StreamRequest;
+import io.bsoa.rpc.server.ServerHandler;
 import io.bsoa.rpc.transport.ServerTransportConfig;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
@@ -51,12 +58,13 @@ public class NettyServerChannelHandler extends ChannelInboundHandlerAdapter {
 
     private ServerTransportConfig transportConfig;
 
-//    private serr serverHandler;
+    private final ServerHandler serverHandler;
 
     private final List<ChannelListener> connectListeners;
 
     public NettyServerChannelHandler(ServerTransportConfig transportConfig) {
         this.transportConfig = transportConfig;
+        this.serverHandler = transportConfig.getServerHandler();
         this.connectListeners = transportConfig.getChannelListeners();
 //        serverHandler = BaseServerHandler.getInstance(transportConfig);
     }
@@ -65,15 +73,36 @@ public class NettyServerChannelHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         Channel channel = ctx.channel();
         LOGGER.info("------{}------->{}", channel.remoteAddress(), msg);
-        if (msg instanceof RpcRequest) {
-//            RequestMessage requestMsg = (RequestMessage) msg;
-//            //
-//            if (handleOtherMsg(ctx, requestMsg)) return;
-//
-//            serverHandler.handlerRequest(channel, requestMsg);
 
-
-        } else if (msg instanceof RpcResponse) {
+        // 心跳请求：IO线程
+        if (msg instanceof HeartbeatRequest) {
+            HeartbeatRequest request = (HeartbeatRequest) msg;
+            HeartbeatResponse response = MessageBuilder.buildHeartbeatResponse(request);
+            channel.writeAndFlush(response);
+        }
+        // 协商请求：IO线程处理
+        else if (msg instanceof NegotiatorRequest) {
+            NegotiatorRequest request = (NegotiatorRequest) msg;
+            NegotiatorListener listener = transportConfig.getNegotiatorListener();
+            if (listener == null) {
+                LOGGER.warn("Has no NegotiatorListener in server transport");
+            } else {
+                NegotiatorResponse response = listener.handshake(request);
+                channel.writeAndFlush(response);
+            }
+        }
+        // RPC请求：业务线程处理
+        else if (msg instanceof RpcRequest) { // RPC请求
+            RpcRequest request = (RpcRequest) msg;
+            if (serverHandler == null) {
+                LOGGER.warn("Has no server handler in server transport");
+                throw new BsoaRpcException(22222, "Has no server handler in server transport");
+            } else {
+                serverHandler.handleRpcRequest(request, new NettyChannel(channel));
+            }
+        }
+        // RPC响应：callback线程池处理
+        else if (msg instanceof RpcResponse) { // callback返回值
 //            //receive the callback ResponseMessage
 //            ResponseMessage responseMsg = (ResponseMessage) msg;
 //            if (responseMsg.getMsgHeader().getMsgType() != Constants.CALLBACK_RESPONSE_MSG) {
@@ -88,43 +117,26 @@ public class NettyServerChannelHandler extends ChannelInboundHandlerAdapter {
 //                LOGGER.error("no such clientTransport for channel:{}", channel);
 //                throw new RpcException(responseMsg.getMsgHeader(), "No such clientTransport");
 //            }
-        } else if (msg instanceof ByteBuf) {
+        }
+        // 流式请求：业务线程处理
+        else if (msg instanceof StreamRequest) {
+            StreamRequest request = (StreamRequest) msg;
+            if (serverHandler == null) {
+                LOGGER.warn("Has no server handler in server transport");
+                throw new BsoaRpcException(22222, "Has no server handler in server transport");
+            } else {
+                serverHandler.handleStreamRequest(request, new NettyChannel(channel));
+            }
+        }
+
+        // FIXME delete
+        else if (msg instanceof ByteBuf) {
             channel.writeAndFlush(msg);
         } else if (msg instanceof String) {
             channel.writeAndFlush("hello: " + msg + "!");
         } else {
             throw new BsoaRpcException(22222, "Only support base message");
         }
-
-    }
-
-    /*
-     *
-     */
-    private boolean handleOtherMsg(ChannelHandlerContext ctx, RequestMessage requestMsg) {
-
-//        int msgType = requestMsg.getMsgHeader().getMsgType();
-//        if (msgType == Constants.REQUEST_MSG) return false; // 正常的请求
-//        Channel channel = ctx.channel();
-//        ResponseMessage response = null;
-//        switch (msgType) {
-//            case Constants.SHAKEHAND_MSG:
-//                response = new ResponseMessage();
-//                response.getMsgHeader().setMsgType(Constants.SHAKEHAND_RESULT_MSG);
-//                response.getMsgHeader().setMsgId(requestMsg.getRequestId());
-//                //DO SHAKEHAND CHECK HERE
-//
-//                break;
-//
-//            case Constants.HEARTBEAT_REQUEST_MSG:
-//                response = MessageBuilder.buildHeartbeatResponse(requestMsg);
-//                break;
-//            default:
-//                throw new RpcException(requestMsg.getMsgHeader(), " no such msgType:" + msgType);
-//
-//        }
-//        channel.writeAndFlush(response);
-        return true;
     }
 
     /*
@@ -137,10 +149,10 @@ public class NettyServerChannelHandler extends ChannelInboundHandlerAdapter {
                     NetUtils.channelToString(channel.remoteAddress(), channel.localAddress()),
                     cause.getMessage());
         } else if (cause instanceof BsoaRpcException) {
-            BsoaRpcException rpc = (BsoaRpcException) cause;
+//            BsoaRpcException rpc = (BsoaRpcException) cause;
 //            MessageHeader header = rpc.getMsgHeader();
 //            if (header != null) {
-//                ResponseMessage responseMessage = new ResponseMessage();
+//                RpcResponse responseMessage = new RpcResponse();
 //                responseMessage.getMsgHeader().copyHeader(header);
 //                responseMessage.getMsgHeader().setMsgType(Constants.RESPONSE_MSG);
 //                String causeMsg = cause.getMessage();

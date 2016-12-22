@@ -12,4 +12,10 @@ public class MessageBuilder {
         // TODO
         return null;
     }
+
+    public static HeartbeatResponse buildHeartbeatResponse(HeartbeatRequest request) {
+        HeartbeatResponse response = new HeartbeatResponse();
+        response.setMessageId(request.getMessageId());
+        return response;
+    }
 }

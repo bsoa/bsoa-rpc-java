@@ -36,7 +36,7 @@ import io.bsoa.rpc.listener.ResponseFuture;
 import io.bsoa.rpc.message.BaseMessage;
 import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.transport.AbstractClientTransport;
-import io.bsoa.rpc.transport.BsoaChannel;
+import io.bsoa.rpc.transport.AbstractChannel;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.AdaptiveRecvByteBufAllocator;
 import io.netty.channel.Channel;
@@ -72,7 +72,7 @@ public class NettyClientTransport extends AbstractClientTransport {
     private final ConcurrentHashMap<Integer, MessageFuture> futureMap = new ConcurrentHashMap<Integer, MessageFuture>();
 
 
-    private List<BsoaChannel> channels = new ArrayList<>();
+    private List<AbstractChannel> channels = new ArrayList<>();
 
     private boolean connected;
 
@@ -143,7 +143,7 @@ public class NettyClientTransport extends AbstractClientTransport {
     }
 
     @Override
-    public List<BsoaChannel> getChannels() {
+    public List<AbstractChannel> getChannels() {
         return channels;
     }
 
@@ -173,7 +173,7 @@ public class NettyClientTransport extends AbstractClientTransport {
         if (message == null) {
             throw new BsoaRpcException(22222, "msg cannot be null.");
         }
-        final MessageFuture messageFuture = new MessageFuture(getChannel(), message.getRequestId(), timeout);
+        final MessageFuture messageFuture = new MessageFuture(getChannel(), message.getMessageId(), timeout);
         this.addFuture(message,messageFuture);
 
         Channel channel = getChannel();
@@ -221,7 +221,7 @@ public class NettyClientTransport extends AbstractClientTransport {
         Integer msgId = null;
         try {
             currentRequests.incrementAndGet();
-            request.setRequestId(genarateRequestId());
+            request.setMessageId(genarateRequestId());
 
             ResponseFuture<BaseMessage> f = asyncSend(request, timeout);
             //futureMap.putIfAbsent(msgId,future); 子类已实现
@@ -256,7 +256,7 @@ public class NettyClientTransport extends AbstractClientTransport {
 //        if (msgType == Constants.REQUEST_MSG
 //                || msgType == Constants.CALLBACK_REQUEST_MSG
 //                || msgType == Constants.HEARTBEAT_REQUEST_MSG) {
-            this.futureMap.put(message.getRequestId(), msgFuture);
+            this.futureMap.put(message.getMessageId(), msgFuture);
 //
 //        } else {
 //            LOGGER.error("cannot handle Future for this Msg:{}", msg);

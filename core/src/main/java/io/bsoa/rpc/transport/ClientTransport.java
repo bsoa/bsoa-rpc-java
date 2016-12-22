@@ -66,7 +66,7 @@ public interface ClientTransport {
      *
      * @return
      */
-    public List<BsoaChannel> getChannels();
+    public List<AbstractChannel> getChannels();
 
     /**
      * 当前请求数

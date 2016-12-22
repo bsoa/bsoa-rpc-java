@@ -18,7 +18,7 @@ package io.bsoa.rpc.transport.netty;
 
 import java.net.InetSocketAddress;
 
-import io.bsoa.rpc.transport.BsoaChannel;
+import io.bsoa.rpc.transport.AbstractChannel;
 import io.netty.channel.Channel;
 
 /**
@@ -28,7 +28,7 @@ import io.netty.channel.Channel;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public class NettyChannel implements BsoaChannel {
+public class NettyChannel implements AbstractChannel {
 
     private Channel channel;
 
@@ -44,6 +44,11 @@ public class NettyChannel implements BsoaChannel {
     @Override
     public InetSocketAddress getLocalAddress() {
         return (InetSocketAddress) channel.localAddress();
+    }
+
+    @Override
+    public void writeAndFlush(Object obj) {
+        channel.writeAndFlush(obj);
     }
 
     public Channel getChannel() {

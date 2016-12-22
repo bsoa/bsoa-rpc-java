@@ -105,7 +105,6 @@ public class NettyServerTransport implements ServerTransport {
             if (channelFuture.isSuccess()) {
                 flag = Boolean.TRUE;
             }
-
         } catch (InterruptedException e) {
             LOGGER.error(e.getMessage(), e);
         }

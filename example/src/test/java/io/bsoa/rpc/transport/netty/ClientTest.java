@@ -50,7 +50,7 @@ public class ClientTest {
 
 
         NegotiatorRequest request = new NegotiatorRequest();
-        request.setRequestId(2345);
+        request.setMessageId(2345);
         transport.syncSend(request, 5000);
 
         Thread.sleep(50000);

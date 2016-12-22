@@ -16,6 +16,8 @@
  */
 package io.bsoa.rpc.message;
 
+import io.bsoa.rpc.transport.ByteBufferHolder;
+
 /**
  * <p></p>
  *
@@ -27,11 +29,31 @@ public class StreamMessage extends BaseMessage {
 
     protected short frameId;
 
+    private boolean EndOfStream;
+
+    private ByteBufferHolder byteBuffer;
+
     public short getFrameId() {
         return frameId;
     }
 
     public void setFrameId(short frameId) {
         this.frameId = frameId;
+    }
+
+    public boolean isEndOfStream() {
+        return EndOfStream;
+    }
+
+    public void setEndOfStream(boolean endOfStream) {
+        EndOfStream = endOfStream;
+    }
+
+    public ByteBufferHolder getByteBuffer() {
+        return byteBuffer;
+    }
+
+    public void setByteBuffer(ByteBufferHolder byteBuffer) {
+        this.byteBuffer = byteBuffer;
     }
 }

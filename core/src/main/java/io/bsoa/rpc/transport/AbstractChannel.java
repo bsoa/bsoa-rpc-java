@@ -25,7 +25,7 @@ import java.net.InetSocketAddress;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public interface BsoaChannel {
+public interface AbstractChannel {
 
     /**
      * 得到连接的远端地址
@@ -40,5 +40,7 @@ public interface BsoaChannel {
      * @return the local address
      */
     InetSocketAddress getLocalAddress();
+
+    void writeAndFlush(Object obj);
 
 }
