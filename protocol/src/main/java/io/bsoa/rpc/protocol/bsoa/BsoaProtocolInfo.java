@@ -48,7 +48,7 @@ public class BsoaProtocolInfo extends ProtocolInfo {
     private final MagicCode magicCode = MagicCode.valueOf((byte) 0xb5, (byte) 0x0a);
 
     public BsoaProtocolInfo() {
-        super("bsoa", false);// 是一个变长协议
+        super("bsoa", (byte) 1, false);// 是一个变长协议
     }
 
     @Override

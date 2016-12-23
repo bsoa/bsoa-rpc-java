@@ -18,6 +18,10 @@
  */
 package io.bsoa.rpc.transport;
 
+import io.bsoa.rpc.message.HeartbeatResponse;
+import io.bsoa.rpc.message.RpcResponse;
+import io.bsoa.rpc.message.StreamResponse;
+
 /**
  * <p></p>
  *
@@ -38,4 +42,10 @@ public abstract class AbstractClientTransport implements ClientTransport{
     public void setConfig(ClientTransportConfig config) {
         this.config = config;
     }
+
+    public abstract void receiveRpcResponse(RpcResponse response);
+
+    public abstract void receiveHeartbeatResponse(HeartbeatResponse response);
+
+    public abstract void handleStreamResponse(StreamResponse response);
 }

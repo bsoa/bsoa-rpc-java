@@ -46,7 +46,7 @@ public class DubboProtocolInfo extends ProtocolInfo {
     private final MagicCode magicCode = MagicCode.valueOf((byte) 0xda, (byte) 0xbb);
 
     public DubboProtocolInfo() {
-        super("dubbo", false); // 是一个变长协议
+        super("dubbo", (byte) 2, false); // 是一个变长协议
     }
 
     @Override

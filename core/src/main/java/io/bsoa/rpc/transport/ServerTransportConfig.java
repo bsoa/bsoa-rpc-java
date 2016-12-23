@@ -20,7 +20,6 @@ package io.bsoa.rpc.transport;
 import java.util.List;
 import java.util.Map;
 
-import io.bsoa.rpc.common.type.ProtocolType;
 import io.bsoa.rpc.listener.ChannelListener;
 import io.bsoa.rpc.listener.NegotiatorListener;
 import io.bsoa.rpc.server.ServerHandler;
@@ -42,7 +41,7 @@ public class ServerTransportConfig {
     private String contextPath = getStringValue(SERVER_CONTEXT_PATH);
     private String container = getStringValue(DEFAULT_TRANSPORT);
     private int backlog = getIntValue(TRANSPORT_SERVER_BACKLOG);
-    private ProtocolType protocolType = getEnumValue(DEFAULT_PROTOCOL, ProtocolType.class);
+    private String protocolType = getStringValue(DEFAULT_PROTOCOL);
     private boolean reuseAddr = getBooleanValue(TRANSPORT_SERVER_REUSE_ADDR);
     private boolean keepAlive =  getBooleanValue(TRANSPORT_SERVER_KEEPALIVE);
     private boolean tcpNoDelay =  getBooleanValue(TRANSPORT_SERVER_TCPNODELAY);
@@ -114,11 +113,11 @@ public class ServerTransportConfig {
         this.backlog = backlog;
     }
 
-    public ProtocolType getProtocolType() {
+    public String getProtocolType() {
         return protocolType;
     }
 
-    public void setProtocolType(ProtocolType protocolType) {
+    public void setProtocolType(String protocolType) {
         this.protocolType = protocolType;
     }
 

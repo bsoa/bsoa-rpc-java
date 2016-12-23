@@ -20,8 +20,6 @@ import java.io.Serializable;
 
 import io.bsoa.rpc.common.BsoaConfigs;
 import io.bsoa.rpc.common.BsoaConstants;
-import io.bsoa.rpc.common.type.ProtocolType;
-import io.bsoa.rpc.common.type.SerializationType;
 import io.bsoa.rpc.common.utils.StringUtils;
 
 /**
@@ -48,12 +46,12 @@ public class Provider implements Serializable {
     /**
      * The Protocol type.
      */
-    private ProtocolType protocolType = BsoaConfigs.getEnumValue(BsoaConfigs.DEFAULT_PROTOCOL, ProtocolType.class);
+    private String protocolType = BsoaConfigs.getStringValue(BsoaConfigs.DEFAULT_PROTOCOL);
 
     /**
      * 判断服务端codec兼容性，以服务端的为准
      */
-    private SerializationType serializationType;
+    private String serializationType;
 
     /**
      * The Weight.
@@ -135,10 +133,10 @@ public class Provider implements Serializable {
             String remainUrl;
             if (protocolIndex > -1) {
                 String protocol = url.substring(0, protocolIndex).toLowerCase();
-                this.setProtocolType(ProtocolType.valueOf(protocol));
+                this.setProtocolType(protocol);
                 remainUrl = url.substring(protocolIndex + 3);
             } else { // 默认
-                this.setProtocolType(BsoaConstants.DEFAULT_PROTOCOL_TYPE);
+//                this.setProtocolType(BsoaConstants.DEFAULT_PROTOCOL_TYPE);
                 remainUrl = url;
             }
 
@@ -188,7 +186,7 @@ public class Provider implements Serializable {
                             this.setAlias(kvpair[1]);
                         }
                         if (BsoaConstants.CONFIG_KEY_SERIALIZATION.equals(kvpair[0]) && StringUtils.isNotEmpty(kvpair[1])) {
-                            this.setSerializationType(SerializationType.valueOf(kvpair[1]));
+                            this.setSerializationType(kvpair[1]);
                         }
                     }
                 } else {
@@ -219,7 +217,7 @@ public class Provider implements Serializable {
      *
      * @return the protocol type
      */
-    public ProtocolType getProtocolType() {
+    public String getProtocolType() {
         return protocolType;
     }
 
@@ -228,7 +226,7 @@ public class Provider implements Serializable {
      *
      * @param protocolType the protocol type
      */
-    public void setProtocolType(ProtocolType protocolType) {
+    public void setProtocolType(String protocolType) {
         this.protocolType = protocolType;
     }
 
@@ -237,7 +235,7 @@ public class Provider implements Serializable {
      *
      * @return the serializationType
      */
-    public SerializationType getSerializationType() {
+    public String getSerializationType() {
         return serializationType;
     }
 
@@ -246,7 +244,7 @@ public class Provider implements Serializable {
      *
      * @param serializationType the serializationType to set
      */
-    public void setSerializationType(SerializationType serializationType) {
+    public void setSerializationType(String serializationType) {
         this.serializationType = serializationType;
     }
 
@@ -418,7 +416,7 @@ public class Provider implements Serializable {
             sb.append("&").append(BsoaConstants.CONFIG_KEY_ALIAS).append("=").append(alias);
         }
         if (serializationType != null) {
-            sb.append("&").append(BsoaConstants.CONFIG_KEY_SERIALIZATION).append("=").append(serializationType.name());
+            sb.append("&").append(BsoaConstants.CONFIG_KEY_SERIALIZATION).append("=").append(serializationType);
         }
         if(sb.length() > 0){
             uri += sb.replace(0, 1, "?").toString();

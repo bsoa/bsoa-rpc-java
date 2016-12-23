@@ -34,10 +34,16 @@ import io.bsoa.rpc.exception.BsoaRuntimeException;
 import io.bsoa.rpc.ext.Extension;
 import io.bsoa.rpc.listener.ResponseFuture;
 import io.bsoa.rpc.message.BaseMessage;
+import io.bsoa.rpc.message.HeartbeatResponse;
 import io.bsoa.rpc.message.RpcRequest;
-import io.bsoa.rpc.transport.AbstractClientTransport;
+import io.bsoa.rpc.message.RpcResponse;
+import io.bsoa.rpc.message.StreamResponse;
+import io.bsoa.rpc.protocol.Protocol;
+import io.bsoa.rpc.protocol.ProtocolFactory;
 import io.bsoa.rpc.transport.AbstractChannel;
+import io.bsoa.rpc.transport.AbstractClientTransport;
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.AdaptiveRecvByteBufAllocator;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -69,7 +75,7 @@ public class NettyClientTransport extends AbstractClientTransport {
      */
     private final AtomicInteger requestId = new AtomicInteger();
 
-    private final ConcurrentHashMap<Integer, MessageFuture> futureMap = new ConcurrentHashMap<Integer, MessageFuture>();
+    private final ConcurrentHashMap<Integer, MessageFuture<BaseMessage>> futureMap = new ConcurrentHashMap<>();
 
 
     private List<AbstractChannel> channels = new ArrayList<>();
@@ -100,7 +106,7 @@ public class NettyClientTransport extends AbstractClientTransport {
                         .option(ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, 32 * 1024)
                         .option(ChannelOption.WRITE_BUFFER_LOW_WATER_MARK, 8 * 1024)
                         .option(ChannelOption.RCVBUF_ALLOCATOR, AdaptiveRecvByteBufAllocator.DEFAULT)
-                        .handler(new NettyClientChannelInitializer(config));
+                        .handler(new NettyClientChannelInitializer(this));
                 // Bind and start to accept incoming connections.
 
                 ChannelFuture channelFuture = bootstrap.connect(host, port);
@@ -174,12 +180,19 @@ public class NettyClientTransport extends AbstractClientTransport {
             throw new BsoaRpcException(22222, "msg cannot be null.");
         }
         final MessageFuture messageFuture = new MessageFuture(getChannel(), message.getMessageId(), timeout);
-        this.addFuture(message,messageFuture);
+        this.addFuture(message, messageFuture);
 
         Channel channel = getChannel();
 
         if (message instanceof RpcRequest) {
             RpcRequest request = (RpcRequest) message;
+
+            Protocol protocol = ProtocolFactory.getProtocol(request.getProtocolType());
+            // TODO 是否callback请求（需要特殊处理）
+            // request = callBackHandler(request);
+
+            ByteBuf byteBuf = NettyTransportHelper.getBuffer();
+            protocol.encoder().encodeBody(request, new NettyByteBuf(byteBuf));
 
 //            // 序列话Request  主要是body
 //            ByteBuf byteBuf = NettyTransportHelper.getBuffer();
@@ -225,7 +238,7 @@ public class NettyClientTransport extends AbstractClientTransport {
 
             ResponseFuture<BaseMessage> f = asyncSend(request, timeout);
             //futureMap.putIfAbsent(msgId,future); 子类已实现
-            MessageFuture<BaseMessage> future = (MessageFuture) f;
+            MessageFuture<BaseMessage> future = (MessageFuture<BaseMessage>) f;
             return future.get(timeout, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             throw new BsoaRpcException(22222, "[JSF-22113]Client request thread interrupted");
@@ -256,7 +269,7 @@ public class NettyClientTransport extends AbstractClientTransport {
 //        if (msgType == Constants.REQUEST_MSG
 //                || msgType == Constants.CALLBACK_REQUEST_MSG
 //                || msgType == Constants.HEARTBEAT_REQUEST_MSG) {
-            this.futureMap.put(message.getMessageId(), msgFuture);
+        this.futureMap.put(message.getMessageId(), msgFuture);
 //
 //        } else {
 //            LOGGER.error("cannot handle Future for this Msg:{}", msg);
@@ -268,5 +281,37 @@ public class NettyClientTransport extends AbstractClientTransport {
     public void removeFutureWhenChannelInactive() {
 
 
+    }
+
+    @Override
+    public void receiveRpcResponse(RpcResponse response) {
+        int messageId = response.getMessageId();
+        MessageFuture<BaseMessage> future = futureMap.get(messageId);
+        if (future == null) {
+            LOGGER.warn("[JSF-22114]Not found future which msgId is {} when receive response. May be " +
+                    "this future have been removed because of timeout", messageId);
+//            if (msg != null && msg.getMsgBody() != null) {
+//                msg.getMsgBody().release();
+//            }
+            //throw new RpcException("No such Future maybe have been removed for Timeout..");
+        } else {
+            future.setSuccess(response);
+            futureMap.remove(messageId);
+        }
+    }
+
+    @Override
+    public void receiveHeartbeatResponse(HeartbeatResponse response) {
+        int messageId = response.getMessageId();
+        MessageFuture<BaseMessage> future = futureMap.get(messageId);
+        if (future != null) {
+            future.setSuccess(response);
+            futureMap.remove(messageId);
+        }
+    }
+
+    @Override
+    public void handleStreamResponse(StreamResponse response) {
+        //TODO
     }
 }

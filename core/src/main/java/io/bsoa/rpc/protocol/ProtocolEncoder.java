@@ -17,6 +17,7 @@
 package io.bsoa.rpc.protocol;
 
 import io.bsoa.rpc.ext.Extensible;
+import io.bsoa.rpc.transport.AbstractByteBuf;
 
 /**
  * <p></p>
@@ -29,9 +30,6 @@ import io.bsoa.rpc.ext.Extensible;
 public interface ProtocolEncoder {
 
     public void setProtocolInfo(ProtocolInfo protocolInfo);
-
-//
-//    void encodeHeader(Object object, ByteBufferHolder byteBufferHolder);
-//
-//    void encodeBody(Object object, ByteBufferHolder byteBufferHolder);
+    void encodeHeader(Object object, AbstractByteBuf byteBuf);
+    void encodeBody(Object object, AbstractByteBuf byteBuf);
 }

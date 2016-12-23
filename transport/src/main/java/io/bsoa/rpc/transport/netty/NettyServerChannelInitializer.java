@@ -19,7 +19,6 @@
 package io.bsoa.rpc.transport.netty;
 
 import io.bsoa.rpc.common.BsoaConfigs;
-import io.bsoa.rpc.common.type.ProtocolType;
 import io.bsoa.rpc.protocol.Protocol;
 import io.bsoa.rpc.protocol.ProtocolFactory;
 import io.bsoa.rpc.protocol.ProtocolInfo;
@@ -61,8 +60,7 @@ public class NettyServerChannelInitializer extends ChannelInitializer<SocketChan
             ch.pipeline().addLast(connectionChannelHandler)
                     .addLast(new AdapterDecoder(serverChannelHandler, transportConfig));
         } else {
-            ProtocolType type = transportConfig.getProtocolType();
-            Protocol protocol = ProtocolFactory.getProtocol(type.name());
+            Protocol protocol = ProtocolFactory.getProtocol(transportConfig.getProtocolType());
             ProtocolInfo protocolInfo = protocol.protocolInfo();
             ch.pipeline().addLast(connectionChannelHandler)
                 .addLast("frame", protocolInfo.isLengthFixed() ?

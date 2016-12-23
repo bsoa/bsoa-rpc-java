@@ -18,6 +18,7 @@ package io.bsoa.rpc.server.bsoa;
 
 import io.bsoa.rpc.ext.Extension;
 import io.bsoa.rpc.message.RpcRequest;
+import io.bsoa.rpc.message.StreamRequest;
 import io.bsoa.rpc.server.ServerHandler;
 import io.bsoa.rpc.transport.AbstractChannel;
 
@@ -33,5 +34,10 @@ public class BsoaServerHandler implements ServerHandler {
 
     public void handleRpcRequest(RpcRequest rpcRequest, AbstractChannel channel) {
         // 丢到业务线程池去执行 TODO
+    }
+
+    @Override
+    public void handleStreamRequest(StreamRequest request, AbstractChannel channel) {
+
     }
 }

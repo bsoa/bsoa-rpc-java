@@ -56,7 +56,7 @@ public class NettyEncoder extends MessageToByteEncoder {
         }
         try {
             if (protocolEncoder instanceof BsoaProtocolEncoder) {
-                ((BsoaProtocolEncoder) protocolEncoder).encode(ctx, msg, out);
+                ((BsoaProtocolEncoder) protocolEncoder).encode(ctx, msg, new NettyByteBuf(out));
             } else {
                 throw new BsoaRpcException("Not Supported!");
             }

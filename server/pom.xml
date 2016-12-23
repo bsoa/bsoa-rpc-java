@@ -27,11 +27,6 @@
             <artifactId>common</artifactId>
             <version>${parent.version}</version>
         </dependency>
-        <dependency>
-            <groupId>io.bsoa.rpc</groupId>
-            <artifactId>config</artifactId>
-            <version>${parent.version}</version>
-        </dependency>
     </dependencies>
 
     <build>

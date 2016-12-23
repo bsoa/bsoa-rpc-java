@@ -21,6 +21,7 @@ import java.util.List;
 import io.bsoa.rpc.client.Provider;
 import io.bsoa.rpc.common.BsoaConfigs;
 import io.bsoa.rpc.listener.ChannelListener;
+import io.bsoa.rpc.listener.NegotiatorListener;
 
 import static io.bsoa.rpc.common.BsoaConfigs.CLIENT_CONNECT_TIMEOUT;
 import static io.bsoa.rpc.common.BsoaConfigs.CLIENT_DISCONNECT_TIMEOUT;
@@ -57,6 +58,7 @@ public class ClientTransportConfig {
     private boolean useEpoll = BsoaConfigs.getBooleanValue(BsoaConfigs.TRANSPORT_USE_EPOLL);
 
     private List<ChannelListener> channelListeners; // 连接事件监听器
+    private NegotiatorListener negotiatorListener;
 
     public Provider getProvider() {
         return provider;
@@ -128,5 +130,13 @@ public class ClientTransportConfig {
 
     public void setChannelListeners(List<ChannelListener> channelListeners) {
         this.channelListeners = channelListeners;
+    }
+
+    public NegotiatorListener getNegotiatorListener() {
+        return negotiatorListener;
+    }
+
+    public void setNegotiatorListener(NegotiatorListener negotiatorListener) {
+        this.negotiatorListener = negotiatorListener;
     }
 }

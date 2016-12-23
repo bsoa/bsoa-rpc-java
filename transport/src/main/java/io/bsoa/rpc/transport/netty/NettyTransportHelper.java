@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 
 import io.bsoa.rpc.common.SystemInfo;
 import io.bsoa.rpc.common.struct.NamedThreadFactory;
-import io.bsoa.rpc.common.type.ProtocolType;
 import io.bsoa.rpc.transport.ServerTransportConfig;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
@@ -57,11 +56,11 @@ public class NettyTransportHelper {
     /**
      * 服务端Boss线程池（一种协议一个）
      */
-    private static ConcurrentHashMap<ProtocolType, EventLoopGroup> serverBossGroups = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<String, EventLoopGroup> serverBossGroups = new ConcurrentHashMap<>();
     /**
      * 服务端IO线程池（一种协议一个）
      */
-    private static ConcurrentHashMap<ProtocolType, EventLoopGroup> serverIoGroups = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<String, EventLoopGroup> serverIoGroups = new ConcurrentHashMap<>();
 
     /**
      * 由于线程池是公用的，需要计数器，在最后一个人关闭时才能销毁
@@ -75,7 +74,7 @@ public class NettyTransportHelper {
      * @return 服务端Boss线程池
      */
     public static EventLoopGroup getServerBossEventLoopGroup(ServerTransportConfig config) {
-        ProtocolType type = config.getProtocolType();
+        String type = config.getProtocolType();
         EventLoopGroup bossGroup = serverBossGroups.get(type);
         AtomicInteger count;
         if (bossGroup == null) {
@@ -115,7 +114,7 @@ public class NettyTransportHelper {
      * @return 服务端Boss线程池
      */
     public static EventLoopGroup getServerIoEventLoopGroup(ServerTransportConfig config) {
-        ProtocolType type = config.getProtocolType();
+        String type = config.getProtocolType();
         EventLoopGroup ioGroup = serverIoGroups.get(type);
         if (ioGroup == null) {
             synchronized (NettyTransportHelper.class) {

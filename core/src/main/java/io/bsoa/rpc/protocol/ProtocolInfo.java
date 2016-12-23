@@ -25,12 +25,24 @@ package io.bsoa.rpc.protocol;
  */
 public abstract class ProtocolInfo {
 
+    /**
+     * 协议名称
+     */
     protected final String name;
 
+    /**
+     * 协议ID
+     */
+    protected final byte type;
+
+    /**
+     * 是否定长协议
+     */
     protected final boolean lengthFixed;
 
-    public ProtocolInfo(String name, boolean lengthFixed) {
+    public ProtocolInfo(String name, byte type, boolean lengthFixed) {
         this.name = name;
+        this.type = type;
         this.lengthFixed = lengthFixed;
     }
 
@@ -39,8 +51,17 @@ public abstract class ProtocolInfo {
      *
      * @return 协议名
      */
-    public String name() {
+    public String getName() {
         return name;
+    }
+
+    /**
+     * 返回协议ID
+     *
+     * @return 协议ID
+     */
+    public byte getType() {
+        return type;
     }
 
     /**

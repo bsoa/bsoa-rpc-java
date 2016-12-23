@@ -16,7 +16,6 @@
  */
 package io.bsoa.rpc.transport.netty;
 
-import io.bsoa.rpc.common.type.ProtocolType;
 import io.bsoa.rpc.protocol.Protocol;
 import io.bsoa.rpc.protocol.ProtocolFactory;
 import io.bsoa.rpc.protocol.ProtocolInfo;
@@ -40,17 +39,17 @@ public class NettyClientChannelInitializer extends ChannelInitializer<SocketChan
 
     private ClientTransportConfig transportConfig;
 
-    public NettyClientChannelInitializer(ClientTransportConfig transportConfig) {
-        this.transportConfig = transportConfig;
-        this.clientChannelHandler = new NettyClientChannelHandler(transportConfig);
+    public NettyClientChannelInitializer(NettyClientTransport clientTransport) {
+        this.transportConfig = clientTransport.getConfig();
+        this.clientChannelHandler = new NettyClientChannelHandler(clientTransport);
     }
 
     @Override
     protected void initChannel(SocketChannel ch) throws Exception {
         ChannelPipeline pipeline = ch.pipeline();
         // 根据服务端协议，选择解码器
-        ProtocolType type = transportConfig.getProvider().getProtocolType();
-        Protocol protocol = ProtocolFactory.getProtocol(type.name());
+        String type = transportConfig.getProvider().getProtocolType();
+        Protocol protocol = ProtocolFactory.getProtocol(type);
         ProtocolInfo protocolInfo = protocol.protocolInfo();
         pipeline.addLast("frame", protocolInfo.isLengthFixed() ?
                 new FixedLengthFrameDecoder(protocolInfo.lengthFieldLength()) :
@@ -65,7 +64,4 @@ public class NettyClientChannelInitializer extends ChannelInitializer<SocketChan
         pipeline.addLast("clientChannelHandler", clientChannelHandler);
     }
 
-    public NettyClientChannelHandler getClientChannelHandler() {
-        return clientChannelHandler;
-    }
 }

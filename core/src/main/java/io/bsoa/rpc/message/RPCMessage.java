@@ -34,8 +34,8 @@ public class RPCMessage extends BaseMessage {
     private int length; // 总长度
     private int headLength;
     private byte protocolType;
-    private byte serializationType = BsoaConstants.DEFAULT_PROTOCOL_TYPE.value();
-    private byte compressType = BsoaConstants.DEFAULT_COMPRESS_TYPE.value();
+    private byte serializationType;
+    private byte compressType;
     private byte messageType;
     private int messageId;
     private Map<Byte,Object> keysMap = new ConcurrentHashMap<Byte,Object>();

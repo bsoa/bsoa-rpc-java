@@ -23,6 +23,8 @@ import io.bsoa.rpc.ext.Extension;
 import io.bsoa.rpc.message.BaseMessage;
 import io.bsoa.rpc.protocol.ProtocolEncoder;
 import io.bsoa.rpc.protocol.ProtocolInfo;
+import io.bsoa.rpc.transport.AbstractByteBuf;
+import io.bsoa.rpc.transport.netty.NettyByteBuf;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 
@@ -36,7 +38,9 @@ import io.netty.channel.ChannelHandlerContext;
 @Extension("bsoa")
 public class BsoaProtocolEncoder implements ProtocolEncoder {
 
-    public void encode(ChannelHandlerContext ctx, Object msg, ByteBuf out) throws Exception {
+    public void encode(ChannelHandlerContext ctx, Object msg, AbstractByteBuf byteBuf) throws Exception {
+        NettyByteBuf src = (NettyByteBuf) byteBuf;
+        ByteBuf out = src.getByteBuf();
         ByteBuf headBody = null;
         if (out == null) {
             out = ctx.alloc().buffer();
@@ -88,5 +92,16 @@ public class BsoaProtocolEncoder implements ProtocolEncoder {
     @Override
     public void setProtocolInfo(ProtocolInfo protocolInfo) {
         this.protocolInfo = protocolInfo;
+    }
+
+    @Override
+    public void encodeHeader(Object object, AbstractByteBuf byteBuf) {
+
+    }
+
+    @Override
+    public void encodeBody(Object object, AbstractByteBuf byteBuf) {
+        NettyByteBuf src = (NettyByteBuf) byteBuf;
+        ByteBuf out = src.getByteBuf();
     }
 }

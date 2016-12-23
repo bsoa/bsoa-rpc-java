@@ -14,46 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.bsoa.rpc.message;
+package io.bsoa.rpc.transport.netty;
 
 import io.bsoa.rpc.transport.AbstractByteBuf;
+import io.netty.buffer.ByteBuf;
 
 /**
  * <p></p>
- *
- * Created by zhangg on 2016/12/20 21:45. <br/>
+ * <p>
+ * Created by zhangg on 2016/12/23 23:51. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public class StreamMessage extends BaseMessage {
+public class NettyByteBuf implements AbstractByteBuf {
+    private final ByteBuf byteBuf;
 
-    protected short frameId;
-
-    private boolean EndOfStream;
-
-    private AbstractByteBuf byteBuf;
-
-    public short getFrameId() {
-        return frameId;
-    }
-
-    public void setFrameId(short frameId) {
-        this.frameId = frameId;
-    }
-
-    public boolean isEndOfStream() {
-        return EndOfStream;
-    }
-
-    public void setEndOfStream(boolean endOfStream) {
-        EndOfStream = endOfStream;
-    }
-
-    public AbstractByteBuf getByteBuf() {
-        return byteBuf;
-    }
-
-    public void setByteBuf(AbstractByteBuf byteBuf) {
+    public NettyByteBuf(ByteBuf byteBuf) {
         this.byteBuf = byteBuf;
+    }
+
+    public ByteBuf getByteBuf() {
+        return byteBuf;
     }
 }

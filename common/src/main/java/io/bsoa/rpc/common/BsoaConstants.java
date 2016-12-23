@@ -19,8 +19,6 @@ package io.bsoa.rpc.common;
 import java.nio.charset.Charset;
 
 import io.bsoa.rpc.common.type.CompressType;
-import io.bsoa.rpc.common.type.ProtocolType;
-import io.bsoa.rpc.common.type.SerializationType;
 
 /**
  * Created by zhangg on 2016/7/13 22:28.
@@ -245,7 +243,7 @@ public class BsoaConstants {
     /**
      * 默认协议类型:jsf
      */
-    public final static ProtocolType DEFAULT_PROTOCOL_TYPE = ProtocolType.jsf;
+//    public final static ProtocolType DEFAULT_PROTOCOL_TYPE = ProtocolType.jsf;
 
     /**
      * 默认压缩:不压缩
@@ -260,7 +258,7 @@ public class BsoaConstants {
     /**
      * 默认序列话:msgpack
      */
-    public final static SerializationType DEFAULT_CODEC_TYPE = SerializationType.msgpack;
+//    public final static SerializationType DEFAULT_CODEC_TYPE = SerializationType.msgpack;
 
     /**
      * 默认序列话:msgpack

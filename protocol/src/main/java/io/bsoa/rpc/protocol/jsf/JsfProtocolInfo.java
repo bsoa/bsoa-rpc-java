@@ -46,7 +46,7 @@ public class JsfProtocolInfo extends ProtocolInfo {
     private final MagicCode magicCode = MagicCode.valueOf((byte) 0xAD, (byte) 0xAF);
 
     public JsfProtocolInfo() {
-        super("jsf", false); // 是一个变长协议
+        super("jsf", (byte) 3, false); // 是一个变长协议
     }
 
     @Override

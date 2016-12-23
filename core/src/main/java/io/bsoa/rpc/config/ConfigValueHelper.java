@@ -21,8 +21,6 @@ import java.util.regex.Pattern;
 
 import io.bsoa.rpc.common.utils.ExceptionUtils;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
-import io.bsoa.rpc.common.type.ProtocolType;
-import io.bsoa.rpc.common.type.SerializationType;
 
 /**
  * 配置检查器
@@ -206,7 +204,7 @@ public class ConfigValueHelper {
      */
     private final static AtomicInteger ID_GENERATOR = new AtomicInteger(0);
 
-    public static void check(ProtocolType protocolType, SerializationType serializationType) {
-
-    }
+//    public static void check(ProtocolType protocolType, SerializationType serializationType) {
+//
+//    }
 }

@@ -18,12 +18,13 @@ package io.bsoa.rpc.transport;
 
 /**
  * <p></p>
- * <p>
- * Created by zhangg on 2016/12/15 22:36. <br/>
+ *
+ * Created by zhangg on 2016/12/23 23:50. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public interface ByteBufferHolder {
+public interface AbstractByteBuf {
+
 
    /* public int capacity();
 

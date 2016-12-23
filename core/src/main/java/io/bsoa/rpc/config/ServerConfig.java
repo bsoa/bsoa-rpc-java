@@ -24,15 +24,13 @@ import org.slf4j.LoggerFactory;
 
 import io.bsoa.rpc.common.BsoaConstants;
 import io.bsoa.rpc.common.SystemInfo;
+import io.bsoa.rpc.common.utils.ExceptionUtils;
 import io.bsoa.rpc.common.utils.FileUtils;
 import io.bsoa.rpc.common.utils.NetUtils;
 import io.bsoa.rpc.common.utils.StringUtils;
-import io.bsoa.rpc.common.utils.ExceptionUtils;
 import io.bsoa.rpc.listener.ChannelListener;
 import io.bsoa.rpc.server.Server;
 import io.bsoa.rpc.server.ServerFactory;
-import io.bsoa.rpc.common.type.ProtocolType;
-import io.bsoa.rpc.common.type.SerializationType;
 
 /**
  * Created by zhanggeng on 16-7-7.
@@ -205,8 +203,8 @@ public class ServerConfig extends AbstractIdConfig {
         }
 
         // 提前检查协议+序列化方式
-        ConfigValueHelper.check(ProtocolType.valueOf(getProtocol()),
-                SerializationType.valueOf(getSerialization()));
+//        ConfigValueHelper.check(ProtocolType.valueOf(getProtocol()),
+//                SerializationType.valueOf(getSerialization()));
 
         server = ServerFactory.getServer(this);
         server.start();

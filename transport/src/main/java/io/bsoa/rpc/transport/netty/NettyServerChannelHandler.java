@@ -228,6 +228,11 @@ public class NettyServerChannelHandler extends ChannelInboundHandlerAdapter {
 //        CallbackUtil.removeTransport(channel);
     }
 
+    @Override
+    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+        LOGGER.info("event triggered:{}", evt);
+    }
+
 //    public BaseServerHandler getServerHandler() {
 //        return serverHandler;
 //    }

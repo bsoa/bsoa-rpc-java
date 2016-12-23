@@ -22,7 +22,7 @@ import io.bsoa.rpc.ext.Extensible;
  *
  * @author <a href=mailto:ujjboy@qq.com>Geng Zhang</a>
  */
-@Extensible(singleton = true)
+@Extensible(singleton = false)
 public interface Protocol {
 
     public ProtocolInfo protocolInfo();

@@ -24,10 +24,6 @@ import org.slf4j.LoggerFactory;
 
 import io.bsoa.rpc.Invoker;
 import io.bsoa.rpc.common.BsoaConstants;
-import io.bsoa.rpc.common.type.CompressType;
-import io.bsoa.rpc.common.type.HeadKey;
-import io.bsoa.rpc.common.type.ProtocolType;
-import io.bsoa.rpc.common.type.SerializationType;
 import io.bsoa.rpc.config.ConsumerConfig;
 import io.bsoa.rpc.filter.ConsumerInvokeFilter;
 import io.bsoa.rpc.filter.FilterChain;

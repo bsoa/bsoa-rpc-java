@@ -18,7 +18,9 @@ package io.bsoa.rpc.protocol;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-import io.bsoa.rpc.common.type.ProtocolType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.bsoa.rpc.exception.BsoaRuntimeException;
 import io.bsoa.rpc.ext.ExtensionLoader;
 import io.bsoa.rpc.ext.ExtensionLoaderFactory;
@@ -31,8 +33,15 @@ import io.bsoa.rpc.protocol.ProtocolInfo.MagicCode;
  */
 public class ProtocolFactory {
 
+    /**
+     * slf4j Logger for this class
+     */
+    private final static Logger LOGGER = LoggerFactory.getLogger(ProtocolFactory.class);
+
     private final static ExtensionLoader<Protocol> extensionLoader
             = ExtensionLoaderFactory.getExtensionLoader(Protocol.class);
+
+    private final static ConcurrentHashMap<Object, Protocol> PROTOCOL_MAP = new ConcurrentHashMap<>();
 
     /**
      * 按协议名称返回协议对象
@@ -41,12 +50,25 @@ public class ProtocolFactory {
      * @return
      */
     public static Protocol getProtocol(String alias) {
-        // 工厂模式 托管给ExtensionLoader
-        return extensionLoader.getExtension(alias);
+        // 工厂模式 自己维护不托管给ExtensionLoader
+        Protocol protocol = PROTOCOL_MAP.get(alias);
+        if (protocol == null) {
+            synchronized (ProtocolFactory.class) {
+                protocol = PROTOCOL_MAP.get(alias);
+                if (protocol == null) {
+                    LOGGER.info("Init protocol : {}", alias);
+                    protocol = extensionLoader.getExtension(alias);
+
+                    PROTOCOL_MAP.put(alias, protocol);
+                    PROTOCOL_MAP.put(protocol.protocolInfo().getType(), protocol);
+                }
+            }
+        }
+        return protocol;
     }
 
-    public static Protocol getProtocol(ProtocolType type) {
-        return extensionLoader.getExtension(type.name());
+    public static Protocol getProtocol(byte type) {
+        return PROTOCOL_MAP.get(type);
     }
 
     private static int maxMagicOffset = 2; // 最大偏移量，用于一个端口支持多协议时使用
@@ -59,8 +81,8 @@ public class ProtocolFactory {
         }
         // 取最大偏移量
         maxMagicOffset = Math.max(protocolInfo.magicFieldOffset(), maxMagicOffset + protocolInfo.magicFieldOffset());
-        String old = MAGIC_PROTOCOL_MAP.putIfAbsent(protocolInfo.magicCode(), protocolInfo.name());
-        if (old != null && !old.equals(protocolInfo.name())) {
+        String old = MAGIC_PROTOCOL_MAP.putIfAbsent(protocolInfo.magicCode(), protocolInfo.getName());
+        if (old != null && !old.equals(protocolInfo.getName())) {
             throw new BsoaRuntimeException(22222, "Same magic code with different protocol!");
         }
     }
