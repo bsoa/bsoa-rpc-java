@@ -18,8 +18,6 @@ package io.bsoa.rpc.common;
 
 import java.nio.charset.Charset;
 
-import io.bsoa.rpc.common.type.CompressType;
-
 /**
  * Created by zhangg on 2016/7/13 22:28.
  *
@@ -248,7 +246,7 @@ public class BsoaConstants {
     /**
      * 默认压缩:不压缩
      */
-    public final static CompressType DEFAULT_COMPRESS_TYPE = CompressType.NONE;
+//    public final static CompressType DEFAULT_COMPRESS_TYPE = CompressType.NONE;
 
     /**
      * 默认协议:jsf

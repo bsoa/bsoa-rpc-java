@@ -23,6 +23,7 @@ package io.bsoa.rpc.common.type;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
+@Deprecated
 public enum SerializationType {
     @Deprecated dubbo(1),
     hessian(2),

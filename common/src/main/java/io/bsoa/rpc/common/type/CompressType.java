@@ -23,6 +23,7 @@ package io.bsoa.rpc.common.type;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
+@Deprecated
 public enum CompressType {
     NONE((byte) 0), lzma((byte) 1), snappy((byte) 2);//, lzo((byte)3), zlib((byte)4), gzip((byte)5);
 

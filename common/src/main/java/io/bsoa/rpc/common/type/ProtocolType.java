@@ -21,6 +21,7 @@ package io.bsoa.rpc.common.type;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
+@Deprecated
 public enum ProtocolType {
 
     bsoa(0),

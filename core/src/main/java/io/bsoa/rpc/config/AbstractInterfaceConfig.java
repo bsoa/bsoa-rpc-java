@@ -31,13 +31,12 @@ import io.bsoa.rpc.common.BsoaConstants;
 import io.bsoa.rpc.common.utils.BeanUtils;
 import io.bsoa.rpc.common.utils.CommonUtils;
 import io.bsoa.rpc.common.utils.CompatibleTypeUtils;
+import io.bsoa.rpc.common.utils.ExceptionUtils;
 import io.bsoa.rpc.common.utils.ReflectUtils;
 import io.bsoa.rpc.common.utils.StringUtils;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
-import io.bsoa.rpc.common.utils.ExceptionUtils;
 import io.bsoa.rpc.filter.Filter;
 import io.bsoa.rpc.listener.ConfigListener;
-import io.bsoa.rpc.common.type.CompressType;
 
 import static io.bsoa.rpc.config.ConfigValueHelper.checkNormalWithColon;
 
@@ -392,11 +391,6 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig{
      *         the compress
      */
     public void setCompress(String compress) {
-        try {
-            CompressType.valueOf(compress);
-        } catch(Exception e) {
-            throw ExceptionUtils.buildRuntime(21313, "compress", compress);
-        }
         this.compress = compress;
     }
 
