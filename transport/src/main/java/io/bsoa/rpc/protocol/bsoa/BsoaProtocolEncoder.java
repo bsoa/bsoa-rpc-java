@@ -96,6 +96,8 @@ public class BsoaProtocolEncoder implements ProtocolEncoder {
 
     @Override
     public void encodeHeader(Object object, AbstractByteBuf byteBuf) {
+        NettyByteBuf src = (NettyByteBuf) byteBuf;
+        ByteBuf out = src.getByteBuf();
 
     }
 
@@ -103,5 +105,11 @@ public class BsoaProtocolEncoder implements ProtocolEncoder {
     public void encodeBody(Object object, AbstractByteBuf byteBuf) {
         NettyByteBuf src = (NettyByteBuf) byteBuf;
         ByteBuf out = src.getByteBuf();
+        // 先占位
+    }
+
+    @Override
+    public void encodeAll(Object object, AbstractByteBuf byteBuf) {
+
     }
 }

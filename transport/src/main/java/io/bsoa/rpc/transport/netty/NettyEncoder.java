@@ -19,10 +19,8 @@ package io.bsoa.rpc.transport.netty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.bsoa.rpc.exception.BsoaRpcException;
 import io.bsoa.rpc.protocol.Protocol;
 import io.bsoa.rpc.protocol.ProtocolEncoder;
-import io.bsoa.rpc.protocol.bsoa.BsoaProtocolEncoder;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
@@ -49,20 +47,14 @@ public class NettyEncoder extends MessageToByteEncoder {
 
     @Override
     protected void encode(ChannelHandlerContext ctx, Object msg, ByteBuf out) throws Exception {
-        ByteBuf headBody = null;
         if (out == null) {
             LOGGER.debug("ByteBuf out is null..");
             out = ctx.alloc().buffer();
         }
         try {
-            if (protocolEncoder instanceof BsoaProtocolEncoder) {
-                ((BsoaProtocolEncoder) protocolEncoder).encode(ctx, msg, new NettyByteBuf(out));
-            } else {
-                throw new BsoaRpcException("Not Supported!");
-            }
-        } finally {
-            if (headBody != null) headBody.release();
+            protocolEncoder.encodeAll(msg, new NettyByteBuf(out));
+        } catch (Exception e) {
+            LOGGER.warn("Encode message " + msg.getClass() + " error on channel " + ctx.channel() + "！", e);
         }
-
     }
 }

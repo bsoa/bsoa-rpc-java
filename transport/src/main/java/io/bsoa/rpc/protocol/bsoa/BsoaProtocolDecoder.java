@@ -18,18 +18,18 @@
  */
 package io.bsoa.rpc.protocol.bsoa;
 
-import java.nio.charset.Charset;
 import java.util.List;
 
 import io.bsoa.rpc.ext.Extension;
 import io.bsoa.rpc.protocol.ProtocolDecoder;
 import io.bsoa.rpc.protocol.ProtocolInfo;
+import io.bsoa.rpc.transport.AbstractByteBuf;
+import io.bsoa.rpc.transport.netty.NettyByteBuf;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandlerContext;
 
 /**
  * <p></p>
- *
+ * <p>
  * Created by zhangg on 2016/12/18 16:03. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
@@ -39,16 +39,28 @@ public class BsoaProtocolDecoder implements ProtocolDecoder {
 
     private ProtocolInfo protocolInfo;
 
-    public void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) {
-        System.out.println("readIndex--->: " + in.readerIndex());
-        int length = in.readInt();
-        String s = (String) in.readCharSequence(length, Charset.forName("utf-8"));
-        out.add(s);
-        System.out.println("--msg-->" + s);
-    }
-
     @Override
     public void setProtocolInfo(ProtocolInfo protocolInfo) {
         this.protocolInfo = protocolInfo;
+    }
+
+    @Override
+    public void decodeHeader(AbstractByteBuf byteBuf, List<Object> out) {
+        NettyByteBuf nettyByteBuf = (NettyByteBuf) byteBuf;
+        ByteBuf in = nettyByteBuf.getByteBuf();
+    }
+
+    @Override
+    public void decodeBody(AbstractByteBuf byteBuf, List<Object> out) {
+
+    }
+
+    @Override
+    public void decodeAll(AbstractByteBuf byteBuf, List<Object> out) {
+//        System.out.println("readIndex--->: " + in.readerIndex());
+//        int length = in.readInt();
+//        String s = (String) in.readCharSequence(length, Charset.forName("utf-8"));
+//        out.add(s);
+//        System.out.println("--msg-->" + s);
     }
 }

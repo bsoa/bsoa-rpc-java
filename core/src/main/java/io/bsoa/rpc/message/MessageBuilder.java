@@ -18,4 +18,14 @@ public class MessageBuilder {
         response.setMessageId(request.getMessageId());
         return response;
     }
+
+    public static RpcResponse buildRpcResponse(RpcRequest rpcRequest) {
+        RpcResponse rpcResponse = new RpcResponse();
+        rpcResponse.setMessageId(rpcRequest.getMessageId());
+        rpcResponse.setProtocolType(rpcRequest.getProtocolType());
+        rpcResponse.setCompressType(rpcRequest.getCompressType());
+        rpcResponse.setSerializationType(rpcRequest.getSerializationType());
+
+        return rpcResponse;
+    }
 }

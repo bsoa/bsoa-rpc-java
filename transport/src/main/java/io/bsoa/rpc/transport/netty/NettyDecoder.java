@@ -18,10 +18,11 @@ package io.bsoa.rpc.transport.netty;
 
 import java.util.List;
 
-import io.bsoa.rpc.exception.BsoaRpcException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.bsoa.rpc.protocol.Protocol;
 import io.bsoa.rpc.protocol.ProtocolDecoder;
-import io.bsoa.rpc.protocol.bsoa.BsoaProtocolDecoder;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
@@ -35,7 +36,12 @@ import io.netty.handler.codec.ByteToMessageDecoder;
  */
 public class NettyDecoder extends ByteToMessageDecoder {
 
-    private ProtocolDecoder protocolDecoder;
+    /**
+     * slf4j Logger for this class
+     */
+    private final static Logger LOGGER = LoggerFactory.getLogger(NettyDecoder.class);
+
+    private final ProtocolDecoder protocolDecoder;
 
     public NettyDecoder(Protocol protocol) {
         this.protocolDecoder = protocol.decoder();
@@ -43,10 +49,10 @@ public class NettyDecoder extends ByteToMessageDecoder {
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
-        if (protocolDecoder instanceof BsoaProtocolDecoder) {
-            ((BsoaProtocolDecoder) protocolDecoder).decode(ctx, in, out);
-        } else {
-            throw new BsoaRpcException("Not Supported!");
+        try {
+            protocolDecoder.decodeHeader(new NettyByteBuf(in), out);
+        } catch (Exception e) {
+            LOGGER.warn("Decode message error on channel " + ctx.channel() + "！", e);
         }
     }
 }
