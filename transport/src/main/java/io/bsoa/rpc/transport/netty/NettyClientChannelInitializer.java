@@ -63,7 +63,7 @@ public class NettyClientChannelInitializer extends ChannelInitializer<SocketChan
                         false)) // TODO failfast ??
                 .addLast("encoder", new NettyEncoder(protocol))
                 .addLast("decoder", new NettyDecoder(protocol))
-                .addLast("logging", new LoggingHandler(LogLevel.INFO))
+                .addLast("logging", new LoggingHandler(LogLevel.DEBUG))
                 .addLast("clientChannelHandler", clientChannelHandler);
     }
 

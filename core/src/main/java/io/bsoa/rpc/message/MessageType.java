@@ -14,36 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.bsoa.rpc.transport;
-
-import io.bsoa.rpc.ext.Extensible;
+package io.bsoa.rpc.message;
 
 /**
  * <p></p>
- * <p>
- * Created by zhangg on 2016/12/15 23:08. <br/>
+ *
+ * Created by zhangg on 2016/12/25 01:28. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-@Extensible(singleton = false)
-public interface ServerTransport {
+public class MessageType {
 
-    /**
-     * 设置配置
-     *
-     * @param serverConfig
-     */
-    void setConfig(ServerTransportConfig serverConfig);
-
-    /**
-     * 启动
-     *
-     * @return
-     */
-    boolean start();
-
-    /**
-     * 停止
-     */
-    void stop();
+    public final static byte RPC_REQUEST = 1;
+    public final static byte RPC_RESPONSE = 2;
+    public final static byte HEARTBEAT_REQUEST = 3;
+    public final static byte HEARTBEAT_RESPONSE = 4;
+    public final static byte NEGOTIATOR_REQUEST = 5;
+    public final static byte NEGOTIATOR_RESPONSE = 6;
+    public final static byte STREAM_REQUEST = 7;
+    public final static byte STREAM_RESPONSE = 8;
 }

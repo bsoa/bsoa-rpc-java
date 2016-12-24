@@ -28,6 +28,7 @@ import java.util.Map;
  */
 public abstract class BaseMessage {
 
+    protected transient final byte messageType;
     /**
      * 请求ID
      */
@@ -39,9 +40,13 @@ public abstract class BaseMessage {
     protected transient byte protocolType;
     protected transient byte serializationType;
     protected transient byte compressType;
-    protected transient byte messageType;
+
 
     protected transient Map<Byte, Object> headKeys;
+
+    protected BaseMessage(byte messageType) {
+        this.messageType = messageType;
+    }
 
 
     public int getMessageId() {
@@ -100,11 +105,6 @@ public abstract class BaseMessage {
 
     public byte getMessageType() {
         return messageType;
-    }
-
-    public BaseMessage setMessageType(byte messageType) {
-        this.messageType = messageType;
-        return this;
     }
 
     public Map<Byte, Object> getHeadKeys() {

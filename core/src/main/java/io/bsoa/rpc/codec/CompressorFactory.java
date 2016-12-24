@@ -21,13 +21,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.bsoa.rpc.exception.BsoaRuntimeException;
 import io.bsoa.rpc.ext.ExtensionLoader;
 import io.bsoa.rpc.ext.ExtensionLoaderFactory;
 
 /**
  * <p></p>
- *
+ * <p>
  * Created by zhangg on 2016/12/24 22:56. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
@@ -39,40 +38,39 @@ public final class CompressorFactory {
      */
     private final static Logger LOGGER = LoggerFactory.getLogger(CompressorFactory.class);
 
-    private final static ExtensionLoader<Compressor> extensionLoader
-            = ExtensionLoaderFactory.getExtensionLoader(Compressor.class);
-
-    private final static ConcurrentHashMap<Object, Compressor> COMPRESSOR_MAP = new ConcurrentHashMap<>();
+    /**
+     * 额外保留的，编码：压缩器的 Map
+     */
+    private final static ConcurrentHashMap<Byte, Compressor> TYPE_COMPRESSOR_MAP = new ConcurrentHashMap<>();
 
     /**
-     * 按序列化名称返回协议对象
+     * 扩展加载器
+     */
+    private final static ExtensionLoader<Compressor> extensionLoader
+            = ExtensionLoaderFactory.getExtensionLoader(Compressor.class, extensionClass -> {
+        // 除了保留 alias：Compressor外， 需要保留 code：Compressor
+        TYPE_COMPRESSOR_MAP.put(extensionClass.getCode(), extensionClass.getExtInstance());
+    });
+
+    /**
+     * 按压缩算法名称返回协议对象
      *
-     * @param alias
-     * @return 序列化器
+     * @param alias 压缩算法
+     * @return Compressor
      */
     public static Compressor getCompressor(String alias) {
-        // 工厂模式 自己维护不托管给ExtensionLoader
-        Compressor compressor = COMPRESSOR_MAP.get(alias);
-        if (compressor == null) {
-            synchronized (CompressorFactory.class) {
-                compressor = COMPRESSOR_MAP.get(alias);
-                if (compressor == null) {
-                    LOGGER.info("Init compressor : {}", alias);
-                    compressor = extensionLoader.getExtension(alias);
-                    byte code = compressor.getCode();
-                    if (COMPRESSOR_MAP.containsKey(code)) {
-                        throw new BsoaRuntimeException(22222, "Duplicate compressor with same code!");
-                    }
-                    COMPRESSOR_MAP.put(alias, compressor);
-                    COMPRESSOR_MAP.put(code, compressor);
-                }
-            }
-        }
-        return compressor;
+        // 工厂模式  托管给ExtensionLoader
+        return extensionLoader.getExtension(alias);
     }
 
-    public static Compressor getCompressor(byte type) {
-        return COMPRESSOR_MAP.get(type);
+    /**
+     * 按压缩编码返回协议对象
+     *
+     * @param code Compressor编码
+     * @return Compressor
+     */
+    public static Compressor getCompressor(byte code) {
+        return TYPE_COMPRESSOR_MAP.get(code);
     }
 
 }

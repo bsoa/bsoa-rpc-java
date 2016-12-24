@@ -32,11 +32,12 @@ import org.slf4j.LoggerFactory;
 import io.bsoa.rpc.common.BsoaConfigs;
 import io.bsoa.rpc.common.utils.ClassLoaderUtils;
 import io.bsoa.rpc.common.utils.ClassTypeUtils;
-import io.bsoa.rpc.common.utils.ClassUtils;
 import io.bsoa.rpc.common.utils.StringUtils;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
 
 /**
+ * <p>一个可扩展接口类，对应一个加载器</p>
+ * <p>
  * Created by zhangg on 2016/7/14 21:57.
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
@@ -60,20 +61,15 @@ public class ExtensionLoader<T> {
     /**
      * 扩展点是否单例
      */
-    protected final boolean singleton;
+    protected final Extensible extensible;
 
     /**
-     * 扩展点使用的文件名
-     */
-    protected final String file;
-
-    /**
-     * 全部的加载的实现类
+     * 全部的加载的实现类 {"alias":ExtensionClass}
      */
     protected final ConcurrentHashMap<String, ExtensionClass<T>> all;
 
     /**
-     * 自动激活的
+     * 自动激活的 {"alias":ExtensionClass}
      */
     protected final ConcurrentHashMap<String, ExtensionClass<T>> autoActives;
 
@@ -83,12 +79,27 @@ public class ExtensionLoader<T> {
     protected final ConcurrentHashMap<String, T> factory;
 
     /**
+     * 加载监听器
+     */
+    protected final ExtensionLoaderListener<T> listener;
+
+    /**
+     * 构造函数（自动加载）
+     *
+     * @param interfaceClass 接口类
+     * @param listener       加载后的监听器
+     */
+    public ExtensionLoader(Class<T> interfaceClass, ExtensionLoaderListener<T> listener) {
+        this(interfaceClass, true, listener);
+    }
+
+    /**
      * 构造函数（自动加载）
      *
      * @param interfaceClass 接口类
      */
-    public ExtensionLoader(Class<T> interfaceClass) {
-        this(interfaceClass, true);
+    protected ExtensionLoader(Class<T> interfaceClass) {
+        this(interfaceClass, true, null);
     }
 
     /**
@@ -97,22 +108,22 @@ public class ExtensionLoader<T> {
      * @param interfaceClass 接口类
      * @param autoLoad       是否自动开始加载
      */
-    protected ExtensionLoader(Class<T> interfaceClass, boolean autoLoad) {
+    protected ExtensionLoader(Class<T> interfaceClass, boolean autoLoad, ExtensionLoaderListener<T> listener) {
         if (interfaceClass == null || !interfaceClass.isInterface()) {
             throw new IllegalArgumentException("Extensible class must be interface!");
         }
         this.interfaceClass = interfaceClass;
         this.interfaceName = ClassTypeUtils.getTypeStr(interfaceClass);
+        this.listener = listener;
         Extensible extensible = interfaceClass.getAnnotation(Extensible.class);
         if (extensible == null) {
             throw new IllegalArgumentException("Error when load extensible interface " + interfaceName
                     + ", must add annotation @Extensible.");
         } else {
-            file = StringUtils.isBlank(extensible.file()) ? interfaceName : extensible.file().trim();
-            singleton = extensible.singleton();
+            this.extensible = extensible;
         }
 
-        factory = singleton ? new ConcurrentHashMap<>() : null;
+        factory = extensible.singleton() ? new ConcurrentHashMap<>() : null;
         all = new ConcurrentHashMap<>();
         autoActives = new ConcurrentHashMap<>();
         if (autoLoad) {
@@ -127,11 +138,12 @@ public class ExtensionLoader<T> {
      * @param path path必须以/结尾
      */
     protected synchronized void loadFromFile(String path) {
-        String fileName = path + file;
+        String file = StringUtils.isBlank(extensible.file()) ? interfaceName : extensible.file().trim();
+        String fullFileName = path + file;
         try {
             ClassLoader classLoader = ClassLoaderUtils.getClassLoader(getClass());
-            Enumeration<URL> urls = classLoader != null ? classLoader.getResources(fileName)
-                    : ClassLoader.getSystemResources(fileName);
+            Enumeration<URL> urls = classLoader != null ? classLoader.getResources(fullFileName)
+                    : ClassLoader.getSystemResources(fullFileName);
             // 可能存在多个文件。
             if (urls != null) {
                 while (urls.hasMoreElements()) {
@@ -157,7 +169,7 @@ public class ExtensionLoader<T> {
             }
         } catch (Throwable t) {
             LOGGER.error("Failed to load extension of interface " + interfaceName
-                    + " from path:" + fileName, t);
+                    + " from path:" + fullFileName, t);
         }
     }
 
@@ -169,11 +181,12 @@ public class ExtensionLoader<T> {
         String alias = aliasAndClassName[0];
         String className = aliasAndClassName[1];
         // 读取配置的实现类
-        Class<?> implClass = ClassLoaderUtils.forName(className, true);
-        if (!interfaceClass.isAssignableFrom(implClass)) {
+        Class tmp = ClassLoaderUtils.forName(className, true);
+        if (!interfaceClass.isAssignableFrom(tmp)) {
             throw new IllegalArgumentException("Error when load extension of interface " + interfaceName
                     + " from file:" + url + ", " + className + " is not subtype of interface.");
         }
+        Class<? extends T> implClass = (Class<? extends T>) tmp;
 
         // 检查是否有可扩展标识
         Extension extension = implClass.getAnnotation(Extension.class);
@@ -185,7 +198,7 @@ public class ExtensionLoader<T> {
             if (StringUtils.isBlank(aliasInCode)) {
                 throw new IllegalArgumentException("Error when load extension of interface "
                         + interfaceClass + " from file:" + url + ", " + className
-                        + "'s alias of @extensible is blank");
+                        + "'s alias of @Extension is blank");
             }
             if (alias == null) {
                 alias = aliasInCode;
@@ -195,6 +208,11 @@ public class ExtensionLoader<T> {
                             + interfaceName + " from file:" + url + ", aliases of " + className + " are " +
                             "not equal between " + aliasInCode + "(code) and " + alias + "(file).");
                 }
+            }
+            if (extensible.coded() && extension.code() < 0) {
+                throw new IllegalArgumentException("Error when load extension of interface "
+                        + interfaceName + " from file:" + url + ", code of @Extension must >=0 at "
+                        + className + ".");
             }
         }
         // 提前试试能不能实例化，
@@ -210,8 +228,10 @@ public class ExtensionLoader<T> {
                     + interfaceClass + " from file:" + url + ", Duplicate class with same alias: "
                     + alias + ", " + old.getClazz() + " and " + implClass);
         } else {
-            ExtensionClass extensionClass = new ExtensionClass();
+            ExtensionClass<T> extensionClass = new ExtensionClass<T>();
             extensionClass.setAlias(alias);
+            extensionClass.setCode(extension.code());
+            extensionClass.setSingleton(extensible.singleton());
             extensionClass.setClazz(implClass);
             extensionClass.setOrder(extension.order());
             // 读取自动加载的类列表。
@@ -225,6 +245,9 @@ public class ExtensionLoader<T> {
                         + ", " + implClass + "(" + alias + ") will auto active");
             }
             all.put(alias, extensionClass);
+            if (listener != null) {
+                listener.onLoad(extensionClass); // 加载完毕，通知监听器
+            }
         }
     }
 
@@ -308,20 +331,20 @@ public class ExtensionLoader<T> {
         if (extensionClass == null) {
             throw new BsoaRuntimeException(22222, "Extension Not Found :\"" + alias + "\"!");
         } else {
-            if (singleton && factory != null) {
+            if (extensible.singleton() && factory != null) {
                 T t = factory.get(alias);
                 if (t == null) {
                     synchronized (this) {
                         t = factory.get(alias);
                         if (t == null) {
-                            t = ClassUtils.newInstance(extensionClass.getClazz());
+                            t = extensionClass.getExtInstance();
                             factory.put(alias, t);
                         }
                     }
                 }
                 return t;
             } else {
-                return ClassUtils.newInstance(extensionClass.getClazz());
+                return extensionClass.getExtInstance();
             }
         }
     }

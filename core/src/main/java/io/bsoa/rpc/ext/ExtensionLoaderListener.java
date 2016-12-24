@@ -14,36 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.bsoa.rpc.transport;
-
-import io.bsoa.rpc.ext.Extensible;
+package io.bsoa.rpc.ext;
 
 /**
  * <p></p>
- * <p>
- * Created by zhangg on 2016/12/15 23:08. <br/>
+ *
+ * Created by zhangg on 2016/12/24 23:47. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-@Extensible(singleton = false)
-public interface ServerTransport {
+public interface ExtensionLoaderListener<T> {
 
-    /**
-     * 设置配置
-     *
-     * @param serverConfig
-     */
-    void setConfig(ServerTransportConfig serverConfig);
-
-    /**
-     * 启动
-     *
-     * @return
-     */
-    boolean start();
-
-    /**
-     * 停止
-     */
-    void stop();
+    public void onLoad(ExtensionClass<T> extensionClass);
 }

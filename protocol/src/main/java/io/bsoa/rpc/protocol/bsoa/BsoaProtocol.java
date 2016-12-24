@@ -32,10 +32,24 @@ import static io.bsoa.rpc.ext.ExtensionLoaderFactory.getExtensionLoader;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-@Extension("bsoa")
+@Extension(value = "bsoa", code = 10)
 public class BsoaProtocol implements Protocol {
 
-    private BsoaProtocolInfo protocolInfo = new BsoaProtocolInfo();
+    private final BsoaProtocolInfo protocolInfo;
+
+    private final ProtocolEncoder encoder;
+
+    private final ProtocolDecoder decoder;
+
+    public BsoaProtocol() {
+        protocolInfo = new BsoaProtocolInfo();
+        encoder = ExtensionLoaderFactory.getExtensionLoader(ProtocolEncoder.class)
+                .getExtension("bsoa");
+        encoder.setProtocolInfo(protocolInfo);
+        decoder = getExtensionLoader(ProtocolDecoder.class)
+                .getExtension("bsoa");
+        decoder.setProtocolInfo(protocolInfo);
+    }
 
     @Override
     public ProtocolInfo protocolInfo() {
@@ -44,22 +58,11 @@ public class BsoaProtocol implements Protocol {
 
     @Override
     public ProtocolEncoder encoder() {
-        ProtocolEncoder encoder = ExtensionLoaderFactory.getExtensionLoader(ProtocolEncoder.class)
-                .getExtension("bsoa");
-        encoder.setProtocolInfo(protocolInfo);
         return encoder;
     }
 
     @Override
     public ProtocolDecoder decoder() {
-        ProtocolDecoder decoder = getExtensionLoader(ProtocolDecoder.class)
-                .getExtension("bsoa");
-        decoder.setProtocolInfo(protocolInfo);
         return decoder;
-    }
-
-    @Override
-    public byte getCode() {
-        return 1;
     }
 }

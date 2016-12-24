@@ -24,6 +24,10 @@ import java.io.Serializable;
  */
 public class RpcResponse extends RPCMessage implements Serializable {
 
+    public RpcResponse() {
+        super(MessageType.RPC_RESPONSE);
+    }
+
     protected Object returnData;
 
     protected Throwable exception;

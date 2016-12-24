@@ -50,7 +50,7 @@ public class NettyDecoder extends ByteToMessageDecoder {
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
         try {
-            protocolDecoder.decodeHeader(new NettyByteBuf(in), out);
+            protocolDecoder.decodeAll(new NettyByteBuf(in), out);
         } catch (Exception e) {
             LOGGER.warn("Decode message error on channel " + ctx.channel() + "！", e);
         }

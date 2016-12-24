@@ -32,7 +32,7 @@ import io.bsoa.rpc.protocol.ProtocolInfo;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-@Extension("dubbo")
+@Extension(value = "dubbo", code = 3)
 public class DubboProtocol implements Protocol {
 
     private ProtocolInfo protocolInfo = new DubboProtocolInfo();
@@ -60,10 +60,5 @@ public class DubboProtocol implements Protocol {
                 .getExtension("dubbo");
         decoder.setProtocolInfo(protocolInfo);
         return decoder;
-    }
-
-    @Override
-    public byte getCode() {
-        return 3;
     }
 }

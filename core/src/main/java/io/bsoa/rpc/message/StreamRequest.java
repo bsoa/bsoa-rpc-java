@@ -25,7 +25,7 @@ package io.bsoa.rpc.message;
  */
 public class StreamRequest extends StreamMessage {
 
-    private int frameId;
-
-
+    public StreamRequest() {
+        super(MessageType.STREAM_REQUEST);
+    }
 }

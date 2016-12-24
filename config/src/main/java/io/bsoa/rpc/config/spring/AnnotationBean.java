@@ -50,6 +50,7 @@ import org.springframework.util.SystemPropertyUtils;
 
 import io.bsoa.rpc.common.struct.ConcurrentHashSet;
 import io.bsoa.rpc.common.utils.ClassLoaderUtils;
+import io.bsoa.rpc.common.utils.ExceptionUtils;
 import io.bsoa.rpc.common.utils.StringUtils;
 import io.bsoa.rpc.config.ConsumerConfig;
 import io.bsoa.rpc.config.ProviderConfig;
@@ -59,7 +60,6 @@ import io.bsoa.rpc.config.annotation.Consumer;
 import io.bsoa.rpc.config.annotation.Provider;
 import io.bsoa.rpc.config.annotation.Server;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
-import io.bsoa.rpc.common.utils.ExceptionUtils;
 
 /**
  * Created by zhanggeng on 16-7-7.

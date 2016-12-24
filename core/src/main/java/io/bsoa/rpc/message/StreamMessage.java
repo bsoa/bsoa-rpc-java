@@ -33,6 +33,10 @@ public abstract class StreamMessage extends BaseMessage {
 
     private AbstractByteBuf byteBuf;
 
+    protected StreamMessage(byte messageType) {
+        super(messageType);
+    }
+
     public short getFrameId() {
         return frameId;
     }

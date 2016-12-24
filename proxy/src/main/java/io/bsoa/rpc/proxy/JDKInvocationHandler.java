@@ -18,10 +18,10 @@ package io.bsoa.rpc.proxy;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
+import io.bsoa.rpc.Invoker;
 import io.bsoa.rpc.message.MessageBuilder;
 import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.message.RpcResponse;
-import io.bsoa.rpc.Invoker;
 
 /**
  * JDK代理处理器，拦截请求变为invocation进行调用

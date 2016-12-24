@@ -28,17 +28,21 @@ public class ExtensionLoaderFactory {
     public final static ConcurrentHashMap<Class, ExtensionLoader> LOADER_MAP
             = new ConcurrentHashMap<Class, ExtensionLoader>();
 
-    public static <T> ExtensionLoader<T> getExtensionLoader(Class<T> clazz) {
-        ExtensionLoader loader = LOADER_MAP.get(clazz);
+    public static <T> ExtensionLoader<T> getExtensionLoader(Class<T> clazz, ExtensionLoaderListener<T> listener) {
+        ExtensionLoader<T> loader = LOADER_MAP.get(clazz);
         if (loader == null) {
             synchronized (ExtensionLoaderFactory.class) {
                 loader = LOADER_MAP.get(clazz);
                 if (loader == null) {
-                    loader = new ExtensionLoader(clazz);
+                    loader = new ExtensionLoader<T>(clazz, listener);
                     LOADER_MAP.put(clazz, loader);
                 }
             }
         }
         return loader;
+    }
+
+    public static <T> ExtensionLoader<T> getExtensionLoader(Class<T> clazz) {
+        return getExtensionLoader(clazz, null);
     }
 }

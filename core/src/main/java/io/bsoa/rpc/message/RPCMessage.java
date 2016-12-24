@@ -29,6 +29,10 @@ import io.bsoa.rpc.common.type.HeadKey;
  */
 public class RPCMessage extends BaseMessage {
 
+    public RPCMessage(byte type) {
+        super(type);
+    }
+
     public void addHeadKey(HeadKey key, Object value) {
         if (!key.getType().isInstance(value)) { // 检查类型
             throw new IllegalArgumentException("type mismatch of key:" + key.getNum() + ", expect:"

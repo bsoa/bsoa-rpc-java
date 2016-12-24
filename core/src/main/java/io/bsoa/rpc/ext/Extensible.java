@@ -47,4 +47,11 @@ public @interface Extensible {
      * @return 是否使用单例
      */
     boolean singleton() default true;
+
+    /**
+     * 扩展类是否需要编码，默认不需要
+     *
+     * @return 是否需要编码
+     */
+    boolean coded() default false;
 }

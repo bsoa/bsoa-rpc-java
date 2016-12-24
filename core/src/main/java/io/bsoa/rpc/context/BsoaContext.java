@@ -79,7 +79,7 @@ public class BsoaContext {
 
 
     static {
-        LOGGER.info("Loading JD Service Framework : {}", BsoaVersion.JSF_BUILD_VERSION);
+        LOGGER.info("Welcome! Loading Beyond SOA RPC Framework : {}", BsoaVersion.JSF_BUILD_VERSION);
         put(BsoaConstants.CONFIG_KEY_JSFVERSION, BsoaConstants.JSF_BUILD_VERSION);
         // 初始化一些上下文
         putPropertyToContext();

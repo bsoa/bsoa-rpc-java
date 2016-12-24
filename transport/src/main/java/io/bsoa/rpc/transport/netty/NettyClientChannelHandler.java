@@ -103,7 +103,6 @@ public class NettyClientChannelHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         Channel channel = ctx.channel();
-        System.out.println(msg);
         try {
             // 心跳响应：TO线程处理
             if (msg instanceof HeartbeatResponse) {

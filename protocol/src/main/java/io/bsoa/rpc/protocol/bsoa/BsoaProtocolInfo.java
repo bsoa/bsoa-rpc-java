@@ -1,20 +1,18 @@
-/*
- * *
- *  * Licensed to the Apache Software Foundation (ASF) under one or more
- *  * contributor license agreements.  See the NOTICE file distributed with
- *  * this work for additional information regarding copyright ownership.
- *  * The ASF licenses this file to You under the Apache License, Version 2.0
- *  * (the "License"); you may not use this file except in compliance with
- *  * the License.  You may obtain a copy of the License at
- *  * <p>
- *  * http://www.apache.org/licenses/LICENSE-2.0
- *  * <p>
- *  * Unless required by applicable law or agreed to in writing, software
- *  * distributed under the License is distributed on an "AS IS" BASIS,
- *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  * See the License for the specific language governing permissions and
- *  * limitations under the License.
- *
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package io.bsoa.rpc.protocol.bsoa;
 
@@ -22,8 +20,8 @@ import io.bsoa.rpc.common.BsoaConfigs;
 import io.bsoa.rpc.protocol.ProtocolInfo;
 
 /**
- * <p></p>
- *
+ * <p>根据魔术位和总长度，自动截取剩下的一个完整数据帧（Frame）</p>
+ * <p>
  * Created by zhangg on 2016/12/18 08:37. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
@@ -37,9 +35,9 @@ public class BsoaProtocolInfo extends ProtocolInfo {
 
     private final int lengthFieldLength = 4; // 长度占4B，所以长度是：4
 
-    private final int lengthAdjustment = 0; // 总长度计算是包括自己，剩下的长度=总长度-4B 所以调整值是：-4 TODO
+    private final int lengthAdjustment = -6; // 总长度计算是包括自己和魔术位，剩下的长度=总长度-2B  所以调整值是：-2
 
-    private final int initialBytesToStrip = 2; // 前面6位不用再读取了，可以跳过，所以跳过的值是：6  TODO
+    private final int initialBytesToStrip = 2; // 前面2位魔术位不要了，可以跳过，所以跳过的值是：2
 
     private final int magicFieldLength = 2; // 魔术位长度2位
 
@@ -48,7 +46,7 @@ public class BsoaProtocolInfo extends ProtocolInfo {
     private final MagicCode magicCode = MagicCode.valueOf((byte) 0xb5, (byte) 0x0a);
 
     public BsoaProtocolInfo() {
-        super("bsoa", (byte) 1, false);// 是一个变长协议
+        super("bsoa", (byte) 10, false);// 是一个变长协议
     }
 
     @Override

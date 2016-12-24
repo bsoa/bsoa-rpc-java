@@ -48,7 +48,7 @@ public class ExtensionLoaderTest {
 
     @Test
     public void testLoadFromFile() throws Exception {
-        ExtensionLoader loader = new ExtensionLoader<Filter>(Filter.class, false);
+        ExtensionLoader loader = new ExtensionLoader<Filter>(Filter.class, false, null);
         loader.loadFromFile("META-INF/exttest/");
         Assert.assertTrue(!loader.all.isEmpty());
 
@@ -63,7 +63,7 @@ public class ExtensionLoaderTest {
 
     @Test
     public void testReadLine() throws Exception {
-        ExtensionLoader loader = new ExtensionLoader<Filter>(Filter.class, false);
+        ExtensionLoader loader = new ExtensionLoader<Filter>(Filter.class, false, null);
         URL url = Filter.class.getResource("/META-INF/jsf/" + Filter.class.getName());
         try {
             loader.readLine(url, "com.jd.jsf.gd.test.HelloServiceImpl");

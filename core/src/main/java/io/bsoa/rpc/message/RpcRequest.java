@@ -27,6 +27,10 @@ import java.util.Map;
  */
 public class RpcRequest extends RPCMessage implements Serializable {
 
+    public RpcRequest() {
+        super(MessageType.RPC_REQUEST);
+    }
+
     private transient String ifaceId; // 接口id， 有的时候不传递className和argsType
 
     private String className;

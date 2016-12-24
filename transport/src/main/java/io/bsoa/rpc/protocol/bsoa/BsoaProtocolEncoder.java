@@ -18,6 +18,7 @@
  */
 package io.bsoa.rpc.protocol.bsoa;
 
+import java.util.Arrays;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -36,6 +37,8 @@ import io.bsoa.rpc.ext.Extension;
 import io.bsoa.rpc.message.BaseMessage;
 import io.bsoa.rpc.message.HeartbeatRequest;
 import io.bsoa.rpc.message.HeartbeatResponse;
+import io.bsoa.rpc.message.NegotiatorRequest;
+import io.bsoa.rpc.message.NegotiatorResponse;
 import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.message.RpcResponse;
 import io.bsoa.rpc.protocol.ProtocolEncoder;
@@ -92,20 +95,26 @@ public class BsoaProtocolEncoder implements ProtocolEncoder {
             out.writeInt(0);
             // 6-7 2位头部长度(包括自己2位+后面的头），先占位
             int headLengthIndex = out.writerIndex();
-            out.writeShort(0);
+            out.writeShort(headerLength);
             // 8-11 消息/协议/序列化/压缩
             out.writeByte(msg.getMessageType());
             out.writeByte(msg.getProtocolType());
             out.writeByte(msg.getSerializationType());
             out.writeByte(msg.getCompressType());
             // 12-15 4位 消息Id
-            out.writeByte(msg.getMessageId());
+            out.writeInt(msg.getMessageId());
 
             if (CommonUtils.isNotEmpty(msg.getHeadKeys())) {
                 headerLength += map2bytes(msg.getHeadKeys(), out);
                 out.setBytes(headLengthIndex, CodecUtils.short2bytes(headerLength)); // 替换head长度的两位
             }
             msg.setTotalLength(headerLength + 6); // 目前out
+
+
+            byte[] bytes = new byte[out.readableBytes()];
+            out.readBytes(bytes);
+            LOGGER.debug(Arrays.toString(bytes));
+            out.readerIndex(0);
         } else {
             LOGGER.warn("Unsupported type :{}", object.getClass());
             throw new BsoaRpcException(22222, "Unsupported object type");
@@ -139,12 +148,23 @@ public class BsoaProtocolEncoder implements ProtocolEncoder {
                 totalLength += bs.length;
             } else if (object instanceof HeartbeatRequest) {
                 out.writeLong(((HeartbeatRequest) object).getTimestamp());
-                totalLength += 4;
+                totalLength += 8;
             } else if (object instanceof HeartbeatResponse) {
-                out.writeLong(((HeartbeatRequest) object).getTimestamp());
-                totalLength += 4;
+                out.writeLong(((HeartbeatResponse) object).getTimestamp());
+                totalLength += 8;
+            } else if (object instanceof NegotiatorRequest) {
+                //TODO
+                totalLength += 8;
+            } else if (object instanceof NegotiatorResponse) {
+                //TODO
+                totalLength += 8;
             }
             out.setBytes(2, CodecUtils.intToBytes(totalLength)); // 更新字段
+
+            byte[] bytes = new byte[out.readableBytes()];
+            out.readBytes(bytes);
+            LOGGER.debug(Arrays.toString(bytes));
+            out.readerIndex(0);
         } else {
             LOGGER.warn("Unsupported type :{}", object.getClass());
             throw new BsoaRpcException(22222, "Unsupported object type");

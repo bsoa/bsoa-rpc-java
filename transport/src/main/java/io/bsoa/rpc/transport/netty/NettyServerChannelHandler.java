@@ -72,7 +72,6 @@ public class NettyServerChannelHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         Channel channel = ctx.channel();
-        LOGGER.info("------{}------->{}", channel.remoteAddress(), msg);
 
         // 心跳请求：IO线程
         if (msg instanceof HeartbeatRequest) {

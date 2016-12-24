@@ -1,5 +1,6 @@
 package io.bsoa.rpc.message;
 
+import io.bsoa.rpc.context.BsoaContext;
 import io.bsoa.rpc.exception.BsoaRpcException;
 
 /**
@@ -15,9 +16,16 @@ public class MessageBuilder {
         return null;
     }
 
+    public static HeartbeatRequest buildHeartbeatRequest() {
+        HeartbeatRequest request = new HeartbeatRequest();
+        request.setTimestamp(BsoaContext.now());
+        return request;
+    }
+
     public static HeartbeatResponse buildHeartbeatResponse(HeartbeatRequest request) {
         HeartbeatResponse response = new HeartbeatResponse();
         response.setMessageId(request.getMessageId());
+        response.setTimestamp(BsoaContext.now());
         return response;
     }
 
@@ -61,7 +69,6 @@ public class MessageBuilder {
             default:
                 throw new BsoaRpcException(22222, "Value of attrs in message header must be byte/short/int/string");
         }
-        baseMessage.setMessageType(messageType);
         baseMessage.setMessageId(messageId);
         return baseMessage;
     }

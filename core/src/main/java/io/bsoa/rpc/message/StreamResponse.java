@@ -24,4 +24,8 @@ package io.bsoa.rpc.message;
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
 public class StreamResponse extends StreamMessage {
+
+    public StreamResponse() {
+        super(MessageType.STREAM_RESPONSE);
+    }
 }

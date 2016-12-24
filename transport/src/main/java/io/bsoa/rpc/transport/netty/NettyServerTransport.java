@@ -54,7 +54,7 @@ public class NettyServerTransport implements ServerTransport {
     private ServerBootstrap serverBootstrap;
 
     @Override
-    public Boolean start() {
+    public boolean start() {
         boolean flag = Boolean.FALSE;
         LOGGER.debug("BSOA server transport start! ");
         if (SystemInfo.isWindows()) {
@@ -119,7 +119,7 @@ public class NettyServerTransport implements ServerTransport {
     }
 
     @Override
-    public void setServerTransportConfig(ServerTransportConfig transportConfig) {
+    public void setConfig(ServerTransportConfig transportConfig) {
         this.transportConfig = transportConfig;
     }
 }

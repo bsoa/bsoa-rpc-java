@@ -18,6 +18,7 @@
  */
 package io.bsoa.rpc.protocol.bsoa;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -73,10 +74,16 @@ public class BsoaProtocolDecoder implements ProtocolDecoder {
         NettyByteBuf nettyByteBuf = (NettyByteBuf) byteBuf;
         ByteBuf in = nettyByteBuf.getByteBuf();
 
+        byte[] bytes = new byte[in.readableBytes()];
+        in.readBytes(bytes);
+        LOGGER.debug(Arrays.toString(bytes));
+        in.readerIndex(0);
         // 前面2位magiccode 和 4位总长度 已经跳过
-        if (in.readerIndex() != 6) {
-            throw new BsoaRpcException(22222, "readerIndex!=6");
+        if (in.readerIndex() != 0) {
+            throw new BsoaRpcException(22222, "readerIndex!=0");
         }
+
+        int totalLength = in.readInt();
         Short headerLength = in.readShort();
 
         byte messageType = in.readByte();
@@ -86,7 +93,9 @@ public class BsoaProtocolDecoder implements ProtocolDecoder {
         int messageId = in.readInt();
 
         BaseMessage message = MessageBuilder.buildMessage(messageType, messageId);
-        message.setProtocolType(protocolType)
+        message.setTotalLength(totalLength)
+                .setHeadLength(headerLength)
+                .setProtocolType(protocolType)
                 .setSerializationType(serializationType)
                 .setCompressType(compressType);
         if (headerLength > 10) { // 说明存在Map
@@ -154,14 +163,20 @@ public class BsoaProtocolDecoder implements ProtocolDecoder {
         } catch (Exception e) {
             throw new BsoaRpcException(22222, "Decode error!", e);
         } finally {
-            nettyByteBuf.release();
+//            nettyByteBuf.release();
         }
     }
 
     @Override
     public void decodeAll(AbstractByteBuf byteBuf, List<Object> out) {
         decodeHeader(byteBuf, out);
-        decodeBody(byteBuf, out);
+        BaseMessage msg = (BaseMessage) out.get(0);
+        byte messageType = msg.getMessageType();
+        if (messageType == 3 || messageType == 4 || messageType == 5 || messageType == 6) {
+            // 心跳包 和协商包 在这里解析
+            decodeBody(byteBuf, out);
+        }
+        // 其它在业务线程里decode
     }
 
 

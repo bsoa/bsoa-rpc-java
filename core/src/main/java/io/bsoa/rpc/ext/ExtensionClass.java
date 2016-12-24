@@ -26,18 +26,21 @@ import io.bsoa.rpc.common.utils.ClassUtils;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  * @see Extension
+ * @see Extensible
  * @see AutoActive
  */
 public class ExtensionClass<T> {
-
     private static final Logger logger = LoggerFactory.getLogger(ExtensionClass.class);
 
     protected String alias; // 扩展别名,不是provider alias
-    protected Class<T> clazz; // 扩展接口类
+    protected byte code; // 扩展编码，必须唯一
+    protected boolean singleton;
+    protected Class<? extends T> clazz; // 扩展接口类
     protected int order; // 扩展点排序
     protected boolean autoActive; // 是否自动激活
     protected boolean providerSide; // 服务端是否激活
     protected boolean consumerSide; // 调用端是否激活
+    private volatile transient T instance; // 如果是单例，这里保留实例
 
     /**
      * @return instance of clazz
@@ -45,10 +48,20 @@ public class ExtensionClass<T> {
     public T getExtInstance() {
         if (clazz != null) {
             try {
-                return ClassUtils.newInstance(clazz);
+                if (singleton) { // 如果是单例
+                    if (instance == null) {
+                        synchronized (this) {
+                            if (instance == null) {
+                                instance = ClassUtils.newInstance(clazz);
+                            }
+                        }
+                    }
+                    return instance; // 保留单例
+                } else {
+                    return ClassUtils.newInstance(clazz);
+                }
             } catch (Exception e) {
-                logger.error("create {} instance error", clazz.getCanonicalName(), e);
-                return null;
+                logger.error("create " + clazz.getCanonicalName() + "instance error", e);
             }
         }
         return null;
@@ -64,11 +77,28 @@ public class ExtensionClass<T> {
         return this;
     }
 
-    public Class<T> getClazz() {
+    public byte getCode() {
+        return code;
+    }
+
+    public ExtensionClass setCode(byte code) {
+        this.code = code;
+        return this;
+    }
+
+    public boolean isSingleton() {
+        return singleton;
+    }
+
+    public void setSingleton(boolean singleton) {
+        this.singleton = singleton;
+    }
+
+    public Class<? extends T> getClazz() {
         return clazz;
     }
 
-    public ExtensionClass setClazz(Class<T> clazz) {
+    public ExtensionClass setClazz(Class<? extends T> clazz) {
         this.clazz = clazz;
         return this;
     }
@@ -113,6 +143,7 @@ public class ExtensionClass<T> {
     public String toString() {
         return "ExtensibleClass{" +
                 "alias='" + alias + '\'' +
+                "code=" + code +
                 ", clazz=" + clazz +
                 ", order=" + order +
                 ", providerSide=" + providerSide +

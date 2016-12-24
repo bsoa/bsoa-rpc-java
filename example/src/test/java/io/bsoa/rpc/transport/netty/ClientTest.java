@@ -18,11 +18,17 @@
  */
 package io.bsoa.rpc.transport.netty;
 
-import io.bsoa.rpc.client.Provider;
-import io.bsoa.rpc.message.NegotiatorRequest;
-import io.bsoa.rpc.transport.ClientTransport;
-import io.bsoa.rpc.transport.ClientTransportConfig;
-import io.bsoa.rpc.transport.ClientTransportFactory;
+        import org.slf4j.Logger;
+        import org.slf4j.LoggerFactory;
+
+        import io.bsoa.rpc.client.Provider;
+        import io.bsoa.rpc.message.HeartbeatRequest;
+        import io.bsoa.rpc.message.HeartbeatResponse;
+        import io.bsoa.rpc.message.NegotiatorRequest;
+        import io.bsoa.rpc.message.NegotiatorResponse;
+        import io.bsoa.rpc.transport.ClientTransport;
+        import io.bsoa.rpc.transport.ClientTransportConfig;
+        import io.bsoa.rpc.transport.ClientTransportFactory;
 
 /**
  * <p></p>
@@ -32,6 +38,11 @@ import io.bsoa.rpc.transport.ClientTransportFactory;
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
 public class ClientTest {
+
+    /**
+     * slf4j Logger for this class
+     */
+    private final static Logger LOGGER = LoggerFactory.getLogger(ClientMutisTest.class);
 
     public static void main(String[] args) throws InterruptedException {
         ClientTransportConfig config = new ClientTransportConfig();
@@ -49,11 +60,17 @@ public class ClientTest {
         }
 
 
-        NegotiatorRequest request = new NegotiatorRequest();
-        request.setMessageId(2345);
-        transport.syncSend(request, 5000);
+        HeartbeatRequest request3 = new HeartbeatRequest();
+        request3.setTimestamp(System.currentTimeMillis());
+        HeartbeatResponse response4 = (HeartbeatResponse) transport.syncSend(request3, 60000);
+        LOGGER.info("{}", response4.getTimestamp());
 
-        Thread.sleep(50000);
+
+        NegotiatorRequest request5 = new NegotiatorRequest();
+        request5.setCmd("ls -l");
+        request5.setData("{111,222,333}");
+        NegotiatorResponse response6 = (NegotiatorResponse) transport.syncSend(request5, 60000);
+        LOGGER.info("{}", response6.getRes());
     }
 
 }

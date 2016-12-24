@@ -15,7 +15,6 @@
  */
 package io.bsoa.rpc.protocol;
 
-import io.bsoa.rpc.base.Coded;
 import io.bsoa.rpc.ext.Extensible;
 
 /**
@@ -23,8 +22,8 @@ import io.bsoa.rpc.ext.Extensible;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
  */
-@Extensible(singleton = false)
-public interface Protocol extends Coded {
+@Extensible(coded = true)
+public interface Protocol {
 
     public ProtocolInfo protocolInfo();
 

@@ -39,10 +39,15 @@ public @interface Extension {
     String value();
 
     /**
+     * 扩展点编码
+     * @return
+     */
+    byte code() default -1;
+    /**
      * 默认排序
      *
      * @return
      */
-    int order() default 0;
+    int order() default -1;
 
 }

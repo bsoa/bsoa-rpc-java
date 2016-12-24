@@ -38,10 +38,19 @@ public class ProtocolFactory {
      */
     private final static Logger LOGGER = LoggerFactory.getLogger(ProtocolFactory.class);
 
-    private final static ExtensionLoader<Protocol> extensionLoader
-            = ExtensionLoaderFactory.getExtensionLoader(Protocol.class);
+    /**
+     * 额外保留的，编码：协议的 Map
+     */
+    private final static ConcurrentHashMap<Byte, Protocol> TYPE_PROTOCOL_MAP = new ConcurrentHashMap<>();
 
-    private final static ConcurrentHashMap<Object, Protocol> PROTOCOL_MAP = new ConcurrentHashMap<>();
+    /**
+     * 扩展加载器
+     */
+    private final static ExtensionLoader<Protocol> extensionLoader
+            = ExtensionLoaderFactory.getExtensionLoader(Protocol.class, extensionClass -> {
+        // 除了保留 alias：Protocol外， 需要保留 code：Protocol
+        TYPE_PROTOCOL_MAP.put(extensionClass.getCode(), extensionClass.getExtInstance());
+    });
 
     /**
      * 按协议名称返回协议对象
@@ -50,35 +59,20 @@ public class ProtocolFactory {
      * @return 协议对象
      */
     public static Protocol getProtocol(String alias) {
-        // 工厂模式 自己维护不托管给ExtensionLoader
-        Protocol protocol = PROTOCOL_MAP.get(alias);
-        if (protocol == null) {
-            synchronized (ProtocolFactory.class) {
-                protocol = PROTOCOL_MAP.get(alias);
-                if (protocol == null) {
-                    LOGGER.info("Init protocol : {}", alias);
-                    protocol = extensionLoader.getExtension(alias);
-                    byte code = protocol.getCode();
-                    if (PROTOCOL_MAP.containsKey(code)) {
-                        throw new BsoaRuntimeException(22222, "Duplicate protocol with same code!");
-                    }
-                    PROTOCOL_MAP.put(alias, protocol);
-                    PROTOCOL_MAP.put(code, protocol);
-                }
-            }
-        }
-        return protocol;
+        // 工厂模式  托管给ExtensionLoader
+        return extensionLoader.getExtension(alias);
     }
 
     /**
-     * 按协议名称返回协议对象
+     * 按协议编号返回协议对象
      *
      * @param code 协议编码
      * @return 协议对象
      */
     public static Protocol getProtocol(byte code) {
-        return PROTOCOL_MAP.get(code);
+        return TYPE_PROTOCOL_MAP.get(code);
     }
+
 
     private static int maxMagicOffset = 2; // 最大偏移量，用于一个端口支持多协议时使用
 

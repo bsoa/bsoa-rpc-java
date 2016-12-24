@@ -20,7 +20,8 @@
 package io.bsoa.rpc.transport.netty;
 
 import org.junit.Assert;
-import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.bsoa.rpc.transport.ServerTransport;
 import io.bsoa.rpc.transport.ServerTransportConfig;
@@ -31,7 +32,11 @@ import io.bsoa.rpc.transport.ServerTransportFactory;
  */
 public class ServerTest {
 
-    @Test
+    /**
+     * slf4j Logger for this class
+     */
+    private final static Logger LOGGER = LoggerFactory.getLogger(ServerTest.class);
+
     public void testStartServer() {
         ServerTransportConfig config = new ServerTransportConfig();
         config.setPort(22222);
@@ -44,5 +49,6 @@ public class ServerTest {
     public static void main(String[] args) {
         ServerTest test = new ServerTest();
         test.testStartServer();
+        LOGGER.warn("Server started");
     }
 }

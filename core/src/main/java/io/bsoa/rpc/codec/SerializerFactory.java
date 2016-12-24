@@ -21,10 +21,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.bsoa.rpc.exception.BsoaRuntimeException;
 import io.bsoa.rpc.ext.ExtensionLoader;
 import io.bsoa.rpc.ext.ExtensionLoaderFactory;
-import io.bsoa.rpc.protocol.ProtocolFactory;
 
 /**
  * <p></p>
@@ -40,40 +38,40 @@ public final class SerializerFactory {
      */
     private final static Logger LOGGER = LoggerFactory.getLogger(SerializerFactory.class);
 
-    private final static ExtensionLoader<Serializer> extensionLoader
-            = ExtensionLoaderFactory.getExtensionLoader(Serializer.class);
+    /**
+     * 额外保留的，编码：序列化的 Map
+     */
+    private final static ConcurrentHashMap<Byte, Serializer> TYPE_SERIALIZER_MAP = new ConcurrentHashMap<>();
 
-    private final static ConcurrentHashMap<Object, Serializer> SERIALIZER_MAP = new ConcurrentHashMap<>();
+    /**
+     * 扩展加载器
+     */
+    private final static ExtensionLoader<Serializer> extensionLoader
+            = ExtensionLoaderFactory.getExtensionLoader(Serializer.class, extensionClass -> {
+        // 除了保留 alias：Serializer外， 需要保留 code：Serializer
+        TYPE_SERIALIZER_MAP.put(extensionClass.getCode(), extensionClass.getExtInstance());
+    });
+
 
     /**
      * 按序列化名称返回协议对象
      *
-     * @param alias
+     * @param alias 序列化名称
      * @return 序列化器
      */
     public static Serializer getSerializer(String alias) {
-        // 工厂模式 自己维护不托管给ExtensionLoader
-        Serializer serializer = SERIALIZER_MAP.get(alias);
-        if (serializer == null) {
-            synchronized (SerializerFactory.class) {
-                serializer = SERIALIZER_MAP.get(alias);
-                if (serializer == null) {
-                    LOGGER.info("Init protocol : {}", alias);
-                    serializer = extensionLoader.getExtension(alias);
-                    byte code = serializer.getCode();
-                    if (SERIALIZER_MAP.containsKey(code)) {
-                        throw new BsoaRuntimeException(22222, "Duplicate protocol with same code!");
-                    }
-                    SERIALIZER_MAP.put(alias, serializer);
-                    SERIALIZER_MAP.put(code, serializer);
-                }
-            }
-        }
-        return serializer;
+        // 工厂模式  托管给ExtensionLoader
+        return extensionLoader.getExtension(alias);
     }
 
+    /**
+     * 按序列化名称返回协议对象
+     *
+     * @param type 序列号编码
+     * @return 序列化器
+     */
     public static Serializer getSerializer(byte type) {
-        return SERIALIZER_MAP.get(type);
+        return TYPE_SERIALIZER_MAP.get(type);
     }
 
 }

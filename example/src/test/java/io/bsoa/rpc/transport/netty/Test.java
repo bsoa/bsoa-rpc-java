@@ -14,36 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.bsoa.rpc.transport;
+package io.bsoa.rpc.transport.netty;
 
-import io.bsoa.rpc.ext.Extensible;
+import io.bsoa.rpc.protocol.Protocol;
+import io.bsoa.rpc.protocol.ProtocolFactory;
 
 /**
  * <p></p>
- * <p>
- * Created by zhangg on 2016/12/15 23:08. <br/>
+ *
+ * Created by zhangg on 2016/12/25 01:54. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-@Extensible(singleton = false)
-public interface ServerTransport {
+public class Test {
 
-    /**
-     * 设置配置
-     *
-     * @param serverConfig
-     */
-    void setConfig(ServerTransportConfig serverConfig);
 
-    /**
-     * 启动
-     *
-     * @return
-     */
-    boolean start();
-
-    /**
-     * 停止
-     */
-    void stop();
+    public static void main(String[] args) {
+        Protocol protocol = ProtocolFactory.getProtocol("bsoa");
+        Protocol protocol1 = ProtocolFactory.getProtocol((byte) 10);
+        System.out.println("11");
+    }
 }
