@@ -112,9 +112,9 @@ public class ExtensionLoader<T> {
             singleton = extensible.singleton();
         }
 
-        factory = singleton ? new ConcurrentHashMap<String, T>() : null;
-        all = new ConcurrentHashMap<String, ExtensionClass<T>>();
-        autoActives = new ConcurrentHashMap<String, ExtensionClass<T>>();
+        factory = singleton ? new ConcurrentHashMap<>() : null;
+        all = new ConcurrentHashMap<>();
+        autoActives = new ConcurrentHashMap<>();
         if (autoLoad) {
             List<String> paths = BsoaConfigs.getListValue(BsoaConfigs.EXTENSION_LOAD_PATH);
             for (String path : paths) {

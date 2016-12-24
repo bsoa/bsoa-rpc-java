@@ -13,12 +13,20 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package io.bsoa.rpc;
+package io.bsoa.rpc.codec;
+
+import io.bsoa.rpc.base.Coded;
+import io.bsoa.rpc.ext.Extensible;
 
 /**
  * Created by zhanggeng on 16-6-7.
  *
- * @author <a href=mailto:ujjboy@qq.com>Geng Zhang</a>
+ * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
  */
-public interface Deserializer {
+@Extensible(singleton = false)
+public interface Serializer extends Coded {
+
+    public byte[] encode(Object obj);
+
+    public Object decode(byte[] datas, Class clazz);
 }

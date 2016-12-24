@@ -17,9 +17,7 @@
 package io.bsoa.rpc.message;
 
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
-import io.bsoa.rpc.common.BsoaConstants;
 import io.bsoa.rpc.common.type.HeadKey;
 
 /**
@@ -31,105 +29,30 @@ import io.bsoa.rpc.common.type.HeadKey;
  */
 public class RPCMessage extends BaseMessage {
 
-    private int length; // 总长度
-    private int headLength;
-    private byte protocolType;
-    private byte serializationType;
-    private byte compressType;
-    private byte messageType;
-    private int messageId;
-    private Map<Byte,Object> keysMap = new ConcurrentHashMap<Byte,Object>();
-
-
-    public int getLength() {
-        return length;
-    }
-
-    public void setLength(int length) {
-        this.length = length;
-    }
-
-    public int getHeadLength() {
-        return headLength;
-    }
-
-    public void setHeadLength(int headLength) {
-        this.headLength = headLength;
-    }
-
-    public byte getProtocolType() {
-        return protocolType;
-    }
-
-    public void setProtocolType(byte protocolType) {
-        this.protocolType = protocolType;
-    }
-
-    public byte getSerializationType() {
-        return serializationType;
-    }
-
-    public void setSerializationType(byte serializationType) {
-        this.serializationType = serializationType;
-    }
-
-    public byte getCompressType() {
-        return compressType;
-    }
-
-    public void setCompressType(byte compressType) {
-        this.compressType = compressType;
-    }
-
-    public byte getMessageType() {
-        return messageType;
-    }
-
-    public void setMessageType(byte messageType) {
-        this.messageType = messageType;
-    }
-
-    public int getMessageId() {
-        return messageId;
-    }
-
-    public void setMessageId(int messageId) {
-        this.messageId = messageId;
-    }
-
-    public Map<Byte, Object> getKeysMap() {
-        return keysMap;
-    }
-
-    public void setKeysMap(Map<Byte, Object> keysMap) {
-        this.keysMap = keysMap;
-    }
-
-
     public void addHeadKey(HeadKey key, Object value) {
         if (!key.getType().isInstance(value)) { // 检查类型
             throw new IllegalArgumentException("type mismatch of key:" + key.getNum() + ", expect:"
                     + key.getType().getName() + ", actual:" + value.getClass().getName());
         }
-        keysMap.put(key.getNum(), value);
+        headKeys.put(key.getNum(), value);
     }
 
     public Object removeByKey(HeadKey key){
-        return keysMap.remove(key.getNum());
+        return headKeys.remove(key.getNum());
     }
 
     public Object getAttrByKey(HeadKey key){
-        return keysMap.get(key.getNum());
+        return headKeys.get(key.getNum());
 
     }
 
     public void setValuesInKeyMap(Map<Byte,Object> valueMap){
-        this.keysMap.putAll(valueMap);
+        this.headKeys.putAll(valueMap);
 
     }
 
     public int getAttrMapSize(){
-        int mapSize = keysMap.size();
+        int mapSize = headKeys.size();
         return mapSize;
     }
 }

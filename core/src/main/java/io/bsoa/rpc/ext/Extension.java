@@ -23,8 +23,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- *
- *
  * Created by zhangg on 2016/7/14 22:09.
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>

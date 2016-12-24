@@ -36,4 +36,9 @@ public class NettyByteBuf implements AbstractByteBuf {
     public ByteBuf getByteBuf() {
         return byteBuf;
     }
+
+    @Override
+    public boolean release() {
+        return byteBuf.release();
+    }
 }

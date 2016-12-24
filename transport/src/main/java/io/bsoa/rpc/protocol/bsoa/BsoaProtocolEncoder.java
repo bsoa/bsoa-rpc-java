@@ -18,15 +18,34 @@
  */
 package io.bsoa.rpc.protocol.bsoa;
 
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.bsoa.rpc.codec.Compressor;
+import io.bsoa.rpc.codec.CompressorFactory;
+import io.bsoa.rpc.codec.Serializer;
+import io.bsoa.rpc.codec.SerializerFactory;
+import io.bsoa.rpc.common.BsoaConfigs;
+import io.bsoa.rpc.common.BsoaConstants;
+import io.bsoa.rpc.common.utils.CodecUtils;
+import io.bsoa.rpc.common.utils.CommonUtils;
 import io.bsoa.rpc.exception.BsoaRpcException;
 import io.bsoa.rpc.ext.Extension;
 import io.bsoa.rpc.message.BaseMessage;
+import io.bsoa.rpc.message.HeartbeatRequest;
+import io.bsoa.rpc.message.HeartbeatResponse;
+import io.bsoa.rpc.message.RpcRequest;
+import io.bsoa.rpc.message.RpcResponse;
 import io.bsoa.rpc.protocol.ProtocolEncoder;
 import io.bsoa.rpc.protocol.ProtocolInfo;
 import io.bsoa.rpc.transport.AbstractByteBuf;
 import io.bsoa.rpc.transport.netty.NettyByteBuf;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandlerContext;
+
+import static io.bsoa.rpc.common.BsoaConfigs.COMPRESS_OPEN;
+import static io.bsoa.rpc.common.BsoaConfigs.COMPRESS_SIZE_BASELINE;
 
 /**
  * <p></p>
@@ -38,54 +57,18 @@ import io.netty.channel.ChannelHandlerContext;
 @Extension("bsoa")
 public class BsoaProtocolEncoder implements ProtocolEncoder {
 
-    public void encode(ChannelHandlerContext ctx, Object msg, AbstractByteBuf byteBuf) throws Exception {
-        NettyByteBuf src = (NettyByteBuf) byteBuf;
-        ByteBuf out = src.getByteBuf();
-        ByteBuf headBody = null;
-        if (out == null) {
-            out = ctx.alloc().buffer();
-        }
-        try {
-            if (msg instanceof BaseMessage) {
-//                BaseMessage base = (BaseMessage)msg;
-//                if(base.getMsg() != null){
-//                    write(base.getMsg(),out);
-//                    base.getMsg().release();
-//                }else{
-//                    headBody = ctx.alloc().heapBuffer();
-//                    ProtocolUtil.encode(msg, headBody);
-//                    write(headBody,out);
-//                }
-            } else if (msg instanceof String) {
-                out.writeBytes(protocolInfo.magicCode().getBytes()); // 先来两个魔术位  2+4+4=10
-                out.writeInt(((String) msg).length());
-                out.writeBytes(((String) msg).getBytes("UTF-8"));
-            } else {
-                throw new BsoaRpcException(22222, "Not support this type of Object.");
-            }
-
-        } finally {
-            if (headBody != null) {
-                headBody.release();
-            }
-        }
-    }
-
     /**
-     * 复制数据
-     *
-     * @param data 序列化后的数据
-     * @param out  回传的数据
+     * slf4j Logger for this class
      */
-//    private void write(ByteBuf data, ByteBuf out) {
-//        int totalLength = 2 + 4 + data.readableBytes();
-//        if (out.capacity() < totalLength) out.capacity(totalLength);
-//        out.writeBytes(Constants.MAGICCODEBYTE); // 写入magiccode
-//        int length = totalLength - 2; //  data.readableBytes() + 4  (4指的是FULLLENGTH)
-//        out.writeInt(length);   //4 for Length Field
-//        out.writeBytes(data, data.readerIndex(), data.readableBytes());
-//        //logger.trace("out length:{}",out.readableBytes());
-//    }
+    private final static Logger LOGGER = LoggerFactory.getLogger(BsoaProtocolEncoder.class);
+
+    private boolean compressOpen = BsoaConfigs.getBooleanValue(COMPRESS_OPEN);
+    private int compressSize = BsoaConfigs.getIntValue(COMPRESS_SIZE_BASELINE);
+
+    public BsoaProtocolEncoder() {
+        BsoaConfigs.subscribe(COMPRESS_SIZE_BASELINE, (oldValue, newValue) -> compressSize = (int) newValue);
+        BsoaConfigs.subscribe(COMPRESS_OPEN, (oldValue, newValue) -> compressOpen = (boolean) newValue);
+    }
 
     private ProtocolInfo protocolInfo;
 
@@ -99,17 +82,115 @@ public class BsoaProtocolEncoder implements ProtocolEncoder {
         NettyByteBuf src = (NettyByteBuf) byteBuf;
         ByteBuf out = src.getByteBuf();
 
+        if (object instanceof BaseMessage) {
+            short headerLength = 10;
+            BaseMessage msg = (BaseMessage) object;
+
+            // 0-1 2位魔术位
+            out.writeBytes(protocolInfo.getMagicCode().getBytes());
+            // 2-5 4位总长度（包括魔术位和自己），先占位
+            out.writeInt(0);
+            // 6-7 2位头部长度(包括自己2位+后面的头），先占位
+            int headLengthIndex = out.writerIndex();
+            out.writeShort(0);
+            // 8-11 消息/协议/序列化/压缩
+            out.writeByte(msg.getMessageType());
+            out.writeByte(msg.getProtocolType());
+            out.writeByte(msg.getSerializationType());
+            out.writeByte(msg.getCompressType());
+            // 12-15 4位 消息Id
+            out.writeByte(msg.getMessageId());
+
+            if (CommonUtils.isNotEmpty(msg.getHeadKeys())) {
+                headerLength += map2bytes(msg.getHeadKeys(), out);
+                out.setBytes(headLengthIndex, CodecUtils.short2bytes(headerLength)); // 替换head长度的两位
+            }
+            msg.setTotalLength(headerLength + 6); // 目前out
+        } else {
+            LOGGER.warn("Unsupported type :{}", object.getClass());
+            throw new BsoaRpcException(22222, "Unsupported object type");
+        }
     }
 
     @Override
     public void encodeBody(Object object, AbstractByteBuf byteBuf) {
         NettyByteBuf src = (NettyByteBuf) byteBuf;
         ByteBuf out = src.getByteBuf();
-        // 先占位
+        if (object instanceof BaseMessage) {
+            BaseMessage msg = (BaseMessage) object;
+            int totalLength = msg.getTotalLength();
+            if (object instanceof RpcRequest
+                    || object instanceof RpcResponse) {
+                Serializer serializer = SerializerFactory.getSerializer(msg.getSerializationType());
+                // 序列化
+                byte[] bs = serializer.encode(object);
+                // 如果配置了要压缩
+                if (msg.getCompressType() > 0) {
+                    if (compressOpen && msg.getCompressType() > 0 && bs.length > compressSize) {
+                        // 全局开启压缩，且配置了要压缩，且超过压缩大小基线
+                        Compressor compressor = CompressorFactory.getCompressor(msg.getCompressType());
+                        bs = compressor.compress(bs);
+                    } else {
+                        msg.setCompressType(Compressor.NONE);
+                        out.setByte(11, Compressor.NONE); // 修改压缩类型
+                    }
+                }
+                out.writeBytes(bs);
+                totalLength += bs.length;
+            } else if (object instanceof HeartbeatRequest) {
+                out.writeLong(((HeartbeatRequest) object).getTimestamp());
+                totalLength += 4;
+            } else if (object instanceof HeartbeatResponse) {
+                out.writeLong(((HeartbeatRequest) object).getTimestamp());
+                totalLength += 4;
+            }
+            out.setBytes(2, CodecUtils.intToBytes(totalLength)); // 更新字段
+        } else {
+            LOGGER.warn("Unsupported type :{}", object.getClass());
+            throw new BsoaRpcException(22222, "Unsupported object type");
+        }
+
     }
 
     @Override
     public void encodeAll(Object object, AbstractByteBuf byteBuf) {
+        encodeHeader(object, byteBuf);
+        encodeBody(object, byteBuf);
+    }
 
+
+    protected static short map2bytes(Map<Byte, Object> dataMap, ByteBuf byteBuf) {
+        byteBuf.writeByte(dataMap.size());
+        short s = 1;
+        for (Map.Entry<Byte, Object> attr : dataMap.entrySet()) {
+            byte key = attr.getKey();
+            Object val = attr.getValue();
+            if (val instanceof Integer) {
+                byteBuf.writeByte(key);
+                byteBuf.writeByte((byte) 1);
+                byteBuf.writeInt((Integer) val);
+                s += 6;
+            } else if (val instanceof String) {
+                byteBuf.writeByte(key);
+                byteBuf.writeByte((byte) 2);
+                byte[] bs = ((String) val).getBytes(BsoaConstants.DEFAULT_CHARSET);
+                byteBuf.writeShort(bs.length);
+                byteBuf.writeBytes(bs);
+                s += (4 + bs.length);
+            } else if (val instanceof Byte) {
+                byteBuf.writeByte(key);
+                byteBuf.writeByte((byte) 3);
+                byteBuf.writeByte((Byte) val);
+                s += 3;
+            } else if (val instanceof Short) {
+                byteBuf.writeByte(key);
+                byteBuf.writeByte((byte) 4);
+                byteBuf.writeShort((Short) val);
+                s += 4;
+            } else {
+                throw new BsoaRpcException(22222, "Value of attrs in message header must be byte/short/int/string");
+            }
+        }
+        return s;
     }
 }

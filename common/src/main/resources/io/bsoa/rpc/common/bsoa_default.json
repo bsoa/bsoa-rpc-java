@@ -79,7 +79,10 @@
   "transport.buffer.size" : 8192,
   "transport.buffer.max" : 32768,
   "transport.buffer.min" : 1024,
-  "transport.connection.reuse":true // 是否跨接口长链接复用
+  "transport.connection.reuse":true, // 是否跨接口长链接复用
+
+  "compress.open" : true, // 是否开启压缩
+  "compress.size.baseline" : 2048 // 开启压缩的大小基线
 
   //adadad
 }

@@ -13,7 +13,7 @@
         <module>core</module>
         <module>common</module>
         <module>protocol</module>
-        <!--<module>codec</module>-->
+        <module>codec</module>
         <!--<module>config</module>-->
         <!--<module>client</module>-->
         <module>server</module>
@@ -374,7 +374,7 @@
     <developers>
         <developer>
             <name>Geng Zhang</name>
-            <email>ujjboy@qq.com</email>
+            <email>zhanggeng@howtimeflies.org</email>
             <organization>Beyond SOA</organization>
         </developer>
     </developers>

@@ -20,6 +20,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +50,8 @@ public class BsoaConfigs {
      * 全部配置
      */
     private final static ConcurrentHashMap<String, Object> CFG = new ConcurrentHashMap<>();
+
+    private final static ConcurrentHashMap<String, List<ConfigListener>> CFG_LISTENER = new ConcurrentHashMap<>();
 
     static {
         try {
@@ -104,6 +107,19 @@ public class BsoaConfigs {
                 } catch (IOException e) {
                     throw e;
                 }
+            }
+        }
+    }
+
+    public static void putValue(String key, Object newValue) {
+        Object oldValue = CFG.get(key);
+        if (oldValue != null && oldValue.equals(newValue)) {
+            // No onChange
+        } else {
+            CFG.put(key, newValue);
+            List<ConfigListener> configListeners = CFG_LISTENER.get(key);
+            for (ConfigListener configListener : configListeners) {
+                configListener.onChange(oldValue, newValue);
             }
         }
     }
@@ -418,5 +434,39 @@ public class BsoaConfigs {
      */
     public final static String TRANSPORT_SERVER_PROTOCOL_ADAPTIVE = "transport.server.protocol.adaptive";
 
+    /**
+     * 是否开启压缩
+     */
+    public final static String COMPRESS_OPEN = "compress.open";
+    /**
+     * 开启压缩的大小基线
+     */
+    public final static String COMPRESS_SIZE_BASELINE = "compress.size.baseline";
+
+    public static synchronized void subscribe(String key, ConfigListener configListener) {
+        List<ConfigListener> listeners = CFG_LISTENER.get(key);
+        if (listeners == null) {
+            listeners = new ArrayList<>();
+            CFG_LISTENER.put(key, listeners);
+        }
+        listeners.add(configListener);
+    }
+
+    public static synchronized void unSubscribe(String key, ConfigListener configListener) {
+        List<ConfigListener> listeners = CFG_LISTENER.get(key);
+        if (listeners != null) {
+            listeners.remove(configListener);
+            if (listeners.size() == 0) {
+                CFG_LISTENER.remove(key);
+            }
+        }
+    }
+
+    /**
+     *
+     */
+    public interface ConfigListener<T> {
+        public void onChange(T oldValue, T newValue);
+    }
 
 }

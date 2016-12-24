@@ -24,7 +24,7 @@ import io.bsoa.rpc.common.BsoaConstants;
 /**
  * Created by zhanggeng on 16-7-7.
  *
- * @author <a href=mailto:ujjboy@qq.com>Geng Zhang</a>
+ * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
  */
 public class RegistryConfig extends AbstractIdConfig implements Serializable {
 

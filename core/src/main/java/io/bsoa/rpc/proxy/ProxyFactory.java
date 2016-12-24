@@ -15,10 +15,10 @@
  */
 package io.bsoa.rpc.proxy;
 
-import io.bsoa.rpc.Invoker;
-import io.bsoa.rpc.common.utils.ClassLoaderUtils;
-import io.bsoa.rpc.exception.BsoaRuntimeException;
+import io.bsoa.rpc.base.Invoker;
+import io.bsoa.rpc.common.utils.ClassUtils;
 import io.bsoa.rpc.common.utils.ExceptionUtils;
+import io.bsoa.rpc.exception.BsoaRuntimeException;
 import io.bsoa.rpc.ext.ExtensionClass;
 import io.bsoa.rpc.ext.ExtensionLoaderFactory;
 
@@ -27,7 +27,7 @@ import io.bsoa.rpc.ext.ExtensionLoaderFactory;
  *
  * Created by zhanggeng on 16-6-7.
  *
- * @author <a href=mailto:ujjboy@qq.com>Geng Zhang</a>
+ * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
  */
 public final class ProxyFactory {
 
@@ -54,7 +54,7 @@ public final class ProxyFactory {
                         "Unsupported proxy of client!");
             }
             Class<? extends Proxy> proxyClass = ext.getClazz();
-            Proxy proxy = ClassLoaderUtils.newInstance(proxyClass);
+            Proxy proxy = ClassUtils.newInstance(proxyClass);
             return proxy.getProxy(clazz, proxyInvoker);
         } catch (BsoaRuntimeException e) {
             throw e;

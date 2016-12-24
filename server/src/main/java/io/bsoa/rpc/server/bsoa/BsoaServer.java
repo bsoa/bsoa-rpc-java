@@ -16,7 +16,7 @@
  */
 package io.bsoa.rpc.server.bsoa;
 
-import io.bsoa.rpc.Invoker;
+import io.bsoa.rpc.base.Invoker;
 import io.bsoa.rpc.config.ProviderConfig;
 import io.bsoa.rpc.config.ServerConfig;
 import io.bsoa.rpc.ext.Extension;

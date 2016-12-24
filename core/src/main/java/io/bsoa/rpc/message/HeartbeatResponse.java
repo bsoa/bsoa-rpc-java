@@ -20,11 +20,20 @@ import java.io.Serializable;
 
 /**
  * <p></p>
- *
+ * <p>
  * Created by zhangg on 2016/12/10 22:20. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
 public class HeartbeatResponse extends BaseMessage implements Serializable {
 
+    private long timestamp;
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+    }
 }

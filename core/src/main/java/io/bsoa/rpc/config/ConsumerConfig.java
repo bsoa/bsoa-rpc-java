@@ -27,7 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.bsoa.rpc.GenericService;
-import io.bsoa.rpc.Invoker;
+import io.bsoa.rpc.base.Invoker;
 import io.bsoa.rpc.client.Client;
 import io.bsoa.rpc.client.ClientFactory;
 import io.bsoa.rpc.client.ClientProxyInvoker;
@@ -52,7 +52,7 @@ import io.bsoa.rpc.registry.RegistryFactory;
 /**
  * Created by zhanggeng on 16-7-7.
  *
- * @author <a href=mailto:ujjboy@qq.com>Geng Zhang</a>
+ * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
  */
 public class ConsumerConfig<T> extends AbstractInterfaceConfig implements Serializable {
 

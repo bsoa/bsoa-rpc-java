@@ -22,7 +22,7 @@ import io.bsoa.rpc.config.ConsumerConfig;
 /**
  * Created by zhanggeng on 16-6-7.
  *
- * @author <a href=mailto:ujjboy@qq.com>Geng Zhang</a>
+ * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
  */
 public interface Client {
     void init(ConsumerConfig consumerConfig);

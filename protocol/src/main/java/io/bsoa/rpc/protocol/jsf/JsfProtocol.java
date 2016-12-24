@@ -57,4 +57,9 @@ public class JsfProtocol implements Protocol {
         decoder.setProtocolInfo(protocolInfo);
         return decoder;
     }
+
+    @Override
+    public byte getCode() {
+        return 1;
+    }
 }

@@ -16,8 +16,9 @@
  */
 package io.bsoa.rpc.proxy;
 
-import io.bsoa.rpc.Invoker;
+import io.bsoa.rpc.base.Invoker;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
+import io.bsoa.rpc.ext.Extensible;
 
 /**
  *
@@ -26,6 +27,7 @@ import io.bsoa.rpc.exception.BsoaRuntimeException;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
+@Extensible
 public interface Proxy {
 
     public <T> T getProxy(Class<T> interfaceClass, Invoker proxyInvoker) throws BsoaRuntimeException;

@@ -1,0 +1,2 @@
+lzma=io.bsoa.rpc.compress.lzma.QuickLZCompressor
+snappy=io.bsoa.rpc.compress.snappy.Snappy

@@ -25,6 +25,8 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.FixedLengthFrameDecoder;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
+import io.netty.handler.logging.LogLevel;
+import io.netty.handler.logging.LoggingHandler;
 
 /**
  * <p></p>
@@ -58,10 +60,11 @@ public class NettyClientChannelInitializer extends ChannelInitializer<SocketChan
                         protocolInfo.lengthFieldLength(),
                         protocolInfo.lengthAdjustment(),
                         protocolInfo.initialBytesToStrip(),
-                        false)); // TODO failfast ??
-        pipeline.addLast("encoder", new NettyEncoder(protocol));
-        pipeline.addLast("decoder", new NettyDecoder(protocol));
-        pipeline.addLast("clientChannelHandler", clientChannelHandler);
+                        false)) // TODO failfast ??
+                .addLast("encoder", new NettyEncoder(protocol))
+                .addLast("decoder", new NettyDecoder(protocol))
+                .addLast("logging", new LoggingHandler(LogLevel.INFO))
+                .addLast("clientChannelHandler", clientChannelHandler);
     }
 
 }

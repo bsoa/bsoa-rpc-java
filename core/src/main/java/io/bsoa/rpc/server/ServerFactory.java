@@ -21,10 +21,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.bsoa.rpc.common.utils.ClassLoaderUtils;
+import io.bsoa.rpc.common.utils.ClassUtils;
+import io.bsoa.rpc.common.utils.ExceptionUtils;
 import io.bsoa.rpc.config.ServerConfig;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
-import io.bsoa.rpc.common.utils.ExceptionUtils;
 import io.bsoa.rpc.ext.ExtensionClass;
 import io.bsoa.rpc.ext.ExtensionLoaderFactory;
 
@@ -56,7 +56,7 @@ public final class ServerFactory {
                             "Unsupported protocol of server!");
                 }
                 Class<? extends Server> serverClazz = ext.getClazz();
-                server = ClassLoaderUtils.newInstance(serverClazz);
+                server = ClassUtils.newInstance(serverClazz);
                 server.init(serverConfig);
                 SERVERMAP.putIfAbsent(serverConfig.getPort()+"", server);
                 server.start();

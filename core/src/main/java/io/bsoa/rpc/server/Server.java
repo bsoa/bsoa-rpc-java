@@ -15,14 +15,14 @@
  */
 package io.bsoa.rpc.server;
 
-import io.bsoa.rpc.Invoker;
+import io.bsoa.rpc.base.Invoker;
 import io.bsoa.rpc.config.ProviderConfig;
 import io.bsoa.rpc.config.ServerConfig;
 
 /**
  * Created by zhanggeng on 16-6-7.
  *
- * @author <a href=mailto:ujjboy@qq.com>Geng Zhang</a>
+ * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
  */
 public interface Server {
     /**

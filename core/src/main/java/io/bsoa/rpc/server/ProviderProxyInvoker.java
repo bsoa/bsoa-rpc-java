@@ -19,7 +19,7 @@ package io.bsoa.rpc.server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.bsoa.rpc.Invoker;
+import io.bsoa.rpc.base.Invoker;
 import io.bsoa.rpc.config.ProviderConfig;
 import io.bsoa.rpc.filter.FilterChain;
 import io.bsoa.rpc.filter.ProviderInvokeFilter;

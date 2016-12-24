@@ -46,8 +46,8 @@ public class ProtocolFactory {
     /**
      * 按协议名称返回协议对象
      *
-     * @param alias
-     * @return
+     * @param alias 协议名称
+     * @return 协议对象
      */
     public static Protocol getProtocol(String alias) {
         // 工厂模式 自己维护不托管给ExtensionLoader
@@ -58,17 +58,26 @@ public class ProtocolFactory {
                 if (protocol == null) {
                     LOGGER.info("Init protocol : {}", alias);
                     protocol = extensionLoader.getExtension(alias);
-
+                    byte code = protocol.getCode();
+                    if (PROTOCOL_MAP.containsKey(code)) {
+                        throw new BsoaRuntimeException(22222, "Duplicate protocol with same code!");
+                    }
                     PROTOCOL_MAP.put(alias, protocol);
-                    PROTOCOL_MAP.put(protocol.protocolInfo().getType(), protocol);
+                    PROTOCOL_MAP.put(code, protocol);
                 }
             }
         }
         return protocol;
     }
 
-    public static Protocol getProtocol(byte type) {
-        return PROTOCOL_MAP.get(type);
+    /**
+     * 按协议名称返回协议对象
+     *
+     * @param code 协议编码
+     * @return 协议对象
+     */
+    public static Protocol getProtocol(byte code) {
+        return PROTOCOL_MAP.get(code);
     }
 
     private static int maxMagicOffset = 2; // 最大偏移量，用于一个端口支持多协议时使用
@@ -81,7 +90,7 @@ public class ProtocolFactory {
         }
         // 取最大偏移量
         maxMagicOffset = Math.max(protocolInfo.magicFieldOffset(), maxMagicOffset + protocolInfo.magicFieldOffset());
-        String old = MAGIC_PROTOCOL_MAP.putIfAbsent(protocolInfo.magicCode(), protocolInfo.getName());
+        String old = MAGIC_PROTOCOL_MAP.putIfAbsent(protocolInfo.getMagicCode(), protocolInfo.getName());
         if (old != null && !old.equals(protocolInfo.getName())) {
             throw new BsoaRuntimeException(22222, "Same magic code with different protocol!");
         }

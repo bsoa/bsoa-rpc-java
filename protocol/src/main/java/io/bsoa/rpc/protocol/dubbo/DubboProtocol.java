@@ -61,4 +61,9 @@ public class DubboProtocol implements Protocol {
         decoder.setProtocolInfo(protocolInfo);
         return decoder;
     }
+
+    @Override
+    public byte getCode() {
+        return 3;
+    }
 }

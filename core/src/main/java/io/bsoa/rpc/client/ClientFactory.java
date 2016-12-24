@@ -16,10 +16,10 @@
  */
 package io.bsoa.rpc.client;
 
-import io.bsoa.rpc.common.utils.ClassLoaderUtils;
+import io.bsoa.rpc.common.utils.ClassUtils;
+import io.bsoa.rpc.common.utils.ExceptionUtils;
 import io.bsoa.rpc.config.ConsumerConfig;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
-import io.bsoa.rpc.common.utils.ExceptionUtils;
 import io.bsoa.rpc.ext.ExtensionClass;
 import io.bsoa.rpc.ext.ExtensionLoaderFactory;
 
@@ -47,7 +47,7 @@ public class ClientFactory {
                         "Unsupported protocol of server!");
             }
             Class<? extends Client> clientClass = ext.getClazz();
-            client = ClassLoaderUtils.newInstance(clientClass);
+            client = ClassUtils.newInstance(clientClass);
             client.init(consumerConfig);
             return client;
         } catch (BsoaRuntimeException e) {

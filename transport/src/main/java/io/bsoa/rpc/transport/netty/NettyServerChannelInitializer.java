@@ -28,6 +28,8 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.FixedLengthFrameDecoder;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
+import io.netty.handler.logging.LogLevel;
+import io.netty.handler.logging.LoggingHandler;
 
 /**
  * <p></p>
@@ -73,6 +75,7 @@ public class NettyServerChannelInitializer extends ChannelInitializer<SocketChan
                             false)) // TODO failfast ??
                     .addLast("encoder", new NettyEncoder(protocol))
                     .addLast("decoder", new NettyDecoder(protocol))
+                    .addLast("logging", new LoggingHandler(LogLevel.INFO))
                     .addLast("serverChannelHandler", serverChannelHandler);
         }
     }

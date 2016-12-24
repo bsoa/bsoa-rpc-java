@@ -87,7 +87,7 @@ public class BsoaProtocolInfo extends ProtocolInfo {
     }
 
     @Override
-    public MagicCode magicCode() {
+    public MagicCode getMagicCode() {
         return magicCode;
     }
 }

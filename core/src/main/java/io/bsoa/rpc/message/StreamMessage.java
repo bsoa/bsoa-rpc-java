@@ -25,7 +25,7 @@ import io.bsoa.rpc.transport.AbstractByteBuf;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public class StreamMessage extends BaseMessage {
+public abstract class StreamMessage extends BaseMessage {
 
     protected short frameId;
 

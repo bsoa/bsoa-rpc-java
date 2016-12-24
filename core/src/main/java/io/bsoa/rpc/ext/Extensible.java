@@ -35,16 +35,16 @@ import java.lang.annotation.Target;
 public @interface Extensible {
 
     /**
-     * 扩展文件使用名字，默认就是全类名
+     * 指定自定义扩展文件名称，默认就是全类名
      *
-     * @return
+     * @return 自定义扩展文件名称
      */
     String file() default "";
 
     /**
-     * 扩展类是否使用单例
+     * 扩展类是否使用单例，默认使用
      *
-     * @return
+     * @return 是否使用单例
      */
     boolean singleton() default true;
 }

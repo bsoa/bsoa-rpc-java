@@ -33,16 +33,16 @@ public abstract class ProtocolInfo {
     /**
      * 协议ID
      */
-    protected final byte type;
+    protected final byte code;
 
     /**
      * 是否定长协议
      */
     protected final boolean lengthFixed;
 
-    public ProtocolInfo(String name, byte type, boolean lengthFixed) {
+    public ProtocolInfo(String name, byte code, boolean lengthFixed) {
         this.name = name;
-        this.type = type;
+        this.code = code;
         this.lengthFixed = lengthFixed;
     }
 
@@ -60,8 +60,8 @@ public abstract class ProtocolInfo {
      *
      * @return 协议ID
      */
-    public byte getType() {
-        return type;
+    public byte getCode() {
+        return code;
     }
 
     /**
@@ -127,7 +127,7 @@ public abstract class ProtocolInfo {
      *
      * @return 魔术位的值
      */
-    public abstract MagicCode magicCode();
+    public abstract MagicCode getMagicCode();
 
     public static class MagicCode {
         /**

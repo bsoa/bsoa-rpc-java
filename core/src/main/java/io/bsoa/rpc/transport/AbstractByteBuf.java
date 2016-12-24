@@ -25,7 +25,6 @@ package io.bsoa.rpc.transport;
  */
 public interface AbstractByteBuf {
 
-
    /* public int capacity();
 
     public ByteBufferHolder capacity(int newCapacity);
@@ -356,7 +355,7 @@ public interface AbstractByteBuf {
 
     public ByteBufferHolder touch(Object hint);
 
-    public boolean release();
-
     public boolean release(int decrement);*/
+
+    public boolean release();
 }
