@@ -48,7 +48,7 @@ public class ProtocolFactory {
      */
     private final static ExtensionLoader<Protocol> extensionLoader
             = ExtensionLoaderFactory.getExtensionLoader(Protocol.class, extensionClass -> {
-        // 除了保留 alias：Protocol外， 需要保留 code：Protocol
+        // 除了保留 GROUP：Protocol外， 需要保留 code：Protocol
         TYPE_PROTOCOL_MAP.put(extensionClass.getCode(), extensionClass.getExtInstance());
     });
 

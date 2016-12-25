@@ -185,22 +185,22 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig{
     }
 
     /**
-     * Gets alias.
+     * Gets GROUP.
      *
-     * @return the alias
+     * @return the GROUP
      */
     public String getAlias() {
         return alias;
     }
 
     /**
-     * Sets alias.
+     * Sets GROUP.
      *
      * @param alias
-     *         the alias
+     *         the GROUP
      */
     public void setAlias(String alias) {
-        checkNormalWithColon("alias", alias);
+        checkNormalWithColon("GROUP", alias);
         this.alias = alias;
     }
 

@@ -129,7 +129,7 @@ public class ProviderInvokeFilter<T> implements Filter {
     private Object reflectInvoke(Object impl, Invocation invocation) throws NoSuchMethodException,
             ClassNotFoundException, InvocationTargetException, IllegalAccessException {
 
-        Method method = ReflectUtils.getMethod(invocation.getClassName(),
+        Method method = ReflectUtils.getMethod(invocation.getInterfaceName(),
                 invocation.getMethodName(), invocation.getArgsType());
         return method.invoke(impl, invocation.getArgs());
     }*/

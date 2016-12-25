@@ -18,21 +18,21 @@
  */
 package io.bsoa.rpc.transport.netty;
 
-        import org.slf4j.Logger;
-        import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-        import io.bsoa.rpc.client.Provider;
-        import io.bsoa.rpc.message.HeartbeatRequest;
-        import io.bsoa.rpc.message.HeartbeatResponse;
-        import io.bsoa.rpc.message.NegotiatorRequest;
-        import io.bsoa.rpc.message.NegotiatorResponse;
-        import io.bsoa.rpc.transport.ClientTransport;
-        import io.bsoa.rpc.transport.ClientTransportConfig;
-        import io.bsoa.rpc.transport.ClientTransportFactory;
+import io.bsoa.rpc.client.Provider;
+import io.bsoa.rpc.message.HeartbeatRequest;
+import io.bsoa.rpc.message.HeartbeatResponse;
+import io.bsoa.rpc.message.NegotiatorRequest;
+import io.bsoa.rpc.message.NegotiatorResponse;
+import io.bsoa.rpc.transport.ClientTransport;
+import io.bsoa.rpc.transport.ClientTransportConfig;
+import io.bsoa.rpc.transport.ClientTransportFactory;
 
 /**
  * <p></p>
- *
+ * <p>
  * Created by zhangg on 2016/12/18 10:58. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
@@ -67,8 +67,8 @@ public class ClientTest {
 
 
         NegotiatorRequest request5 = new NegotiatorRequest();
-        request5.setCmd("ls -l");
-        request5.setData("{111,222,333}");
+        request5.setCmd("1");
+        request5.setData(null);
         NegotiatorResponse response6 = (NegotiatorResponse) transport.syncSend(request5, 60000);
         LOGGER.info("{}", response6.getRes());
     }

@@ -28,7 +28,7 @@ import java.io.Serializable;
 public class HeartbeatRequest extends BaseMessage implements Serializable {
 
     public HeartbeatRequest() {
-        super(MessageType.HEARTBEAT_REQUEST);
+        super(MessageConstants.HEARTBEAT_REQUEST);
     }
 
     private long timestamp;

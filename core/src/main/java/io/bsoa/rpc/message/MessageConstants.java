@@ -18,19 +18,71 @@ package io.bsoa.rpc.message;
 
 /**
  * <p></p>
- *
+ * <p>
  * Created by zhangg on 2016/12/25 01:28. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public class MessageType {
+public class MessageConstants {
 
+    /**
+     * 消息类型：RPC调用请求
+     */
     public final static byte RPC_REQUEST = 1;
+    /**
+     * 消息类型：RPC调用请求
+     */
     public final static byte RPC_RESPONSE = 2;
+    /**
+     * 消息类型：心跳调用请求
+     */
     public final static byte HEARTBEAT_REQUEST = 3;
+    /**
+     * 消息类型：心跳调用响应
+     */
     public final static byte HEARTBEAT_RESPONSE = 4;
+    /**
+     * 消息类型：协商调用请求
+     */
     public final static byte NEGOTIATOR_REQUEST = 5;
+    /**
+     * 消息类型：协商调用响应
+     */
     public final static byte NEGOTIATOR_RESPONSE = 6;
+    /**
+     * 消息类型：流式调用请求
+     */
     public final static byte STREAM_REQUEST = 7;
+    /**
+     * 消息类型：流式调用响应
+     */
     public final static byte STREAM_RESPONSE = 8;
+
+    /**
+     * 调用方向：正向（默认），客户端到服务端
+     */
+    public final static byte DIRECTION_FORWARD = 0;
+    /**
+     * 调用方向：单向，无需对方回应
+     */
+    public final static byte DIRECTION_ONEWAY = 1;
+    /**
+     * 调用方向：反向：服务端到客户端
+     */
+    public final static byte DIRECTION_CALLBACK = 2;
+
+    /**
+     * 默认无协议
+     */
+    public final static byte PROTOCOL_NONE = 0;
+
+    /**
+     * 默认无协议
+     */
+    public final static byte SERIALIZATION_NONE = 0;
+
+    /**
+     * 压缩默认不开启
+     */
+    public final static byte COMPRESS_NONE = 0;
 }

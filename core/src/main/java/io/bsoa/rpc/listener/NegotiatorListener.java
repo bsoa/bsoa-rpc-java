@@ -28,7 +28,5 @@ import io.bsoa.rpc.message.NegotiatorResponse;
  */
 public interface NegotiatorListener {
 
-    public String handshake(String cmd, String data);
-
     NegotiatorResponse handshake(NegotiatorRequest negotiatorRequest);
 }

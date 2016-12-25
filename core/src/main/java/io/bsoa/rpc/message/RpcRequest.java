@@ -17,8 +17,6 @@
 package io.bsoa.rpc.message;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by zhanggeng on 16-6-6.
@@ -28,16 +26,14 @@ import java.util.Map;
 public class RpcRequest extends RPCMessage implements Serializable {
 
     public RpcRequest() {
-        super(MessageType.RPC_REQUEST);
+        super(MessageConstants.RPC_REQUEST);
     }
 
-    private transient String ifaceId; // 接口id， 有的时候不传递className和argsType
+    private transient String interfaceName;
 
-    private String className;
+    private transient String methodName;
 
-    private String methodName;
-
-    private String alias;
+    private transient String group;
 
     private String[] argsType; //考虑优化class？
 
@@ -45,73 +41,58 @@ public class RpcRequest extends RPCMessage implements Serializable {
 
     private Object[] args;
 
-    private Map<String,Object> attachments = new HashMap<String,Object>();
-
-    public String getIfaceId() {
-        return ifaceId;
+    public String getInterfaceName() {
+        return interfaceName;
     }
 
-    public void setIfaceId(String ifaceId) {
-        this.ifaceId = ifaceId;
-    }
-
-    public String getClassName() {
-        return className;
-    }
-
-    public void setClassName(String className) {
-        this.className = className;
+    public RpcRequest setInterfaceName(String interfaceName) {
+        super.addHeadKey(HeadKey.INTERFACE_NAME, interfaceName);
+        this.interfaceName = interfaceName;
+        return this;
     }
 
     public String getMethodName() {
         return methodName;
     }
 
-    public void setMethodName(String methodName) {
+    public RpcRequest setMethodName(String methodName) {
         this.methodName = methodName;
+        return this;
     }
 
-    public String getAlias() {
-        return alias;
+    public String getGroup() {
+        return group;
     }
 
-    public void setAlias(String alias) {
-        this.alias = alias;
+    public RpcRequest setGroup(String group) {
+        this.group = group;
+        return this;
     }
 
     public String[] getArgsType() {
         return argsType;
     }
 
-    public void setArgsType(String[] argsType) {
+    public RpcRequest setArgsType(String[] argsType) {
         this.argsType = argsType;
+        return this;
     }
 
     public Class[] getArgClasses() {
         return argClasses;
     }
 
-    public void setArgClasses(Class[] argClasses) {
+    public RpcRequest setArgClasses(Class[] argClasses) {
         this.argClasses = argClasses;
+        return this;
     }
 
     public Object[] getArgs() {
         return args;
     }
 
-    public void setArgs(Object[] args) {
+    public RpcRequest setArgs(Object[] args) {
         this.args = args;
-    }
-
-    public Map<String, Object> getAttachments() {
-        return attachments;
-    }
-
-    public void setAttachments(Map<String, Object> attachments) {
-        this.attachments = attachments;
-    }
-
-    public void addAttachments(Map<String,Object> sourceMap){
-        this.attachments.putAll(sourceMap);
+        return this;
     }
 }

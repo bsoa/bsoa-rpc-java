@@ -16,21 +16,30 @@
  */
 package io.bsoa.rpc.codec;
 
-import io.bsoa.rpc.base.Coded;
 import io.bsoa.rpc.ext.Extensible;
 
 /**
  * <p></p>
- *
+ * <p>
  * Created by zhangg on 2016/12/24 22:13. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-@Extensible(singleton = false)
-public interface Compressor extends Coded{
-    // 不开启压缩
-    byte NONE = 0;
-
+@Extensible(singleton = false, coded = true)
+public interface Compressor {
+    /**
+     * 字节数组压缩
+     *
+     * @param src 未压缩的字节数组
+     * @return 压缩后的字节数组
+     */
     public byte[] compress(byte[] src);
+
+    /**
+     * 字节数组解压缩
+     *
+     * @param src 压缩后的源字节数组
+     * @return 解压缩后的字节数组
+     */
     public byte[] deCompress(byte[] src);
 }

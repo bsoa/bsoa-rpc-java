@@ -27,7 +27,7 @@ public class NegotiatorRequest extends BaseMessage implements Serializable {
     private static final long serialVersionUID = 7947584366795439228L;
 
     public NegotiatorRequest() {
-        super(MessageType.NEGOTIATOR_REQUEST);
+        super(MessageConstants.NEGOTIATOR_REQUEST);
     }
 
 

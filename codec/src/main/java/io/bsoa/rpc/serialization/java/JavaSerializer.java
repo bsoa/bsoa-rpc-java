@@ -35,7 +35,7 @@ import io.bsoa.rpc.message.RpcResponse;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-@Extension("java")
+@Extension(value = "java", code = 3)
 public class JavaSerializer implements Serializer {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(JavaSerializer.class);
@@ -139,10 +139,5 @@ public class JavaSerializer implements Serializer {
             }
         }
         return null;
-    }
-
-    @Override
-    public byte getCode() {
-        return 3;
     }
 }

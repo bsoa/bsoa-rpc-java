@@ -48,7 +48,7 @@ public final class SerializerFactory {
      */
     private final static ExtensionLoader<Serializer> extensionLoader
             = ExtensionLoaderFactory.getExtensionLoader(Serializer.class, extensionClass -> {
-        // 除了保留 alias：Serializer外， 需要保留 code：Serializer
+        // 除了保留 GROUP：Serializer外， 需要保留 code：Serializer
         TYPE_SERIALIZER_MAP.put(extensionClass.getCode(), extensionClass.getExtInstance());
     });
 

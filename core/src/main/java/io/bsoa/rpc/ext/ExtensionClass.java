@@ -32,7 +32,7 @@ import io.bsoa.rpc.common.utils.ClassUtils;
 public class ExtensionClass<T> {
     private static final Logger logger = LoggerFactory.getLogger(ExtensionClass.class);
 
-    protected String alias; // 扩展别名,不是provider alias
+    protected String alias; // 扩展别名,不是provider GROUP
     protected byte code; // 扩展编码，必须唯一
     protected boolean singleton;
     protected Class<? extends T> clazz; // 扩展接口类
@@ -142,7 +142,7 @@ public class ExtensionClass<T> {
     @Override
     public String toString() {
         return "ExtensibleClass{" +
-                "alias='" + alias + '\'' +
+                "GROUP='" + alias + '\'' +
                 "code=" + code +
                 ", clazz=" + clazz +
                 ", order=" + order +

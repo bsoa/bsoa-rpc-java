@@ -19,6 +19,9 @@ package io.bsoa.rpc.compress.snappy;
 
 import java.util.Arrays;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.bsoa.rpc.codec.Compressor;
 import io.bsoa.rpc.ext.Extension;
 
@@ -29,22 +32,21 @@ import io.bsoa.rpc.ext.Extension;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-@Extension("snappy")
+@Extension(value = "snappy", code = 2)
 public final class Snappy implements Compressor {
+
+    /**
+     * slf4j Logger for this class
+     */
+    private final static Logger LOGGER = LoggerFactory.getLogger(Snappy.class);
+
+    public Snappy() {
+        LOGGER.info("Init Snappy compressor");
+    }
 
     @Override
     public byte[] deCompress(byte[] src) {
         return uncompress(src, 0, src.length);
-    }
-
-    private static Snappy instance = new Snappy();
-
-    private Snappy()
-    {
-    }
-
-    public static Snappy getInstance() {
-        return instance;
     }
 
     public int getUncompressedLength(byte[] compressed, int compressedOffset)
@@ -96,9 +98,4 @@ public final class Snappy implements Compressor {
     static final int COPY_1_BYTE_OFFSET = 1;  // 3 bit length + 3 bits of offset in opcode
     static final int COPY_2_BYTE_OFFSET = 2;
     static final int COPY_4_BYTE_OFFSET = 3;
-
-    @Override
-    public byte getCode() {
-        return 2;
-    }
 }

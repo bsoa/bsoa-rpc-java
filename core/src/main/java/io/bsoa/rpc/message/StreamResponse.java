@@ -26,6 +26,6 @@ package io.bsoa.rpc.message;
 public class StreamResponse extends StreamMessage {
 
     public StreamResponse() {
-        super(MessageType.STREAM_RESPONSE);
+        super(MessageConstants.STREAM_RESPONSE);
     }
 }

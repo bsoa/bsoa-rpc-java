@@ -100,6 +100,11 @@ public class NettyClientChannelHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
+    /**
+     * @param ctx
+     * @param msg
+     * @throws Exception
+     */
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         Channel channel = ctx.channel();
@@ -114,12 +119,18 @@ public class NettyClientChannelHandler extends ChannelInboundHandlerAdapter {
                 NegotiatorRequest request = (NegotiatorRequest) msg;
                 NegotiatorListener listener = transportConfig.getNegotiatorListener();
                 if (listener == null) {
-                    LOGGER.warn("Has no NegotiatorListener in server transport");
+                    LOGGER.warn("Has no NegotiatorListener in client transport");
                 } else {
                     NegotiatorResponse response = listener.handshake(request);
                     channel.writeAndFlush(response);
                 }
             }
+            // 协商响应：发起者线程处理
+            else if (msg instanceof NegotiatorResponse) {
+                NegotiatorResponse response = (NegotiatorResponse) msg;
+                clientTransport.receiveNegotiatorResponse(response);
+            }
+
             // RPC响应：业务线程处理
             else if (msg instanceof RpcResponse) {
                 RpcResponse response = (RpcResponse) msg;
@@ -147,7 +158,6 @@ public class NettyClientChannelHandler extends ChannelInboundHandlerAdapter {
                 StreamResponse response = (StreamResponse) msg;
                 clientTransport.handleStreamResponse(response);
             }
-            // FIXME delete
             else {
                 LOGGER.warn("Receive unsupported message! {}", msg.getClass());
                 throw new BsoaRpcException(22222, "Only support base message");

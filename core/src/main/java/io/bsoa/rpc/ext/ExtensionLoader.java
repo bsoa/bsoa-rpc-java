@@ -64,12 +64,12 @@ public class ExtensionLoader<T> {
     protected final Extensible extensible;
 
     /**
-     * 全部的加载的实现类 {"alias":ExtensionClass}
+     * 全部的加载的实现类 {"GROUP":ExtensionClass}
      */
     protected final ConcurrentHashMap<String, ExtensionClass<T>> all;
 
     /**
-     * 自动激活的 {"alias":ExtensionClass}
+     * 自动激活的 {"GROUP":ExtensionClass}
      */
     protected final ConcurrentHashMap<String, ExtensionClass<T>> autoActives;
 
@@ -198,7 +198,7 @@ public class ExtensionLoader<T> {
             if (StringUtils.isBlank(aliasInCode)) {
                 throw new IllegalArgumentException("Error when load extension of interface "
                         + interfaceClass + " from file:" + url + ", " + className
-                        + "'s alias of @Extension is blank");
+                        + "'s GROUP of @Extension is blank");
             }
             if (alias == null) {
                 alias = aliasInCode;
@@ -225,7 +225,7 @@ public class ExtensionLoader<T> {
         ExtensionClass old = all.get(alias);
         if (old != null) {
             throw new IllegalStateException("Error when load extension of interface "
-                    + interfaceClass + " from file:" + url + ", Duplicate class with same alias: "
+                    + interfaceClass + " from file:" + url + ", Duplicate class with same GROUP: "
                     + alias + ", " + old.getClazz() + " and " + implClass);
         } else {
             ExtensionClass<T> extensionClass = new ExtensionClass<T>();

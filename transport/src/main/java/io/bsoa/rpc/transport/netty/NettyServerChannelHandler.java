@@ -38,7 +38,6 @@ import io.bsoa.rpc.message.RpcResponse;
 import io.bsoa.rpc.message.StreamRequest;
 import io.bsoa.rpc.server.ServerHandler;
 import io.bsoa.rpc.transport.ServerTransportConfig;
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -100,7 +99,7 @@ public class NettyServerChannelHandler extends ChannelInboundHandlerAdapter {
                 serverHandler.handleRpcRequest(request, new NettyChannel(channel));
             }
         }
-        // RPC响应：callback线程池处理
+        // RPC响应：callback线程池处理 TODO
         else if (msg instanceof RpcResponse) { // callback返回值
 //            //receive the callback ResponseMessage
 //            ResponseMessage responseMsg = (ResponseMessage) msg;
@@ -117,6 +116,10 @@ public class NettyServerChannelHandler extends ChannelInboundHandlerAdapter {
 //                throw new RpcException(responseMsg.getMsgHeader(), "No such clientTransport");
 //            }
         }
+        // 协商响应：IO线程处理 TODO
+        else if (msg instanceof NegotiatorResponse) {
+            HeartbeatResponse response = (HeartbeatResponse) msg;
+        }
         // 流式请求：业务线程处理
         else if (msg instanceof StreamRequest) {
             StreamRequest request = (StreamRequest) msg;
@@ -126,13 +129,6 @@ public class NettyServerChannelHandler extends ChannelInboundHandlerAdapter {
             } else {
                 serverHandler.handleStreamRequest(request, new NettyChannel(channel));
             }
-        }
-
-        // FIXME delete
-        else if (msg instanceof ByteBuf) {
-            channel.writeAndFlush(msg);
-        } else if (msg instanceof String) {
-            channel.writeAndFlush("hello: " + msg + "!");
         } else {
             throw new BsoaRpcException(22222, "Only support base message");
         }

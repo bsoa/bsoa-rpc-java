@@ -26,6 +26,6 @@ package io.bsoa.rpc.message;
 public class StreamRequest extends StreamMessage {
 
     public StreamRequest() {
-        super(MessageType.STREAM_REQUEST);
+        super(MessageConstants.STREAM_REQUEST);
     }
 }

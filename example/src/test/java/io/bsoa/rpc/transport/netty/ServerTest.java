@@ -23,6 +23,8 @@ import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.bsoa.rpc.message.MessageBuilder;
+import io.bsoa.rpc.message.NegotiatorResponse;
 import io.bsoa.rpc.transport.ServerTransport;
 import io.bsoa.rpc.transport.ServerTransportConfig;
 import io.bsoa.rpc.transport.ServerTransportFactory;
@@ -41,6 +43,14 @@ public class ServerTest {
         ServerTransportConfig config = new ServerTransportConfig();
         config.setPort(22222);
         config.setDaemon(false);
+        config.setNegotiatorListener(negotiatorRequest -> {
+            LOGGER.info(negotiatorRequest.getCmd());
+            LOGGER.info(negotiatorRequest.getCmd());
+
+            NegotiatorResponse response = MessageBuilder.buildNegotiatorResponse(negotiatorRequest);
+            response.setRes("nego response from server");
+            return response;
+        });
         ServerTransport transport = ServerTransportFactory.getServerTransport(config);
         Assert.assertEquals(transport.getClass(), NettyServerTransport.class);
         transport.start();

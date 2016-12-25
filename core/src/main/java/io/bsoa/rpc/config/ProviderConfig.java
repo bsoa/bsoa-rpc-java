@@ -166,7 +166,7 @@ public class ProviderConfig<T> extends AbstractInterfaceConfig implements Serial
         // 检查参数
         // alias不能为空
         if (StringUtils.isBlank(alias)) {
-            throw ExceptionUtils.buildRuntime(22222, "alias", "NULL", "[JSF-21200]Value of \"alias\" is not specified in provider" +
+            throw ExceptionUtils.buildRuntime(22222, "GROUP", "NULL", "[JSF-21200]Value of \"GROUP\" is not specified in provider" +
                     " config with key " + key + " !");
         }
         // 检查注入的ref是否接口实现类
@@ -654,7 +654,7 @@ public class ProviderConfig<T> extends AbstractInterfaceConfig implements Serial
                     StringBuilder sb = new StringBuilder(200);
                     sb.append(server.getProtocol()).append("://").append(server.getHost())
                             .append(":").append(server.getPort()).append(server.getContextpath())
-                            .append(getInterfaceId()).append("?alias=").append(getAlias())
+                            .append(getInterfaceId()).append("?GROUP=").append(getAlias())
                             .append(getKeyPairs("delay", getDelay()))
                             .append(getKeyPairs("weight", getWeight()))
                             .append(getKeyPairs("register", isRegister()))

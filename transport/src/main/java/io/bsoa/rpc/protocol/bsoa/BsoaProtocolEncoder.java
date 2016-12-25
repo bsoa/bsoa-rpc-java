@@ -37,10 +37,13 @@ import io.bsoa.rpc.ext.Extension;
 import io.bsoa.rpc.message.BaseMessage;
 import io.bsoa.rpc.message.HeartbeatRequest;
 import io.bsoa.rpc.message.HeartbeatResponse;
+import io.bsoa.rpc.message.MessageConstants;
 import io.bsoa.rpc.message.NegotiatorRequest;
 import io.bsoa.rpc.message.NegotiatorResponse;
 import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.message.RpcResponse;
+import io.bsoa.rpc.message.StreamRequest;
+import io.bsoa.rpc.message.StreamResponse;
 import io.bsoa.rpc.protocol.ProtocolEncoder;
 import io.bsoa.rpc.protocol.ProtocolInfo;
 import io.bsoa.rpc.transport.AbstractByteBuf;
@@ -86,30 +89,34 @@ public class BsoaProtocolEncoder implements ProtocolEncoder {
         ByteBuf out = src.getByteBuf();
 
         if (object instanceof BaseMessage) {
-            short headerLength = 10;
             BaseMessage msg = (BaseMessage) object;
 
-            // 0-1 2位魔术位
+            short headerLength = 10; // 如果没有头部扩展
+
+            // 0-1 魔术位(2位)
             out.writeBytes(protocolInfo.getMagicCode().getBytes());
-            // 2-5 4位总长度（包括魔术位和自己），先占位
-            out.writeInt(0);
-            // 6-7 2位头部长度(包括自己2位+后面的头），先占位
+            // 2-5 总长度(4位，包括魔术位和自己）
+            out.writeInt(0); // 总长度会变，这里先占位
+            // 6-7 2位头部长度(包括自己2位+后面的头）
             int headLengthIndex = out.writerIndex();
-            out.writeShort(headerLength);
-            // 8-11 消息/协议/序列化/压缩
-            out.writeByte(msg.getMessageType());
+            out.writeShort(headerLength);// 总长度可能会变，这里先占位
+            // 8 方向(2bit)+消息类型(6bit)组成（1位）
+            out.writeByte((msg.getDirectionType() << 6) + msg.getMessageType()); // CodecUtils#buildHigh4Low4Bytes();
+            // 9 协议类型（1位）
             out.writeByte(msg.getProtocolType());
+            // 10 序列化类型（1位）
             out.writeByte(msg.getSerializationType());
+            // 11 压缩类型（1位）
             out.writeByte(msg.getCompressType());
-            // 12-15 4位 消息Id
+            // 12-15 消息Id（4位）
             out.writeInt(msg.getMessageId());
 
-            if (CommonUtils.isNotEmpty(msg.getHeadKeys())) {
-                headerLength += map2bytes(msg.getHeadKeys(), out);
-                out.setBytes(headLengthIndex, CodecUtils.short2bytes(headerLength)); // 替换head长度的两位
+            // 如果有头部扩展
+            if (CommonUtils.isNotEmpty(msg.getHeaders())) {
+                headerLength += map2bytes(msg.getHeaders(), out);
+                out.setBytes(headLengthIndex, CodecUtils.short2bytes(headerLength)); // 更新head长度的两位
             }
-            msg.setTotalLength(headerLength + 6); // 目前out
-
+            msg.setTotalLength(headerLength + 6); // 目前消息总长度=2位魔术+4位总长度+头长度
 
             byte[] bytes = new byte[out.readableBytes()];
             out.readBytes(bytes);
@@ -140,8 +147,8 @@ public class BsoaProtocolEncoder implements ProtocolEncoder {
                         Compressor compressor = CompressorFactory.getCompressor(msg.getCompressType());
                         bs = compressor.compress(bs);
                     } else {
-                        msg.setCompressType(Compressor.NONE);
-                        out.setByte(11, Compressor.NONE); // 修改压缩类型
+                        msg.setCompressType(MessageConstants.COMPRESS_NONE);
+                        out.setByte(11, MessageConstants.COMPRESS_NONE); // 第11位 修改压缩类型
                     }
                 }
                 out.writeBytes(bs);
@@ -153,23 +160,28 @@ public class BsoaProtocolEncoder implements ProtocolEncoder {
                 out.writeLong(((HeartbeatResponse) object).getTimestamp());
                 totalLength += 8;
             } else if (object instanceof NegotiatorRequest) {
-                //TODO
-                totalLength += 8;
+                NegotiatorRequest request = (NegotiatorRequest) object;
+                totalLength += writeString(out, request.getCmd());
+                totalLength += writeString(out, request.getData());
             } else if (object instanceof NegotiatorResponse) {
-                //TODO
-                totalLength += 8;
+                NegotiatorResponse response = (NegotiatorResponse) object;
+                totalLength += writeString(out, response.getRes());
+            } else if (object instanceof StreamRequest
+                    || object instanceof StreamResponse) {
+
+
             }
+            msg.setTotalLength(totalLength);
             out.setBytes(2, CodecUtils.intToBytes(totalLength)); // 更新字段
 
-            byte[] bytes = new byte[out.readableBytes()];
-            out.readBytes(bytes);
-            LOGGER.debug(Arrays.toString(bytes));
-            out.readerIndex(0);
+//            byte[] bytes = new byte[out.readableBytes()];
+//            out.readBytes(bytes);
+//            LOGGER.debug(Arrays.toString(bytes));
+//            out.readerIndex(0);
         } else {
             LOGGER.warn("Unsupported type :{}", object.getClass());
             throw new BsoaRpcException(22222, "Unsupported object type");
         }
-
     }
 
     @Override
@@ -178,39 +190,92 @@ public class BsoaProtocolEncoder implements ProtocolEncoder {
         encodeBody(object, byteBuf);
     }
 
+    /**
+     * 自定义string编码
+     *
+     * @param out    输出流
+     * @param string 字符串
+     * @return 写入的长度
+     * @see BsoaProtocolDecoder#readString(ByteBuf)
+     */
+    private int writeString(ByteBuf out, String string) {
+        if (string != null) {
+            if (string.length() == 0) {
+                out.writeInt(0);
+                return 4;
+            } else {
+                byte[] bs = string.getBytes(BsoaConstants.DEFAULT_CHARSET);
+                out.writeInt(bs.length);
+                out.writeBytes(bs);
+                return 4 + bs.length;
+            }
+        } else {
+            out.writeInt(-1); // 长度-1代表null
+            return 4;
+        }
+    }
 
+    /**
+     * <p>支持 void(代表是个映射）/int/String/byte/short/long/boolean</p>
+     * <p>bsoa协议中如下定义：<br/>
+     * void   : 1位key+1位标识(0)+1位ref值<br/>  3
+     * int    : 1位key+1位标识(1)+4位值<br/>   6
+     * String : 1位key+1位标识(2)+2位长度+N位值<br/> 4+n
+     * byte   : 1位key+1位标识(3)+1位值<br/> 3
+     * short  : 1位key+1位标识(4)+2位值<br/> 4
+     * long   : 1位key+1位标识(5)+8位值<br/> 10
+     * boolean: 1位key+1位标识(6)+1位值<br/> 3
+     * </p>
+     */
     protected static short map2bytes(Map<Byte, Object> dataMap, ByteBuf byteBuf) {
         byteBuf.writeByte(dataMap.size());
-        short s = 1;
+        short writeBytes = 1; // 写入的字节数
         for (Map.Entry<Byte, Object> attr : dataMap.entrySet()) {
-            byte key = attr.getKey();
+            byte headCode = attr.getKey();
             Object val = attr.getValue();
-            if (val instanceof Integer) {
-                byteBuf.writeByte(key);
+            if (val == Void.class) {
+                byteBuf.writeByte(headCode);
+                byteBuf.writeByte((byte) 0);
+                // 从约定的 缓存中里面取;
+                byteBuf.writeByte((byte) 1); //TODO 是2位还是1位
+                writeBytes += 3;
+            } else if (val instanceof Integer) {
+                byteBuf.writeByte(headCode);
                 byteBuf.writeByte((byte) 1);
                 byteBuf.writeInt((Integer) val);
-                s += 6;
+                writeBytes += 6;
             } else if (val instanceof String) {
-                byteBuf.writeByte(key);
+                byteBuf.writeByte(headCode);
                 byteBuf.writeByte((byte) 2);
                 byte[] bs = ((String) val).getBytes(BsoaConstants.DEFAULT_CHARSET);
                 byteBuf.writeShort(bs.length);
                 byteBuf.writeBytes(bs);
-                s += (4 + bs.length);
+                writeBytes += (4 + bs.length);
             } else if (val instanceof Byte) {
-                byteBuf.writeByte(key);
+                byteBuf.writeByte(headCode);
                 byteBuf.writeByte((byte) 3);
                 byteBuf.writeByte((Byte) val);
-                s += 3;
+                writeBytes += 3;
             } else if (val instanceof Short) {
-                byteBuf.writeByte(key);
+                byteBuf.writeByte(headCode);
                 byteBuf.writeByte((byte) 4);
                 byteBuf.writeShort((Short) val);
-                s += 4;
+                writeBytes += 4;
+            } else if (val instanceof Long) {
+                byteBuf.writeByte(headCode);
+                byteBuf.writeByte((byte) 5);
+                byteBuf.writeLong((Long) val);
+                writeBytes += 10;
+            } else if (val instanceof Boolean) {
+                byteBuf.writeByte(headCode);
+                byteBuf.writeByte((byte) 6);
+                byteBuf.writeBoolean(((Boolean) val));
+                writeBytes += 3;
             } else {
-                throw new BsoaRpcException(22222, "Value of attrs in message header must be byte/short/int/string");
+                throw new BsoaRpcException(22222,
+                        "Class of value must be void(means ref)/int/String/byte/short/long/boolean");
             }
         }
-        return s;
+        return writeBytes;
     }
 }

@@ -24,30 +24,68 @@ import java.io.Serializable;
  */
 public class RpcResponse extends RPCMessage implements Serializable {
 
+    /**
+     * Instantiates a new Rpc response.
+     */
     public RpcResponse() {
-        super(MessageType.RPC_RESPONSE);
+        super(MessageConstants.RPC_RESPONSE);
     }
 
+    /**
+     * The Return data.
+     */
     protected Object returnData;
 
+    /**
+     * The Exception.
+     */
     protected Throwable exception;
 
+    /**
+     * Gets return data.
+     *
+     * @return the return data
+     */
     public Object getReturnData() {
         return returnData;
     }
 
-    public void setReturnData(Object returnData) {
+    /**
+     * Sets return data.
+     *
+     * @param returnData the return data
+     * @return the return data
+     */
+    public RpcResponse setReturnData(Object returnData) {
         this.returnData = returnData;
+        return this;
     }
 
+    /**
+     * Gets exception.
+     *
+     * @return the exception
+     */
     public Throwable getException() {
         return exception;
     }
 
-    public void setException(Throwable exception) {
+    /**
+     * Sets exception.
+     *
+     * @param exception the exception
+     * @return the exception
+     */
+    public RpcResponse setException(Throwable exception) {
         this.exception = exception;
+        return this;
     }
 
+    /**
+     * Is error happen.
+     *
+     * @return the boolean
+     */
     public boolean isError() {
         return exception != null;
     }

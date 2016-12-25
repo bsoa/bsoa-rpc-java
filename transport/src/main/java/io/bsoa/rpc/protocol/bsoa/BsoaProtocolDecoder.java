@@ -18,7 +18,6 @@
  */
 package io.bsoa.rpc.protocol.bsoa;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +31,7 @@ import io.bsoa.rpc.codec.Serializer;
 import io.bsoa.rpc.codec.SerializerFactory;
 import io.bsoa.rpc.common.BsoaConstants;
 import io.bsoa.rpc.common.utils.CommonUtils;
+import io.bsoa.rpc.common.utils.StringUtils;
 import io.bsoa.rpc.exception.BsoaRpcException;
 import io.bsoa.rpc.ext.Extension;
 import io.bsoa.rpc.message.BaseMessage;
@@ -39,6 +39,7 @@ import io.bsoa.rpc.message.HeartbeatRequest;
 import io.bsoa.rpc.message.HeartbeatResponse;
 import io.bsoa.rpc.message.MessageBuilder;
 import io.bsoa.rpc.message.NegotiatorRequest;
+import io.bsoa.rpc.message.NegotiatorResponse;
 import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.message.RpcResponse;
 import io.bsoa.rpc.protocol.ProtocolDecoder;
@@ -74,10 +75,10 @@ public class BsoaProtocolDecoder implements ProtocolDecoder {
         NettyByteBuf nettyByteBuf = (NettyByteBuf) byteBuf;
         ByteBuf in = nettyByteBuf.getByteBuf();
 
-        byte[] bytes = new byte[in.readableBytes()];
-        in.readBytes(bytes);
-        LOGGER.debug(Arrays.toString(bytes));
-        in.readerIndex(0);
+//        byte[] bytes = new byte[in.readableBytes()];
+//        in.readBytes(bytes);
+//        LOGGER.debug(Arrays.toString(bytes));
+//        in.readerIndex(0);
         // 前面2位magiccode 和 4位总长度 已经跳过
         if (in.readerIndex() != 0) {
             throw new BsoaRpcException(22222, "readerIndex!=0");
@@ -86,7 +87,9 @@ public class BsoaProtocolDecoder implements ProtocolDecoder {
         int totalLength = in.readInt();
         Short headerLength = in.readShort();
 
-        byte messageType = in.readByte();
+        byte dtAndMt = in.readByte(); // CodecUtils.parseHigh4Low4Bytes();
+        byte directionType = (byte) (dtAndMt >> 6);
+        byte messageType = (byte) ((dtAndMt & 0x3f));
         byte protocolType = in.readByte();
         byte serializationType = in.readByte();
         byte compressType = in.readByte();
@@ -95,13 +98,14 @@ public class BsoaProtocolDecoder implements ProtocolDecoder {
         BaseMessage message = MessageBuilder.buildMessage(messageType, messageId);
         message.setTotalLength(totalLength)
                 .setHeadLength(headerLength)
+                .setDirectionType(directionType)
                 .setProtocolType(protocolType)
                 .setSerializationType(serializationType)
                 .setCompressType(compressType);
         if (headerLength > 10) { // 说明存在Map
             Map<Byte, Object> headKeys = new HashMap<>();
             bytes2Map(headKeys, in);
-            message.setHeadKeys(headKeys);
+            message.setHeaders(headKeys);
         }
         out.add(message);
     }
@@ -131,7 +135,7 @@ public class BsoaProtocolDecoder implements ProtocolDecoder {
                 Serializer serializer = SerializerFactory.getSerializer(request.getSerializationType());
                 RpcRequest tmp = (RpcRequest) serializer.decode(bodyBytes, RpcRequest.class);
 
-                request.setAttachments(tmp.getAttachments());
+//                request.setAttachments(tmp.getAttachments());
                 request.setArgs(tmp.getArgs());
             } else if (object instanceof RpcResponse) { // 收到响应
                 RpcResponse response = (RpcResponse) object;
@@ -156,7 +160,12 @@ public class BsoaProtocolDecoder implements ProtocolDecoder {
                 HeartbeatResponse response = (HeartbeatResponse) object;
                 response.setTimestamp(in.readLong());
             } else if (object instanceof NegotiatorRequest) {
-
+                NegotiatorRequest request = (NegotiatorRequest) object;
+                request.setCmd(readString(in));
+                request.setData(readString(in));
+            } else if (object instanceof NegotiatorResponse) {
+                NegotiatorResponse response = (NegotiatorResponse) object;
+                response.setRes(readString(in));
             }
         } catch (BsoaRpcException e) {
             throw e;
@@ -179,28 +188,70 @@ public class BsoaProtocolDecoder implements ProtocolDecoder {
         // 其它在业务线程里decode
     }
 
+    /**
+     * 自定义string解码
+     *
+     * @param in 输入流
+     * @return 字符串
+     * @see BsoaProtocolEncoder#writeString(ByteBuf, String)
+     */
+    private String readString(ByteBuf in) {
+        int length = in.readInt();
+        if (length == -1) {
+            return null;
+        } else if (length == 0) {
+            return StringUtils.EMPTY;
+        } else {
+            byte[] src = new byte[length];
+            in.readBytes(src);
+            return new String(src, BsoaConstants.DEFAULT_CHARSET);
+        }
+    }
 
+    /**
+     * <p>支持 void(代表是个映射）/int/String/byte/short/long/boolean</p>
+     * <p>bsoa协议中如下定义：<br/>
+     * void   : 1位key+1位标识(0)+1位ref值<br/>  3
+     * int    : 1位key+1位标识(1)+4位值<br/>   6
+     * String : 1位key+1位标识(2)+2位长度+N位值<br/> 4+n
+     * byte   : 1位key+1位标识(3)+1位值<br/> 3
+     * short  : 1位key+1位标识(4)+2位值<br/> 4
+     * long   : 1位key+1位标识(5)+8位值<br/> 10
+     * boolean: 1位key+1位标识(6)+1位值<br/> 3
+     * </p>
+     */
     protected static void bytes2Map(Map<Byte, Object> dataMap, ByteBuf byteBuf) {
         byte size = byteBuf.readByte();
         for (int i = 0; i < size; i++) {
             byte key = byteBuf.readByte();
             byte type = byteBuf.readByte();
-            if (type == 1) {
-                int value = byteBuf.readInt();
-                dataMap.put(key, value);
-            } else if (type == 2) {
-                int length = byteBuf.readShort();
-                byte[] dataArr = new byte[length];
-                byteBuf.readBytes(dataArr);
-                dataMap.put(key, new String(dataArr, BsoaConstants.DEFAULT_CHARSET));
-            } else if (type == 3) {
-                byte value = byteBuf.readByte();
-                dataMap.put(key, value);
-            } else if (type == 4) {
-                short value = byteBuf.readShort();
-                dataMap.put(key, value);
-            } else {
-                throw new BsoaRpcException(22222, "Value of attrs in message header must be byte/short/int/string");
+            switch (type) {
+                case 0:
+                    byte ref = byteBuf.readByte();
+                    // TODO 从缓存里去映射值
+                    break;
+                case 1:
+                    dataMap.put(key, byteBuf.readInt());
+                    break;
+                case 2:
+                    byte[] dataArr = new byte[byteBuf.readShort()];
+                    byteBuf.readBytes(dataArr);
+                    dataMap.put(key, new String(dataArr, BsoaConstants.DEFAULT_CHARSET));
+                    break;
+                case 3:
+                    dataMap.put(key, byteBuf.readByte());
+                    break;
+                case 4:
+                    dataMap.put(key, byteBuf.readShort());
+                    break;
+                case 5:
+                    dataMap.put(key, byteBuf.readLong());
+                    break;
+                case 6:
+                    dataMap.put(key, byteBuf.readBoolean());
+                    break;
+                default:
+                    throw new BsoaRpcException(22222, "Value of attrs in message header must be byte/short/int/string");
             }
         }
     }

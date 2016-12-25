@@ -18,19 +18,17 @@ package io.bsoa.rpc.common.utils;
 
 /**
  * <p></p>
- *
+ * <p>
  * Created by zhangg on 2016/12/24 13:02. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public class CodecUtils {
-
+public final class CodecUtils {
 
     /**
      * int 转 byte数组
      *
-     * @param num
-     *         int值
+     * @param num int值
      * @return byte[4]
      */
     public static byte[] intToBytes(int num) {
@@ -45,8 +43,7 @@ public class CodecUtils {
     /**
      * byte数组转int
      *
-     * @param ary
-     *         byte[4]
+     * @param ary byte[4]
      * @return int值
      */
     public static int bytesToInt(byte[] ary) {
@@ -59,8 +56,7 @@ public class CodecUtils {
     /**
      * short 转 byte数组
      *
-     * @param num
-     *         short值
+     * @param num short值
      * @return byte[2]
      */
     public static byte[] short2bytes(short num) {
@@ -74,10 +70,8 @@ public class CodecUtils {
     /**
      * byte array copy.
      *
-     * @param src
-     *         src.
-     * @param length
-     *         new length.
+     * @param src    src.
+     * @param length new length.
      * @return new byte array.
      */
     public static byte[] copyOf(byte[] src, int length) {
@@ -85,5 +79,64 @@ public class CodecUtils {
         System.arraycopy(src, 0, dest, 0, Math.min(src.length, length));
         return dest;
     }
+
+    /**
+     * 一个byte存两个4bit的信息
+     *
+     * @param b 原始byte
+     * @return byte数组{<16,<16}
+     */
+    public static byte[] parseHigh4Low4Bytes(byte b) {
+        return new byte[]{
+                (byte) ((b >> 4)), // 右移4位，只取前4bit的值
+                (byte) ((b & 0x0f)) // 只取后面4bit的值，前面两位补0
+        };
+    }
+
+    /**
+     * 一个byte存两个4bit的信息
+     *
+     * @param high4 高4位 <16
+     * @param low4  低4位 <16
+     * @return 一个byte存两个4bit的信息
+     */
+    public static byte buildHigh4Low4Bytes(byte high4, byte low4) {
+        return (byte) ((high4 << 4) + low4);
+    }
+
+    /**
+     * 一个byte存一个2bit和6bit的信息
+     *
+     * @param b 原始byte
+     * @return byte数组{<4,<64}
+     */
+    public static byte[] parseHigh2Low6Bytes(byte b) {
+        return new byte[]{
+                (byte) ((b >> 6)), // 右移6位，只取前2bit的值
+                (byte) ((b & 0x3f)) // 只取后面6bit的值，前面两位补0
+        };
+    }
+
+    /**
+     * 一个byte存一个2bit和6bit的信息
+     *
+     * @param high2 高2位 <4
+     * @param low6  低6位 <64
+     * @return byte数组{<4,<64}
+     */
+    public static byte buildHigh2Low6Bytes(byte high2, byte low6) {
+        return (byte) ((high2 << 6) + low6);
+    }
+
+    /**
+     * 把byte转为字符串的bit
+     */
+//    public static String byteToBit(byte b) {
+//        return ""
+//                + (byte) ((b >> 7) & 0x01) + (byte) ((b >> 6) & 0x1)
+//                + (byte) ((b >> 5) & 0x01) + (byte) ((b >> 4) & 0x1)
+//                + (byte) ((b >> 3) & 0x01) + (byte) ((b >> 2) & 0x1)
+//                + (byte) ((b >> 1) & 0x01) + (byte) ((b >> 0) & 0x1);
+//    }
 
 }

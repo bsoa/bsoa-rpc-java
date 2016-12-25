@@ -28,10 +28,10 @@ import io.bsoa.rpc.ext.Extension;
 import io.bsoa.rpc.transport.ServerTransport;
 import io.bsoa.rpc.transport.ServerTransportConfig;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.AdaptiveRecvByteBufAllocator;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelOption;
+import io.netty.channel.WriteBufferWaterMark;
 import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 
@@ -72,9 +72,8 @@ public class NettyServerTransport implements ServerTransport {
                 .childOption(ChannelOption.ALLOCATOR, NettyTransportHelper.getByteBufAllocator())
                 .childOption(ChannelOption.SO_RCVBUF, 8192 * 128)
                 .childOption(ChannelOption.SO_SNDBUF, 8192 * 128)
-                .option(ChannelOption.RCVBUF_ALLOCATOR, AdaptiveRecvByteBufAllocator.DEFAULT)
-                .childOption(ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, 32 * 1024)
-                .childOption(ChannelOption.WRITE_BUFFER_LOW_WATER_MARK, 8 * 1024)
+                .option(ChannelOption.RCVBUF_ALLOCATOR, NettyTransportHelper.RECV_BYTEBUF_ALLOCATOR)
+                .childOption(ChannelOption.WRITE_BUFFER_WATER_MARK, new WriteBufferWaterMark(8 * 1024, 32 * 1024))
 //                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, transportConfig.getc()) // ????????
 //                 .childOption(ChannelOption.SO_TIMEOUT, config.getTIMEOUT())
                 .childHandler(new NettyServerChannelInitializer(transportConfig));

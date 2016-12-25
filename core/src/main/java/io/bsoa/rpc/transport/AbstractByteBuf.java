@@ -323,10 +323,11 @@ public interface AbstractByteBuf {
 
     public ByteBufferHolder[] nioBuffers(int index, int length);
 
-    public boolean hasArray();
+    public boolean hasArray(); */
 
     public byte[] array();
 
+    /**
     public int arrayOffset();
 
     public boolean hasMemoryAddress();

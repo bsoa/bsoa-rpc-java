@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
@@ -35,6 +36,7 @@ import io.bsoa.rpc.ext.Extension;
 import io.bsoa.rpc.listener.ResponseFuture;
 import io.bsoa.rpc.message.BaseMessage;
 import io.bsoa.rpc.message.HeartbeatResponse;
+import io.bsoa.rpc.message.NegotiatorResponse;
 import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.message.RpcResponse;
 import io.bsoa.rpc.message.StreamResponse;
@@ -48,6 +50,7 @@ import io.netty.channel.AdaptiveRecvByteBufAllocator;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
+import io.netty.channel.WriteBufferWaterMark;
 import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
@@ -80,12 +83,12 @@ public class NettyClientTransport extends AbstractClientTransport {
 
     private List<AbstractChannel> channels = new ArrayList<>();
 
-    private boolean connected;
+    private AtomicBoolean connected;
 
     @Override
     public void connect() {
         // 已经初始化，或者被复用
-        if (this.connected) {
+        if (this.connected.get()) {
             throw new BsoaRuntimeException(22222, "Has been call connnect, Illega Access");
         }
 
@@ -103,9 +106,8 @@ public class NettyClientTransport extends AbstractClientTransport {
                         .channel(config.isUseEpoll() ? EpollSocketChannel.class : NioSocketChannel.class)
                         .option(ChannelOption.SO_KEEPALIVE, true)
                         .option(ChannelOption.ALLOCATOR, NettyTransportHelper.getByteBufAllocator())
-                        .option(ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, 32 * 1024)
-                        .option(ChannelOption.WRITE_BUFFER_LOW_WATER_MARK, 8 * 1024)
-                        .option(ChannelOption.RCVBUF_ALLOCATOR, AdaptiveRecvByteBufAllocator.DEFAULT)
+                        .option(ChannelOption.WRITE_BUFFER_WATER_MARK, new WriteBufferWaterMark(8 * 1024, 32 * 1024))
+                        .option(ChannelOption.RCVBUF_ALLOCATOR, NettyTransportHelper.RECV_BYTEBUF_ALLOCATOR)
                         .handler(new NettyClientChannelInitializer(this));
                 // Bind and start to accept incoming connections.
 
@@ -313,5 +315,15 @@ public class NettyClientTransport extends AbstractClientTransport {
     @Override
     public void handleStreamResponse(StreamResponse response) {
         //TODO
+    }
+
+    @Override
+    public void receiveNegotiatorResponse(NegotiatorResponse response) {
+        int messageId = response.getMessageId();
+        MessageFuture<BaseMessage> future = futureMap.get(messageId);
+        if (future != null) {
+            future.setSuccess(response);
+            futureMap.remove(messageId);
+        }
     }
 }

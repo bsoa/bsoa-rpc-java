@@ -339,18 +339,18 @@ public class Provider implements Serializable {
     }
 
     /**
-     * Gets alias.
+     * Gets GROUP.
      *
-     * @return the alias
+     * @return the GROUP
      */
     public String getAlias() {
         return alias;
     }
 
     /**
-     * Sets alias.
+     * Sets GROUP.
      *
-     * @param alias the alias
+     * @param alias the GROUP
      */
     public void setAlias(String alias) {
         this.alias = alias;

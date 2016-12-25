@@ -238,7 +238,7 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig implements Serial
         // 检查参数
         // alias不能为空
         if (StringUtils.isBlank(alias)) {
-            throw new BsoaRuntimeException(21300, "[JSF-21300]Value of \"alias\" value is not specified in consumer" +
+            throw new BsoaRuntimeException(21300, "[JSF-21300]Value of \"GROUP\" value is not specified in consumer" +
                     " config with key " + key + " !");
         }
         // 提前检查接口类
@@ -283,7 +283,7 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig implements Serial
 //            }
 //        }
         // 如果本地发布了服务，则优选走本地代理，没有则走远程代理
-//        if (isInjvm() && BaseServerHandler.getInvoker(getInterfaceId(), getAlias()) != null) {
+//        if (isInjvm() && BaseServerHandler.getInvoker(getInterfaceId(), getGroup()) != null) {
 //            LOGGER.info("Find matched provider invoker in current jvm, " +
 //                    "will invoke preferentially until it unexported");
 //        }

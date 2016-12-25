@@ -20,44 +20,94 @@ import io.bsoa.rpc.transport.AbstractByteBuf;
 
 /**
  * <p></p>
- *
+ * <p>
  * Created by zhangg on 2016/12/20 21:45. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
 public abstract class StreamMessage extends BaseMessage {
 
+    /**
+     * 帧Id
+     */
     protected short frameId;
 
-    private boolean EndOfStream;
+    /**
+     * 是否最后一个
+     */
+    protected boolean EndOfStream;
 
-    private AbstractByteBuf byteBuf;
+    /**
+     * 流的内容
+     */
+    protected AbstractByteBuf byteBuf;
 
+    /**
+     * Instantiates a new Stream message.
+     *
+     * @param messageType the message type
+     */
     protected StreamMessage(byte messageType) {
         super(messageType);
     }
 
+    /**
+     * Gets frame id.
+     *
+     * @return the frame id
+     */
     public short getFrameId() {
         return frameId;
     }
 
-    public void setFrameId(short frameId) {
+    /**
+     * Sets frame id.
+     *
+     * @param frameId the frame id
+     * @return the frame id
+     */
+    public StreamMessage setFrameId(short frameId) {
         this.frameId = frameId;
+        return this;
     }
 
+    /**
+     * Is end of stream boolean.
+     *
+     * @return the boolean
+     */
     public boolean isEndOfStream() {
         return EndOfStream;
     }
 
-    public void setEndOfStream(boolean endOfStream) {
+    /**
+     * Sets end of stream.
+     *
+     * @param endOfStream the end of stream
+     * @return the end of stream
+     */
+    public StreamMessage setEndOfStream(boolean endOfStream) {
         EndOfStream = endOfStream;
+        return this;
     }
 
+    /**
+     * Gets byte buf.
+     *
+     * @return the byte buf
+     */
     public AbstractByteBuf getByteBuf() {
         return byteBuf;
     }
 
-    public void setByteBuf(AbstractByteBuf byteBuf) {
+    /**
+     * Sets byte buf.
+     *
+     * @param byteBuf the byte buf
+     * @return the byte buf
+     */
+    public StreamMessage setByteBuf(AbstractByteBuf byteBuf) {
         this.byteBuf = byteBuf;
+        return this;
     }
 }

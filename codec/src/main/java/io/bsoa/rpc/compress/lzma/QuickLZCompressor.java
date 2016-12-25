@@ -1,5 +1,8 @@
 package io.bsoa.rpc.compress.lzma;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.bsoa.rpc.codec.Compressor;
 import io.bsoa.rpc.ext.Extension;
 
@@ -16,9 +19,13 @@ import io.bsoa.rpc.ext.Extension;
 // streaming mode.
 //
 // Version: 1.5.0 final
-@Extension("lzma")
+@Extension(value = "lzma", code = 1)
 public class QuickLZCompressor implements Compressor {
-
+    /**
+     * slf4j Logger for this class
+     */
+    private final static Logger LOGGER = LoggerFactory.getLogger(QuickLZCompressor.class);
+    
     @Override
     public byte[] compress(byte[] src) {
         return compress(src, 1);
@@ -29,14 +36,8 @@ public class QuickLZCompressor implements Compressor {
         return decompress(src);
     }
 
-    private static QuickLZCompressor instance = new QuickLZCompressor();
-
-    private QuickLZCompressor() {
-
-    }
-
-    public static QuickLZCompressor getInstance() {
-        return instance;
+    public QuickLZCompressor() {
+        LOGGER.info("Init LZMA compressor");
     }
 
     // Streaming mode not supported
@@ -506,10 +507,5 @@ public class QuickLZCompressor implements Compressor {
                 }
             }
         }
-    }
-
-    @Override
-    public byte getCode() {
-        return 1;
     }
 }

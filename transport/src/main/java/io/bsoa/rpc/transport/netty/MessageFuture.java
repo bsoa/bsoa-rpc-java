@@ -80,7 +80,7 @@ public class MessageFuture<V> implements ResponseFuture<V> {
     /**
      * Future完成的时间
      */
-    private volatile long doneTime = 0l;
+    private volatile long doneTime = 0L;
     /**
      * 是否同步调用，默认是
      */
@@ -182,10 +182,7 @@ public class MessageFuture<V> implements ResponseFuture<V> {
 
     public boolean isSuccess() {
         Object result = this.result;
-        if (result == null ) {
-            return false;
-        }
-        return !(result instanceof CauseHolder);
+        return result != null && !(result instanceof CauseHolder);
     }
 
     public Throwable cause() {

@@ -28,6 +28,7 @@ import io.bsoa.rpc.transport.ServerTransportConfig;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.UnpooledByteBufAllocator;
+import io.netty.channel.AdaptiveRecvByteBufAllocator;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -127,8 +128,7 @@ public class NettyTransportHelper {
                     ioGroup = config.isUseEpoll() ?
                             new EpollEventLoopGroup(ioThreads, threadName) :
                             new NioEventLoopGroup(ioThreads, threadName);
-                    int ioRatio = getIntValue(TRANSPORT_SERVER_IO_RATIO);
-                    setIoRatio(ioGroup, ioRatio);
+                    setIoRatio(ioGroup, getIntValue(TRANSPORT_SERVER_IO_RATIO));
 
                     serverIoGroups.put(type, ioGroup);
                     refCounter.putIfAbsent(ioGroup, new AtomicInteger(0));
@@ -185,8 +185,7 @@ public class NettyTransportHelper {
                     boolean useEpoll = getBooleanValue(TRANSPORT_USE_EPOLL);
                     clientIOEventLoopGroup = useEpoll ? new EpollEventLoopGroup(threads, threadName)
                             : new NioEventLoopGroup(threads, threadName);
-                    int ioRatio = getIntValue(TRANSPORT_CLIENT_IO_RATIO);
-                    setIoRatio(clientIOEventLoopGroup, ioRatio);
+                    setIoRatio(clientIOEventLoopGroup, getIntValue(TRANSPORT_CLIENT_IO_RATIO));
                     refCounter.putIfAbsent(clientIOEventLoopGroup, new AtomicInteger());
                     // SelectStrategyFactory 未设置
                 }
@@ -222,6 +221,8 @@ public class NettyTransportHelper {
             clientIOEventLoopGroup = null;
         }
     }
+
+    protected static AdaptiveRecvByteBufAllocator RECV_BYTEBUF_ALLOCATOR = AdaptiveRecvByteBufAllocator.DEFAULT;
 
     private static ByteBufAllocator pooled = new UnpooledByteBufAllocator(false);
 
