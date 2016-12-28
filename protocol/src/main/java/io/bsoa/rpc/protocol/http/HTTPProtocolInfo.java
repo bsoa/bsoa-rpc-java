@@ -14,84 +14,77 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.bsoa.rpc.protocol.dubbo;
+package io.bsoa.rpc.protocol.http;
 
-import io.bsoa.rpc.common.BsoaConfigs;
-import io.bsoa.rpc.common.utils.CodecUtils;
 import io.bsoa.rpc.protocol.ProtocolInfo;
 
 /**
  * <p></p>
  * <p>
- * Created by zhangg on 2016/12/17 21:35. <br/>
+ * Created by zhangg on 2016/12/28 23:45. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public class DubboProtocolInfo extends ProtocolInfo {
-
-    private int maxFrameLength = BsoaConfigs.getOrDefaultValue(
-            BsoaConfigs.TRANSPORT_PAYLOAD_MAX, 20 * 1024 * 1024); //  最大值默认20M
-
-    private final int lengthFieldOffset = 12;  // 第12-15位是长度，所以偏移：12
-
-    private final int lengthFieldLength = 4; // 总长度占4B，所以长度是：4
-
-    private final int lengthAdjustment = 0; // 总长度就是body长度，所以调整值是：0
-
-    private final int initialBytesToStrip = 0; // 代码里跳过，这里不主动跳，所以跳过值是：0
-
-    private final int magicFieldLength = 2; // 魔术位长度2位
-
-    private final int magicFieldOffset = 0; // 魔术位0-2位
-
-    private final byte[] magicCode = new byte[]{(byte) 0xda, (byte) 0xbb};
-
-    public DubboProtocolInfo() {
-        super("dubbo", (byte) 3, false, NET_PROTOCOL_TCP); // 是一个变长协议
+public class HTTPProtocolInfo extends ProtocolInfo {
+    /**
+     * Instantiates a new Protocol info.
+     */
+    public HTTPProtocolInfo() {
+        super("http", (byte) 9, false, NET_PROTOCOL_HTTP);
     }
 
     @Override
     public int maxFrameLength() {
-        return maxFrameLength;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public int lengthFieldOffset() {
-        return lengthFieldOffset;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public int lengthFieldLength() {
-        return lengthFieldLength;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public int lengthAdjustment() {
-        return lengthAdjustment;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public int initialBytesToStrip() {
-        return initialBytesToStrip;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public int magicFieldLength() {
-        return magicFieldLength;
+        return 3;
     }
 
     @Override
     public int magicFieldOffset() {
-        return magicFieldOffset;
+        return 0;
     }
 
     @Override
     public byte[] magicCode() {
-        return magicCode;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean isMatchMagic(byte[] bs) {
-        return CodecUtils.startsWith(bs, magicCode);
+        byte magic1 = bs[0];
+        byte magic2 = bs[1];
+        return (magic1 == 'G' && magic2 == 'E') || // GET
+                (magic1 == 'P' && magic2 == 'O') || // POST
+                (magic1 == 'P' && magic2 == 'U') || // PUT
+                (magic1 == 'H' && magic2 == 'E') || // HEAD
+                (magic1 == 'O' && magic2 == 'P') || // OPTIONS
+                (magic1 == 'P' && magic2 == 'A') || // PATCH
+                (magic1 == 'D' && magic2 == 'E') || // DELETE
+                (magic1 == 'T' && magic2 == 'R') || // TRACE
+                (magic1 == 'C' && magic2 == 'O');   // CONNECT
     }
 }

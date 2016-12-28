@@ -26,6 +26,19 @@ package io.bsoa.rpc.protocol;
 public abstract class ProtocolInfo {
 
     /**
+     * 底层通讯协议：TCP
+     */
+    public final static byte NET_PROTOCOL_TCP = 0;
+    /**
+     * 底层通讯协议：UDP
+     */
+    public final static byte NET_PROTOCOL_UDP = 1;
+    /**
+     * 底层通讯协议：HTTP
+     */
+    public final static byte NET_PROTOCOL_HTTP = 2;
+
+    /**
      * 协议名称
      */
     protected final String name;
@@ -36,20 +49,33 @@ public abstract class ProtocolInfo {
     protected final byte code;
 
     /**
+     *
+     */
+    protected final byte netProtocol;
+
+    /**
      * 是否定长协议
      */
     protected final boolean lengthFixed;
 
-    public ProtocolInfo(String name, byte code, boolean lengthFixed) {
+    /**
+     * Instantiates a new Protocol info.
+     *
+     * @param name        the name
+     * @param code        the code
+     * @param lengthFixed the length fixed
+     */
+    public ProtocolInfo(String name, byte code, boolean lengthFixed, byte netProtocol) {
         this.name = name;
         this.code = code;
         this.lengthFixed = lengthFixed;
+        this.netProtocol = netProtocol;
     }
 
     /**
      * 返回协议名
      *
-     * @return 协议名
+     * @return 协议名 name
      */
     public String getName() {
         return name;
@@ -58,16 +84,25 @@ public abstract class ProtocolInfo {
     /**
      * 返回协议ID
      *
-     * @return 协议ID
+     * @return 协议ID code
      */
     public byte getCode() {
         return code;
     }
 
     /**
+     * 返回协议底层通讯协议
+     *
+     * @return
+     */
+    public byte getNetProtocol() {
+        return netProtocol;
+    }
+
+    /**
      * 协议是否固定长度，true定长，false变长
      *
-     * @return true定长，false变长
+     * @return true定长 ，false变长
      */
     public boolean isLengthFixed() {
         return lengthFixed;
@@ -76,92 +111,63 @@ public abstract class ProtocolInfo {
     /**
      * 最大帧长度，变长时使用
      *
-     * @return 最大帧长度
+     * @return 最大帧长度 int
      */
     public abstract int maxFrameLength();
 
     /**
      * 找到“保存长度的字段”的偏移位，变长时使用
      *
-     * @return 长度字段的偏移位
+     * @return 长度字段的偏移位 int
      */
     public abstract int lengthFieldOffset();
 
     /**
      * “保存长度的字段”的长度，定长变长都适应
      *
-     * @return 长度字段的长度
+     * @return 长度字段的长度 int
      */
     public abstract int lengthFieldLength();
 
     /**
      * 总长度调整位，变长时使用
      *
-     * @return 总长度调整位
+     * @return 总长度调整位 int
      */
     public abstract int lengthAdjustment();
 
     /**
      * 跳过读取的位数，变长时使用
      *
-     * @return 跳过读取的位数
+     * @return 跳过读取的位数 int
      */
     public abstract int initialBytesToStrip();
 
     /**
      * 魔术位字段长度，用于协议自适应
      *
-     * @return 魔术位字段长度
+     * @return 魔术位字段长度 int
      */
     public abstract int magicFieldLength();
 
     /**
      * 魔术位偏移量，用于协议自适应
      *
-     * @return 魔术位偏移量
+     * @return 魔术位偏移量 int
      */
     public abstract int magicFieldOffset();
 
     /**
-     * 魔术位
+     * 返回魔术位信息
      *
-     * @return 魔术位的值
+     * @return 魔术位字节数组
      */
-    public abstract MagicCode getMagicCode();
+    public abstract byte[] magicCode();
 
-    public static class MagicCode {
-        /**
-         * 魔术为字符串
-         */
-        private final byte[] bytes;
-
-        public MagicCode(byte[] bytes) {
-            this.bytes = bytes;
-        }
-
-        public static MagicCode valueOf(byte... codes) {
-            return new MagicCode(codes);
-        }
-
-        public byte[] getBytes() {
-            return bytes;
-        }
-
-        @Override
-        public int hashCode() {
-            // null 和空数组一致
-            int result = bytes != null ? bytes.length : 0;
-            if (bytes != null) {
-                for (int i = 0; i < bytes.length; i++) {
-                    result = 31 * result + bytes[i];
-                }
-            }
-            return result;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            return this.hashCode() == obj.hashCode();
-        }
-    }
+    /**
+     * 是否命中魔术位
+     *
+     * @return 魔术位的值 magic code
+     */
+    public abstract boolean isMatchMagic(byte[] bs);
 }

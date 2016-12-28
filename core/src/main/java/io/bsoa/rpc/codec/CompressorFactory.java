@@ -39,7 +39,8 @@ public final class CompressorFactory {
     private final static Logger LOGGER = LoggerFactory.getLogger(CompressorFactory.class);
 
     /**
-     * 额外保留的，编码：压缩器的 Map
+     * 除了托管给扩展加载器的工厂模式（保留alias：实例）外<br>
+     * 还需要额外保留编码和实例的映射：{编码：压缩器}
      */
     private final static ConcurrentHashMap<Byte, Compressor> TYPE_COMPRESSOR_MAP = new ConcurrentHashMap<>();
 
@@ -48,7 +49,7 @@ public final class CompressorFactory {
      */
     private final static ExtensionLoader<Compressor> extensionLoader
             = ExtensionLoaderFactory.getExtensionLoader(Compressor.class, extensionClass -> {
-        // 除了保留 GROUP：Compressor外， 需要保留 code：Compressor
+        // 除了保留 alias：Compressor外， 需要保留 code：Compressor
         TYPE_COMPRESSOR_MAP.put(extensionClass.getCode(), extensionClass.getExtInstance());
     });
 

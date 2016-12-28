@@ -64,19 +64,23 @@ public class NettyServerChannelInitializer extends ChannelInitializer<SocketChan
         } else {
             Protocol protocol = ProtocolFactory.getProtocol(transportConfig.getProtocolType());
             ProtocolInfo protocolInfo = protocol.protocolInfo();
-            ch.pipeline().addLast(connectionChannelHandler)
-                .addLast("frame", protocolInfo.isLengthFixed() ?
-                    new FixedLengthFrameDecoder(protocolInfo.lengthFieldLength()) :
-                    new LengthFieldBasedFrameDecoder(protocolInfo.maxFrameLength(),
-                            protocolInfo.lengthFieldOffset(),
-                            protocolInfo.lengthFieldLength(),
-                            protocolInfo.lengthAdjustment(),
-                            protocolInfo.initialBytesToStrip(),
-                            false)) // TODO failfast ??
-                    .addLast("encoder", new NettyEncoder(protocol))
-                    .addLast("decoder", new NettyDecoder(protocol))
-                    .addLast("logging", new LoggingHandler(LogLevel.DEBUG))
-                    .addLast("serverChannelHandler", serverChannelHandler);
+            if (protocolInfo.getNetProtocol() == ProtocolInfo.NET_PROTOCOL_TCP) {
+                ch.pipeline().addLast(connectionChannelHandler)
+                        .addLast("frame", protocolInfo.isLengthFixed() ?
+                                new FixedLengthFrameDecoder(protocolInfo.lengthFieldLength()) :
+                                new LengthFieldBasedFrameDecoder(protocolInfo.maxFrameLength(),
+                                        protocolInfo.lengthFieldOffset(),
+                                        protocolInfo.lengthFieldLength(),
+                                        protocolInfo.lengthAdjustment(),
+                                        protocolInfo.initialBytesToStrip(),
+                                        false)) // TODO failfast ??
+                        .addLast("encoder", new NettyEncoder(protocol))
+                        .addLast("decoder", new NettyDecoder(protocol))
+                        .addLast("logging", new LoggingHandler(LogLevel.DEBUG))
+                        .addLast("serverChannelHandler", serverChannelHandler);
+            } else if (protocolInfo.getNetProtocol() == ProtocolInfo.NET_PROTOCOL_HTTP) {
+                // FIXME HTTP支持
+            }
         }
     }
 }

@@ -22,7 +22,7 @@ import io.bsoa.rpc.ext.Extensible;
 import io.bsoa.rpc.transport.AbstractByteBuf;
 
 /**
- * <p></p>
+ * <p>协议解码器</p>
  * <p>
  * Created by zhangg on 2016/12/17 18:39. <br/>
  *

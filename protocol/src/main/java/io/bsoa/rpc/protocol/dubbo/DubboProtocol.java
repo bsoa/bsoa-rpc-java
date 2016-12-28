@@ -37,10 +37,6 @@ public class DubboProtocol implements Protocol {
 
     private ProtocolInfo protocolInfo = new DubboProtocolInfo();
 
-    public DubboProtocol() {
-        // 注册协议自适应
-    }
-
     @Override
     public ProtocolInfo protocolInfo() {
         return protocolInfo;

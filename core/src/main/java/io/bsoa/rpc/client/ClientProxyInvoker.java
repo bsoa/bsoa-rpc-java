@@ -96,17 +96,17 @@ public class ClientProxyInvoker implements Invoker {
 //        if (compress != null) {
 //            request.setCompressType(CompressType.valueOf(compress).value());
 //        }
-//        request.addHeadKey(HeadKey.timeout, consumerConfig.getMethodTimeout(methodName));
+//        request.addHeader(HeadKey.timeout, consumerConfig.getMethodTimeout(methodName));
 
         // 将接口的<jsf:param />的配置复制到invocation
         Map params = consumerConfig.getParameters();
         if (params != null) {
-            request.addAttachments(params);
+            request.setAttachments(params);
         }
         // 将方法的<jsf:param />的配置复制到invocation
         params = (Map) consumerConfig.getMethodConfigValue(methodName, BsoaConstants.CONFIG_KEY_PARAMS);
         if (params != null) {
-            request.addAttachments(params);
+            request.setAttachments(params);
         }
 
         // 调用
@@ -133,7 +133,7 @@ public class ClientProxyInvoker implements Invoker {
         // 返回结果增加事件监听
         List<ResponseListener> onreturn = consumerConfig.getMethodOnreturn(methodName);
         if (onreturn != null && !onreturn.isEmpty()) {
-            if (rpcResponse.isError()) {
+            if (rpcResponse.hasError()) {
                 Throwable responseException = rpcResponse.getException();
                 for (ResponseListener responseListener : onreturn) {
                     try {

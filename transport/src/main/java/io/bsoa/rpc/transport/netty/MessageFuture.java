@@ -17,6 +17,7 @@
 package io.bsoa.rpc.transport.netty;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CancellationException;
@@ -31,11 +32,14 @@ import io.bsoa.rpc.context.BsoaContext;
 import io.bsoa.rpc.exception.BsoaRpcException;
 import io.bsoa.rpc.ext.Extension;
 import io.bsoa.rpc.listener.ResponseFuture;
+import io.bsoa.rpc.message.DecodableMessage;
+import io.bsoa.rpc.protocol.Protocol;
+import io.bsoa.rpc.protocol.ProtocolFactory;
 import io.netty.channel.Channel;
 
 /**
  * <p></p>
- *
+ * <p>
  * Created by zhangg on 2016/12/20 23:05. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
@@ -52,7 +56,7 @@ public class MessageFuture<V> implements ResponseFuture<V> {
 
     private static final String UNCANCELLABLE = "UNCANCELLABLE";
 
-    private static final CauseHolder CANCELLATION_CAUSE_HOLDER  = new CauseHolder(new CancellationException());
+    private static final CauseHolder CANCELLATION_CAUSE_HOLDER = new CauseHolder(new CancellationException());
 
     /**
      * 结果监听器，在返回成功或者异常的时候需要通知
@@ -100,7 +104,7 @@ public class MessageFuture<V> implements ResponseFuture<V> {
         return res;
     }
 
-    private boolean cancle0(boolean mayInterruptIfRunning){
+    private boolean cancle0(boolean mayInterruptIfRunning) {
         Object result = this.result;
         if (isDone0(result) || result == UNCANCELLABLE) {
             return false;
@@ -140,7 +144,7 @@ public class MessageFuture<V> implements ResponseFuture<V> {
     }
 
     @Override
-    public V get(long timeout, TimeUnit unit) throws InterruptedException{
+    public V get(long timeout, TimeUnit unit) throws InterruptedException {
         timeout = unit.toMillis(timeout); // 转为毫秒
         long remaintime = timeout - (sentTime - genTime); // 剩余时间
         if (remaintime <= 0) { // 没有剩余时间不等待
@@ -159,8 +163,7 @@ public class MessageFuture<V> implements ResponseFuture<V> {
     /**
      * 构建超时异常
      *
-     * @param scan
-     *         是否扫描线程
+     * @param scan 是否扫描线程
      * @return 异常ClientTimeoutException
      */
     public BsoaRpcException clientTimeoutException(boolean scan) {
@@ -195,33 +198,21 @@ public class MessageFuture<V> implements ResponseFuture<V> {
 
     public V getNow() {
         Object result = this.result;
-//        if (result instanceof ResponseMessage) { // 服务端返回
-//            ResponseMessage tmp = (ResponseMessage) result;
-//            if (tmp.getMsgBody() != null) {
-//                synchronized (this) {
-//                    if (tmp.getMsgBody() != null) {
-//                        Protocol protocol = ProtocolFactory.getProtocol(tmp.getProtocolType(), tmp.getMsgHeader().getCodecType());
-//                        try {
-//                            if (providerJsfVersion != null) { // 供序列化时特殊判断
-//                                RpcContext.getContext().setAttachment(Constants.HIDDEN_KEY_DST_JSF_VERSION, providerJsfVersion);
-//                            }
-//                            // TODO 是否追加对方语言 c++？
-//                            ResponseMessage ins = (ResponseMessage) protocol.decode(tmp.getMsgBody(), ResponseMessage.class.getCanonicalName());
-//                            if (ins.getResponse() != null) {
-//                                tmp.setResponse(ins.getResponse());
-//                            } else if (ins.getException() != null) tmp.setException(ins.getException());
-//                        } finally {
-//                            if (providerJsfVersion != null) { // 供序列化时特殊判断
-//                                RpcContext.getContext().removeAttachment(Constants.HIDDEN_KEY_DST_JSF_VERSION);
-//                            }
-//                            if (tmp.getMsgBody() != null) {
-//                                tmp.getMsgBody().release();
-//                            }
-//                            tmp.setMsgBody(null); // 防止多次调用get方法触发反序列化异常
-//                        }
-//                    }
-//                }
-//            }
+        if (result instanceof DecodableMessage) {
+            DecodableMessage msg = (DecodableMessage) result;
+            if (msg.getByteBuf() != null) {
+                synchronized (this) {
+                    if (msg.getByteBuf() != null) {
+                        Protocol protocol = ProtocolFactory.getProtocol(msg.getProtocolType());
+                        LOGGER.debug("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx{}", msg.getByteBuf());
+                        LOGGER.debug("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx{}", msg);
+                        protocol.decoder().decodeBody(msg.getByteBuf(), Arrays.asList(msg));
+                        LOGGER.debug("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx{}", msg.getByteBuf());
+                        msg.setByteBuf(null);
+                    }
+                }
+            }
+        }
 //        } else if (result instanceof CauseHolder) { // 本地异常
 //            Throwable e = ((CauseHolder) result).cause;
 //            if (e instanceof RpcException) {
@@ -239,7 +230,7 @@ public class MessageFuture<V> implements ResponseFuture<V> {
         this.releaseIfNeed0((V) result);
     }
 
-    private synchronized void releaseIfNeed0(V result){
+    private synchronized void releaseIfNeed0(V result) {
 //        if(result instanceof ResponseMessage){
 //            ByteBuf byteBuf = ((ResponseMessage) result).getMsgBody();
 //            if(byteBuf != null && byteBuf.refCnt() > 0 ){
@@ -250,6 +241,7 @@ public class MessageFuture<V> implements ResponseFuture<V> {
 
     private static final class CauseHolder {
         final Throwable cause;
+
         private CauseHolder(Throwable cause) {
             this.cause = cause;
         }
@@ -290,7 +282,7 @@ public class MessageFuture<V> implements ResponseFuture<V> {
                 //checkDeadLock(); need this check?
                 incWaiters();
                 try {
-                    for (;;) {
+                    for (; ; ) {
                         try {
                             wait(waitTime / 1000000, (int) (waitTime % 1000000));
                         } catch (InterruptedException e) {
@@ -323,7 +315,7 @@ public class MessageFuture<V> implements ResponseFuture<V> {
 
 
     public MessageFuture<V> setSuccess(V result) {
-        if(this.isCancelled()){
+        if (this.isCancelled()) {
             this.releaseIfNeed0(result);
             return this;
         }
@@ -356,7 +348,7 @@ public class MessageFuture<V> implements ResponseFuture<V> {
 
 
     public MessageFuture<V> setFailure(Throwable cause) {
-        if(this.isCancelled()){
+        if (this.isCancelled()) {
             this.releaseIfNeed();
             return this;
         }
@@ -386,7 +378,7 @@ public class MessageFuture<V> implements ResponseFuture<V> {
         return true;
     }
 
-    public MessageFuture addListener(ResultObserver listener){
+    public MessageFuture addListener(ResultObserver listener) {
 
         if (listener == null) {
             throw new NullPointerException("listener");
@@ -407,12 +399,13 @@ public class MessageFuture<V> implements ResponseFuture<V> {
         notifyListener0(listener);
         return this;
     }
+
     /*
      * notify all listener.
      */
     private void notifyListeners() {
         if (listeners == null || listeners.isEmpty()) {
-            if ( isAsyncCall() && !this.isCancelled()){
+            if (isAsyncCall() && !this.isCancelled()) {
                 //主要是释放掉msgBody 的buf
                 getNow();
             }
@@ -422,10 +415,11 @@ public class MessageFuture<V> implements ResponseFuture<V> {
             notifyListener0(resultListener);
         }
     }
+
     /*
      * 调用listener 新启动线程 防止阻塞当前线程
      */
-    private void notifyListener0(final ResultObserver listener){
+    private void notifyListener0(final ResultObserver listener) {
         listener.operationComplete(this);
     }
 
@@ -437,11 +431,11 @@ public class MessageFuture<V> implements ResponseFuture<V> {
         if (waiters == Short.MAX_VALUE) {
             throw new IllegalStateException("too many waiters: " + this);
         }
-        waiters ++;
+        waiters++;
     }
 
     private void decWaiters() {
-        waiters --;
+        waiters--;
     }
 
     /**
@@ -463,8 +457,9 @@ public class MessageFuture<V> implements ResponseFuture<V> {
     }
 
     /**
-     *  查看完成时间
-     * @return  完成时间
+     * 查看完成时间
+     *
+     * @return 完成时间
      */
     public long getDoneTime() {
         if (doneTime == 0l) {
@@ -485,8 +480,7 @@ public class MessageFuture<V> implements ResponseFuture<V> {
     /**
      * 设置已发送时间
      *
-     * @param sentTime
-     *         已发送时间
+     * @param sentTime 已发送时间
      */
     public void setSentTime(long sentTime) {
         this.sentTime = sentTime;
@@ -504,8 +498,7 @@ public class MessageFuture<V> implements ResponseFuture<V> {
     /**
      * 标记为异步调用
      *
-     * @param asyncCall
-     *         是否异步调用
+     * @param asyncCall 是否异步调用
      */
     public void setAsyncCall(boolean asyncCall) {
         this.asyncCall = asyncCall;

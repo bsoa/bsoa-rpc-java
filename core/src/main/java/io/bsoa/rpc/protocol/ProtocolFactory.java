@@ -21,10 +21,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.bsoa.rpc.exception.BsoaRuntimeException;
+import io.bsoa.rpc.common.BsoaConfigs;
 import io.bsoa.rpc.ext.ExtensionLoader;
 import io.bsoa.rpc.ext.ExtensionLoaderFactory;
-import io.bsoa.rpc.protocol.ProtocolInfo.MagicCode;
 
 /**
  * Created by zhangg on 2016/7/17 14:39.
@@ -39,7 +38,8 @@ public class ProtocolFactory {
     private final static Logger LOGGER = LoggerFactory.getLogger(ProtocolFactory.class);
 
     /**
-     * 额外保留的，编码：协议的 Map
+     * 除了托管给扩展加载器的工厂模式（保留alias：实例）外<br>
+     * 还需要额外保留编码和实例的映射：{编码：协议}
      */
     private final static ConcurrentHashMap<Byte, Protocol> TYPE_PROTOCOL_MAP = new ConcurrentHashMap<>();
 
@@ -49,7 +49,12 @@ public class ProtocolFactory {
     private final static ExtensionLoader<Protocol> extensionLoader
             = ExtensionLoaderFactory.getExtensionLoader(Protocol.class, extensionClass -> {
         // 除了保留 GROUP：Protocol外， 需要保留 code：Protocol
-        TYPE_PROTOCOL_MAP.put(extensionClass.getCode(), extensionClass.getExtInstance());
+        Protocol protocol = extensionClass.getExtInstance();
+        TYPE_PROTOCOL_MAP.put(extensionClass.getCode(), protocol);
+        if (BsoaConfigs.getBooleanValue(BsoaConfigs.TRANSPORT_SERVER_PROTOCOL_ADAPTIVE)) {
+            maxMagicOffset = 2;
+            registerAdaptiveProtocol(protocol.protocolInfo());
+        }
     });
 
     /**
@@ -73,20 +78,42 @@ public class ProtocolFactory {
         return TYPE_PROTOCOL_MAP.get(code);
     }
 
-
-    private static int maxMagicOffset = 2; // 最大偏移量，用于一个端口支持多协议时使用
-
-    private static ConcurrentHashMap<MagicCode, String> MAGIC_PROTOCOL_MAP = new ConcurrentHashMap<>();
-
-    public static synchronized void registerAdaptive(ProtocolInfo protocolInfo) {
-        if (MAGIC_PROTOCOL_MAP == null) {
-            MAGIC_PROTOCOL_MAP = new ConcurrentHashMap<>();
+    /**
+     * 根据头部前几个魔术位，判断是哪种协议的长连接
+     *
+     * @param magicHeadBytes 头部魔术位
+     * @return 协议
+     */
+    public static Protocol adaptiveProtocol(byte[] magicHeadBytes) {
+        for (Protocol protocol : TYPE_PROTOCOL_MAP.values()) {
+            if (protocol.protocolInfo().isMatchMagic(magicHeadBytes)) {
+                return protocol;
+            }
         }
+        return null;
+    }
+
+    /**
+     * 最大偏移量，用于一个端口支持多协议时使用
+     */
+    private static int maxMagicOffset;
+
+    /**
+     * 注册协议到适配协议
+     *
+     * @param protocolInfo 协议描述信息
+     */
+    protected static synchronized void registerAdaptiveProtocol(ProtocolInfo protocolInfo) {
         // 取最大偏移量
-        maxMagicOffset = Math.max(protocolInfo.magicFieldOffset(), maxMagicOffset + protocolInfo.magicFieldOffset());
-        String old = MAGIC_PROTOCOL_MAP.putIfAbsent(protocolInfo.getMagicCode(), protocolInfo.getName());
-        if (old != null && !old.equals(protocolInfo.getName())) {
-            throw new BsoaRuntimeException(22222, "Same magic code with different protocol!");
-        }
+        maxMagicOffset = Math.max(maxMagicOffset, protocolInfo.magicFieldOffset() + protocolInfo.magicFieldLength());
+    }
+
+    /**
+     * 得到最大偏移位
+     *
+     * @return
+     */
+    public static int getMaxMagicOffset() {
+        return maxMagicOffset;
     }
 }

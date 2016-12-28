@@ -46,7 +46,6 @@ import io.bsoa.rpc.transport.AbstractChannel;
 import io.bsoa.rpc.transport.AbstractClientTransport;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.AdaptiveRecvByteBufAllocator;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
@@ -83,7 +82,7 @@ public class NettyClientTransport extends AbstractClientTransport {
 
     private List<AbstractChannel> channels = new ArrayList<>();
 
-    private AtomicBoolean connected;
+    private AtomicBoolean connected = new AtomicBoolean(false);
 
     @Override
     public void connect() {
@@ -138,6 +137,7 @@ public class NettyClientTransport extends AbstractClientTransport {
                 throw initException;
             }
         }
+        connected.compareAndSet(false, true);
     }
 
     @Override
@@ -196,6 +196,7 @@ public class NettyClientTransport extends AbstractClientTransport {
             ByteBuf byteBuf = NettyTransportHelper.getBuffer();
             protocol.encoder().encodeBody(request, new NettyByteBuf(byteBuf));
 
+            channel.writeAndFlush(message, channel.voidPromise());
 //            // 序列话Request  主要是body
 //            ByteBuf byteBuf = NettyTransportHelper.getBuffer();
 //            Protocol protocol = ProtocolFactory.getProtocol(request.getProtocolType());

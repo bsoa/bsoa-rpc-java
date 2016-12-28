@@ -34,9 +34,9 @@ public interface AbstractByteBuf {
     public ByteBufferHolder readerIndex(int readerIndex);
 
     public int writerIndex();
-
-    public ByteBufferHolder writerIndex(int writerIndex);
-
+*/
+    public AbstractByteBuf writerIndex(int writerIndex);
+/*
     public ByteBufferHolder setIndex(int readerIndex, int writerIndex);
 
     public int readableBytes();

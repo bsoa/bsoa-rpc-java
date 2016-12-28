@@ -38,6 +38,12 @@ public class NettyByteBuf implements AbstractByteBuf {
     }
 
     @Override
+    public AbstractByteBuf writerIndex(int writerIndex) {
+        byteBuf.writerIndex(writerIndex);
+        return this;
+    }
+
+    @Override
     public byte[] array() {
         return byteBuf.array();
     }

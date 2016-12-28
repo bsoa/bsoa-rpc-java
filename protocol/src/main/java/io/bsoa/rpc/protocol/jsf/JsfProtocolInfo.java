@@ -17,6 +17,7 @@
 package io.bsoa.rpc.protocol.jsf;
 
 import io.bsoa.rpc.common.BsoaConfigs;
+import io.bsoa.rpc.common.utils.CodecUtils;
 import io.bsoa.rpc.protocol.ProtocolInfo;
 
 /**
@@ -43,10 +44,10 @@ public class JsfProtocolInfo extends ProtocolInfo {
 
     private final int magicFieldOffset = 0; // 魔术位0-2位
 
-    private final MagicCode magicCode = MagicCode.valueOf((byte) 0xAD, (byte) 0xAF);
+    private final byte[] magicCode = new byte[]{(byte) 0xAD, (byte) 0xAF};
 
     public JsfProtocolInfo() {
-        super("jsf", (byte) 1, false); // 是一个变长协议
+        super("jsf", (byte) 1, false, NET_PROTOCOL_TCP); // 是一个变长协议
     }
 
     @Override
@@ -85,7 +86,12 @@ public class JsfProtocolInfo extends ProtocolInfo {
     }
 
     @Override
-    public MagicCode getMagicCode() {
+    public byte[] magicCode() {
         return magicCode;
+    }
+
+    @Override
+    public boolean isMatchMagic(byte[] bs) {
+        return CodecUtils.startsWith(bs, magicCode);
     }
 }

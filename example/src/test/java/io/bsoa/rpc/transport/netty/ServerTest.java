@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import io.bsoa.rpc.message.MessageBuilder;
 import io.bsoa.rpc.message.NegotiatorResponse;
+import io.bsoa.rpc.server.bsoa.BsoaServerHandler;
 import io.bsoa.rpc.transport.ServerTransport;
 import io.bsoa.rpc.transport.ServerTransportConfig;
 import io.bsoa.rpc.transport.ServerTransportFactory;
@@ -51,6 +52,7 @@ public class ServerTest {
             response.setRes("nego response from server");
             return response;
         });
+        config.setServerHandler(new BsoaServerHandler());
         ServerTransport transport = ServerTransportFactory.getServerTransport(config);
         Assert.assertEquals(transport.getClass(), NettyServerTransport.class);
         transport.start();

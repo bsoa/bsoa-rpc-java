@@ -94,7 +94,7 @@ public class BsoaProtocolEncoder implements ProtocolEncoder {
             short headerLength = 10; // 如果没有头部扩展
 
             // 0-1 魔术位(2位)
-            out.writeBytes(protocolInfo.getMagicCode().getBytes());
+            out.writeBytes(protocolInfo.magicCode());
             // 2-5 总长度(4位，包括魔术位和自己）
             out.writeInt(0); // 总长度会变，这里先占位
             // 6-7 2位头部长度(包括自己2位+后面的头）
@@ -174,10 +174,10 @@ public class BsoaProtocolEncoder implements ProtocolEncoder {
             msg.setTotalLength(totalLength);
             out.setBytes(2, CodecUtils.intToBytes(totalLength)); // 更新字段
 
-//            byte[] bytes = new byte[out.readableBytes()];
-//            out.readBytes(bytes);
-//            LOGGER.debug(Arrays.toString(bytes));
-//            out.readerIndex(0);
+            byte[] bytes = new byte[out.readableBytes()];
+            out.readBytes(bytes);
+            LOGGER.debug(Arrays.toString(bytes));
+            out.readerIndex(0);
         } else {
             LOGGER.warn("Unsupported type :{}", object.getClass());
             throw new BsoaRpcException(22222, "Unsupported object type");

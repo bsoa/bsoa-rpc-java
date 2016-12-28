@@ -25,6 +25,8 @@ import java.io.Serializable;
  */
 public class RpcRequest extends RPCMessage implements Serializable {
 
+    private static final long serialVersionUID = -7300288646979013314L;
+
     public RpcRequest() {
         super(MessageConstants.RPC_REQUEST);
     }
@@ -56,6 +58,7 @@ public class RpcRequest extends RPCMessage implements Serializable {
     }
 
     public RpcRequest setMethodName(String methodName) {
+        super.addHeadKey(HeadKey.METHOD_NAME, interfaceName);
         this.methodName = methodName;
         return this;
     }
@@ -65,6 +68,7 @@ public class RpcRequest extends RPCMessage implements Serializable {
     }
 
     public RpcRequest setGroup(String group) {
+        super.addHeadKey(HeadKey.GROUP, interfaceName);
         this.group = group;
         return this;
     }

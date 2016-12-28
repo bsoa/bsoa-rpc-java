@@ -35,10 +35,19 @@ import io.bsoa.rpc.transport.AbstractChannel;
 public class BsoaServerHandler implements ServerHandler {
 
     public void handleRpcRequest(RpcRequest rpcRequest, AbstractChannel channel) {
-        // 丢到业务线程池去执行 TODO
-        RpcResponse rpcResponse = MessageBuilder.buildRpcResponse(rpcRequest);
-        rpcResponse.setReturnData("hello, this is response!");
-        channel.writeAndFlush(rpcResponse);
+        try {
+
+//            rpcRequest.getByteBuf().writerIndex(rpc)
+            // 丢到业务线程池去执行 TODO
+            RpcResponse rpcResponse = MessageBuilder.buildRpcResponse(rpcRequest);
+            rpcResponse.setReturnData("hello, this is response!");
+            channel.writeAndFlush(rpcResponse);
+        } catch (Exception e) {
+            e.printStackTrace();
+            // TODO handle exception
+        } finally {
+            //rpcRequest.getByteBuf().release();
+        }
     }
 
     @Override

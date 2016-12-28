@@ -18,6 +18,8 @@ package io.bsoa.rpc.codec;
 import io.bsoa.rpc.ext.Extensible;
 
 /**
+ * <p>序列化器接口</p>
+ * <p>
  * Created by zhanggeng on 16-6-7.
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
@@ -25,7 +27,20 @@ import io.bsoa.rpc.ext.Extensible;
 @Extensible(coded = true)
 public interface Serializer {
 
-    public byte[] encode(Object obj);
+    /**
+     * 序列化
+     *
+     * @param object 对象
+     * @return 序列化的字节数组
+     */
+    public byte[] encode(Object object);
 
-    public Object decode(byte[] datas, Class clazz);
+    /**
+     * 反序列化
+     *
+     * @param data  原始字节数组
+     * @param clazz 期望的类型
+     * @return 反序列化后的对象
+     */
+    public Object decode(byte[] data, Class clazz);
 }

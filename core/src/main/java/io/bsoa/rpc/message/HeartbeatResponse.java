@@ -27,6 +27,8 @@ import java.io.Serializable;
  */
 public class HeartbeatResponse extends BaseMessage implements Serializable {
 
+    private static final long serialVersionUID = 3323490329348520684L;
+
     public HeartbeatResponse() {
         super(MessageConstants.HEARTBEAT_RESPONSE);
     }

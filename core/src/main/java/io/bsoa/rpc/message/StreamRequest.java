@@ -16,6 +16,8 @@
  */
 package io.bsoa.rpc.message;
 
+import java.io.Serializable;
+
 /**
  * <p></p>
  *
@@ -23,7 +25,9 @@ package io.bsoa.rpc.message;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public class StreamRequest extends StreamMessage {
+public class StreamRequest extends StreamMessage implements Serializable {
+
+    private static final long serialVersionUID = 1568718035999858992L;
 
     public StreamRequest() {
         super(MessageConstants.STREAM_REQUEST);

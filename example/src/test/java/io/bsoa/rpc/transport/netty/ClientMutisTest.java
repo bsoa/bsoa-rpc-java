@@ -62,7 +62,7 @@ public class ClientMutisTest {
 
         }
 
-        final int threads = 50;
+        final int threads = 65;
         final AtomicLong cnt = new AtomicLong(0);
         final ThreadPoolExecutor service1 = new ThreadPoolExecutor(threads, threads, 0L, TimeUnit.MILLISECONDS, new SynchronousQueue<Runnable>());// 无队列
         for (int i = 0; i < threads; i++) {

@@ -18,19 +18,30 @@
  */
 package io.bsoa.rpc.transport.netty;
 
+import java.net.InetSocketAddress;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.bsoa.rpc.common.utils.NetUtils;
+import io.bsoa.rpc.protocol.Protocol;
+import io.bsoa.rpc.protocol.ProtocolFactory;
+import io.bsoa.rpc.protocol.ProtocolInfo;
 import io.bsoa.rpc.transport.ServerTransportConfig;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.ByteToMessageDecoder;
+import io.netty.handler.codec.FixedLengthFrameDecoder;
+import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
+import io.netty.handler.logging.LogLevel;
+import io.netty.handler.logging.LoggingHandler;
 
 /**
- * <p></p>
- *
+ * <p>同一个端口支持多种协议</p>
+ * <p>根据第一次请求的前几位自动判断，一个长连接只能传递一种协议</p>
+ * <p>
  * Created by zhangg on 2016/12/18 00:13. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
@@ -42,12 +53,9 @@ public class AdapterDecoder extends ByteToMessageDecoder {
      */
     private final static Logger LOGGER = LoggerFactory.getLogger(AdapterDecoder.class);
 
-    public AdapterDecoder(NettyServerChannelHandler serverChannelHandler, ServerTransportConfig transportConfig) {
-        this.serverChannelHandler = serverChannelHandler;
-        this.payload = transportConfig.getPayload();
-        this.telnet = transportConfig.isTelnet();
-    }
-
+    /**
+     * NettyServerChannelHandler
+     */
     private final NettyServerChannelHandler serverChannelHandler;
 
     /**
@@ -56,92 +64,78 @@ public class AdapterDecoder extends ByteToMessageDecoder {
     private boolean telnet;
 
     /**
-     * 最大数据包大小 maxFrameLength
+     * Instantiates a new Adapter decoder.
+     *
+     * @param serverChannelHandler the server channel handler
+     * @param transportConfig      the transport config
      */
-    private int payload = 8 * 1024 * 1024;
+    public AdapterDecoder(NettyServerChannelHandler serverChannelHandler, ServerTransportConfig transportConfig) {
+        this.serverChannelHandler = serverChannelHandler;
+        this.telnet = transportConfig.isTelnet();
+    }
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
+        // 判断下，已经注册的头协议
+        int offset = ProtocolFactory.getMaxMagicOffset();
+        if (in.readableBytes() < offset) {
+            return;
+        }
+        // 读取头几位
+        byte[] magicHeadBytes = new byte[offset];
+        in.readBytes(magicHeadBytes);
+        in.readerIndex(in.readerIndex() - 2);
+        // 自动判断协议
+        Protocol protocol = ProtocolFactory.adaptiveProtocol(magicHeadBytes);
 
-//        if (in.readableBytes() < 2) {
-//            return;
-//        }
-//        Short magiccode_high = in.getUnsignedByte(0);
-//        Short magiccode_low = in.getUnsignedByte(1);
-//        byte b1 = magiccode_high.byteValue();
-//        byte b2 = magiccode_low.byteValue();
-//
-//        InetSocketAddress localAddress = (InetSocketAddress) ctx.channel().localAddress();
-//        InetSocketAddress remoteAddress = (InetSocketAddress) ctx.channel().remoteAddress();
-//
-//        // jsf协议
-//        if (isJSF(b1, b2)) {
-//            LOGGER.info("Accept jsf connection {}", NetUtils.connectToString(remoteAddress, localAddress));
-//            ChannelPipeline pipeline = ctx.pipeline();
-//            pipeline.addLast(new JSFDecoder(payload));
-//            pipeline.addLast(new JSFEncoder());
-//            pipeline.addLast(serverChannelHandler);
-//            pipeline.remove(this);
-//
-//            pipeline.fireChannelActive(); // 重新触发连接建立事件
-//        }
-//        // 1.x dubbo协议
-//        else if (DubboAdapter.match(b1, b2)) {
-//            LOGGER.info("Accept dubbo connection {}", NetUtils.connectToString(remoteAddress, localAddress));
-//            ChannelPipeline pipeline = ctx.pipeline();
-//            pipeline.addLast(new DubboDecoder(payload));
-//            pipeline.addLast(new DubboEncoder());
-//            pipeline.addLast(serverChannelHandler);
-//            pipeline.remove(this);
-//
-//            pipeline.fireChannelActive(); // 重新触发连接建立事件
-//        }
-//
-//        // http协议
-//        else if (isHttp(b1, b2)) {
-//            if (LOGGER.isTraceEnabled()) {
-//                LOGGER.trace("Accept http connection {}", NetUtils.connectToString(remoteAddress, localAddress));
-//            }
-//            ChannelPipeline pipeline = ctx.pipeline();
-//            pipeline.addLast("decoder", new HttpRequestDecoder());
-//            pipeline.addLast("http-aggregator", new HttpObjectAggregator(payload));
-//            pipeline.addLast("encoder", new HttpResponseEncoder());
-//            pipeline.addLast("jsonDecoder", new HttpJsonHandler(serverChannelHandler.getServerHandler()));
-//            pipeline.remove(this);
-//        }
-//
-//        // telnet
-//        else {
-//            LOGGER.info("Accept telnet connection {}", NetUtils.connectToString(remoteAddress, localAddress));
-//
-//            ChannelPipeline pipeline = ctx.pipeline();
-//            pipeline.addLast(new TelnetCodec());
-//            pipeline.addLast(new TelnetChannelHandler());
-//            pipeline.remove(this);
-//
-//            if (telnet) {
-//                pipeline.fireChannelActive(); // 重新触发连接建立事件
-//            } else {
-//                ctx.channel().writeAndFlush("Sorry! Not support telnet");
-//                ctx.channel().close();
-//            }
-//        }
-//    }
-//
-//    private boolean isJSF(short magic1, short magic2) {
-//        return magic1 == Constants.MAGICCODEBYTE[0]
-//                && magic2 == Constants.MAGICCODEBYTE[1];
-//    }
-//
-//    private boolean isHttp(int magic1, int magic2) {
-//        return (magic1 == 'G' && magic2 == 'E') || // GET
-//                (magic1 == 'P' && magic2 == 'O') || // POST
-//                (magic1 == 'P' && magic2 == 'U') || // PUT
-//                (magic1 == 'H' && magic2 == 'E') || // HEAD
-//                (magic1 == 'O' && magic2 == 'P') || // OPTIONS
-//                (magic1 == 'P' && magic2 == 'A') || // PATCH
-//                (magic1 == 'D' && magic2 == 'E') || // DELETE
-//                (magic1 == 'T' && magic2 == 'R') || // TRACE
-//                (magic1 == 'C' && magic2 == 'O');   // CONNECT
+        InetSocketAddress localAddress = (InetSocketAddress) ctx.channel().localAddress();
+        InetSocketAddress remoteAddress = (InetSocketAddress) ctx.channel().remoteAddress();
+
+        if (protocol != null) {
+            ChannelPipeline pipeline = ctx.pipeline();
+            ProtocolInfo protocolInfo = protocol.protocolInfo();
+            if (protocolInfo.getNetProtocol() == ProtocolInfo.NET_PROTOCOL_TCP) {
+                LOGGER.info("Accept tcp connection of protocol:{} {}", protocolInfo.getName(),
+                        NetUtils.connectToString(remoteAddress, localAddress));
+                pipeline.addLast("frame", protocolInfo.isLengthFixed() ?
+                        new FixedLengthFrameDecoder(protocolInfo.lengthFieldLength()) :
+                        new LengthFieldBasedFrameDecoder(protocolInfo.maxFrameLength(),
+                                protocolInfo.lengthFieldOffset(),
+                                protocolInfo.lengthFieldLength(),
+                                protocolInfo.lengthAdjustment(),
+                                protocolInfo.initialBytesToStrip(),
+                                false)) // TODO failfast ??
+                        .addLast("encoder", new NettyEncoder(protocol))
+                        .addLast("decoder", new NettyDecoder(protocol))
+                        .addLast("logging", new LoggingHandler(LogLevel.DEBUG))
+                        .addLast("serverChannelHandler", serverChannelHandler);
+                pipeline.remove(this);
+                pipeline.fireChannelActive(); // 重新触发连接建立事件
+            } else if (protocolInfo.getNetProtocol() == ProtocolInfo.NET_PROTOCOL_HTTP) {
+//                FIXME
+//                if (LOGGER.isTraceEnabled()) {
+//                    LOGGER.trace("Accept http connection {}", NetUtils.connectToString(remoteAddress, localAddress));
+//                }
+//                pipeline.addLast("decoder", new HttpRequestDecoder());
+//                pipeline.addLast("http-aggregator", new HttpObjectAggregator(payload));
+//                pipeline.addLast("encoder", new HttpResponseEncoder());
+//                pipeline.addLast("jsonDecoder", new HttpJsonHandler(serverChannelHandler.getServerHandler()));
+//                pipeline.remove(this);
+            }
+        } else { //telnet
+            LOGGER.info("Accept telnet connection {}", NetUtils.connectToString(remoteAddress, localAddress));
+
+            ChannelPipeline pipeline = ctx.pipeline();
+            pipeline.addLast(new TelnetCodec());
+            pipeline.addLast(new TelnetChannelHandler());
+            pipeline.remove(this);
+
+            if (telnet) {
+                pipeline.fireChannelActive(); // 重新触发连接建立事件
+            } else {
+                ctx.channel().writeAndFlush("Sorry! Not support telnet");
+                ctx.channel().close();
+            }
+        }
     }
 }

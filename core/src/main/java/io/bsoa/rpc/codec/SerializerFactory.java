@@ -25,7 +25,7 @@ import io.bsoa.rpc.ext.ExtensionLoader;
 import io.bsoa.rpc.ext.ExtensionLoaderFactory;
 
 /**
- * <p></p>
+ * <p>序列化工厂</p>
  * <p>
  * Created by zhangg on 2016/12/24 21:09. <br/>
  *
@@ -39,7 +39,8 @@ public final class SerializerFactory {
     private final static Logger LOGGER = LoggerFactory.getLogger(SerializerFactory.class);
 
     /**
-     * 额外保留的，编码：序列化的 Map
+     * 除了托管给扩展加载器的工厂模式（保留alias：实例）外<br>
+     * 还需要额外保留编码和实例的映射：{编码：序列化器}
      */
     private final static ConcurrentHashMap<Byte, Serializer> TYPE_SERIALIZER_MAP = new ConcurrentHashMap<>();
 
@@ -48,7 +49,7 @@ public final class SerializerFactory {
      */
     private final static ExtensionLoader<Serializer> extensionLoader
             = ExtensionLoaderFactory.getExtensionLoader(Serializer.class, extensionClass -> {
-        // 除了保留 GROUP：Serializer外， 需要保留 code：Serializer
+        // 除了保留 alias：Serializer外， 需要保留 code：Serializer
         TYPE_SERIALIZER_MAP.put(extensionClass.getCode(), extensionClass.getExtInstance());
     });
 

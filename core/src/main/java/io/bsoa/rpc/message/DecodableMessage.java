@@ -16,30 +16,41 @@
  */
 package io.bsoa.rpc.message;
 
-import java.io.Serializable;
+import io.bsoa.rpc.transport.AbstractByteBuf;
 
 /**
  * <p></p>
  * <p>
- * Created by zhangg on 2016/12/10 22:19. <br/>
+ * Created by zhangg on 2016/12/29 01:43. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public class HeartbeatRequest extends BaseMessage implements Serializable {
+public abstract class DecodableMessage extends BaseMessage {
 
-    private static final long serialVersionUID = -8674487769407963114L;
+    /**
+     * 未解析的数据
+     */
+    private transient AbstractByteBuf byteBuf;
 
-    public HeartbeatRequest() {
-        super(MessageConstants.HEARTBEAT_REQUEST);
+    /**
+     * 子类必须实现
+     *
+     * @param messageType 消息类型
+     */
+    protected DecodableMessage(byte messageType) {
+        super(messageType);
     }
 
-    private long timestamp;
-
-    public long getTimestamp() {
-        return timestamp;
+    public AbstractByteBuf getByteBuf() {
+        return byteBuf;
     }
 
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
+    public DecodableMessage setByteBuf(AbstractByteBuf byteBuf) {
+        this.byteBuf = byteBuf;
+        return this;
+    }
+
+    private DecodableMessage(){
+        super((byte) 0);
     }
 }

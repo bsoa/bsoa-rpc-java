@@ -18,6 +18,7 @@
  */
 package io.bsoa.rpc.protocol.bsoa;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +36,7 @@ import io.bsoa.rpc.common.utils.StringUtils;
 import io.bsoa.rpc.exception.BsoaRpcException;
 import io.bsoa.rpc.ext.Extension;
 import io.bsoa.rpc.message.BaseMessage;
+import io.bsoa.rpc.message.DecodableMessage;
 import io.bsoa.rpc.message.HeartbeatRequest;
 import io.bsoa.rpc.message.HeartbeatResponse;
 import io.bsoa.rpc.message.MessageBuilder;
@@ -75,14 +77,15 @@ public class BsoaProtocolDecoder implements ProtocolDecoder {
         NettyByteBuf nettyByteBuf = (NettyByteBuf) byteBuf;
         ByteBuf in = nettyByteBuf.getByteBuf();
 
-//        byte[] bytes = new byte[in.readableBytes()];
-//        in.readBytes(bytes);
-//        LOGGER.debug(Arrays.toString(bytes));
-//        in.readerIndex(0);
         // 前面2位magiccode 和 4位总长度 已经跳过
         if (in.readerIndex() != 0) {
             throw new BsoaRpcException(22222, "readerIndex!=0");
         }
+
+        byte[] bytes = new byte[in.readableBytes()];
+        in.readBytes(bytes);
+        LOGGER.debug(Arrays.toString(bytes));
+        in.readerIndex(0);
 
         int totalLength = in.readInt();
         Short headerLength = in.readShort();
@@ -115,7 +118,7 @@ public class BsoaProtocolDecoder implements ProtocolDecoder {
         NettyByteBuf nettyByteBuf = (NettyByteBuf) byteBuf;
         try {
             ByteBuf in = nettyByteBuf.getByteBuf();
-
+            LOGGER.debug("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@{} {}", in.hashCode(), in);
             if (CommonUtils.isEmpty(out)) {
                 throw new BsoaRpcException(22222, "Need decode header first!");
             }
@@ -184,8 +187,23 @@ public class BsoaProtocolDecoder implements ProtocolDecoder {
         if (messageType == 3 || messageType == 4 || messageType == 5 || messageType == 6) {
             // 心跳包 和协商包 在这里解析
             decodeBody(byteBuf, out);
+        } else {
+            // 其它在业务线程里decode
+            DecodableMessage message = (DecodableMessage) msg;
+
+            NettyByteBuf nettyByteBuf = (NettyByteBuf) byteBuf;
+            ByteBuf in = nettyByteBuf.getByteBuf();
+            int index = in.readerIndex()+in.readableBytes();
+            ByteBuf body =  in.slice(in.readerIndex(),in.readableBytes());
+            body.retain();
+            in.readerIndex(index);
+            LOGGER.debug("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@{}", byteBuf);
+            LOGGER.debug("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@{} {}", in.hashCode(), in);
+            LOGGER.debug("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@{} {}", body.hashCode(), body);
+            AbstractByteBuf newBb = new NettyByteBuf(body);
+            LOGGER.debug("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@{}",newBb);
+            message.setByteBuf(newBb);
         }
-        // 其它在业务线程里decode
     }
 
     /**

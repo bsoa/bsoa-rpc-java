@@ -32,10 +32,15 @@ import static io.bsoa.rpc.message.MessageConstants.SERIALIZATION_NONE;
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
 public abstract class BaseMessage {
+
     /**
      * 消息类型：（在"bsoa"协议中，占6bit，和调用方向组成一个byte）
      */
     private transient final byte messageType;
+
+    private BaseMessage(){
+        this.messageType = 0;
+    }
 
     /**
      * 子类必须实现
@@ -81,13 +86,13 @@ public abstract class BaseMessage {
     protected transient Map<Byte, Object> headers;
 
     /**
-     * Add head key.
+     * Add header.
      *
      * @param key   the key
      * @param value the value
      * @return the head key
      */
-    public BaseMessage addHeadKey(Byte key, Object value) {
+    public BaseMessage addHeader(Byte key, Object value) {
         if (headers == null) {
             headers = new HashMap<>();
         }
@@ -100,12 +105,12 @@ public abstract class BaseMessage {
     }
 
     /**
-     * Del head key.
+     * Del header.
      *
      * @param key the key
      * @return the head key
      */
-    public BaseMessage delHeadKey(Byte key) {
+    public BaseMessage delHeader(Byte key) {
         if (headers != null) {
             headers.remove(key);
         }
@@ -113,12 +118,12 @@ public abstract class BaseMessage {
     }
 
     /**
-     * Gets head key.
+     * Gets header.
      *
      * @param key the key
      * @return the head key
      */
-    public Object getHeadKey(Byte key) {
+    public Object getHeader(Byte key) {
         return headers != null ? headers.get(key) : key;
     }
 

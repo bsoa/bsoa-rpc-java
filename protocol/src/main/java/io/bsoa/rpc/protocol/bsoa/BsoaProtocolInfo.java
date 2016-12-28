@@ -17,6 +17,7 @@
 package io.bsoa.rpc.protocol.bsoa;
 
 import io.bsoa.rpc.common.BsoaConfigs;
+import io.bsoa.rpc.common.utils.CodecUtils;
 import io.bsoa.rpc.protocol.ProtocolInfo;
 
 /**
@@ -43,10 +44,10 @@ public class BsoaProtocolInfo extends ProtocolInfo {
 
     private final int magicFieldOffset = 0; // 魔术位0-2位
 
-    private final MagicCode magicCode = MagicCode.valueOf((byte) 0xb5, (byte) 0x0a);
+    private final byte[] magicCode = new byte[]{(byte) 0xb5, (byte) 0x0a};
 
     public BsoaProtocolInfo() {
-        super("bsoa", (byte) 10, false);// 是一个变长协议
+        super("bsoa", (byte) 10, false, NET_PROTOCOL_TCP);// 是一个变长协议
     }
 
     @Override
@@ -85,7 +86,12 @@ public class BsoaProtocolInfo extends ProtocolInfo {
     }
 
     @Override
-    public MagicCode getMagicCode() {
+    public byte[] magicCode() {
         return magicCode;
+    }
+
+    @Override
+    public boolean isMatchMagic(byte[] bs) {
+        return CodecUtils.startsWith(bs, magicCode);
     }
 }

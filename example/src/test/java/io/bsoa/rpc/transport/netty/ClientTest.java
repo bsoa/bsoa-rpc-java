@@ -22,10 +22,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.bsoa.rpc.client.Provider;
-import io.bsoa.rpc.message.HeartbeatRequest;
-import io.bsoa.rpc.message.HeartbeatResponse;
-import io.bsoa.rpc.message.NegotiatorRequest;
-import io.bsoa.rpc.message.NegotiatorResponse;
+import io.bsoa.rpc.message.MessageConstants;
+import io.bsoa.rpc.message.RpcRequest;
+import io.bsoa.rpc.message.RpcResponse;
 import io.bsoa.rpc.transport.ClientTransport;
 import io.bsoa.rpc.transport.ClientTransportConfig;
 import io.bsoa.rpc.transport.ClientTransportFactory;
@@ -42,7 +41,7 @@ public class ClientTest {
     /**
      * slf4j Logger for this class
      */
-    private final static Logger LOGGER = LoggerFactory.getLogger(ClientMutisTest.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(ClientTest.class);
 
     public static void main(String[] args) throws InterruptedException {
         ClientTransportConfig config = new ClientTransportConfig();
@@ -58,19 +57,32 @@ public class ClientTest {
         } finally {
 
         }
+        RpcRequest request1 = new RpcRequest();
+        request1.setProtocolType((byte) 10) // bsoa
+                .setSerializationType((byte) 3) // java
+                .setDirectionType(MessageConstants.DIRECTION_FORWARD);
+        request1.setInterfaceName("io.bsoa.xxx.HelloService")
+                .setMethodName("sayHello")
+                .setGroup("heihei")
+                .setArgsType(new String[]{"java.lang.String", "int"})
+                .setArgs(new Object[]{"jhahahaha", 123})
+                .addAttachment(".token", "xxxx");
+        RpcResponse response = (RpcResponse) transport.syncSend(request1, 60000);
+        LOGGER.info("{}", response.getReturnData());
+
+//        HeartbeatRequest request3 = new HeartbeatRequest();
+//        request3.setTimestamp(System.currentTimeMillis());
+//        HeartbeatResponse response4 = (HeartbeatResponse) transport.syncSend(request3, 60000);
+//        LOGGER.info("{}", response4.getTimestamp());
+//
+//
+//        NegotiatorRequest request5 = new NegotiatorRequest();
+//        request5.setCmd("1");
+//        request5.setData(null);
+//        NegotiatorResponse response6 = (NegotiatorResponse) transport.syncSend(request5, 60000);
+//        LOGGER.info("{}", response6.getRes());
 
 
-        HeartbeatRequest request3 = new HeartbeatRequest();
-        request3.setTimestamp(System.currentTimeMillis());
-        HeartbeatResponse response4 = (HeartbeatResponse) transport.syncSend(request3, 60000);
-        LOGGER.info("{}", response4.getTimestamp());
-
-
-        NegotiatorRequest request5 = new NegotiatorRequest();
-        request5.setCmd("1");
-        request5.setData(null);
-        NegotiatorResponse response6 = (NegotiatorResponse) transport.syncSend(request5, 60000);
-        LOGGER.info("{}", response6.getRes());
     }
 
 }

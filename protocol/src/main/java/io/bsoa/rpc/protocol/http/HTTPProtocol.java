@@ -14,32 +14,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.bsoa.rpc.message;
+package io.bsoa.rpc.protocol.http;
 
-import java.io.Serializable;
+import io.bsoa.rpc.ext.Extension;
+import io.bsoa.rpc.protocol.Protocol;
+import io.bsoa.rpc.protocol.ProtocolDecoder;
+import io.bsoa.rpc.protocol.ProtocolEncoder;
+import io.bsoa.rpc.protocol.ProtocolInfo;
 
 /**
  * <p></p>
  * <p>
- * Created by zhangg on 2016/12/10 22:19. <br/>
+ * Created by zhangg on 2016/12/28 23:44. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public class HeartbeatRequest extends BaseMessage implements Serializable {
+@Extension(value = "http", code = 9)
+public class HTTPProtocol implements Protocol {
 
-    private static final long serialVersionUID = -8674487769407963114L;
+    private HTTPProtocolInfo protocol = new HTTPProtocolInfo();
 
-    public HeartbeatRequest() {
-        super(MessageConstants.HEARTBEAT_REQUEST);
+    @Override
+    public ProtocolInfo protocolInfo() {
+        return protocol;
     }
 
-    private long timestamp;
-
-    public long getTimestamp() {
-        return timestamp;
+    @Override
+    public ProtocolEncoder encoder() {
+        throw new UnsupportedOperationException();
     }
 
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
+    @Override
+    public ProtocolDecoder decoder() {
+        throw new UnsupportedOperationException();
     }
 }

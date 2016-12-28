@@ -14,32 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.bsoa.rpc.message;
+package io.bsoa.rpc.protocol;
 
-import java.io.Serializable;
+import io.bsoa.rpc.ext.Extensible;
+import io.bsoa.rpc.transport.AbstractChannel;
 
 /**
  * <p></p>
  * <p>
- * Created by zhangg on 2016/12/10 22:19. <br/>
+ * Created by zhangg on 2016/12/29 00:19. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public class HeartbeatRequest extends BaseMessage implements Serializable {
+@Extensible(singleton = false)
+public interface TelnetHandler {
 
-    private static final long serialVersionUID = -8674487769407963114L;
+    public String line = "\r\n";
 
-    public HeartbeatRequest() {
-        super(MessageConstants.HEARTBEAT_REQUEST);
-    }
+    public String getCommand();
 
-    private long timestamp;
+    public String getDescription();
 
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
-    }
+    public String telnet(AbstractChannel channel, String message);
 }

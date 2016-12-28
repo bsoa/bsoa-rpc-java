@@ -139,4 +139,23 @@ public final class CodecUtils {
 //                + (byte) ((b >> 1) & 0x01) + (byte) ((b >> 0) & 0x1);
 //    }
 
+    /**
+     * byte数组比较，是否命中前面几位
+     *
+     * @param bs
+     * @param head
+     * @return
+     */
+    public static boolean startsWith(byte[] bs, byte[] head) {
+        if (bs.length < head.length) {
+            return false;
+        }
+        for (int i = 0; i < head.length; i++) {
+            if (head[i] != bs[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 }

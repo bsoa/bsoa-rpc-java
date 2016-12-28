@@ -24,6 +24,8 @@ import java.io.Serializable;
  */
 public class RpcResponse extends RPCMessage implements Serializable {
 
+    private static final long serialVersionUID = -1259010130999241613L;
+
     /**
      * Instantiates a new Rpc response.
      */
@@ -56,9 +58,8 @@ public class RpcResponse extends RPCMessage implements Serializable {
      * @param returnData the return data
      * @return the return data
      */
-    public RpcResponse setReturnData(Object returnData) {
+    public void setReturnData(Object returnData) {
         this.returnData = returnData;
-        return this;
     }
 
     /**
@@ -76,9 +77,8 @@ public class RpcResponse extends RPCMessage implements Serializable {
      * @param exception the exception
      * @return the exception
      */
-    public RpcResponse setException(Throwable exception) {
+    public void setException(Throwable exception) {
         this.exception = exception;
-        return this;
     }
 
     /**
@@ -86,7 +86,7 @@ public class RpcResponse extends RPCMessage implements Serializable {
      *
      * @return the boolean
      */
-    public boolean isError() {
+    public boolean hasError() {
         return exception != null;
     }
 }
