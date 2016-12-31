@@ -24,6 +24,7 @@ import io.bsoa.rpc.common.utils.ClassUtils;
 /**
  * Created by zhangg on 2016/7/14 21:57.
  *
+ * @param <T> the type parameter
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  * @see Extension
  * @see Extensible
@@ -32,18 +33,49 @@ import io.bsoa.rpc.common.utils.ClassUtils;
 public class ExtensionClass<T> {
     private static final Logger logger = LoggerFactory.getLogger(ExtensionClass.class);
 
-    protected String alias; // 扩展别名,不是provider GROUP
-    protected byte code; // 扩展编码，必须唯一
+    /**
+     * The Alias.
+     * 扩展别名,不是provider GROUP
+     */
+    protected String alias;
+    /**
+     * 扩展编码，必须唯一
+     */
+    protected byte code;
+    /**
+     * 是否单例
+     */
     protected boolean singleton;
-    protected Class<? extends T> clazz; // 扩展接口类
-    protected int order; // 扩展点排序
-    protected boolean autoActive; // 是否自动激活
-    protected boolean providerSide; // 服务端是否激活
-    protected boolean consumerSide; // 调用端是否激活
-    private volatile transient T instance; // 如果是单例，这里保留实例
+    /**
+     * 扩展接口实现类名
+     */
+    protected Class<? extends T> clazz;
+    /**
+     * 扩展点排序值
+     */
+    protected int order;
+    /**
+     * 是否自动激活该扩展
+     */
+    protected boolean autoActive;
+    /**
+     * 服务提供者端是否自动激活
+     */
+    protected boolean providerSide;
+    /**
+     * 服务调用端是否自动激活
+     */
+    protected boolean consumerSide;
 
     /**
-     * @return instance of clazz
+     * 服务端实例对象（只在是单例的时候保留）
+     */
+    private volatile transient T instance;
+
+    /**
+     * 得到服务端实例对象，如果是单例则返回单例对象，如果不是则返回新创建的实例对象
+     *
+     * @return 扩展点对象实例
      */
     public T getExtInstance() {
         if (clazz != null) {
@@ -68,72 +100,159 @@ public class ExtensionClass<T> {
     }
 
 
+    /**
+     * Gets alias.
+     *
+     * @return the alias
+     */
     public String getAlias() {
         return alias;
     }
 
+    /**
+     * Sets alias.
+     *
+     * @param alias the alias
+     * @return the alias
+     */
     public ExtensionClass setAlias(String alias) {
         this.alias = alias;
         return this;
     }
 
+    /**
+     * Gets code.
+     *
+     * @return the code
+     */
     public byte getCode() {
         return code;
     }
 
+    /**
+     * Sets code.
+     *
+     * @param code the code
+     * @return the code
+     */
     public ExtensionClass setCode(byte code) {
         this.code = code;
         return this;
     }
 
+    /**
+     * Is singleton boolean.
+     *
+     * @return the boolean
+     */
     public boolean isSingleton() {
         return singleton;
     }
 
+    /**
+     * Sets singleton.
+     *
+     * @param singleton the singleton
+     */
     public void setSingleton(boolean singleton) {
         this.singleton = singleton;
     }
 
+    /**
+     * Gets clazz.
+     *
+     * @return the clazz
+     */
     public Class<? extends T> getClazz() {
         return clazz;
     }
 
+    /**
+     * Sets clazz.
+     *
+     * @param clazz the clazz
+     * @return the clazz
+     */
     public ExtensionClass setClazz(Class<? extends T> clazz) {
         this.clazz = clazz;
         return this;
     }
 
+    /**
+     * Gets order.
+     *
+     * @return the order
+     */
     public int getOrder() {
         return order;
     }
 
+    /**
+     * Sets order.
+     *
+     * @param order the order
+     * @return the order
+     */
     public ExtensionClass setOrder(int order) {
         this.order = order;
         return this;
     }
 
+    /**
+     * Is provider side boolean.
+     *
+     * @return the boolean
+     */
     public boolean isProviderSide() {
         return providerSide;
     }
 
+    /**
+     * Sets provider side.
+     *
+     * @param providerSide the provider side
+     * @return the provider side
+     */
     public ExtensionClass setProviderSide(boolean providerSide) {
         this.providerSide = providerSide;
         return this;
     }
 
+    /**
+     * Is consumer side boolean.
+     *
+     * @return the boolean
+     */
     public boolean isConsumerSide() {
         return consumerSide;
     }
 
+    /**
+     * Sets consumer side.
+     *
+     * @param consumerSide the consumer side
+     * @return the consumer side
+     */
     public ExtensionClass setConsumerSide(boolean consumerSide) {
         this.consumerSide = consumerSide;
         return this;
     }
 
+    /**
+     * Is auto active boolean.
+     *
+     * @return the boolean
+     */
     public boolean isAutoActive() {
         return autoActive;
     }
 
+    /**
+     * Sets auto active.
+     *
+     * @param autoActive the auto active
+     * @return the auto active
+     */
     public ExtensionClass setAutoActive(boolean autoActive) {
         this.autoActive = autoActive;
         return this;

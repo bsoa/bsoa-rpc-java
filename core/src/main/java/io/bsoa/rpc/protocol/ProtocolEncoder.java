@@ -20,7 +20,7 @@ import io.bsoa.rpc.ext.Extensible;
 import io.bsoa.rpc.transport.AbstractByteBuf;
 
 /**
- * <p>协议编码器</p>
+ * <p>协议编码器（注意，编码器应该不进行调用ByteBuf参数的释放，除非是编码过程中自己生产的Bytebuf）</p>
  * <p>
  * Created by zhangg on 2016/12/17 18:38. <br/>
  *

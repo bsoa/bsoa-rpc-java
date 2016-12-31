@@ -39,7 +39,7 @@ public class RpcRequest extends RPCMessage implements Serializable {
 
     private String[] argsType; //考虑优化class？
 
-    private transient Class[] argClasses;
+    private transient Class[] argClasses; // 考虑classes不传？
 
     private Object[] args;
 

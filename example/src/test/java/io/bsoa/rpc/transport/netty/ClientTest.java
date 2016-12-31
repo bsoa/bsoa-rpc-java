@@ -59,11 +59,12 @@ public class ClientTest {
         }
         RpcRequest request1 = new RpcRequest();
         request1.setProtocolType((byte) 10) // bsoa
-                .setSerializationType((byte) 3) // java
+                .setSerializationType((byte) 3) // 2java 3hessian
                 .setDirectionType(MessageConstants.DIRECTION_FORWARD);
         request1.setInterfaceName("io.bsoa.xxx.HelloService")
                 .setMethodName("sayHello")
                 .setGroup("heihei")
+                .setArgClasses(new Class[]{String.class, int.class})
                 .setArgsType(new String[]{"java.lang.String", "int"})
                 .setArgs(new Object[]{"jhahahaha", 123})
                 .addAttachment(".token", "xxxx");

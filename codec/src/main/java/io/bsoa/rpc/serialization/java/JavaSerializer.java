@@ -24,6 +24,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.bsoa.rpc.codec.Serializer;
+import io.bsoa.rpc.common.struct.UnsafeByteArrayInputStream;
+import io.bsoa.rpc.common.struct.UnsafeByteArrayOutputStream;
 import io.bsoa.rpc.ext.Extension;
 import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.message.RpcResponse;

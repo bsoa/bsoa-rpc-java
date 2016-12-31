@@ -129,12 +129,13 @@ public class BsoaProtocolDecoder implements ProtocolDecoder {
                 byte[] bodyBytes = new byte[in.readableBytes()]; // 剩下的都读完
                 in.readBytes(bodyBytes);
 
-                // 反序列化
+                // 反序列化开始
+                // 如果需要解压缩
                 if (request.getCompressType() > 0) {
-                    // 反压缩 TODO
-                    // out.setByte(11, ); // 修改压缩类型
-                    // bodyBytes = compressor.deCompress(bodyBytes);
+                    Compressor compressor = CompressorFactory.getCompressor(request.getCompressType());
+                    bodyBytes = compressor.deCompress(bodyBytes);
                 }
+                // 反序列话
                 Serializer serializer = SerializerFactory.getSerializer(request.getSerializationType());
                 RpcRequest tmp = (RpcRequest) serializer.decode(bodyBytes, RpcRequest.class);
 
@@ -174,8 +175,6 @@ public class BsoaProtocolDecoder implements ProtocolDecoder {
             throw e;
         } catch (Exception e) {
             throw new BsoaRpcException(22222, "Decode error!", e);
-        } finally {
-//            nettyByteBuf.release();
         }
     }
 
@@ -193,15 +192,15 @@ public class BsoaProtocolDecoder implements ProtocolDecoder {
 
             NettyByteBuf nettyByteBuf = (NettyByteBuf) byteBuf;
             ByteBuf in = nettyByteBuf.getByteBuf();
-            int index = in.readerIndex()+in.readableBytes();
-            ByteBuf body =  in.slice(in.readerIndex(),in.readableBytes());
+            int index = in.readerIndex() + in.readableBytes();
+            ByteBuf body = in.slice(in.readerIndex(), in.readableBytes());
             body.retain();
             in.readerIndex(index);
             LOGGER.debug("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@{}", byteBuf);
             LOGGER.debug("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@{} {}", in.hashCode(), in);
             LOGGER.debug("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@{} {}", body.hashCode(), body);
             AbstractByteBuf newBb = new NettyByteBuf(body);
-            LOGGER.debug("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@{}",newBb);
+            LOGGER.debug("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@{}", newBb);
             message.setByteBuf(newBb);
         }
     }

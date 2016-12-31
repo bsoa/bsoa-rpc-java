@@ -21,11 +21,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.bsoa.rpc.common.utils.ClassUtils;
 import io.bsoa.rpc.common.utils.ExceptionUtils;
 import io.bsoa.rpc.config.ServerConfig;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
 import io.bsoa.rpc.ext.ExtensionClass;
+import io.bsoa.rpc.ext.ExtensionLoader;
 import io.bsoa.rpc.ext.ExtensionLoaderFactory;
 
 /**
@@ -41,24 +41,32 @@ public final class ServerFactory {
     private final static Logger LOGGER = LoggerFactory.getLogger(ServerFactory.class);
 
     /**
+     * 服务端扩展器
+     */
+    private final static ExtensionLoader<Server> extensionLoader = ExtensionLoaderFactory.getExtensionLoader(Server.class);
+    /**
      * 全部服务端
      */
     private final static ConcurrentHashMap<String, Server> SERVERMAP = new ConcurrentHashMap<String, Server>();
 
+    /**
+     * 初始化Server实例
+     *
+     * @param serverConfig 服务端配置
+     * @return
+     */
     public synchronized static Server getServer(ServerConfig serverConfig) {
         try {
             Server server = SERVERMAP.get(Integer.toString(serverConfig.getPort()));
             if (server == null) {
-                ExtensionClass<Server> ext = ExtensionLoaderFactory.getExtensionLoader(Server.class)
-                        .getExtensionClass(serverConfig.getProtocol());
+                ExtensionClass<Server> ext = extensionLoader.getExtensionClass(serverConfig.getProtocol());
                 if (ext == null) {
                     throw ExceptionUtils.buildRuntime(22222, "server.protocol", serverConfig.getProtocol(),
                             "Unsupported protocol of server!");
                 }
-                Class<? extends Server> serverClazz = ext.getClazz();
-                server = ClassUtils.newInstance(serverClazz);
+                server = ext.getExtInstance();
                 server.init(serverConfig);
-                SERVERMAP.putIfAbsent(serverConfig.getPort()+"", server);
+                SERVERMAP.putIfAbsent(serverConfig.getPort() + "", server);
                 server.start();
             }
             return server;

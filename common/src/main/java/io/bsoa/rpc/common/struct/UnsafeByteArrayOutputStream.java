@@ -1,25 +1,34 @@
 /**
- *  UnsafeByteArrayOutputSteam.java Created on 2014/5/14 13:14
- *
- *  Copyright (c) 2014 by www.jd.com.
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-package io.bsoa.rpc.serialization.java;
+package io.bsoa.rpc.common.struct;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 
-import io.bsoa.rpc.common.utils.CodecUtils;
+import io.bsoa.rpc.common.utils.CommonUtils;
 
 /**
- * Title: <br>
- * <p/>
- * Description: <br>
- * <p/>
- * Company: <a href=www.jd.com>京东</a><br>
+ * <p></p>
+ * <p>
+ * Created by zhangg on 2016/12/24 21:09. <br/>
  *
- * @author <a href=mailto:zhanggeng@jd.com>章耿</a>
+ * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
 public class UnsafeByteArrayOutputStream extends OutputStream {
     protected byte mBuffer[];
@@ -39,7 +48,7 @@ public class UnsafeByteArrayOutputStream extends OutputStream {
     public void write(int b) {
         int newcount = mCount + 1;
         if (newcount > mBuffer.length)
-            mBuffer = CodecUtils.copyOf(mBuffer, Math.max(mBuffer.length << 1, newcount));
+            mBuffer = CommonUtils.copyOf(mBuffer, Math.max(mBuffer.length << 1, newcount));
         mBuffer[mCount] = (byte) b;
         mCount = newcount;
     }
@@ -51,7 +60,7 @@ public class UnsafeByteArrayOutputStream extends OutputStream {
             return;
         int newcount = mCount + len;
         if (newcount > mBuffer.length)
-            mBuffer = CodecUtils.copyOf(mBuffer, Math.max(mBuffer.length << 1, newcount));
+            mBuffer = CommonUtils.copyOf(mBuffer, Math.max(mBuffer.length << 1, newcount));
         System.arraycopy(b, off, mBuffer, mCount, len);
         mCount = newcount;
     }
@@ -65,7 +74,7 @@ public class UnsafeByteArrayOutputStream extends OutputStream {
     }
 
     public byte[] toByteArray() {
-        return CodecUtils.copyOf(mBuffer, mCount);
+        return CommonUtils.copyOf(mBuffer, mCount);
     }
 
     public ByteBuffer toByteBuffer() {
