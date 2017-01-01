@@ -49,7 +49,7 @@ public final class CompressorFactory {
      */
     private final static ExtensionLoader<Compressor> extensionLoader
             = ExtensionLoaderFactory.getExtensionLoader(Compressor.class, extensionClass -> {
-        // 除了保留 alias：Compressor外， 需要保留 code：Compressor
+        // 除了保留 tag：Compressor外， 需要保留 code：Compressor
         TYPE_COMPRESSOR_MAP.put(extensionClass.getCode(), extensionClass.getExtInstance());
     });
 

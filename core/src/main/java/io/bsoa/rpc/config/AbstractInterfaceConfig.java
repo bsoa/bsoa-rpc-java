@@ -62,7 +62,7 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig{
     /**
      * 服务别名= "group::version"
      */
-    protected String alias = "";
+    protected String tag = "";
     /**
      * 过滤器配置，多个用逗号隔开
      */
@@ -189,19 +189,19 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig{
      *
      * @return the GROUP
      */
-    public String getAlias() {
-        return alias;
+    public String getTag() {
+        return tag;
     }
 
     /**
      * Sets GROUP.
      *
-     * @param alias
+     * @param tag
      *         the GROUP
      */
-    public void setAlias(String alias) {
-        checkNormalWithColon("GROUP", alias);
-        this.alias = alias;
+    public void setTag(String tag) {
+        checkNormalWithColon("GROUP", tag);
+        this.tag = tag;
     }
 
     /**

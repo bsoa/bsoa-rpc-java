@@ -237,7 +237,7 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig implements Serial
         String key = buildKey();
         // 检查参数
         // alias不能为空
-        if (StringUtils.isBlank(alias)) {
+        if (StringUtils.isBlank(tag)) {
             throw new BsoaRuntimeException(21300, "[JSF-21300]Value of \"GROUP\" value is not specified in consumer" +
                     " config with key " + key + " !");
         }
@@ -541,7 +541,7 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig implements Serial
      */
     @Override
     public String buildKey() {
-        return protocol + "://" + interfaceId + ":" + alias;
+        return protocol + "://" + interfaceId + ":" + tag;
     }
 
     /**

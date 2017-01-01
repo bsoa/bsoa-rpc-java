@@ -101,19 +101,19 @@ public class ExtensionClass<T> {
 
 
     /**
-     * Gets alias.
+     * Gets tag.
      *
-     * @return the alias
+     * @return the tag
      */
     public String getAlias() {
         return alias;
     }
 
     /**
-     * Sets alias.
+     * Sets tag.
      *
-     * @param alias the alias
-     * @return the alias
+     * @param alias the tag
+     * @return the tag
      */
     public ExtensionClass setAlias(String alias) {
         this.alias = alias;

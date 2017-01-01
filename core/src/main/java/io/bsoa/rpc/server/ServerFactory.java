@@ -16,6 +16,9 @@
  */
 package io.bsoa.rpc.server;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
@@ -43,11 +46,12 @@ public final class ServerFactory {
     /**
      * 服务端扩展器
      */
-    private final static ExtensionLoader<Server> extensionLoader = ExtensionLoaderFactory.getExtensionLoader(Server.class);
+    private final static ExtensionLoader<Server> EXTENSION_LOADER
+            = ExtensionLoaderFactory.getExtensionLoader(Server.class);
     /**
      * 全部服务端
      */
-    private final static ConcurrentHashMap<String, Server> SERVERMAP = new ConcurrentHashMap<String, Server>();
+    private final static ConcurrentHashMap<String, Server> SERVER_MAP = new ConcurrentHashMap<>();
 
     /**
      * 初始化Server实例
@@ -57,16 +61,16 @@ public final class ServerFactory {
      */
     public synchronized static Server getServer(ServerConfig serverConfig) {
         try {
-            Server server = SERVERMAP.get(Integer.toString(serverConfig.getPort()));
+            Server server = SERVER_MAP.get(Integer.toString(serverConfig.getPort()));
             if (server == null) {
-                ExtensionClass<Server> ext = extensionLoader.getExtensionClass(serverConfig.getProtocol());
+                ExtensionClass<Server> ext = EXTENSION_LOADER.getExtensionClass(serverConfig.getProtocol());
                 if (ext == null) {
                     throw ExceptionUtils.buildRuntime(22222, "server.protocol", serverConfig.getProtocol(),
                             "Unsupported protocol of server!");
                 }
                 server = ext.getExtInstance();
                 server.init(serverConfig);
-                SERVERMAP.putIfAbsent(serverConfig.getPort() + "", server);
+                SERVER_MAP.putIfAbsent(serverConfig.getPort() + "", server);
                 server.start();
             }
             return server;
@@ -74,6 +78,32 @@ public final class ServerFactory {
             throw e;
         } catch (Exception e) {
             throw new BsoaRuntimeException(22222, e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 得到全部服务端
+     *
+     * @return 全部服务端
+     */
+    public static List<Server> getServers() {
+        return new ArrayList<>(SERVER_MAP.values());
+    }
+
+    /**
+     * 关闭全部服务端
+     */
+    public static void destroyAll() {
+        LOGGER.info("Destroy all server");
+        for (Map.Entry<String, Server> entry : SERVER_MAP.entrySet()) {
+            String key = entry.getKey();
+            Server server = entry.getValue();
+            try {
+                server.stop();
+                SERVER_MAP.remove(key);
+            } catch (Exception e) {
+                LOGGER.error("Error when destroy server with key:" + key, e);
+            }
         }
     }
 }

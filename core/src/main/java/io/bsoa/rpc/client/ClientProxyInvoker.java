@@ -85,7 +85,7 @@ public class ClientProxyInvoker implements Invoker {
     public RpcResponse invoke(RpcRequest request) {
         String methodName = request.getMethodName();
 
-        request.setGroup(consumerConfig.getAlias());
+        request.setGroup(consumerConfig.getTag());
         request.setInterfaceName(consumerConfig.getInterfaceId());
 
         // 是否缓存，减少valueof操作？ TODO

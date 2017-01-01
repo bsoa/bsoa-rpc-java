@@ -43,6 +43,8 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
+import static io.bsoa.rpc.message.MessageConstants.DIRECTION_CALLBACK;
+
 /**
  * <p></p>
  * <p>
@@ -101,12 +103,11 @@ public class NettyServerChannelHandler extends ChannelInboundHandlerAdapter {
         }
         // RPC响应：callback线程池处理 TODO
         else if (msg instanceof RpcResponse) { // callback返回值
-//            //receive the callback ResponseMessage
-//            ResponseMessage responseMsg = (ResponseMessage) msg;
-//            if (responseMsg.getMsgHeader().getMsgType() != Constants.CALLBACK_RESPONSE_MSG) {
-//                throw new RpcException(responseMsg.getMsgHeader(), "Can not handle normal response message" +
-//                        " in server channel handler : " + responseMsg.toString());
-//            }
+            RpcResponse response = (RpcResponse) msg;
+            if(response.getDirectionType() == DIRECTION_CALLBACK){
+                throw new BsoaRpcException(222222, "Can not handle normal response message" +
+                        " in server channel handler!");
+            }
 //            //find the transport
 //            JSFClientTransport clientTransport = CallbackUtil.getClientTransport(channel);
 //            if (clientTransport != null) {
@@ -118,7 +119,7 @@ public class NettyServerChannelHandler extends ChannelInboundHandlerAdapter {
         }
         // 协商响应：IO线程处理 TODO
         else if (msg instanceof NegotiatorResponse) {
-            HeartbeatResponse response = (HeartbeatResponse) msg;
+            NegotiatorResponse response = (NegotiatorResponse) msg;
         }
         // 流式请求：业务线程处理
         else if (msg instanceof StreamRequest) {

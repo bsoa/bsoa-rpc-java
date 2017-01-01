@@ -16,7 +16,11 @@
  */
 package io.bsoa.rpc.server.bsoa;
 
-import io.bsoa.rpc.ext.Extension;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadPoolExecutor;
+
+import io.bsoa.rpc.base.Invoker;
 import io.bsoa.rpc.message.MessageBuilder;
 import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.message.RpcResponse;
@@ -31,13 +35,31 @@ import io.bsoa.rpc.transport.AbstractChannel;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-@Extension("bsoa")
 public class BsoaServerHandler implements ServerHandler {
+
+    /**
+     * 当前handler的Invoker列表 一个接口+alias对应一个Invoker
+     */
+    private Map<String, Invoker> instanceMap = new ConcurrentHashMap<>();
+
+    private ThreadPoolExecutor bizPool;
+
+    public void registerProcessor(String instanceName, Invoker instance) {
+        instanceMap.put(instanceName, instance);
+//        InvokerHolder.cacheInvoker(instanceName, instance);
+    }
+
+    public void unRegisterProcessor(String instanceName) {
+        if (instanceMap.containsKey(instanceName)) {
+            instanceMap.remove(instanceName);
+//            InvokerHolder.invalidateInvoker(instanceName);
+        } else {
+            throw new RuntimeException("[JSF-23005]No such invoker key when unregister processor:" + instanceName);
+        }
+    }
 
     public void handleRpcRequest(RpcRequest rpcRequest, AbstractChannel channel) {
         try {
-
-//            rpcRequest.getByteBuf().writerIndex(rpc)
             // 丢到业务线程池去执行 TODO
             RpcResponse rpcResponse = MessageBuilder.buildRpcResponse(rpcRequest);
             rpcResponse.setReturnData("hello, this is response!");
@@ -45,13 +67,15 @@ public class BsoaServerHandler implements ServerHandler {
         } catch (Exception e) {
             e.printStackTrace();
             // TODO handle exception
-        } finally {
-            //rpcRequest.getByteBuf().release();
         }
     }
 
     @Override
     public void handleStreamRequest(StreamRequest request, AbstractChannel channel) {
 
+    }
+
+    public int entrySize() {
+        return instanceMap.size();
     }
 }

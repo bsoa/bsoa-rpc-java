@@ -18,12 +18,14 @@ package io.bsoa.rpc.server;
 import io.bsoa.rpc.base.Invoker;
 import io.bsoa.rpc.config.ProviderConfig;
 import io.bsoa.rpc.config.ServerConfig;
+import io.bsoa.rpc.ext.Extensible;
 
 /**
  * Created by zhanggeng on 16-6-7.
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
  */
+@Extensible(singleton = false)
 public interface Server {
     /**
      * 启动server端

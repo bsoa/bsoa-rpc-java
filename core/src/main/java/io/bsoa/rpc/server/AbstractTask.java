@@ -16,20 +16,37 @@
  */
 package io.bsoa.rpc.server;
 
-import io.bsoa.rpc.message.RpcRequest;
-import io.bsoa.rpc.message.StreamRequest;
-import io.bsoa.rpc.transport.AbstractChannel;
+import io.bsoa.rpc.common.utils.ThreadPoolUtils;
 
 /**
  * <p></p>
- *
- * Created by zhangg on 2016/12/22 23:03. <br/>
+ * <p>
+ * Created by zhangg on 2017/1/1 21:50. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public interface ServerHandler {
+public abstract class AbstractTask implements Runnable, Comparable<AbstractTask> {
 
-    public void handleRpcRequest(RpcRequest request, AbstractChannel channel);
+    /**
+     * 优先级，越大越高
+     */
+    protected int priority = ThreadPoolUtils.THREAD_PRIORITY_NORMAL;
 
-    public void handleStreamRequest(StreamRequest request, AbstractChannel channel);
+    @Override
+    public abstract void run();
+
+    @Override
+    public int compareTo(AbstractTask o) {
+        // 值越大越高
+        return o.getPriority() - this.getPriority();
+    }
+
+    public AbstractTask setPriority(int priority) {
+        this.priority = priority;
+        return this;
+    }
+
+    public int getPriority() {
+        return priority;
+    }
 }
