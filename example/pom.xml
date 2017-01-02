@@ -34,6 +34,12 @@
         </dependency>
         <dependency>
             <groupId>io.bsoa.rpc</groupId>
+            <artifactId>server</artifactId>
+            <version>${parent.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.bsoa.rpc</groupId>
             <artifactId>transport</artifactId>
             <version>${parent.version}</version>
         </dependency>

@@ -45,7 +45,7 @@ public class ClientMutisTest {
     /**
      * slf4j Logger for this class
      */
-    private final static Logger LOGGER = LoggerFactory.getLogger(ClientTest.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(ClientTransportTest.class);
 
     public static void main(String[] args) throws InterruptedException {
         ClientTransportConfig config = new ClientTransportConfig();

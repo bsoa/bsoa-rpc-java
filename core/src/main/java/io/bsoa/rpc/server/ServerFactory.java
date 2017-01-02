@@ -71,7 +71,6 @@ public final class ServerFactory {
                 server = ext.getExtInstance();
                 server.init(serverConfig);
                 SERVER_MAP.putIfAbsent(serverConfig.getPort() + "", server);
-                server.start();
             }
             return server;
         } catch (BsoaRuntimeException e) {

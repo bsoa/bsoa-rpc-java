@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.bsoa.rpc.cache.Cache;
+import io.bsoa.rpc.common.BsoaConfigs;
 import io.bsoa.rpc.common.BsoaConstants;
 import io.bsoa.rpc.common.utils.BeanUtils;
 import io.bsoa.rpc.common.utils.CommonUtils;
@@ -62,7 +63,7 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig{
     /**
      * 服务别名= "group::version"
      */
-    protected String tag = "";
+    protected String tags = "";
     /**
      * 过滤器配置，多个用逗号隔开
      */
@@ -91,12 +92,12 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig{
     /**
      * 远程调用超时时间(毫秒)
      */
-    protected int timeout = BsoaConstants.DEFAULT_CLIENT_INVOKE_TIMEOUT;
+    protected int timeout = BsoaConfigs.getIntValue(BsoaConfigs.CLIENT_INVOKE_TIMEOUT);
 
     /**
      * 代理类型
      */
-    protected String proxy = BsoaConstants.PROXY_JAVASSIST;
+    protected String proxy = BsoaConfigs.getStringValue(BsoaConfigs.DEFAULT_PROXY);
 
     /**
      * 结果缓存实现类
@@ -189,19 +190,19 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig{
      *
      * @return the GROUP
      */
-    public String getTag() {
-        return tag;
+    public String getTags() {
+        return tags;
     }
 
     /**
      * Sets GROUP.
      *
-     * @param tag
+     * @param tags
      *         the GROUP
      */
-    public void setTag(String tag) {
-        checkNormalWithColon("GROUP", tag);
-        this.tag = tag;
+    public void setTags(String tags) {
+        checkNormalWithColon("GROUP", tags);
+        this.tags = tags;
     }
 
     /**

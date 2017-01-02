@@ -16,7 +16,6 @@
 package io.bsoa.rpc.config;
 
 import io.bsoa.rpc.common.BsoaConstants;
-import io.bsoa.rpc.common.utils.StringUtils;
 import io.bsoa.rpc.common.utils.ExceptionUtils;
 
 /**
@@ -58,7 +57,7 @@ public class ParameterConfig {
      *         the key
      */
     public void setKey(String key) {
-        if (!StringUtils.isValidParamKey(key)) {
+        if (!isValidParamKey(key)) {
             throw ExceptionUtils.buildRuntime(21800, "param.key", key, "key can not start with "
                     + BsoaConstants.HIDE_KEY_PREFIX + " and " + BsoaConstants.INTERNAL_KEY_PREFIX);
         }
@@ -99,5 +98,29 @@ public class ParameterConfig {
      */
     public void setHide(boolean hide) {
         this.hide = hide;
+    }
+
+    /**
+     * 自定义的key是否合法
+     *
+     * @param paramkey
+     *         参数key
+     * @return 是否合法
+     */
+    public boolean isValidParamKey(String paramkey) {
+        char c = paramkey.charAt(0);
+        return c != BsoaConstants.HIDE_KEY_PREFIX && c != BsoaConstants.INTERNAL_KEY_PREFIX;
+    }
+
+    /**
+     * 自定义的key是否内置key
+     *
+     * @param paramkey
+     *         参数key
+     * @return 是否合法
+     */
+    public boolean isInternalParamKey(String paramkey) {
+        char c = paramkey.charAt(0);
+        return c == BsoaConstants.INTERNAL_KEY_PREFIX;
     }
 }

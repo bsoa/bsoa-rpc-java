@@ -35,7 +35,7 @@ public class RpcRequest extends RPCMessage implements Serializable {
 
     private transient String methodName;
 
-    private transient String group;
+    private transient String tags;
 
     private String[] argsType; //考虑优化class？
 
@@ -63,13 +63,13 @@ public class RpcRequest extends RPCMessage implements Serializable {
         return this;
     }
 
-    public String getGroup() {
-        return group;
+    public String getTags() {
+        return tags;
     }
 
-    public RpcRequest setGroup(String group) {
+    public RpcRequest setTags(String tags) {
         super.addHeadKey(HeadKey.GROUP, interfaceName);
-        this.group = group;
+        this.tags = tags;
         return this;
     }
 

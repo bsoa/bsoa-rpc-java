@@ -20,8 +20,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.bsoa.rpc.common.BsoaConstants;
-
 /**
  *
  *
@@ -299,30 +297,6 @@ public class StringUtils {
      */
     public static String joinWithComma(String... strings) {
         return join(strings, ",");
-    }
-
-    /**
-     * 自定义的key是否合法
-     *
-     * @param paramkey
-     *         参数key
-     * @return 是否合法
-     */
-    public static boolean isValidParamKey(String paramkey) {
-        char c = paramkey.charAt(0);
-        return c != BsoaConstants.HIDE_KEY_PREFIX && c != BsoaConstants.INTERNAL_KEY_PREFIX;
-    }
-
-    /**
-     * 自定义的key是否内置key
-     *
-     * @param paramkey
-     *         参数key
-     * @return 是否合法
-     */
-    public static boolean isInternalParamKey(String paramkey) {
-        char c = paramkey.charAt(0);
-        return c == BsoaConstants.INTERNAL_KEY_PREFIX;
     }
 
     /**

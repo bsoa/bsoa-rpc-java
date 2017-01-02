@@ -31,7 +31,6 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.bsoa.rpc.common.BsoaConstants;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
 
 /**
@@ -97,7 +96,7 @@ public class NetUtils {
                     + " is not found in network cards, please check config");
         }
         if (port < MIN_PORT) {
-            port = BsoaConstants.DEFAULT_SERVER_PORT;
+            port = MIN_PORT;
         }
         for (int i = port; i <= MAX_PORT; i++) {
             ServerSocket ss = null;

@@ -75,7 +75,7 @@
   "transport.server.telnet" : true, // 是否允许telnet
   "transport.server.daemon" : true, // 是否守护线程，true随主线程退出而退出，false需要主动退出
   "transport.server.dispatcher" : "", // 线程方法模型
-  "transport.server.protocol.adaptive" : false, // 是否一个端口支持多协议
+  "transport.server.protocol.adaptive" : true, // 是否一个端口支持多协议
   "transport.buffer.size" : 8192,
   "transport.buffer.max" : 32768,
   "transport.buffer.min" : 1024,

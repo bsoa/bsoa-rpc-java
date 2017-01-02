@@ -30,11 +30,11 @@ import io.bsoa.rpc.common.BsoaConstants;
 import io.bsoa.rpc.common.struct.ConcurrentHashSet;
 import io.bsoa.rpc.common.utils.ClassLoaderUtils;
 import io.bsoa.rpc.common.utils.CommonUtils;
+import io.bsoa.rpc.common.utils.ExceptionUtils;
 import io.bsoa.rpc.common.utils.ReflectUtils;
 import io.bsoa.rpc.common.utils.StringUtils;
 import io.bsoa.rpc.context.BsoaContext;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
-import io.bsoa.rpc.common.utils.ExceptionUtils;
 import io.bsoa.rpc.listener.ConfigListener;
 import io.bsoa.rpc.registry.Registry;
 import io.bsoa.rpc.registry.RegistryFactory;
@@ -164,9 +164,9 @@ public class ProviderConfig<T> extends AbstractInterfaceConfig implements Serial
         String key = buildKey();
 
         // 检查参数
-        // alias不能为空
-        if (StringUtils.isBlank(tag)) {
-            throw ExceptionUtils.buildRuntime(22222, "GROUP", "NULL", "[JSF-21200]Value of \"GROUP\" is not specified in provider" +
+        // tag不能为空
+        if (StringUtils.isBlank(tags)) {
+            throw ExceptionUtils.buildRuntime(22222, "tags", "NULL", "[JSF-21200]Value of \"tags\" is not specified in provider" +
                     " config with key " + key + " !");
         }
         // 检查注入的ref是否接口实现类
@@ -184,7 +184,7 @@ public class ProviderConfig<T> extends AbstractInterfaceConfig implements Serial
 
         LOGGER.info("Export provider config : {} with bean id {}", key, getId());
         if (EXPORTED_KEYS.contains(key)) {
-            // 注意同一interface，同一alias，不同server情况
+            // 注意同一interface，同一tag，不同server情况
             throw new BsoaRuntimeException(21203, "Duplicate provider config with key " + key + " has been exported!");
         }
 
@@ -380,7 +380,7 @@ public class ProviderConfig<T> extends AbstractInterfaceConfig implements Serial
         }
 
         public synchronized void attrUpdated(Map newValueMap) {
-            // 可以改变的配置 例如alias concurrents等
+            // 可以改变的配置 例如tag concurrents等
             Map<String, String> newValues = (Map<String, String>) newValueMap;
             Map<String, String> oldValues = new HashMap<String, String>();
             boolean reexport = false;
@@ -432,7 +432,7 @@ public class ProviderConfig<T> extends AbstractInterfaceConfig implements Serial
      */
     @Override
     public String buildKey() {
-        return interfaceId + ":" + tag;
+        return interfaceId + ":" + tags;
     }
 
     /**
@@ -654,7 +654,7 @@ public class ProviderConfig<T> extends AbstractInterfaceConfig implements Serial
                     StringBuilder sb = new StringBuilder(200);
                     sb.append(server.getProtocol()).append("://").append(server.getHost())
                             .append(":").append(server.getPort()).append(server.getContextpath())
-                            .append(getInterfaceId()).append("?GROUP=").append(getTag())
+                            .append(getInterfaceId()).append("?tags=").append(getTags())
                             .append(getKeyPairs("delay", getDelay()))
                             .append(getKeyPairs("weight", getWeight()))
                             .append(getKeyPairs("register", isRegister()))

@@ -42,6 +42,7 @@ import io.bsoa.rpc.exception.BsoaRuntimeException;
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
 public class BsoaConfigs {
+
     /**
      * slf4j Logger for this class
      */

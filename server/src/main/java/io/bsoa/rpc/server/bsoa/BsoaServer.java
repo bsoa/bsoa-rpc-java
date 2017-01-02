@@ -114,12 +114,12 @@ public class BsoaServer implements Server {
     public void registerProcessor(ProviderConfig providerConfig, Invoker instance) {
         String key = buildKey(providerConfig);
         serverHandler.registerProcessor(key, instance);
-//        ServerAuthHelper.addInterface(providerConfig.getInterfaceId(), providerConfig.getTag());
+//        ServerAuthHelper.addInterface(providerConfig.getInterfaceId(), providerConfig.getTags());
     }
 
     private String buildKey(ProviderConfig providerConfig) {
         String interfaceId = providerConfig.getInterfaceId();
-        String alias = providerConfig.getTag();
+        String alias = providerConfig.getTags();
         if (interfaceId == null || interfaceId.trim().length() <= 0) {
             throw new BsoaRuntimeException(22222, "interfaceId cannot be null!");
         }

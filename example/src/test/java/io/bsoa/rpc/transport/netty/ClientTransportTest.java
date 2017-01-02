@@ -36,12 +36,12 @@ import io.bsoa.rpc.transport.ClientTransportFactory;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public class ClientTest {
+public class ClientTransportTest {
 
     /**
      * slf4j Logger for this class
      */
-    private final static Logger LOGGER = LoggerFactory.getLogger(ClientTest.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(ClientTransportTest.class);
 
     public static void main(String[] args) throws InterruptedException {
         ClientTransportConfig config = new ClientTransportConfig();
@@ -59,11 +59,11 @@ public class ClientTest {
         }
         RpcRequest request1 = new RpcRequest();
         request1.setProtocolType((byte) 10) // bsoa
-                .setSerializationType((byte) 3) // 2java 3hessian
+                .setSerializationType((byte) 2) // 3java 2hessian
                 .setDirectionType(MessageConstants.DIRECTION_FORWARD);
-        request1.setInterfaceName("io.bsoa.xxx.HelloService")
+        request1.setInterfaceName("io.bsoa.test.HelloService")
+                .setTags("tag1")
                 .setMethodName("sayHello")
-                .setGroup("heihei")
                 .setArgClasses(new Class[]{String.class, int.class})
                 .setArgsType(new String[]{"java.lang.String", "int"})
                 .setArgs(new Object[]{"jhahahaha", 123})

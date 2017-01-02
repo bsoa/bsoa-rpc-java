@@ -75,7 +75,7 @@ public class ConsumerInvokeFilter implements Filter {
         // 优先本地调用，本地没有或者已经unexport，调用远程
 //        if (consumerConfig.isInjvm()) {
 //            Invoker injvmProviderInvoker = BaseServerHandler.getInvoker(consumerConfig.getInterfaceId(),
-//                    consumerConfig.getGroup());
+//                    consumerConfig.getTags());
 //            if (injvmProviderInvoker != null) {
 //                return injvmProviderInvoker.invoke(requestMessage);
 //            }

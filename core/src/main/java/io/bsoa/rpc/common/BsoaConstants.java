@@ -261,7 +261,7 @@ public class BsoaConstants {
     /**
      * 默认序列话:msgpack
      */
-    public final static String DEFAULT_SERIALIZATION = "msgpack";
+    public final static String DEFAULT_SERIALIZATION = "hessian";
 
     /**
      * 代理类型：jdk
