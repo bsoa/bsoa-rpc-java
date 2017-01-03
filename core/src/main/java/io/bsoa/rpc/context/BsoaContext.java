@@ -63,7 +63,7 @@ public class BsoaContext {
     /**
      * 当前系统启动实际（用这个类加载实际为准）
      */
-    public final static long START_TIME = System.currentTimeMillis();
+    public final static long START_TIME = now();
 
     /**
      * 发布的服务配置

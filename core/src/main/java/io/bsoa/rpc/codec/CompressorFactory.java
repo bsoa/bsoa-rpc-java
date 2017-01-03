@@ -43,6 +43,12 @@ public final class CompressorFactory {
      * 还需要额外保留编码和实例的映射：{编码：压缩器}
      */
     private final static ConcurrentHashMap<Byte, Compressor> TYPE_COMPRESSOR_MAP = new ConcurrentHashMap<>();
+    /**
+     * 除了托管给扩展加载器的工厂模式（保留alias：实例）外<br>
+     * 还需要额外保留编码和实例的映射：{编码：压缩器}
+     */
+    private final static ConcurrentHashMap<String, Byte> TYPE_CODE_MAP = new ConcurrentHashMap<>();
+
 
     /**
      * 扩展加载器
@@ -51,6 +57,7 @@ public final class CompressorFactory {
             = ExtensionLoaderFactory.getExtensionLoader(Compressor.class, extensionClass -> {
         // 除了保留 tag：Compressor外， 需要保留 code：Compressor
         TYPE_COMPRESSOR_MAP.put(extensionClass.getCode(), extensionClass.getExtInstance());
+        TYPE_CODE_MAP.put(extensionClass.getAlias(), extensionClass.getCode());
     });
 
     /**
@@ -74,4 +81,13 @@ public final class CompressorFactory {
         return TYPE_COMPRESSOR_MAP.get(code);
     }
 
+    /**
+     * 通过别名获取Code
+     *
+     * @param compress 压缩名字
+     * @return 压缩编码
+     */
+    public static byte getCodeByAlias(String compress) {
+        return TYPE_CODE_MAP.get(compress);
+    }
 }

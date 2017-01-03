@@ -19,6 +19,8 @@ package io.bsoa.rpc.message;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.bsoa.rpc.context.BsoaContext;
+
 import static io.bsoa.rpc.message.MessageConstants.COMPRESS_NONE;
 import static io.bsoa.rpc.message.MessageConstants.DIRECTION_FORWARD;
 import static io.bsoa.rpc.message.MessageConstants.PROTOCOL_NONE;
@@ -84,6 +86,11 @@ public abstract class BaseMessage {
      * 头部扩展字段（HeadKey.code : value）
      */
     protected transient Map<Byte, Object> headers;
+
+    /**
+     * 收到的时间
+     */
+    private transient long receiveTime = BsoaContext.now();
 
     /**
      * Add header.
@@ -288,6 +295,26 @@ public abstract class BaseMessage {
         } else {
             this.headers.putAll(headers);
         }
+        return this;
+    }
+
+    /**
+     * Gets receive time.
+     *
+     * @return the receive time
+     */
+    public long getReceiveTime() {
+        return receiveTime;
+    }
+
+    /**
+     * Sets receive time.
+     *
+     * @param receiveTime the receive time
+     * @return the receive time
+     */
+    public BaseMessage setReceiveTime(long receiveTime) {
+        this.receiveTime = receiveTime;
         return this;
     }
 

@@ -16,6 +16,7 @@
 package io.bsoa.rpc.config;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -37,17 +38,15 @@ import io.bsoa.rpc.server.ServerFactory;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
  */
-public class ServerConfig extends AbstractIdConfig {
+public class ServerConfig extends AbstractIdConfig implements Serializable {
     /**
      * slf4j Logger for this class
      */
     private final static Logger LOGGER = LoggerFactory.getLogger(ServerConfig.class);
-
-
     /**
      * The constant serialVersionUID.
      */
-    private static final long serialVersionUID = 4729708849788157345L;
+    private static final long serialVersionUID = -574374673831680403L;
 
     /*------------- 参数配置项开始-----------------*/
     /**

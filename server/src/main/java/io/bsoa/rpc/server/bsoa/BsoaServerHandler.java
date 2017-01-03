@@ -21,16 +21,18 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import io.bsoa.rpc.base.Invoker;
-import io.bsoa.rpc.message.MessageBuilder;
+import io.bsoa.rpc.common.BsoaConstants;
+import io.bsoa.rpc.exception.BsoaRpcException;
 import io.bsoa.rpc.message.RpcRequest;
-import io.bsoa.rpc.message.RpcResponse;
 import io.bsoa.rpc.message.StreamRequest;
+import io.bsoa.rpc.server.BusinessPool;
 import io.bsoa.rpc.server.ServerHandler;
 import io.bsoa.rpc.transport.AbstractChannel;
+import io.bsoa.rpc.transport.ServerTransportConfig;
 
 /**
  * <p></p>
- *
+ * <p>
  * Created by zhangg on 2016/12/22 23:05. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
@@ -42,7 +44,18 @@ public class BsoaServerHandler implements ServerHandler {
      */
     private Map<String, Invoker> instanceMap = new ConcurrentHashMap<>();
 
-    private ThreadPoolExecutor bizPool;
+
+    /**
+     * Server Transport Config
+     */
+    private final ServerTransportConfig transportConfig;
+
+    private ThreadPoolExecutor bizThreadPool;
+
+    public BsoaServerHandler(ServerTransportConfig transportConfig) {
+        this.transportConfig = transportConfig;
+        this.bizThreadPool = BusinessPool.getBusinessPool(this.transportConfig);
+    }
 
     public void registerProcessor(String instanceName, Invoker instance) {
         instanceMap.put(instanceName, instance);
@@ -61,12 +74,16 @@ public class BsoaServerHandler implements ServerHandler {
     public void handleRpcRequest(RpcRequest rpcRequest, AbstractChannel channel) {
         try {
             // 丢到业务线程池去执行 TODO
-            RpcResponse rpcResponse = MessageBuilder.buildRpcResponse(rpcRequest);
-            rpcResponse.setReturnData("hello, this is response!");
-            channel.writeAndFlush(rpcResponse);
+//            RpcResponse rpcResponse = MessageBuilder.buildRpcResponse(rpcRequest);
+//            rpcResponse.setReturnData("hello, this is response!");
+//            channel.writeAndFlush(rpcResponse);
+
+            BsoaTask task = new BsoaTask(rpcRequest, channel, BsoaConstants.DEFAULT_METHOD_PRIORITY);
+            bizThreadPool.submit(task);
+        } catch (BsoaRpcException e) {
+            throw e;
         } catch (Exception e) {
-            e.printStackTrace();
-            // TODO handle exception
+            throw new BsoaRpcException(22222, e);
         }
     }
 

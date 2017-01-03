@@ -27,7 +27,6 @@ import io.bsoa.rpc.common.BsoaConstants;
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
  */
 public class RegistryConfig extends AbstractIdConfig implements Serializable {
-
     /**
      * The constant serialVersionUID.
      */

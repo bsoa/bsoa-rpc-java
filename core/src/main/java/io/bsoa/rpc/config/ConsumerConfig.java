@@ -56,7 +56,6 @@ import io.bsoa.rpc.registry.RegistryFactory;
  */
 public class ConsumerConfig<T> extends AbstractInterfaceConfig implements Serializable {
 
-
     /**
      * slf4j Logger for this class
      */
@@ -65,7 +64,7 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig implements Serial
     /**
      * The constant serialVersionUID.
      */
-    private static final long serialVersionUID = -2910502986608678372L;
+    private static final long serialVersionUID = 4244077707655448146L;
 
     /**
      * 调用的协议

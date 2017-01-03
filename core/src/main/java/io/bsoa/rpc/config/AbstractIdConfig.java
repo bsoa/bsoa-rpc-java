@@ -17,6 +17,8 @@ package io.bsoa.rpc.config;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import io.bsoa.rpc.context.BsoaContext;
+
 /**
  * Created by zhanggeng on 16-7-7.
  *
@@ -24,6 +26,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public abstract class AbstractIdConfig {
 
+    static {
+        BsoaContext.now();
+    }
     /**
      * Id生成器
      */

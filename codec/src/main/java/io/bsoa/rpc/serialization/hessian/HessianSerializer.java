@@ -27,6 +27,7 @@ import io.bsoa.rpc.codec.Serializer;
 import io.bsoa.rpc.common.struct.UnsafeByteArrayInputStream;
 import io.bsoa.rpc.common.struct.UnsafeByteArrayOutputStream;
 import io.bsoa.rpc.common.utils.ReflectUtils;
+import io.bsoa.rpc.common.utils.StringUtils;
 import io.bsoa.rpc.exception.BsoaRpcException;
 import io.bsoa.rpc.ext.Extension;
 import io.bsoa.rpc.message.RpcRequest;
@@ -76,42 +77,24 @@ public class HessianSerializer implements Serializer {
         UnsafeByteArrayOutputStream bos = new UnsafeByteArrayOutputStream(1024);
         Hessian2Output mH2o = new Hessian2Output(bos);
         mH2o.setSerializerFactory(HessianSerializerFactory.SERIALIZER_FACTORY);
-        if (obj instanceof RpcRequest) {
-            try {
+        try {
+            if (obj instanceof RpcRequest) {
+
                 encodeRequest((RpcRequest) obj, mH2o);
                 mH2o.flushBuffer();
-
-                byte[] data = bos.toByteArray();
-                return data;
-            } catch (BsoaRpcException e) {
-                throw e;
-            } catch (Exception e) {
-                throw new BsoaRpcException("Encode request error", e);
-            }
-        } else if (obj instanceof RpcResponse) {
-            try {
+            } else if (obj instanceof RpcResponse) {
                 encodeResponse((RpcResponse) obj, mH2o);
                 mH2o.flushBuffer();
-
-                byte[] data = bos.toByteArray();
-                return data;
-            } catch (BsoaRpcException e) {
-                throw e;
-            } catch (Exception e) {
-                throw new BsoaRpcException("Encode response error", e);
-            }
-        } else {
-            try {
+            } else {
                 mH2o.writeObject(obj);
                 mH2o.flushBuffer();
-            } catch (BsoaRpcException e) {
-                throw e;
-            } catch (Exception e) {
-                throw new BsoaRpcException("Encode object error", e);
             }
+        } catch (BsoaRpcException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BsoaRpcException(22222, "Encode request error", e);
         }
-        byte[] data = bos.toByteArray();
-        return data;
+        return bos.toByteArray();
     }
 
     /**
@@ -169,35 +152,20 @@ public class HessianSerializer implements Serializer {
         AbstractHessianInput mH2i = new Hessian2Input(is);
         mH2i.setSerializerFactory(HessianSerializerFactory.SERIALIZER_FACTORY);
 
-        Object obj = null;
-        if (clazz == null) {
-            try {
+        Object obj;
+        try {
+            if (clazz == null) {
                 obj = mH2i.readObject(); // 无需依赖class
-            } catch (Exception e) {
-                throw new BsoaRpcException("Decode request error", e);
-            }
-        } else if (clazz == RpcRequest.class) {
-            try {
-                RpcRequest req = decodeRequest(mH2i);
-                obj = req;
-            } catch (Exception e) {
-                throw new BsoaRpcException("Decode request error", e);
-            }
-        } else if (clazz == RpcResponse.class) {
-            try {
-                RpcResponse res = decodeResponse(mH2i);
-                obj = res;
-            } catch (Exception e) {
-                throw new BsoaRpcException("Decode response error", e);
-            }
-        } else {
-            try {
+            } else if (clazz == RpcRequest.class) {
+                obj = decodeRequest(mH2i);
+            } else if (clazz == RpcResponse.class) {
+                obj = decodeResponse(mH2i);
+            } else {
                 obj = mH2i.readObject(); // 无需依赖class
-            } catch (Exception e) {
-                throw new BsoaRpcException("Decode object error", e);
             }
+        } catch (Exception e) {
+            throw new BsoaRpcException(22222, "Decode error", e);
         }
-
         return obj;
     }
 
@@ -214,7 +182,7 @@ public class HessianSerializer implements Serializer {
             Object[] args;
             Class<?>[] pts;
             String desc = input.readString();
-            if (desc.length() == 0) {
+            if (StringUtils.isNotEmpty(desc)) {
                 pts = EMPTY_CLASS_ARRAY;
                 args = EMPTY_OBJECT_ARRAY;
             } else {

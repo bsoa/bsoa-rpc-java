@@ -19,6 +19,7 @@ package io.bsoa.rpc.serialization.java;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,9 +27,13 @@ import org.slf4j.LoggerFactory;
 import io.bsoa.rpc.codec.Serializer;
 import io.bsoa.rpc.common.struct.UnsafeByteArrayInputStream;
 import io.bsoa.rpc.common.struct.UnsafeByteArrayOutputStream;
+import io.bsoa.rpc.common.utils.ReflectUtils;
+import io.bsoa.rpc.common.utils.StringUtils;
+import io.bsoa.rpc.exception.BsoaRpcException;
 import io.bsoa.rpc.ext.Extension;
 import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.message.RpcResponse;
+import io.bsoa.rpc.serialization.hessian.HessianConstants;
 
 /**
  * <p></p>
@@ -59,8 +64,10 @@ public class JavaSerializer implements Serializer {
             }
             oos.flush();
             return baos.toByteArray();
-        } catch (IOException e) {
-            LOGGER.error("Encoder error:", e);
+        } catch (BsoaRpcException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BsoaRpcException(22222, "Encode request error", e);
         } finally {
             if (oos != null) {
                 try {
@@ -70,19 +77,39 @@ public class JavaSerializer implements Serializer {
                 }
             }
         }
-        return new byte[0];
+
     }
 
     private void encodeRequest(RpcRequest req, ObjectOutputStream out) throws IOException {
-        writeObject(req, out);
+        Object[] args = req.getArgs();
+        Class<?>[] pts = req.getArgClasses();
+        writeString(ReflectUtils.getDesc(pts), out);
+        if (args != null) {
+            for (int i = 0; i < args.length; i++) {
+                writeObject(args[i], out);
+            }
+        }
+        writeObject(req.getAttachments(), out);
     }
 
     private void encodeResponse(RpcResponse res, ObjectOutputStream out) throws IOException {
-        writeObject(res, out);
+        // encode response data or error message.
+        Throwable th = res.getException();
+        if (th == null) {
+            Object ret = res.getReturnData();
+            if (ret == null) {
+                out.writeInt(HessianConstants.RESPONSE_NULL);
+            } else {
+                out.writeInt(HessianConstants.RESPONSE_DATA);
+                writeObject(ret, out);
+            }
+        } else {
+            out.writeInt(HessianConstants.RESPONSE_EXCEPTION);
+            writeObject(th, out);
+        }
     }
 
-
-    private void writeUTF(String v, ObjectOutputStream oos) throws IOException {
+    private void writeString(String v, ObjectOutputStream oos) throws IOException {
         if (v == null) {
             oos.writeInt(-1);
         } else {
@@ -100,7 +127,7 @@ public class JavaSerializer implements Serializer {
         }
     }
 
-    private String readUTF(ObjectInputStream ois) throws IOException {
+    private String readString(ObjectInputStream ois) throws IOException {
         int len = ois.readInt();
         if (len < 0)
             return null;
@@ -120,26 +147,98 @@ public class JavaSerializer implements Serializer {
     public Object decode(byte[] datas, Class clazz) {
         UnsafeByteArrayInputStream bais = new UnsafeByteArrayInputStream(datas);
         ObjectInputStream ois = null;
+        Object obj;
         try {
             ois = new ObjectInputStream(bais);
-            if (RpcRequest.class == clazz) {
-                return this.readObject(ois);
-            } else if (RpcResponse.class == clazz) {
-                return this.readObject(ois);
+            if (clazz == null) {
+                obj = readObject(ois); // 无需依赖class
+            } else if (clazz == RpcRequest.class) {
+                obj = decodeRequest(ois);
+            } else if (clazz == RpcResponse.class) {
+                obj = decodeResponse(ois);
             } else {
-                return this.readObject(ois);
+                obj = readObject(ois); // 无需依赖class
             }
         } catch (Exception e) {
-            LOGGER.error("Decode error", e);
-        } finally {
-            if (ois != null) {
-                try {
-                    ois.close();
-                } catch (IOException e) {
-                    LOGGER.warn("", e);
+            throw new BsoaRpcException(22222, "Decode error", e);
+        }
+        return obj;
+    }
+
+
+    /**
+     * 解码客户端发来的RpcRequest.
+     *
+     * @param input the input
+     * @return the request message
+     * @throws IOException the iO exception
+     */
+    private RpcRequest decodeRequest(ObjectInputStream input) throws IOException {
+        RpcRequest req = new RpcRequest();
+        try {
+            Object[] args;
+            Class<?>[] pts;
+            String desc = readString(input);
+            if (StringUtils.isNotEmpty(desc)) {
+                pts = EMPTY_CLASS_ARRAY;
+                args = EMPTY_OBJECT_ARRAY;
+            } else {
+                pts = ReflectUtils.desc2classArray(desc);
+                args = new Object[pts.length];
+                for (int i = 0; i < args.length; i++) {
+                    try {
+                        args[i] = readObject(input);
+                    } catch (Exception e) {
+                        if (LOGGER.isWarnEnabled()) {
+                            LOGGER.warn("Decode argument failed: " + e.getMessage(), e);
+                        }
+                    }
                 }
             }
+            Map<String, Object> map = (Map<String, Object>) input.readObject();
+            req.setArgClasses(pts);
+            req.setArgs(args);
+            req.setAttachments(map);
+        } catch (ClassNotFoundException e) {
+            throw new IOException("Read invocation data failed.", e);
         }
-        return null;
+
+        return req;
     }
+
+
+    /**
+     * 解码服务端返回的Response
+     *
+     * @param in the in
+     * @return the response message
+     * @throws IOException the iO exception
+     */
+    private RpcResponse decodeResponse(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        RpcResponse res = new RpcResponse();
+        byte code = (byte) in.readInt();
+        switch (code) {
+            case HessianConstants.RESPONSE_NULL:
+                break;
+            case HessianConstants.RESPONSE_DATA:
+                res.setReturnData(readObject(in));
+                break;
+            case HessianConstants.RESPONSE_EXCEPTION:
+                res.setException((Throwable) readObject(in));
+                break;
+            default:
+                break;
+        }
+        return res;
+    }
+
+    /**
+     * 空的Object数组，无参方法
+     */
+    public static final Object[] EMPTY_OBJECT_ARRAY = new Object[0];
+
+    /**
+     * 空的Class数组，无参方法
+     */
+    public static final Class<?>[] EMPTY_CLASS_ARRAY = new Class<?>[0];
 }

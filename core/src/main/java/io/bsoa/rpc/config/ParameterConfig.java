@@ -15,6 +15,8 @@
  */
 package io.bsoa.rpc.config;
 
+import java.io.Serializable;
+
 import io.bsoa.rpc.common.BsoaConstants;
 import io.bsoa.rpc.common.utils.ExceptionUtils;
 
@@ -24,7 +26,9 @@ import io.bsoa.rpc.common.utils.ExceptionUtils;
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
  *
  */
-public class ParameterConfig {
+public class ParameterConfig implements Serializable{
+
+    private static final long serialVersionUID = -8438415130253334898L;
 
     /**
      * 关键字
@@ -107,7 +111,7 @@ public class ParameterConfig {
      *         参数key
      * @return 是否合法
      */
-    public boolean isValidParamKey(String paramkey) {
+    public static boolean isValidParamKey(String paramkey) {
         char c = paramkey.charAt(0);
         return c != BsoaConstants.HIDE_KEY_PREFIX && c != BsoaConstants.INTERNAL_KEY_PREFIX;
     }
@@ -119,7 +123,7 @@ public class ParameterConfig {
      *         参数key
      * @return 是否合法
      */
-    public boolean isInternalParamKey(String paramkey) {
+    public static boolean isInternalParamKey(String paramkey) {
         char c = paramkey.charAt(0);
         return c == BsoaConstants.INTERNAL_KEY_PREFIX;
     }

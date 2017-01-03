@@ -118,7 +118,7 @@ public class NettyServerTransport implements ServerTransport {
     }
 
     @Override
-    public void setConfig(ServerTransportConfig transportConfig) {
+    public void init(ServerTransportConfig transportConfig) {
         this.transportConfig = transportConfig;
     }
 }

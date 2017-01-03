@@ -33,7 +33,7 @@ public interface ServerTransport {
      *
      * @param serverConfig
      */
-    void setConfig(ServerTransportConfig serverConfig);
+    void init(ServerTransportConfig serverConfig);
 
     /**
      * 启动

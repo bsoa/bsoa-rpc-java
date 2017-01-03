@@ -52,7 +52,7 @@ public class ProviderConfig<T> extends AbstractInterfaceConfig implements Serial
     /**
      * The constant serialVersionUID.
      */
-    private static final long serialVersionUID = 6333907358205293883L;
+    private static final long serialVersionUID = -3058073881775315962L;
 
     /**
      * slf4j Logger for this class

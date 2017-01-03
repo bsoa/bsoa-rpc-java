@@ -25,13 +25,11 @@ import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.message.RpcResponse;
 
 /**
- * Title: 调用过滤器<br>
- * <p/>
- * Description: 执行真正的调用过程，使用client发送数据给server<br>
+ * <p>执行真正的调用过程，使用client发送数据给server</p>
+ * <p>
+ * Created by zhangg on 2016/12/15 23:08. <br/>
  *
- * Created by zhanggeng on 16-6-7.
- *
- * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
+ * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
 public class ConsumerInvokeFilter implements Filter {
 

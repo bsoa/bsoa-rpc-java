@@ -84,7 +84,7 @@ public class BsoaServer implements Server {
             if (serverTransportConfig == null) {
                 throw new BsoaRuntimeException(22222, "need init first");
             }
-            serverHandler = new BsoaServerHandler();
+            serverHandler = new BsoaServerHandler(serverTransportConfig);
             serverTransportConfig.setServerHandler(serverHandler);
             serverTransport = ServerTransportFactory.getServerTransport(serverTransportConfig);
             started = serverTransport.start();

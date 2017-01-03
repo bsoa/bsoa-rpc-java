@@ -56,7 +56,7 @@ public class ServerTransportFactory {
     public static ServerTransport getServerTransport(ServerTransportConfig serverConfig) {
         ServerTransport serverTransport = extensionLoader.getExtension(serverConfig.getContainer());
         if (serverTransport != null) {
-            serverTransport.setConfig(serverConfig);
+            serverTransport.init(serverConfig);
             String key = Integer.toString(serverConfig.getPort());
             SERVER_TRANSPORT_MAP.put(key, serverTransport);
         }

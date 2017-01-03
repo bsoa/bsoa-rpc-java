@@ -46,6 +46,7 @@ public final class BsoaRpcException extends RuntimeException {
         this.code = code;
     }
 
+    @Deprecated
     public BsoaRpcException(String message, Throwable cause) {
         super(message, cause);
     }
