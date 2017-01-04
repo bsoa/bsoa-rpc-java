@@ -186,22 +186,22 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig{
     }
 
     /**
-     * Gets GROUP.
+     * Gets tags.
      *
-     * @return the GROUP
+     * @return the tags
      */
     public String getTags() {
         return tags;
     }
 
     /**
-     * Sets GROUP.
+     * Sets tags.
      *
      * @param tags
-     *         the GROUP
+     *         the tags
      */
     public void setTags(String tags) {
-        checkNormalWithColon("GROUP", tags);
+        checkNormalWithColon("tags", tags);
         this.tags = tags;
     }
 

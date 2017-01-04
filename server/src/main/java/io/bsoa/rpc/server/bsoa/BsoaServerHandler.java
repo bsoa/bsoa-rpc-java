@@ -44,7 +44,6 @@ public class BsoaServerHandler implements ServerHandler {
      */
     private Map<String, Invoker> instanceMap = new ConcurrentHashMap<>();
 
-
     /**
      * Server Transport Config
      */
@@ -71,6 +70,11 @@ public class BsoaServerHandler implements ServerHandler {
         }
     }
 
+    public Invoker getInvoker(String instanceName) {
+        return instanceMap.get(instanceName);
+    }
+
+    @Override
     public void handleRpcRequest(RpcRequest rpcRequest, AbstractChannel channel) {
         try {
             // 丢到业务线程池去执行 TODO
@@ -78,7 +82,7 @@ public class BsoaServerHandler implements ServerHandler {
 //            rpcResponse.setReturnData("hello, this is response!");
 //            channel.writeAndFlush(rpcResponse);
 
-            BsoaTask task = new BsoaTask(rpcRequest, channel, BsoaConstants.DEFAULT_METHOD_PRIORITY);
+            BsoaTask task = new BsoaTask(this, rpcRequest, channel, BsoaConstants.DEFAULT_METHOD_PRIORITY);
             bizThreadPool.submit(task);
         } catch (BsoaRpcException e) {
             throw e;
@@ -94,5 +98,9 @@ public class BsoaServerHandler implements ServerHandler {
 
     public int entrySize() {
         return instanceMap.size();
+    }
+
+    public Map<String, Invoker> getAllOwnInvoker() {
+        return instanceMap;
     }
 }

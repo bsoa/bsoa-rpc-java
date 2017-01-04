@@ -18,6 +18,8 @@ package io.bsoa.rpc.message;
 
 import java.io.Serializable;
 
+import io.bsoa.rpc.common.utils.ClassTypeUtils;
+
 /**
  * Created by zhanggeng on 16-6-6.
  *
@@ -44,6 +46,9 @@ public class RpcRequest extends RPCMessage implements Serializable {
     private Object[] args;
 
     public String getInterfaceName() {
+        if (interfaceName == null) {
+            interfaceName = (String) super.getHeadKey(HeadKey.INTERFACE_NAME);
+        }
         return interfaceName;
     }
 
@@ -54,21 +59,27 @@ public class RpcRequest extends RPCMessage implements Serializable {
     }
 
     public String getMethodName() {
+        if (methodName == null) {
+            methodName = (String) super.getHeadKey(HeadKey.METHOD_NAME);
+        }
         return methodName;
     }
 
     public RpcRequest setMethodName(String methodName) {
-        super.addHeadKey(HeadKey.METHOD_NAME, interfaceName);
+        super.addHeadKey(HeadKey.METHOD_NAME, methodName);
         this.methodName = methodName;
         return this;
     }
 
     public String getTags() {
+        if (tags == null) {
+            tags = (String) super.getHeadKey(HeadKey.TAGS);
+        }
         return tags;
     }
 
     public RpcRequest setTags(String tags) {
-        super.addHeadKey(HeadKey.GROUP, interfaceName);
+        super.addHeadKey(HeadKey.TAGS, tags);
         this.tags = tags;
         return this;
     }
@@ -79,6 +90,7 @@ public class RpcRequest extends RPCMessage implements Serializable {
 
     public RpcRequest setArgsType(String[] argsType) {
         this.argsType = argsType;
+        this.argClasses = ClassTypeUtils.getClasses(argsType);
         return this;
     }
 
@@ -86,8 +98,9 @@ public class RpcRequest extends RPCMessage implements Serializable {
         return argClasses;
     }
 
-    public RpcRequest setArgClasses(Class[] argClasses) {
+    public RpcRequest setArgClasses(Class<?>[] argClasses) {
         this.argClasses = argClasses;
+        this.argsType = ClassTypeUtils.getTypeStrs(argClasses);
         return this;
     }
 

@@ -69,9 +69,9 @@ public class Provider implements Serializable {
     private int jsfVersion;
 
     /**
-     * The Alias.
+     * The tags.
      */
-    private String alias;
+    private String tags;
 
     /**
      * The path
@@ -183,7 +183,7 @@ public class Provider implements Serializable {
                             this.setInterfaceId(kvpair[1]);
                         }
                         if (BsoaConstants.CONFIG_KEY_ALIAS.equals(kvpair[0]) && StringUtils.isNotEmpty(kvpair[1])) {
-                            this.setAlias(kvpair[1]);
+                            this.setTags(kvpair[1]);
                         }
                         if (BsoaConstants.CONFIG_KEY_SERIALIZATION.equals(kvpair[0]) && StringUtils.isNotEmpty(kvpair[1])) {
                             this.setSerializationType(kvpair[1]);
@@ -339,21 +339,21 @@ public class Provider implements Serializable {
     }
 
     /**
-     * Gets GROUP.
+     * Gets tags.
      *
-     * @return the GROUP
+     * @return the tags
      */
-    public String getAlias() {
-        return alias;
+    public String getTags() {
+        return tags;
     }
 
     /**
-     * Sets GROUP.
+     * Sets tags.
      *
-     * @param alias the GROUP
+     * @param tags the tags
      */
-    public void setAlias(String alias) {
-        this.alias = alias;
+    public void setTags(String tags) {
+        this.tags = tags;
     }
 
     /**
@@ -412,8 +412,8 @@ public class Provider implements Serializable {
         if (interfaceId != null) {
             sb.append("&").append(BsoaConstants.CONFIG_KEY_INTERFACE).append("=").append(interfaceId);
         }
-        if (alias != null) {
-            sb.append("&").append(BsoaConstants.CONFIG_KEY_ALIAS).append("=").append(alias);
+        if (tags != null) {
+            sb.append("&").append(BsoaConstants.CONFIG_KEY_ALIAS).append("=").append(tags);
         }
         if (serializationType != null) {
             sb.append("&").append(BsoaConstants.CONFIG_KEY_SERIALIZATION).append("=").append(serializationType);
@@ -449,7 +449,7 @@ public class Provider implements Serializable {
         Provider provider = (Provider) o;
 
         if (port != provider.port) return false;
-        if (alias != null ? !alias.equals(provider.alias) : provider.alias != null) return false;
+        if (tags != null ? !tags.equals(provider.tags) : provider.tags != null) return false;
         if (ip != null ? !ip.equals(provider.ip) : provider.ip != null) return false;
         if (interfaceId != null ? !interfaceId.equals(provider.interfaceId) : provider.interfaceId != null) return false;
         if (path != null ? !path.equals(provider.path) : provider.path != null) return false;
@@ -470,7 +470,7 @@ public class Provider implements Serializable {
         result = 31 * result + port;
         result = 31 * result + (protocolType != null ? protocolType.hashCode() : 0);
         result = 31 * result + (interfaceId != null ? interfaceId.hashCode() : 0);
-        result = 31 * result + (alias != null ? alias.hashCode() : 0);
+        result = 31 * result + (tags != null ? tags.hashCode() : 0);
         result = 31 * result + (path != null ? path.hashCode() : 0);
         result = 31 * result + weight;
         return result;

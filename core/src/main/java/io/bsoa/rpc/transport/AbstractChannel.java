@@ -20,12 +20,19 @@ import java.net.InetSocketAddress;
 
 /**
  * <p></p>
- *
+ * <p>
  * Created by zhangg on 2016/12/15 23:19. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
 public interface AbstractChannel {
+
+    /**
+     * 得到ByteBuf对象
+     *
+     * @return
+     */
+    AbstractByteBuf getByteBuf();
 
     /**
      * 得到连接的远端地址

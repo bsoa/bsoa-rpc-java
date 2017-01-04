@@ -213,20 +213,18 @@ public class ProviderConfig<T> extends AbstractInterfaceConfig implements Serial
         }
 
         // 将处理器注册到server
-        if (serverConfigs != null) {
-            for (ServerConfig serverConfig : serverConfigs) {
-                try {
-                    serverConfig.start();
-                    Server server = serverConfig.getServer();
-                    // 注册序列化接口
+        for (ServerConfig serverConfig : serverConfigs) {
+            try {
+                serverConfig.start();
+                Server server = serverConfig.getServer();
+                // 注册序列化接口
 //                    CodecUtils.registryService(serverConfig.getSerialization(), getProxyClass());
-                    server.registerProcessor(this, invoker);
-                } catch (BsoaRuntimeException e) {
-                    throw e;
-                } catch (Exception e) {
-                    LOGGER.error("[JSF-21204]Catch exception when register processor to server: "
-                            + serverConfig.getId(), e);
-                }
+                server.registerProcessor(this, invoker);
+            } catch (BsoaRuntimeException e) {
+                throw e;
+            } catch (Exception e) {
+                LOGGER.error("[JSF-21204]Catch exception when register processor to server: "
+                        + serverConfig.getId(), e);
             }
         }
 

@@ -69,7 +69,12 @@ public class ClientTransportTest {
                 .setArgs(new Object[]{"jhahahaha", 123})
                 .addAttachment(".token", "xxxx");
         RpcResponse response = (RpcResponse) transport.syncSend(request1, 60000);
-        LOGGER.info("{}", response.getReturnData());
+        if(response.hasError()){
+            LOGGER.error("", response.getException());
+        } else {
+            LOGGER.info("{}", response.getReturnData());
+        }
+
 
 //        HeartbeatRequest request3 = new HeartbeatRequest();
 //        request3.setTimestamp(System.currentTimeMillis());

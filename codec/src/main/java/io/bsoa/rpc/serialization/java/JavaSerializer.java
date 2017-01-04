@@ -179,7 +179,7 @@ public class JavaSerializer implements Serializer {
             Object[] args;
             Class<?>[] pts;
             String desc = readString(input);
-            if (StringUtils.isNotEmpty(desc)) {
+            if (StringUtils.isEmpty(desc)) {
                 pts = EMPTY_CLASS_ARRAY;
                 args = EMPTY_OBJECT_ARRAY;
             } else {

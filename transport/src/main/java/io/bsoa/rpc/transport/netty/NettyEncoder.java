@@ -52,7 +52,13 @@ public class NettyEncoder extends MessageToByteEncoder {
             out = ctx.alloc().buffer();
         }
         try {
-            protocolEncoder.encodeAll(msg, new NettyByteBuf(out));
+            if (msg instanceof ByteBuf) {
+                out.writeBytes((ByteBuf) msg);
+            } else if (msg instanceof NettyByteBuf) {
+                out.writeBytes(((NettyByteBuf) msg).getByteBuf());
+            } else {
+                protocolEncoder.encodeAll(msg, new NettyByteBuf(out));
+            }
         } catch (Exception e) {
             LOGGER.warn("Encode message " + msg.getClass() + " error on channel " + ctx.channel() + "！", e);
         }

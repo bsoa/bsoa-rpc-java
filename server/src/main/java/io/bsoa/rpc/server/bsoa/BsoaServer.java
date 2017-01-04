@@ -118,19 +118,7 @@ public class BsoaServer implements Server {
     }
 
     private String buildKey(ProviderConfig providerConfig) {
-        String interfaceId = providerConfig.getInterfaceId();
-        String alias = providerConfig.getTags();
-        if (interfaceId == null || interfaceId.trim().length() <= 0) {
-            throw new BsoaRuntimeException(22222, "interfaceId cannot be null!");
-        }
-        if (alias == null || alias.trim().length() <= 0) {
-            return interfaceId;
-        }
-        StringBuilder builder = new StringBuilder();
-        builder.append(interfaceId);
-        builder.append("/");
-        builder.append(alias);
-        return builder.toString();
+        return providerConfig.getInterfaceId() + "/" + providerConfig.getTags();
     }
 
     @Override

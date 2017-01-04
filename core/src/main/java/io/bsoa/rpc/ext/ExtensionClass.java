@@ -35,7 +35,7 @@ public class ExtensionClass<T> {
 
     /**
      * The Alias.
-     * 扩展别名,不是provider GROUP
+     * 扩展别名,不是provider tags
      */
     protected String alias;
     /**
@@ -261,7 +261,7 @@ public class ExtensionClass<T> {
     @Override
     public String toString() {
         return "ExtensibleClass{" +
-                "GROUP='" + alias + '\'' +
+                "alias='" + alias + '\'' +
                 "code=" + code +
                 ", clazz=" + clazz +
                 ", order=" + order +

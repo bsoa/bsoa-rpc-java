@@ -35,7 +35,7 @@ public enum HeadKey {
     /**
      * 分组名称：实际名称
      */
-    GROUP(3, String.class),
+    TAGS(3, String.class),
     /**
      * 方法名称：实际名称
      */
@@ -131,7 +131,7 @@ public enum HeadKey {
                 key = INTERFACE_NAME;
                 break;
             case 3:
-                key = GROUP;
+                key = TAGS;
                 break;
             case 4:
                 key = METHOD_NAME;

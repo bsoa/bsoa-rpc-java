@@ -52,7 +52,7 @@ public class ServerTransportTest {
             response.setRes("nego response from server");
             return response;
         });
-        config.setServerHandler(new BsoaServerHandler());
+        config.setServerHandler(new BsoaServerHandler(config));
         ServerTransport transport = ServerTransportFactory.getServerTransport(config);
         Assert.assertEquals(transport.getClass(), NettyServerTransport.class);
         transport.start();

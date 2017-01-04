@@ -139,7 +139,9 @@ public class BsoaProtocolDecoder implements ProtocolDecoder {
                 Serializer serializer = SerializerFactory.getSerializer(request.getSerializationType());
                 RpcRequest tmp = (RpcRequest) serializer.decode(bodyBytes, RpcRequest.class);
 
-//                request.setAttachments(tmp.getAttachments());
+                // TODO
+                request.setAttachments(tmp.getAttachments());
+                request.setArgsType(tmp.getArgsType());
                 request.setArgs(tmp.getArgs());
             } else if (object instanceof RpcResponse) { // 收到响应
                 RpcResponse response = (RpcResponse) object;

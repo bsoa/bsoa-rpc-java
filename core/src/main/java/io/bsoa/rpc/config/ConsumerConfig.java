@@ -235,7 +235,7 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig implements Serial
         }
         String key = buildKey();
         // 检查参数
-        // alias不能为空
+        // tags不能为空
         if (StringUtils.isBlank(tags)) {
             throw new BsoaRuntimeException(21300, "[JSF-21300]Value of \"GROUP\" value is not specified in consumer" +
                     " config with key " + key + " !");
@@ -245,7 +245,7 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig implements Serial
 
         LOGGER.info("Refer consumer config : {} with bean id {}", key, getId());
 
-        // 注意同一interface，同一alias，同一protocol情况
+        // 注意同一interface，同一tags，同一protocol情况
         AtomicInteger cnt = REFERRED_KEYS.get(key); // 计数器
         if (cnt == null) { // 没有发布过
             cnt = CommonUtils.putToConcurrentMap(REFERRED_KEYS, key, new AtomicInteger(0));
@@ -449,7 +449,7 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig implements Serial
         @Override
         public synchronized void attrUpdated(Map newValueMap) {
             // 重要： proxyIns不能换，只能换client。。。。
-            // 修改调用的alias cluster(loadblance) timeout, retries？
+            // 修改调用的tags cluster(loadblance) timeout, retries？
             Map<String, String> newValues = (Map<String, String>) newValueMap;
             Map<String, String> oldValues = new HashMap<String, String>();
             boolean rerefer = false;
