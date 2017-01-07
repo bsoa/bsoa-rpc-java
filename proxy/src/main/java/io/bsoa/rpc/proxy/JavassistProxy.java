@@ -23,10 +23,12 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import io.bsoa.rpc.Invoker;
+import io.bsoa.rpc.base.Invoker;
 import io.bsoa.rpc.common.utils.ClassLoaderUtils;
 import io.bsoa.rpc.common.utils.ClassTypeUtils;
 import io.bsoa.rpc.common.utils.ReflectUtils;
+import io.bsoa.rpc.exception.BsoaRuntimeException;
+import io.bsoa.rpc.ext.Extension;
 import io.bsoa.rpc.message.MessageBuilder;
 import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.message.RpcResponse;
@@ -37,13 +39,12 @@ import javassist.CtMethod;
 import javassist.LoaderClassPath;
 
 /**
- *
- *
  * Created by zhanggeng on 16-6-7.
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
  */
-public class JavassistProxy {
+@Extension("javassist")
+public class JavassistProxy implements Proxy {
 
 
     private static AtomicInteger counter = new AtomicInteger();
@@ -52,35 +53,40 @@ public class JavassistProxy {
      * 原始类和代理类的映射
      */
     private static Map<Class, Class> proxyClassMap = new ConcurrentHashMap<Class, Class>();
+
     /**
      * 取得代理类(javassist方式)
      *
      * @param interfaceClass 接口类
-     * @param proxyInvoker 拦截后Invoke
+     * @param proxyInvoker   拦截后Invoke
      * @return 接口代理类
      * @throws Exception 生成代理类异常
      */
     @SuppressWarnings("unchecked")
-    public static <T> T getProxy(Class<T> interfaceClass, Invoker proxyInvoker) throws Exception {
-        Class clazz = proxyClassMap.get(interfaceClass);
-        if (clazz == null) {
-            //生成代理类
-            String interfaceName = ClassTypeUtils.getTypeStr(interfaceClass);
-            ClassPool mPool = ClassPool.getDefault();
-            mPool.appendClassPath(new LoaderClassPath(ClassLoaderUtils.getClassLoader(JavassistProxy.class)));
-            CtClass mCtc = mPool.makeClass(interfaceName + "_proxy_" + counter.getAndIncrement());
-            mCtc.addInterface(mPool.get(interfaceName));
-            mCtc.addField(CtField.make("public " + Invoker.class.getCanonicalName() + " proxyInvoker = null;", mCtc));
-            List<String> methodList = createMethod(interfaceClass, mPool);
-            for (String methodStr : methodList) {
-                mCtc.addMethod(CtMethod.make(methodStr, mCtc));
+    public <T> T getProxy(Class<T> interfaceClass, Invoker proxyInvoker) {
+        try {
+            Class clazz = proxyClassMap.get(interfaceClass);
+            if (clazz == null) {
+                //生成代理类
+                String interfaceName = ClassTypeUtils.getTypeStr(interfaceClass);
+                ClassPool mPool = ClassPool.getDefault();
+                mPool.appendClassPath(new LoaderClassPath(ClassLoaderUtils.getClassLoader(JavassistProxy.class)));
+                CtClass mCtc = mPool.makeClass(interfaceName + "_proxy_" + counter.getAndIncrement());
+                mCtc.addInterface(mPool.get(interfaceName));
+                mCtc.addField(CtField.make("public " + Invoker.class.getCanonicalName() + " proxyInvoker = null;", mCtc));
+                List<String> methodList = createMethod(interfaceClass, mPool);
+                for (String methodStr : methodList) {
+                    mCtc.addMethod(CtMethod.make(methodStr, mCtc));
+                }
+                clazz = mCtc.toClass();
+                proxyClassMap.put(interfaceClass, clazz);
             }
-            clazz = mCtc.toClass();
-            proxyClassMap.put(interfaceClass, clazz);
+            Object instance = clazz.newInstance();
+            clazz.getField("proxyInvoker").set(instance, proxyInvoker);
+            return (T) instance;
+        } catch (Exception e) {
+            throw new BsoaRuntimeException(22222, "", e);
         }
-        Object instance = clazz.newInstance();
-        clazz.getField("proxyInvoker").set(instance, proxyInvoker);
-        return (T) instance;
     }
 
     private static List<String> createMethod(Class<?> interfaceClass, ClassPool mPool) {
@@ -134,17 +140,17 @@ public class JavassistProxy {
 //            }
 //            return responseMessage.getResponse();
 
-            sb.append(RpcRequest.class.getCanonicalName() + " requestMessage = " +
+            sb.append(RpcRequest.class.getCanonicalName() + " req = " +
                     MessageBuilder.class.getCanonicalName() +
-                    ".buildRequest(clazz, methodName, paramTypes, paramValues);");
-            sb.append(RpcResponse.class.getCanonicalName() + " responseMessage = " +
-                    "proxyInvoker.invoke(requestMessage);");
-            sb.append("if(responseMessage.isError()){ throw responseMessage.getException(); }");
+                    ".buildRpcRequest(clazz, methodName, paramTypes, paramValues);");
+            sb.append(RpcResponse.class.getCanonicalName() + " res = " +
+                    "proxyInvoker.invoke(req);");
+            sb.append("if(res.hasError()){ throw res.getException(); }");
 
             if (returntype.equals(void.class)) {
                 sb.append(" return;");
             } else {
-                sb.append(" return ").append(asArgument( returntype, "responseMessage.getResponse()")).append(";");
+                sb.append(" return ").append(asArgument(returntype, "res.getReturnData()")).append(";");
             }
 
             sb.append("}");
@@ -154,26 +160,26 @@ public class JavassistProxy {
         return resultList;
     }
 
-    private static String asArgument(Class<?> cl, String name)	{
-        if( cl.isPrimitive() )	{
-            if( Boolean.TYPE == cl )
+    private static String asArgument(Class<?> cl, String name) {
+        if (cl.isPrimitive()) {
+            if (Boolean.TYPE == cl)
                 return name + "==null?false:((Boolean)" + name + ").booleanValue()";
-            if( Byte.TYPE == cl )
+            if (Byte.TYPE == cl)
                 return name + "==null?(byte)0:((Byte)" + name + ").byteValue()";
-            if( Character.TYPE == cl )
+            if (Character.TYPE == cl)
                 return name + "==null?(char)0:((Character)" + name + ").charValue()";
-            if( Double.TYPE == cl )
+            if (Double.TYPE == cl)
                 return name + "==null?(double)0:((Double)" + name + ").doubleValue()";
-            if( Float.TYPE == cl )
+            if (Float.TYPE == cl)
                 return name + "==null?(float)0:((Float)" + name + ").floatValue()";
-            if( Integer.TYPE == cl )
+            if (Integer.TYPE == cl)
                 return name + "==null?(int)0:((Integer)" + name + ").intValue()";
-            if( Long.TYPE == cl )
+            if (Long.TYPE == cl)
                 return name + "==null?(long)0:((Long)" + name + ").longValue()";
-            if( Short.TYPE == cl )
+            if (Short.TYPE == cl)
                 return name + "==null?(short)0:((Short)" + name + ").shortValue()";
-            throw new RuntimeException(name+" is unknown primitive type.");
+            throw new RuntimeException(name + " is unknown primitive type.");
         }
-        return "(" + ReflectUtils.getName(cl) + ")"+name;
+        return "(" + ReflectUtils.getName(cl) + ")" + name;
     }
 }

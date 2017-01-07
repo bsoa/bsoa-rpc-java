@@ -18,13 +18,18 @@ package io.bsoa.rpc.client;
 import java.util.List;
 
 import io.bsoa.rpc.config.ConsumerConfig;
+import io.bsoa.rpc.ext.Extensible;
+import io.bsoa.rpc.message.RpcRequest;
+import io.bsoa.rpc.message.RpcResponse;
 
 /**
  * Created by zhanggeng on 16-6-7.
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
  */
+@Extensible(singleton = false)
 public interface Client {
+
     void init(ConsumerConfig consumerConfig);
 
     void destroy();
@@ -38,4 +43,6 @@ public interface Client {
     void removeProvider(List<Provider> providers);
 
     void updateProvider(List<Provider> newProviders);
+
+    RpcResponse sendMsg(RpcRequest requestMessage);
 }

@@ -1,0 +1,2 @@
+jdk=io.bsoa.rpc.proxy.JDKProxy
+javassist=io.bsoa.rpc.proxy.JavassistProxy

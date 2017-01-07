@@ -32,6 +32,7 @@ import io.bsoa.rpc.context.BsoaContext;
 import io.bsoa.rpc.exception.BsoaRpcException;
 import io.bsoa.rpc.ext.Extension;
 import io.bsoa.rpc.listener.ResponseFuture;
+import io.bsoa.rpc.listener.ResultListener;
 import io.bsoa.rpc.message.DecodableMessage;
 import io.bsoa.rpc.protocol.Protocol;
 import io.bsoa.rpc.protocol.ProtocolFactory;
@@ -61,7 +62,7 @@ public class MessageFuture<V> implements ResponseFuture<V> {
     /**
      * 结果监听器，在返回成功或者异常的时候需要通知
      */
-    private volatile List<ResultObserver> listeners = new ArrayList<>();
+    private volatile List<ResultListener> listeners = new ArrayList<>();
 
     private volatile Object result;
 
@@ -166,7 +167,7 @@ public class MessageFuture<V> implements ResponseFuture<V> {
      * @param scan 是否扫描线程
      * @return 异常ClientTimeoutException
      */
-    public BsoaRpcException clientTimeoutException(boolean scan) {
+    protected BsoaRpcException clientTimeoutException(boolean scan) {
         Date now = new Date();
         String errorMsg = (sentTime > 0 ? "[JSF-22110]Waiting provider return response timeout"
                 : "[JSF-22111]Consumer send request timeout")
@@ -378,7 +379,8 @@ public class MessageFuture<V> implements ResponseFuture<V> {
         return true;
     }
 
-    public MessageFuture addListener(ResultObserver listener) {
+    @Override
+    public void addListener(ResultListener listener) {
 
         if (listener == null) {
             throw new NullPointerException("listener");
@@ -386,18 +388,15 @@ public class MessageFuture<V> implements ResponseFuture<V> {
 
         if (isDone()) {
             notifyListener0(listener);
-            return this;
         }
 
         synchronized (this) {
             if (!isDone()) {
                 listeners.add(listener);
-                return this;
             }
         }
 
         notifyListener0(listener);
-        return this;
     }
 
     /*
@@ -411,7 +410,7 @@ public class MessageFuture<V> implements ResponseFuture<V> {
             }
             return;
         }
-        for (ResultObserver resultListener : listeners) {
+        for (ResultListener resultListener : listeners) {
             notifyListener0(resultListener);
         }
     }
@@ -419,7 +418,7 @@ public class MessageFuture<V> implements ResponseFuture<V> {
     /*
      * 调用listener 新启动线程 防止阻塞当前线程
      */
-    private void notifyListener0(final ResultObserver listener) {
+    private void notifyListener0(final ResultListener listener) {
         listener.operationComplete(this);
     }
 

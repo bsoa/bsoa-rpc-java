@@ -231,6 +231,10 @@ public class BsoaConfigs {
      */
     public final static String DEFAULT_SERIALIZATION = "default.serialization";
     /**
+     * 默认负载均衡算法
+     */
+    public final static String DEFAULT_LOADBALANCER = "default.loadbalancer";
+    /**
      * 默认代理类型
      */
     public final static String DEFAULT_PROXY = "default.proxy";
@@ -246,6 +250,10 @@ public class BsoaConfigs {
      * 默认压缩算法
      */
     public final static String DEFAULT_COMPRESS = "default.compress";
+    /**
+     * 默认集群策略
+     */
+    public final static String DEFAULT_CLUSTER = "default.cluster";
 
     /**
      * 默认连注册中心的超时时间

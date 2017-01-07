@@ -24,8 +24,8 @@ package io.bsoa.rpc.transport;
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
 public class ChannelHelper {
-    public static String handshake(Connection connection, String cmd, String message){
-        // todo 发送握手信息，返回
-        return null;
-    }
+//    public static String handshake(Connection connection, String cmd, String message){
+//        // todo 发送握手信息，返回
+//        return null;
+//    }
 }

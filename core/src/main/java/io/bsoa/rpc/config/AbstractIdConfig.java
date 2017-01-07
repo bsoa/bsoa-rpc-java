@@ -15,6 +15,7 @@
  */
 package io.bsoa.rpc.config;
 
+import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import io.bsoa.rpc.context.BsoaContext;
@@ -24,7 +25,10 @@ import io.bsoa.rpc.context.BsoaContext;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
  */
-public abstract class AbstractIdConfig {
+public abstract class AbstractIdConfig implements Serializable {
+
+
+    private static final long serialVersionUID = -1932911135229369183L;
 
     static {
         BsoaContext.now();
@@ -36,6 +40,11 @@ public abstract class AbstractIdConfig {
 
     private String id;
 
+    /**
+     * Gets id.
+     *
+     * @return the id
+     */
     public String getId() {
         if (id == null) {
             synchronized (this) {
@@ -47,6 +56,11 @@ public abstract class AbstractIdConfig {
         return id;
     }
 
+    /**
+     * Sets id.
+     *
+     * @param id the id
+     */
     public void setId(String id) {
         this.id = id;
     }

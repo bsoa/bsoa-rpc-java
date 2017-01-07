@@ -45,7 +45,7 @@ public final class CompressorFactory {
     private final static ConcurrentHashMap<Byte, Compressor> TYPE_COMPRESSOR_MAP = new ConcurrentHashMap<>();
     /**
      * 除了托管给扩展加载器的工厂模式（保留alias：实例）外<br>
-     * 还需要额外保留编码和实例的映射：{编码：压缩器}
+     * 还需要额外保留编码和实例的映射：{别名：编码}
      */
     private final static ConcurrentHashMap<String, Byte> TYPE_CODE_MAP = new ConcurrentHashMap<>();
 

@@ -16,10 +16,10 @@
  */
 package io.bsoa.rpc.client;
 
-import io.bsoa.rpc.common.utils.ClassLoaderUtils;
-import io.bsoa.rpc.exception.BsoaRuntimeException;
 import io.bsoa.rpc.common.utils.ExceptionUtils;
-import io.bsoa.rpc.ext.ExtensibleClass;
+import io.bsoa.rpc.exception.BsoaRuntimeException;
+import io.bsoa.rpc.ext.ExtensionClass;
+import io.bsoa.rpc.ext.ExtensionLoader;
 import io.bsoa.rpc.ext.ExtensionLoaderFactory;
 
 /**
@@ -31,19 +31,21 @@ import io.bsoa.rpc.ext.ExtensionLoaderFactory;
  */
 public class LoadBalancerFactory {
 
+    /**
+     * 扩展加载器
+     */
+    private static ExtensionLoader<LoadBalancer> EXTENSION_LOADER
+            = ExtensionLoaderFactory.getExtensionLoader(LoadBalancer.class);
 
     public static LoadBalancer getLoadBalancer(String lb) {
         try {
             LoadBalancer loadBalancer = null;
-            ExtensibleClass<LoadBalancer> ext = ExtensionLoaderFactory.getExtensionLoader(LoadBalancer.class)
-                    .getExtensibleClass(lb);
+            ExtensionClass<LoadBalancer> ext = EXTENSION_LOADER.getExtensionClass(lb);
             if (ext == null) {
                 throw ExceptionUtils.buildRuntime(22222, "consumer.loadbalance", lb,
                         "Unsupported loadbalance of server!");
             }
-            Class<? extends LoadBalancer> clientClass = ext.getClazz();
-            loadBalancer = ClassLoaderUtils.newInstance(clientClass);
-            return loadBalancer;
+            return ext.getExtInstance();
         } catch (BsoaRuntimeException e) {
             throw e;
         } catch (Exception e) {

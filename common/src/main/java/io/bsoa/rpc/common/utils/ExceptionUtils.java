@@ -35,6 +35,7 @@ public final class ExceptionUtils {
         String msg = "The value of config " + configKey + " [" + configValue + "] is illegal, " + message;
         return new BsoaRuntimeException(code, msg);
     }
+
     /**
      * 返回堆栈信息（e.printStackTrace()的内容）
      *

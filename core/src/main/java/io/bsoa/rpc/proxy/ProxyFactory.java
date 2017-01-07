@@ -16,10 +16,10 @@
 package io.bsoa.rpc.proxy;
 
 import io.bsoa.rpc.base.Invoker;
-import io.bsoa.rpc.common.utils.ClassUtils;
 import io.bsoa.rpc.common.utils.ExceptionUtils;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
 import io.bsoa.rpc.ext.ExtensionClass;
+import io.bsoa.rpc.ext.ExtensionLoader;
 import io.bsoa.rpc.ext.ExtensionLoaderFactory;
 
 /**
@@ -30,6 +30,12 @@ import io.bsoa.rpc.ext.ExtensionLoaderFactory;
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
  */
 public final class ProxyFactory {
+
+    /**
+     * 扩展加载器
+     */
+    private final static ExtensionLoader<Proxy> EXTENSION_LOADER
+            = ExtensionLoaderFactory.getExtensionLoader(Proxy.class);
 
     /**
      * 构建代理类实例
@@ -47,14 +53,12 @@ public final class ProxyFactory {
      */
     public static <T> T buildProxy(String proxyType, Class<T> clazz, Invoker proxyInvoker) throws Exception {
         try {
-            ExtensionClass<Proxy> ext = ExtensionLoaderFactory.getExtensionLoader(Proxy.class)
-                    .getExtensionClass(proxyType);
+            ExtensionClass<Proxy> ext = EXTENSION_LOADER.getExtensionClass(proxyType);
             if (ext == null) {
                 throw ExceptionUtils.buildRuntime(22222, "consumer.proxy", proxyType,
                         "Unsupported proxy of client!");
             }
-            Class<? extends Proxy> proxyClass = ext.getClazz();
-            Proxy proxy = ClassUtils.newInstance(proxyClass);
+            Proxy proxy = ext.getExtInstance();
             return proxy.getProxy(clazz, proxyInvoker);
         } catch (BsoaRuntimeException e) {
             throw e;

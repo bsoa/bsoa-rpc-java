@@ -35,12 +35,10 @@ import org.slf4j.LoggerFactory;
 
 import io.bsoa.rpc.common.struct.ConcurrentHashSet;
 import io.bsoa.rpc.common.struct.ScheduledService;
-import io.bsoa.rpc.common.type.ProtocolType;
-import io.bsoa.rpc.common.utils.CommonUtils;
-import io.bsoa.rpc.common.utils.NetUtils;
 import io.bsoa.rpc.common.utils.StringUtils;
 import io.bsoa.rpc.config.ConsumerConfig;
 import io.bsoa.rpc.listener.ConsumerStateListener;
+import io.bsoa.rpc.transport.ClientTransport;
 
 /**
  *
@@ -154,6 +152,7 @@ public class ConnectionHolder {
      */
     protected void addAlive(Provider provider, ClientTransport transport) {
         ProviderCheckedInfo checkedInfo = checkProvider(provider);
+        checkedInfo.setProviderExportedFully(true); // todo
         if (reliveToRetry(checkedInfo.isProviderExportedFully(),provider, transport)) {
             return;
         }
@@ -424,18 +423,18 @@ public class ConnectionHolder {
      * @return 是否存活
      */
     protected boolean doubleCheck(String interfaceId, Provider provider, ClientTransport transport) {
-        if (transport.isOpen()) {
+        if (transport.isAvailable()) {
             try { // 睡一下下 防止被连上又被服务端踢下线
                 Thread.sleep(100);
             } catch (InterruptedException e) {
             }
-            if (transport.isOpen()) { // double check
+            if (transport.isAvailable()) { // double check
                 return true;
             } else { // 可能在黑名单里，刚连上就断开了
                 LOGGER.warn("[JSF-22004]Connection has been closed after connected (in last 100ms)!" +
                                 " Maybe connection of provider has reached limit," +
                                 " or your host is in the blacklist of provider {}/{}",
-                        NetUtils.toAddressString(transport.getRemoteAddress()), interfaceId);
+                         interfaceId, transport.getConfig().getProvider());
                 provider.setReconnectPeriodCoefficient(5);
                 return false;
             }
@@ -516,11 +515,11 @@ public class ConnectionHolder {
             ClientTransport transport = entry.getValue();
             LOGGER.debug("Retry connect to {} provider:{} ...", interfaceId, provider);
             try {
-                transport.reconnect();
+                transport.connect();
                 if (doubleCheck(interfaceId, provider, transport)) {
-                    LOGGER.info("Connect to {} provider:{} success by retry! The connection is " +
-                                    NetUtils.connectToString(transport.getRemoteAddress(), transport.getLocalAddress()),
-                            interfaceId, provider);
+//                    LOGGER.info("Connect to {} provider:{} success by retry! The connection is " +
+//                                    NetUtils.connectToString(transport.getRemoteAddress(), transport.getLocalAddress()),
+//                            interfaceId, provider);
                     provider.setReconnectPeriodCoefficient(1);
                     retryToAlive(provider, transport);
                 }
@@ -692,45 +691,45 @@ public class ConnectionHolder {
      */
     public ProviderCheckedInfo checkProvider(Provider provider) {
         ProviderCheckedInfo checkedInfo = new ProviderCheckedInfo();
-        if (provider.getProtocolType() == ProtocolType.jsf) {
-            for (int i = 0; i < 2; i++) { // 试2次
-                TelnetClient client = new TelnetClient(provider.getIp(), provider.getPort(), 2000, 2000);
-                try {
-                    // 发送握手检查服务端版本
-                    String versionStr = client.telnetJSF("version");
-                    try {
-                        Map map = JsonUtils.parseObject(versionStr, Map.class);
-                        int realVersion = CommonUtils.parseInt(StringUtils.toString(map.get("jsfVersion")),
-                                provider.getJsfVersion());
-                        if (realVersion != provider.getJsfVersion()) {
-                            provider.setJsfVersion(realVersion);
-                        }
-                    } catch (Exception e) {
-                    }
-                    // 检查服务端是否支持invocation简化
-                    String ifaceId = consumerConfig.getIfaceId();
-                    if (StringUtils.isNotEmpty(ifaceId)) {
-                        if (provider.getJsfVersion() >= 1500) {
-                            String result = client.telnetJSF("check iface " + consumerConfig.getInterfaceId()
-                                    + " " + ifaceId);
-                            if (result != null) {
-                                provider.setInvocationOptimizing("1".equals(result));
-                            }
-                        } else {
-                            provider.setInvocationOptimizing(false);
-                        }
-                    }
-                    //检查指定服务是否已经存在
-                    checkedInfo.setProviderExportedFully(checkProviderExportedFully(client, provider));
-
-                    return checkedInfo; // 正常情况直接返回
-                } catch (Exception e) {
-                    LOGGER.warn(e.getMessage());
-                } finally {
-                    client.close();
-                }
-            }
-        }
+//        if (provider.getProtocolType() == ProtocolType.jsf) {
+//            for (int i = 0; i < 2; i++) { // 试2次
+//                TelnetClient client = new TelnetClient(provider.getIp(), provider.getPort(), 2000, 2000);
+//                try {
+//                    // 发送握手检查服务端版本
+//                    String versionStr = client.telnetJSF("version");
+//                    try {
+//                        Map map = JSON.parseObject(versionStr, Map.class);
+//                        int realVersion = CommonUtils.parseInt(StringUtils.toString(map.get("jsfVersion")),
+//                                provider.getJsfVersion());
+//                        if (realVersion != provider.getJsfVersion()) {
+//                            provider.setJsfVersion(realVersion);
+//                        }
+//                    } catch (Exception e) {
+//                    }
+//                    // 检查服务端是否支持invocation简化
+//                    String ifaceId = consumerConfig.getIfaceId();
+//                    if (StringUtils.isNotEmpty(ifaceId)) {
+//                        if (provider.getJsfVersion() >= 1500) {
+//                            String result = client.telnetJSF("check iface " + consumerConfig.getInterfaceId()
+//                                    + " " + ifaceId);
+//                            if (result != null) {
+//                                provider.setInvocationOptimizing("1".equals(result));
+//                            }
+//                        } else {
+//                            provider.setInvocationOptimizing(false);
+//                        }
+//                    }
+//                    //检查指定服务是否已经存在
+//                    checkedInfo.setProviderExportedFully(checkProviderExportedFully(client, provider));
+//
+//                    return checkedInfo; // 正常情况直接返回
+//                } catch (Exception e) {
+//                    LOGGER.warn(e.getMessage());
+//                } finally {
+//                    client.close();
+//                }
+//            }
+//        }
         return checkedInfo;
     }
 
@@ -744,7 +743,7 @@ public class ConnectionHolder {
      */
     private boolean checkProviderExportedFully(TelnetClient client, Provider provider) throws IOException {
         String interfaceId = StringUtils.isEmpty(provider.getInterfaceId()) ? consumerConfig.getInterfaceId() : provider.getInterfaceId();
-        String alias = StringUtils.isEmpty(provider.getAlias()) ? consumerConfig.getAlias() : provider.getAlias();
+        String alias = StringUtils.isEmpty(provider.getTags()) ? consumerConfig.getTags() : provider.getTags();
         String serviceStr = String.format("%s?alias=%s&",interfaceId,alias);
         // telnet 检查该节点上是否已经发布此服务
         String exportedService = client.telnetJSF("ls -l");
@@ -769,7 +768,7 @@ public class ConnectionHolder {
             addRetry(provider,transport);
             LOGGER.warn("No {}/{} service in {}:{} at the moment.add this node to retry connection list.",new Object[]{
                             provider.getInterfaceId(),
-                            provider.getAlias(),
+                            provider.getTags(),
                             provider.getIp(),
                             provider.getPort()
                     }

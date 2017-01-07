@@ -45,12 +45,19 @@ public final class SerializerFactory {
     private final static ConcurrentHashMap<Byte, Serializer> TYPE_SERIALIZER_MAP = new ConcurrentHashMap<>();
 
     /**
+     * 除了托管给扩展加载器的工厂模式（保留alias：实例）外<br>
+     * 还需要额外保留编码和实例的映射：{别名：编码}
+     */
+    private final static ConcurrentHashMap<String, Byte> TYPE_CODE_MAP = new ConcurrentHashMap<>();
+
+    /**
      * 扩展加载器
      */
     private final static ExtensionLoader<Serializer> extensionLoader
             = ExtensionLoaderFactory.getExtensionLoader(Serializer.class, extensionClass -> {
         // 除了保留 tag：Serializer外， 需要保留 code：Serializer
         TYPE_SERIALIZER_MAP.put(extensionClass.getCode(), extensionClass.getExtInstance());
+        TYPE_CODE_MAP.put(extensionClass.getAlias(), extensionClass.getCode());
     });
 
 
@@ -73,6 +80,17 @@ public final class SerializerFactory {
      */
     public static Serializer getSerializer(byte type) {
         return TYPE_SERIALIZER_MAP.get(type);
+    }
+
+
+    /**
+     * 通过别名获取Code
+     *
+     * @param serializer 序列化的名字
+     * @return 序列化编码
+     */
+    public static byte getCodeByAlias(String serializer) {
+        return TYPE_CODE_MAP.get(serializer);
     }
 
 }

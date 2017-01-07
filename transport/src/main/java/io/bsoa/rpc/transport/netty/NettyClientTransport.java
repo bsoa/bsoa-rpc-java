@@ -147,7 +147,7 @@ public class NettyClientTransport extends AbstractClientTransport {
 
     @Override
     public boolean isAvailable() {
-        return false;
+        return channels.size() > 0;
     }
 
     @Override

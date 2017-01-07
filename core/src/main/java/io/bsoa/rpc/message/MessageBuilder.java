@@ -1,5 +1,6 @@
 package io.bsoa.rpc.message;
 
+import io.bsoa.rpc.common.utils.ClassTypeUtils;
 import io.bsoa.rpc.context.BsoaContext;
 import io.bsoa.rpc.exception.BsoaRpcException;
 
@@ -9,11 +10,29 @@ import io.bsoa.rpc.exception.BsoaRpcException;
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
  */
 public class MessageBuilder {
-    public static RpcRequest buildRequest(Class<?> declaringClass, String methodName, Class[] paramTypes, Object[] paramValues) {
-        // TODO
-        return null;
+    /**
+     * 构建请求，常用于代理类拦截
+     *
+     * @param clazz    接口类
+     * @param method   方法名
+     * @param argTypes 方法参数类型
+     * @param args     方法参数值
+     * @return 远程调用请求
+     */
+    public static RpcRequest buildRpcRequest(Class<?> clazz, String method, Class[] argTypes, Object[] args) {
+        RpcRequest request = new RpcRequest();
+        request.setInterfaceName(ClassTypeUtils.getTypeStr(clazz));
+        request.setMethodName(method);
+        request.setArgClasses(argTypes);
+        request.setArgs(args == null ? new Object[0] : args);
+        return request;
     }
 
+    /**
+     * 构建心跳包
+     *
+     * @return 心跳请求
+     */
     public static HeartbeatRequest buildHeartbeatRequest() {
         HeartbeatRequest request = new HeartbeatRequest();
         request.setTimestamp(BsoaContext.now());

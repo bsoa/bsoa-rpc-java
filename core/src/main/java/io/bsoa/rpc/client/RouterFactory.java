@@ -14,14 +14,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.bsoa.rpc.transport;
+package io.bsoa.rpc.client;
+
+import java.util.List;
+
+import io.bsoa.rpc.ext.ExtensionLoader;
+import io.bsoa.rpc.ext.ExtensionLoaderFactory;
 
 /**
  * <p></p>
  *
- * Created by zhangg on 2016/12/15 22:48. <br/>
+ * Created by zhangg on 2017/1/4 23:53. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public class Connection {
+public class RouterFactory {
+
+    /**
+     * 扩展加载器
+     */
+    private static ExtensionLoader<Router> EXTENSION_LOADER
+            = ExtensionLoaderFactory.getExtensionLoader(Router.class);
+
+    public static List<Router> getRouters(String routerRule) {
+        return null;
+    }
 }

@@ -25,7 +25,7 @@ import io.bsoa.rpc.ext.Extensible;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-@Extensible(singleton = false, coded = true)
+@Extensible(coded = true)
 public interface Compressor {
     /**
      * 字节数组压缩

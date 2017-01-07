@@ -151,7 +151,7 @@ public class BsoaConstants {
     /**
      * 默认失败重试次数
      */
-    public static final int DEFAULT_RETRIES_TIME = 0;
+//    public static final int DEFAULT_RETRIES_TIME = 0;
 
     /**
      * 线程池类型：固定线程池
@@ -251,7 +251,8 @@ public class BsoaConstants {
     /**
      * 默认协议:jsf
      */
-    public final static String DEFAULT_PROTOCOL = "jsf";
+
+//    public final static String DEFAULT_PROTOCOL = "jsf";
 
     /**
      * 默认序列话:msgpack
@@ -261,7 +262,7 @@ public class BsoaConstants {
     /**
      * 默认序列话:msgpack
      */
-    public final static String DEFAULT_SERIALIZATION = "hessian";
+//    public final static String DEFAULT_SERIALIZATION = "hessian";
 
     /**
      * 代理类型：jdk

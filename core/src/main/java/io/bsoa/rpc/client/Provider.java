@@ -66,6 +66,7 @@ public class Provider implements Serializable {
     /**
      * The Jsf Version
      */
+    @Deprecated
     private int jsfVersion;
 
     /**

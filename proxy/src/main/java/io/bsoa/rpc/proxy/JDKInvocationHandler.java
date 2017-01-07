@@ -18,7 +18,7 @@ package io.bsoa.rpc.proxy;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
-import io.bsoa.rpc.Invoker;
+import io.bsoa.rpc.base.Invoker;
 import io.bsoa.rpc.message.MessageBuilder;
 import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.message.RpcResponse;
@@ -53,10 +53,10 @@ public class JDKInvocationHandler implements InvocationHandler {
         } else if ("equals".equals(methodName) && paramTypes.length == 1) {
             return proxyInvoker.equals(paramValues[0]);
         }
-        RpcRequest requestMessage = MessageBuilder.buildRequest(method.getDeclaringClass(),
+        RpcRequest requestMessage = MessageBuilder.buildRpcRequest(method.getDeclaringClass(),
                 methodName, paramTypes, paramValues);
         RpcResponse rpcResponseMessage = proxyInvoker.invoke(requestMessage);
-        if(rpcResponseMessage.isError()){
+        if(rpcResponseMessage.hasError()){
             throw rpcResponseMessage.getException();
         }
         return rpcResponseMessage.getReturnData();

@@ -39,7 +39,7 @@ public abstract class RPCMessage extends DecodableMessage {
         super(messageType);
     }
 
-    private RPCMessage(){
+    private RPCMessage() {
         super((byte) 0);
 
     }
@@ -79,21 +79,34 @@ public abstract class RPCMessage extends DecodableMessage {
     }
 
     /**
-     * 得到隐式传参信息
+     * 得到全部隐式传参信息
      *
-     * @return
+     * @return 全部kv值
      */
     public Map<String, Object> getAttachments() {
         return this.attachments;
     }
 
     /**
+     * 得到单个隐式传参信息
+     *
+     * @param key 单个key
+     * @return 单个值
+     */
+    public Object getAttachment(String key) {
+        return attachments == null ? null : attachments.get(key);
+    }
+
+    /**
      * 增加多个附件信息
      *
      * @param attachments
-     * @return
+     * @return 对象自己
      */
     public RPCMessage setAttachments(Map<String, Object> attachments) {
+        if (attachments == null) {
+            return this;
+        }
         if (this.attachments == null) {
             this.attachments = new HashMap<>();
         }

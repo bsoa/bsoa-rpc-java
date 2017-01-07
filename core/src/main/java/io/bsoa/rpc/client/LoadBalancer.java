@@ -19,6 +19,7 @@ package io.bsoa.rpc.client;
 import java.util.List;
 
 import io.bsoa.rpc.config.ConsumerConfig;
+import io.bsoa.rpc.ext.Extensible;
 import io.bsoa.rpc.message.RpcRequest;
 
 /**
@@ -28,6 +29,7 @@ import io.bsoa.rpc.message.RpcRequest;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
+@Extensible(singleton = false)
 public interface LoadBalancer {
 
     public void init(ConsumerConfig consumerConfig);

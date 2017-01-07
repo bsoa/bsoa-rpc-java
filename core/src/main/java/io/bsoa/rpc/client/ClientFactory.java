@@ -16,11 +16,11 @@
  */
 package io.bsoa.rpc.client;
 
-import io.bsoa.rpc.common.utils.ClassUtils;
 import io.bsoa.rpc.common.utils.ExceptionUtils;
 import io.bsoa.rpc.config.ConsumerConfig;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
 import io.bsoa.rpc.ext.ExtensionClass;
+import io.bsoa.rpc.ext.ExtensionLoader;
 import io.bsoa.rpc.ext.ExtensionLoaderFactory;
 
 /**
@@ -30,6 +30,11 @@ import io.bsoa.rpc.ext.ExtensionLoaderFactory;
  */
 public class ClientFactory {
 
+    /**
+     * 扩展加载器
+     */
+    private final static ExtensionLoader<Client> EXTENSION_LOADER
+            = ExtensionLoaderFactory.getExtensionLoader(Client.class);
 
     /**
      * 构造Client对象
@@ -39,15 +44,12 @@ public class ClientFactory {
      */
     public static Client getClient(ConsumerConfig consumerConfig) {
         try {
-            Client client = null;
-            ExtensionClass<Client> ext = ExtensionLoaderFactory.getExtensionLoader(Client.class)
-                    .getExtensionClass(consumerConfig.getCluster());
+            ExtensionClass<Client> ext = EXTENSION_LOADER.getExtensionClass(consumerConfig.getCluster());
             if (ext == null) {
                 throw ExceptionUtils.buildRuntime(22222, "consumer.cluster", consumerConfig.getCluster(),
-                        "Unsupported protocol of server!");
+                        "Unsupported cluster of client!");
             }
-            Class<? extends Client> clientClass = ext.getClazz();
-            client = ClassUtils.newInstance(clientClass);
+            Client client = ext.getExtInstance();
             client.init(consumerConfig);
             return client;
         } catch (BsoaRuntimeException e) {

@@ -24,12 +24,15 @@ import org.slf4j.LoggerFactory;
 
 import io.bsoa.rpc.base.Invoker;
 import io.bsoa.rpc.common.BsoaConstants;
+import io.bsoa.rpc.common.type.ProtocolType;
+import io.bsoa.rpc.common.type.SerializationType;
 import io.bsoa.rpc.config.ConsumerConfig;
 import io.bsoa.rpc.filter.ConsumerInvokeFilter;
 import io.bsoa.rpc.filter.FilterChain;
 import io.bsoa.rpc.listener.ResponseListener;
 import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.message.RpcResponse;
+import io.bsoa.rpc.protocol.ProtocolFactory;
 
 /**
  *
@@ -89,8 +92,8 @@ public class ClientProxyInvoker implements Invoker {
         request.setInterfaceName(consumerConfig.getInterfaceId());
 
         // 是否缓存，减少valueof操作？ TODO
-//        request.setProtocolType(ProtocolType.valueOf(consumerConfig.getProtocol()).value());
-//        request.setSerializationType(SerializationType.valueOf(consumerConfig.getSerialization()).value());
+        request.setProtocolType(ProtocolFactory.getCodeByAlias(consumerConfig.getProtocol()));
+        request.setSerializationType(SerializationType.valueOf(consumerConfig.getSerialization()).value());
 //        String compress = (String) consumerConfig.getMethodConfigValue(methodName,
 //                BsoaConstants.CONFIG_KEY_COMPRESS, consumerConfig.getCompress());
 //        if (compress != null) {

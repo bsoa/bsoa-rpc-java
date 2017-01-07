@@ -21,6 +21,8 @@ import org.slf4j.LoggerFactory;
 
 import io.bsoa.rpc.client.Client;
 import io.bsoa.rpc.config.ConsumerConfig;
+import io.bsoa.rpc.exception.BsoaRpcException;
+import io.bsoa.rpc.message.MessageBuilder;
 import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.message.RpcResponse;
 
@@ -78,15 +80,14 @@ public class ConsumerInvokeFilter implements Filter {
 //                return injvmProviderInvoker.invoke(requestMessage);
 //            }
 //        }
-//        // 目前只是通过client发送给服务端
-//        try {
-//            return client.sendMsg(requestMessage);
-//        } catch (RpcException e) {
-//            ResponseMessage response = MessageBuilder.buildResponse(requestMessage);
-//            response.setException(e);
-//            return response;
-//        }
-        return null;
+        // 目前只是通过client发送给服务端
+        try {
+            return client.sendMsg(requestMessage);
+        } catch (BsoaRpcException e) {
+            RpcResponse response = MessageBuilder.buildRpcResponse(requestMessage);
+            response.setException(e);
+            return response;
+        }
     }
 
 }

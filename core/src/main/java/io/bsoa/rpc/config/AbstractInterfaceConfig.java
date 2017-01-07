@@ -15,6 +15,7 @@
  */
 package io.bsoa.rpc.config;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,13 +44,18 @@ import static io.bsoa.rpc.config.ConfigValueHelper.checkNormalWithColon;
 
 /**
  * 接口级的公共配置
- *
+ * <p>
  * Created by zhanggeng on 16-7-7.
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
  */
-public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig{
-    
+public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implements Serializable{
+
+    /**
+     * The constant serialVersionUID.
+     */
+    private static final long serialVersionUID = -8738241729920479618L;
+
     /**
      * slf4j Logger for this class
      */
@@ -178,8 +184,7 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig{
     /**
      * Sets interface id.
      *
-     * @param interfaceId
-     *         the interface id
+     * @param interfaceId the interface id
      */
     public void setInterfaceId(String interfaceId) {
         this.interfaceId = interfaceId;
@@ -197,8 +202,7 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig{
     /**
      * Sets tags.
      *
-     * @param tags
-     *         the tags
+     * @param tags the tags
      */
     public void setTags(String tags) {
         checkNormalWithColon("tags", tags);
@@ -217,8 +221,7 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig{
     /**
      * Sets filter.
      *
-     * @param filter
-     *         the filter
+     * @param filter the filter
      */
     public void setFilter(List<Filter> filter) {
         this.filter = filter;
@@ -236,8 +239,7 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig{
     /**
      * Sets registry.
      *
-     * @param registry
-     *         the registry
+     * @param registry the registry
      */
     public void setRegistry(List<RegistryConfig> registry) {
         this.registry = registry;
@@ -255,8 +257,7 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig{
     /**
      * Sets methods.
      *
-     * @param methods
-     *         the methods
+     * @param methods the methods
      */
     public void setMethods(Map<String, MethodConfig> methods) {
         this.methods = methods;
@@ -274,8 +275,7 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig{
     /**
      * Sets register.
      *
-     * @param register
-     *         the register
+     * @param register the register
      */
     public void setRegister(boolean register) {
         this.register = register;
@@ -293,8 +293,7 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig{
     /**
      * Sets subscribe.
      *
-     * @param subscribe
-     *         the subscribe
+     * @param subscribe the subscribe
      */
     public void setSubscribe(boolean subscribe) {
         this.subscribe = subscribe;
@@ -312,8 +311,7 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig{
     /**
      * Sets parameters.
      *
-     * @param parameters
-     *         the parameters
+     * @param parameters the parameters
      */
     public void setParameters(Map<String, String> parameters) {
         this.parameters = parameters;
@@ -331,8 +329,7 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig{
     /**
      * Sets timeout.
      *
-     * @param timeout
-     *         the timeout
+     * @param timeout the timeout
      */
     public void setTimeout(int timeout) {
         this.timeout = timeout;
@@ -350,8 +347,7 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig{
     /**
      * Sets cache.
      *
-     * @param cache
-     *         the cache
+     * @param cache the cache
      */
     public void setCache(boolean cache) {
         this.cache = cache;
@@ -369,8 +365,7 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig{
     /**
      * Sets proxy.
      *
-     * @param proxy
-     *         the proxy
+     * @param proxy the proxy
      */
     public void setProxy(String proxy) {
         this.proxy = proxy;
@@ -388,8 +383,7 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig{
     /**
      * Sets compress.
      *
-     * @param compress
-     *         the compress
+     * @param compress the compress
      */
     public void setCompress(String compress) {
         this.compress = compress;
@@ -398,8 +392,7 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig{
     /**
      * Sets validation.
      *
-     * @param validation
-     *         the validation
+     * @param validation the validation
      */
     public void setValidation(boolean validation) {
         this.validation = validation;
@@ -426,8 +419,7 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig{
     /**
      * Sets cacheref.
      *
-     * @param cacheref
-     *         the cacheref
+     * @param cacheref the cacheref
      */
     public void setCacheref(Cache cacheref) {
         this.cacheref = cacheref;
@@ -445,8 +437,7 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig{
     /**
      * Sets iface Id.
      *
-     * @param ifaceId
-     *         the iface Id
+     * @param ifaceId the iface Id
      */
     public void setIfaceId(String ifaceId) {
         this.ifaceId = ifaceId;
@@ -521,8 +512,7 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig{
     /**
      * Sets methods.
      *
-     * @param methods
-     *         the methods
+     * @param methods the methods
      */
     public void setMethods(List<MethodConfig> methods) {
         if (this.methods == null) {
@@ -538,8 +528,7 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig{
     /**
      * 设置注册中心
      *
-     * @param registry
-     *         RegistryConfig
+     * @param registry RegistryConfig
      */
     public void setRegistry(RegistryConfig registry) {
         if (this.registry == null) {
@@ -551,8 +540,7 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig{
     /**
      * 得到方法名对应的方法配置
      *
-     * @param methodName
-     *         方法名，不支持重载
+     * @param methodName 方法名，不支持重载
      * @return method config
      */
     private MethodConfig getMethodConfig(String methodName) {
@@ -565,8 +553,7 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig{
     /**
      * 接口属性和方法属性加载配置到缓存
      *
-     * @param rebuild
-     *         是否重建
+     * @param rebuild 是否重建
      * @return Map<String, Object> unmodifiableMap
      */
     public synchronized Map<String, Object> getConfigValueCache(boolean rebuild) {
@@ -601,8 +588,7 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig{
     /**
      * 查询属性值
      *
-     * @param property
-     *         属性
+     * @param property 属性
      * @return oldValue 属性值
      */
     protected String queryAttribute(String property) {
@@ -639,12 +625,9 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig{
     /**
      * 覆盖属性，可以检查，或者更新
      *
-     * @param property
-     *         属性
-     * @param newValueStr
-     *         要设置的值
-     * @param overwrite
-     *         是否覆盖 true直接覆盖，false为检查
+     * @param property    属性
+     * @param newValueStr 要设置的值
+     * @param overwrite   是否覆盖 true直接覆盖，false为检查
      * @return 是否有变更
      */
     protected boolean updateAttribute(String property, String newValueStr, boolean overwrite) {
@@ -659,7 +642,7 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig{
                             "Unknown update attribute key!");
                 }
                 String methodName = methodAndP.substring(0, index);
-                String methodProperty = methodAndP.substring(index+1);
+                String methodProperty = methodAndP.substring(index + 1);
                 MethodConfig methodConfig = getMethodConfig(methodName);
                 Method getMethod = ReflectUtils.getPropertyGetterMethod(MethodConfig.class, methodProperty);
                 Class propertyClazz = getMethod.getReturnType(); // 旧值的类型
@@ -718,12 +701,9 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig{
     /**
      * 得到方法级配置，找不到则返回默认值
      *
-     * @param methodName
-     *         方法名
-     * @param configKey
-     *         配置key，例如参数
-     * @param defaultValue
-     *         默认值
+     * @param methodName   方法名
+     * @param configKey    配置key，例如参数
+     * @param defaultValue 默认值
      * @return 配置值
      */
     public Object getMethodConfigValue(String methodName, String configKey, Object defaultValue) {
@@ -734,10 +714,8 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig{
     /**
      * 得到方法级配置，找不到则返回null
      *
-     * @param methodName
-     *         方法名
-     * @param configKey
-     *         配置key，例如参数
+     * @param methodName 方法名
+     * @param configKey  配置key，例如参数
      * @return 配置值
      */
     public Object getMethodConfigValue(String methodName, String configKey) {
@@ -751,10 +729,8 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig{
     /**
      * Buildmkey string.
      *
-     * @param methodName
-     *         the method name
-     * @param key
-     *         the key
+     * @param methodName the method name
+     * @param key        the key
      * @return the string
      */
     private String buildmkey(String methodName, String key) {
@@ -764,10 +740,8 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig{
     /**
      * Sets parameter.
      *
-     * @param key
-     *         the key
-     * @param value
-     *         the value
+     * @param key   the key
+     * @param value the value
      */
     public void setParameter(String key, String value) {
         if (parameters == null) {
@@ -783,8 +757,7 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig{
     /**
      * Gets parameter.
      *
-     * @param key
-     *         the key
+     * @param key the key
      * @return the value
      */
     public String getParameter(String key) {

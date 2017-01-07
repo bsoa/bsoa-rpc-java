@@ -24,7 +24,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.bsoa.rpc.common.utils.ClassUtils;
 import io.bsoa.rpc.common.utils.ExceptionUtils;
 import io.bsoa.rpc.config.RegistryConfig;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
@@ -68,8 +67,7 @@ public class RegistryFactory {
                     throw ExceptionUtils.buildRuntime(22222, "registry.protocol", registryConfig.getProtocol(),
                             "Unsupported protocol of registry config !");
                 }
-                Class<? extends Registry> registryClass = ext.getClazz();
-                registry = ClassUtils.newInstance(registryClass);
+                registry = ext.getExtInstance();
                 registry.init(registryConfig);
                 CLIENTREGISTRY_MAP.putIfAbsent(registryConfig, registry);
             }

@@ -33,6 +33,7 @@ import io.bsoa.rpc.client.ClientFactory;
 import io.bsoa.rpc.client.ClientProxyInvoker;
 import io.bsoa.rpc.client.Provider;
 import io.bsoa.rpc.client.Router;
+import io.bsoa.rpc.common.BsoaConfigs;
 import io.bsoa.rpc.common.BsoaConstants;
 import io.bsoa.rpc.common.utils.ClassLoaderUtils;
 import io.bsoa.rpc.common.utils.CommonUtils;
@@ -49,12 +50,15 @@ import io.bsoa.rpc.proxy.ProxyFactory;
 import io.bsoa.rpc.registry.Registry;
 import io.bsoa.rpc.registry.RegistryFactory;
 
+import static io.bsoa.rpc.common.BsoaConfigs.getIntValue;
+import static io.bsoa.rpc.common.BsoaConfigs.getStringValue;
+
 /**
  * Created by zhanggeng on 16-7-7.
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
  */
-public class ConsumerConfig<T> extends AbstractInterfaceConfig implements Serializable {
+public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Serializable {
 
     /**
      * slf4j Logger for this class
@@ -69,7 +73,7 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig implements Serial
     /**
      * 调用的协议
      */
-    protected String protocol = BsoaConstants.DEFAULT_PROTOCOL;
+    protected String protocol = getStringValue(BsoaConfigs.DEFAULT_PROTOCOL);
 
     /**
      * 直连调用地址
@@ -89,27 +93,27 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig implements Serial
     /**
      * 连接超时时间
      */
-    protected int connectTimeout = BsoaConstants.DEFAULT_CLIENT_CONNECT_TIMEOUT;
+    protected int connectTimeout = getIntValue(BsoaConfigs.CLIENT_CONNECT_TIMEOUT);
 
     /**
      * 关闭超时时间（如果还有请求，会等待请求结束或者超时）
      */
-    protected int disconnectTimeout = BsoaConstants.DEFAULT_CLIENT_DISCONNECT_TIMEOUT;
+    protected int disconnectTimeout = getIntValue(BsoaConfigs.CLIENT_DISCONNECT_TIMEOUT);
 
     /**
      * 集群处理，默认是failover
      */
-    protected String cluster = BsoaConstants.CLUSTER_FAILOVER;
+    protected String cluster = getStringValue(BsoaConfigs.DEFAULT_CLUSTER);
 
     /**
      * The Retries. 失败后重试次数
      */
-    protected int retries = BsoaConstants.DEFAULT_RETRIES_TIME;
+    protected int retries = getIntValue(BsoaConfigs.CONSUMER_RETRIES);
 
     /**
      * The Loadbalance. 负载均衡
      */
-    protected String loadbalance = BsoaConstants.LOADBALANCE_RANDOM;
+    protected String loadbalance = getStringValue(BsoaConfigs.DEFAULT_LOADBALANCER);
 
     /**
      * 是否延迟建立长连接,
@@ -136,7 +140,7 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig implements Serial
     /**
      * 默认序列化
      */
-    protected String serialization = BsoaConstants.DEFAULT_SERIALIZATION;
+    protected String serialization = getStringValue(BsoaConfigs.DEFAULT_SERIALIZATION);
 
     /**
      * 返回值之前的listener,处理结果或者异常
@@ -237,8 +241,8 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig implements Serial
         // 检查参数
         // tags不能为空
         if (StringUtils.isBlank(tags)) {
-            throw new BsoaRuntimeException(21300, "[JSF-21300]Value of \"GROUP\" value is not specified in consumer" +
-                    " config with key " + key + " !");
+            throw new BsoaRuntimeException(21300, "[JSF-21300]Value of \"tags\" value is " +
+                    "not specified in consumer config with key " + key + " !");
         }
         // 提前检查接口类
         getProxyClass();
@@ -1109,12 +1113,12 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig implements Serial
         if (isAsync()) {
             return true;
         }
-        if (methods != null && methods.size() > 0) {
-//            for (MethodConfig methodConfig : methods.values()) {
-//                if (CommonUtils.isTrue(methodConfig.getAsync())) {
-//                    return true;
-//                }
-//            }
+        if (CommonUtils.isNotEmpty(methods)) {
+            for (MethodConfig methodConfig : methods.values()) {
+                if (CommonUtils.isTrue(methodConfig.getAsync())) {
+                    return true;
+                }
+            }
         }
         return false;
     }

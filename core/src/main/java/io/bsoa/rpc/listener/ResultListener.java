@@ -14,16 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.bsoa.rpc.transport.netty;
+package io.bsoa.rpc.listener;
 
 /**
- * <p></p>
  *
- * Created by zhangg on 2016/12/20 23:20. <br/>
+ *
+ * Created by zhangg on 2016/7/17 15:32.
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public interface ResultObserver {
+public interface ResultListener {
 
-    boolean operationComplete(MessageFuture future);
+    boolean operationComplete(ResponseFuture future);
 }

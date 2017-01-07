@@ -54,7 +54,10 @@ public enum HeadKey {
     //jsfVersion((byte) 7, Short.class), // 客户端的JSF版本
     //srcLanguage((byte) 8, Byte.class), // 请求的语言（针对跨语言 1c++ 2lua）
     //responseCode((byte) 9, Byte.class), // 返回结果（针对跨语言 0成功 1失败）
-
+    /**
+     * rpc客户端版本
+     */
+    BSOA_VERSION(11, Short.class),
     /**
      * 接口名：映射值
      */
@@ -72,6 +75,7 @@ public enum HeadKey {
      */
     @Deprecated
     METHOD_ARG_TYPES_REF(15, String.class);
+
 
     /**
      * 编码

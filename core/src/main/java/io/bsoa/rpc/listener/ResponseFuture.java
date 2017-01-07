@@ -31,4 +31,5 @@ import io.bsoa.rpc.ext.Extensible;
 public interface ResponseFuture<V> extends Future<V> {
 
 
+    void addListener(ResultListener resultListener);
 }

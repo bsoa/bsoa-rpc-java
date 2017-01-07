@@ -12,16 +12,17 @@
     <modules>
         <module>core</module>
         <module>common</module>
-        <module>protocol</module>
+
+        <module>client</module>
         <module>codec</module>
         <!--<module>config</module>-->
-        <!--<module>client</module>-->
+        <!--<module>filter</module>-->
+        <module>protocol</module>
+        <module>proxy</module>
         <module>server</module>
         <module>transport</module>
-        <module>example</module>
         <!--<module>all</module>-->
-        <!--<module>proxy</module>-->
-        <!--<module>filter</module>-->
+        <module>example</module>
     </modules>
 
     <properties>

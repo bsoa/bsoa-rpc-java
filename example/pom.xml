@@ -22,9 +22,10 @@
             <artifactId>core</artifactId>
             <version>${parent.version}</version>
         </dependency>
+
         <dependency>
             <groupId>io.bsoa.rpc</groupId>
-            <artifactId>protocol</artifactId>
+            <artifactId>client</artifactId>
             <version>${parent.version}</version>
         </dependency>
         <dependency>
@@ -32,12 +33,31 @@
             <artifactId>codec</artifactId>
             <version>${parent.version}</version>
         </dependency>
+        <!--<dependency>-->
+            <!--<groupId>io.bsoa.rpc</groupId>-->
+            <!--<artifactId>config</artifactId>-->
+            <!--<version>${parent.version}</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>io.bsoa.rpc</groupId>-->
+            <!--<artifactId>filter</artifactId>-->
+            <!--<version>${parent.version}</version>-->
+        <!--</dependency>-->
+        <dependency>
+            <groupId>io.bsoa.rpc</groupId>
+            <artifactId>protocol</artifactId>
+            <version>${parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.bsoa.rpc</groupId>
+            <artifactId>proxy</artifactId>
+            <version>${parent.version}</version>
+        </dependency>
         <dependency>
             <groupId>io.bsoa.rpc</groupId>
             <artifactId>server</artifactId>
             <version>${parent.version}</version>
         </dependency>
-
         <dependency>
             <groupId>io.bsoa.rpc</groupId>
             <artifactId>transport</artifactId>

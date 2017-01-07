@@ -27,11 +27,7 @@
             <artifactId>transport</artifactId>
             <version>${parent.version}</version>
         </dependency>
-        <dependency>
-            <groupId>io.bsoa.rpc</groupId>
-            <artifactId>core</artifactId>
-            <version>${parent.version}</version>
-        </dependency>
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

@@ -138,6 +138,9 @@ public class ExtensionLoader<T> {
      * @param path path必须以/结尾
      */
     protected synchronized void loadFromFile(String path) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Loading extension of interface {} from path: {}", interfaceName, path);
+        }
         String file = StringUtils.isBlank(extensible.file()) ? interfaceName : extensible.file().trim();
         String fullFileName = path + file;
         try {
@@ -149,7 +152,9 @@ public class ExtensionLoader<T> {
                 while (urls.hasMoreElements()) {
                     // 读取一个文件
                     URL url = urls.nextElement();
-                    LOGGER.debug("Loading extension of interface {} from file: {}", interfaceName, url);
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Loading extension of interface {} from file: {}", interfaceName, url);
+                    }
                     BufferedReader reader = null;
                     try {
                         reader = new BufferedReader(new InputStreamReader(url.openStream(), "utf-8"));
@@ -241,8 +246,10 @@ public class ExtensionLoader<T> {
                 extensionClass.setProviderSide(autoActive.providerSide());
                 extensionClass.setConsumerSide(autoActive.consumerSide());
                 autoActives.put(alias, extensionClass);
-                LOGGER.debug("Extension of interface " + interfaceName + " from file:" + url
-                        + ", " + implClass + "(" + alias + ") will auto active");
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Extension of interface " + interfaceName + " from file:" + url
+                            + ", " + implClass + "(" + alias + ") will auto active");
+                }
             }
             all.put(alias, extensionClass);
             if (listener != null) {

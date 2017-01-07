@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.bsoa.rpc.common.BsoaConfigs;
+import io.bsoa.rpc.exception.BsoaRuntimeException;
 import io.bsoa.rpc.ext.ExtensionLoader;
 import io.bsoa.rpc.ext.ExtensionLoaderFactory;
 
@@ -44,6 +45,12 @@ public class ProtocolFactory {
     private final static ConcurrentHashMap<Byte, Protocol> TYPE_PROTOCOL_MAP = new ConcurrentHashMap<>();
 
     /**
+     * 除了托管给扩展加载器的工厂模式（保留alias：实例）外<br>
+     * 还需要额外保留编码和实例的映射：{别名：编码}
+     */
+    private final static ConcurrentHashMap<String, Byte> TYPE_CODE_MAP = new ConcurrentHashMap<>();
+
+    /**
      * 扩展加载器
      */
     private final static ExtensionLoader<Protocol> extensionLoader
@@ -51,6 +58,7 @@ public class ProtocolFactory {
         // 除了保留 alias：Protocol外， 需要保留 code：Protocol
         Protocol protocol = extensionClass.getExtInstance();
         TYPE_PROTOCOL_MAP.put(extensionClass.getCode(), protocol);
+        TYPE_CODE_MAP.put(extensionClass.getAlias(), extensionClass.getCode());
         if (BsoaConfigs.getBooleanValue(BsoaConfigs.TRANSPORT_SERVER_PROTOCOL_ADAPTIVE)) {
             maxMagicOffset = 2;
             registerAdaptiveProtocol(protocol.protocolInfo());
@@ -75,7 +83,22 @@ public class ProtocolFactory {
      * @return 协议对象
      */
     public static Protocol getProtocol(byte code) {
-        return TYPE_PROTOCOL_MAP.get(code);
+        Protocol protocol = TYPE_PROTOCOL_MAP.get(code);
+        if (protocol == null) {
+            throw new BsoaRuntimeException(22222, "Extension Not Found :\"" + code + "\"!");
+        }
+        return protocol;
+    }
+
+
+    /**
+     * 通过别名获取协议编码
+     *
+     * @param protocol 协议的名字
+     * @return 协议编码
+     */
+    public static byte getCodeByAlias(String protocol) {
+        return TYPE_CODE_MAP.get(protocol);
     }
 
     /**
@@ -116,4 +139,5 @@ public class ProtocolFactory {
     public static int getMaxMagicOffset() {
         return maxMagicOffset;
     }
+
 }

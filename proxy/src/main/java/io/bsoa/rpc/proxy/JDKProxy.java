@@ -16,24 +16,24 @@
 package io.bsoa.rpc.proxy;
 
 import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Proxy;
 
-import io.bsoa.rpc.Invoker;
+import io.bsoa.rpc.base.Invoker;
 import io.bsoa.rpc.common.utils.ClassLoaderUtils;
+import io.bsoa.rpc.ext.Extension;
 
 /**
- *
- *
  * Created by zhanggeng on 16-6-7.
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
  */
-public class JDKProxy {
+@Extension("jdk")
+public class JDKProxy implements Proxy {
 
-    public static <T> T getProxy(Class<T> interfaceClass, Invoker proxyInvoker) throws Exception {
+    @Override
+    public <T> T getProxy(Class<T> interfaceClass, Invoker proxyInvoker) {
         InvocationHandler handler = new JDKInvocationHandler(proxyInvoker);
         ClassLoader classLoader = ClassLoaderUtils.getCurrentClassLoader();
-        T result = (T) Proxy.newProxyInstance(classLoader,
+        T result = (T) java.lang.reflect.Proxy.newProxyInstance(classLoader,
                 new Class[]{interfaceClass}, handler);
         return result;
     }
