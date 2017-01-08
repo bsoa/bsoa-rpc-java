@@ -34,6 +34,8 @@ import io.bsoa.rpc.common.struct.ConcurrentHashSet;
 import io.bsoa.rpc.common.utils.CommonUtils;
 import io.bsoa.rpc.config.ConsumerConfig;
 import io.bsoa.rpc.config.ProviderConfig;
+import io.bsoa.rpc.server.ServerFactory;
+import io.bsoa.rpc.transport.ClientTransportFactory;
 
 /**
  *
@@ -87,7 +89,7 @@ public class BsoaContext {
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
             @Override
             public void run() {
-                LOGGER.info("JSF catch JVM shutdown event, Run shutdown hook now.");
+                LOGGER.info("Beyond SOA RPC Framework catch JVM shutdown event, Run shutdown hook now.");
                 destroy(false);
             }
         }, "JSFShutdownHook"));
@@ -120,41 +122,42 @@ public class BsoaContext {
     private static void destroy(boolean active) {
         // TODO 检查是否有其它需要释放的资源
         // 关闭资源
-      /*  ResourceScheduleChecker.close();
-        systemClock.close();
+      /*  ResourceScheduleChecker.close(); */
         // 关闭启动的服务端
         for (ProviderConfig config : EXPORTED_PROVIDER_CONFIGS) {
-            config.setRegister(config.isRegister() && !JSFLogicSwitch.REGISTRY_REGISTER_BATCH);
             config.unexport();
         }
         // 关闭启动的端口
         ServerFactory.destroyAll();
+        /*
         // 关闭启动的分组调用端
         for (ConsumerGroupConfig config : REFERRED_CONSUMER_GROUP_CONFIGS) {
             if (!CommonUtils.isFalse(config.getParameter(Constants.HIDDEN_KEY_DESTROY))) { // 除非不让主动unrefer
                 config.setRegister(config.isRegister() && !JSFLogicSwitch.REGISTRY_REGISTER_BATCH);
                 config.unrefer();
             }
-        }
+        }*/
         // 关闭启动的调用端
         for (ConsumerConfig config : REFERRED_CONSUMER_CONFIGS) {
-            if (!CommonUtils.isFalse(config.getParameter(Constants.HIDDEN_KEY_DESTROY))) { // 除非不让主动unrefer
-                config.setRegister(config.isRegister() && !JSFLogicSwitch.REGISTRY_REGISTER_BATCH);
+            if (!CommonUtils.isFalse(config.getParameter(BsoaConstants.HIDDEN_KEY_DESTROY))) { // 除非不让主动unrefer
                 config.unrefer();
             }
         }
-        if (JSFLogicSwitch.REGISTRY_REGISTER_BATCH) { // 批量反注册
-            RegistryFactory.batchUnregister();
-        }
+//        if (JSFLogicSwitch.REGISTRY_REGISTER_BATCH) { // 批量反注册
+//            RegistryFactory.batchUnregister();
+//        }
+        /*
         // 关闭监控服务
         MonitorFactory.destroyAll();
         // 关闭注册中心
         RegistryFactory.destroyAll();
         //RingBuffer Close
         RingBufferHolder.destroyAll();
+        */
         // 关闭客户端的一些公共资源
         ClientTransportFactory.closeAll();
-        LOGGER.info("JSF has been release all resources {}...", active ? "actively " : "");*/
+        LOGGER.info("Beyond SOA RPC Framework has been release all resources {}...",
+                active ? "actively " : "");
     }
 
     /**

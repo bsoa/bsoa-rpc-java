@@ -17,12 +17,8 @@
 package io.bsoa.rpc.transport.netty;
 
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
@@ -36,6 +32,7 @@ import io.bsoa.rpc.ext.Extension;
 import io.bsoa.rpc.listener.ResponseFuture;
 import io.bsoa.rpc.message.BaseMessage;
 import io.bsoa.rpc.message.HeartbeatResponse;
+import io.bsoa.rpc.message.MessageConstants;
 import io.bsoa.rpc.message.NegotiatorResponse;
 import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.message.RpcResponse;
@@ -79,16 +76,15 @@ public class NettyClientTransport extends AbstractClientTransport {
 
     private final ConcurrentHashMap<Integer, MessageFuture<BaseMessage>> futureMap = new ConcurrentHashMap<>();
 
+    private NettyChannel channel;
 
-    private List<AbstractChannel> channels = new ArrayList<>();
-
-    private AtomicBoolean connected = new AtomicBoolean(false);
+    private volatile boolean connected = false;
 
     @Override
     public void connect() {
         // 已经初始化，或者被复用
-        if (this.connected.get()) {
-            throw new BsoaRuntimeException(22222, "Has been call connnect, Illega Access");
+        if (connected) {
+            throw new BsoaRuntimeException(22222, "Has been call connect(), Illegal Access");
         }
 
         String host = config.getProvider().getIp();
@@ -98,7 +94,7 @@ public class NettyClientTransport extends AbstractClientTransport {
 
         num = Math.max(1, num);
         for (int i = 0; i < num; i++) {
-            Channel channel = null;
+            Channel tmp = null;
             try {
                 Bootstrap bootstrap = new Bootstrap();
                 bootstrap.group(NettyTransportHelper.getClientIOEventLoopGroup())
@@ -113,79 +109,145 @@ public class NettyClientTransport extends AbstractClientTransport {
                 ChannelFuture channelFuture = bootstrap.connect(host, port);
                 channelFuture.awaitUninterruptibly(connectTimeout, TimeUnit.MILLISECONDS);
                 if (channelFuture.isSuccess()) {
-                    channel = channelFuture.channel();
-                    if (NetUtils.toAddressString((InetSocketAddress) channel.remoteAddress())
-                            .equals(NetUtils.toAddressString((InetSocketAddress) channel.localAddress()))) {
+                    tmp = channelFuture.channel();
+                    if (NetUtils.toAddressString((InetSocketAddress) tmp.remoteAddress())
+                            .equals(NetUtils.toAddressString((InetSocketAddress) tmp.localAddress()))) {
                         // 服务端不存活时，连接左右两侧地址一样的情况
-                        channel.close(); // 关掉重连
+                        tmp.close(); // 关掉重连
                         throw new RuntimeException("Failed to connect " + host + ":" + port
                                 + ". Cause by: Remote and local address are the same");
                     }
                 } else {
                     Throwable cause = channelFuture.cause();
                     throw new RuntimeException("Failed to connect " + host + ":" + port +
-                            (cause != null ? ". Cause by: " + cause.getMessage() : "."));
+                            (cause != null ? ". Cause by: " + cause.getMessage() : "."), cause);
                 }
-                channels.add(new NettyChannel(channel));
+                this.channel = new NettyChannel(tmp);
+                connected = true;
             } catch (RuntimeException e) {
                 throw e;
             } catch (Exception e) {
                 //logger.error(e.getMessage(),e);
                 String errorStr = "Failed to build channel for host:" + host + " port:" + port
                         + ". Cause by: " + e.getMessage();
-                RuntimeException initException = new RuntimeException(errorStr, e);
-                throw initException;
+                throw new RuntimeException(errorStr, e);
             }
         }
-        connected.compareAndSet(false, true);
     }
 
     @Override
     public void disconnect() {
-
+        if (channel != null) {
+            channel.close();
+        }
     }
 
     @Override
     public boolean isAvailable() {
-        return channels.size() > 0;
+        return channel != null && channel.isAvailable();
     }
 
     @Override
-    public List<AbstractChannel> getChannels() {
-        return channels;
-    }
-
-    private Random random = new Random();
-
-    private Channel getChannel() {
-        if (channels.size() == 0) {
-            throw new BsoaRpcException(22222, "No connected channel in client transport");
-        } else if (channels.size() == 1) {
-            return ((NettyChannel) channels.get(0)).getChannel();
-        } else {
-            do {
-                NettyChannel nettyChannel = (NettyChannel) channels.get(random.nextInt(channels.size()));
-                Channel tmp = nettyChannel.getChannel();
-                if (tmp.isOpen()) {
-                    return tmp;
-                } else {
-                    channels.remove(nettyChannel);
-                }
-            } while (channels.size() > 0); // TODO
-            throw new BsoaRpcException(22222, "No connected channel in client transport");
-        }
+    public AbstractChannel getChannel() {
+        return channel;
     }
 
     @Override
     public ResponseFuture<BaseMessage> asyncSend(BaseMessage message, int timeout) {
+        Integer msgId = null;
+        try {
+            currentRequests.incrementAndGet();
+            msgId = generateRequestId();
+            message.setMessageId(msgId);
+            ResponseFuture<BaseMessage> f = doSend(message, timeout);
+            MessageFuture<BaseMessage> future = (MessageFuture<BaseMessage>) f;
+            future.setAsyncCall(true); // 标记为异步调用
+            return future;
+        } catch (BsoaRpcException e) {
+            try {
+                if (msgId != null) {
+                    futureMap.remove(msgId);
+                }
+            } catch (Exception e1) {
+                LOGGER.error(e1.getMessage(), e1);
+            }
+            throw e;
+        } finally {
+            currentRequests.decrementAndGet();
+        }
+    }
+
+    @Override
+    public BaseMessage syncSend(BaseMessage message, int timeout) {
+        Integer msgId = null;
+        try {
+            currentRequests.incrementAndGet();
+            msgId = generateRequestId();
+            message.setMessageId(msgId);
+            ResponseFuture<BaseMessage> f = doSend(message, timeout);
+            MessageFuture<BaseMessage> future = (MessageFuture<BaseMessage>) f;
+            return future.get(timeout, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            throw new BsoaRpcException(22222, "[JSF-22113]Client request thread interrupted");
+        } catch (BsoaRpcException e) {
+            try {
+                if (msgId != null) {
+                    futureMap.remove(msgId);
+                }
+            } catch (Exception e1) {
+                LOGGER.error(e1.getMessage(), e1);
+            }
+            throw e;
+        } finally {
+            currentRequests.decrementAndGet();
+        }
+    }
+
+    @Override
+    public void oneWaySend(BaseMessage message, int timeout) {
+        Integer msgId = null;
+        try {
+            currentRequests.incrementAndGet();
+            msgId = generateRequestId();
+            message.setMessageId(msgId);
+
+            doSend(message, timeout); // 发送 不管结果
+        } catch (BsoaRpcException e) {
+            try {
+                if (msgId != null) {
+                    futureMap.remove(msgId);
+                }
+            } catch (Exception e1) {
+                LOGGER.error(e1.getMessage(), e1);
+            }
+            throw e;
+        } finally {
+            currentRequests.decrementAndGet();
+        }
+    }
+
+    /**
+     * 执行远程调用
+     *
+     * @param message 消息
+     * @param timeout 超时
+     * @return 如果是需要返回结果的得到MessageFuture，不需要结果的返回null
+     */
+    private MessageFuture<BaseMessage> doSend(BaseMessage message, int timeout) {
         if (message == null) {
             throw new BsoaRpcException(22222, "msg cannot be null.");
         }
-        final MessageFuture messageFuture = new MessageFuture(getChannel(), message.getMessageId(), timeout);
-        this.addFuture(message, messageFuture);
-
-        Channel channel = getChannel();
-
+        if (!isAvailable()) {
+            throw new BsoaRpcException(22222, "msg cannot be null.");
+        }
+        boolean oneway = message.getDirectionType() == MessageConstants.DIRECTION_ONEWAY;
+        MessageFuture<BaseMessage> messageFuture = null;
+        Channel channel = this.channel.getChannel();
+        if (!oneway) {
+            messageFuture = new MessageFuture<>(channel, message.getMessageId(), timeout);
+            this.addFuture(message, messageFuture);
+        }
+        Integer msgId = null;
         if (message instanceof RpcRequest) {
             RpcRequest request = (RpcRequest) message;
 
@@ -228,61 +290,24 @@ public class NettyClientTransport extends AbstractClientTransport {
         } else {
             channel.writeAndFlush(message, channel.voidPromise());
         }
-        messageFuture.setSentTime(BsoaContext.now());// 置为已发送
+        if (!oneway) {
+            messageFuture.setSentTime(BsoaContext.now());// 置为已发送
+        }
         return messageFuture;
     }
 
-    @Override
-    public BaseMessage syncSend(BaseMessage request, int timeout) {
-        Integer msgId = null;
-        try {
-            currentRequests.incrementAndGet();
-            request.setMessageId(genarateRequestId());
-
-            ResponseFuture<BaseMessage> f = asyncSend(request, timeout);
-            //futureMap.putIfAbsent(msgId,future); 子类已实现
-            MessageFuture<BaseMessage> future = (MessageFuture<BaseMessage>) f;
-            return future.get(timeout, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException e) {
-            throw new BsoaRpcException(22222, "[JSF-22113]Client request thread interrupted");
-        } catch (BsoaRpcException e) {
-            try {
-                if (msgId != null) {
-                    futureMap.remove(msgId);
-                }
-            } catch (Exception e1) {
-                LOGGER.error(e1.getMessage(), e1);
-            }
-            throw e;
-        } finally {
-            currentRequests.decrementAndGet();
-        }
-    }
-
-    private Integer genarateRequestId() {
+    private Integer generateRequestId() {
         return requestId.getAndIncrement() & 0x7FFFFFFF;
     }
 
-    /*
- *different FutureMap for different Request msg type
- */
-    protected void addFuture(BaseMessage message, MessageFuture msgFuture) {
-//        int msgType = msg.getMsgHeader().getMsgType();
-//        Integer msgId = msg.getMsgHeader().getMsgId();
-//        if (msgType == Constants.REQUEST_MSG
-//                || msgType == Constants.CALLBACK_REQUEST_MSG
-//                || msgType == Constants.HEARTBEAT_REQUEST_MSG) {
+    private void addFuture(BaseMessage message, MessageFuture<BaseMessage> msgFuture) {
         this.futureMap.put(message.getMessageId(), msgFuture);
-//
-//        } else {
-//            LOGGER.error("cannot handle Future for this Msg:{}", msg);
-//        }
-
-
     }
 
+    /**
+     * Remove future when channel inactive.
+     */
     public void removeFutureWhenChannelInactive() {
-
 
     }
 

@@ -48,6 +48,17 @@ public interface AbstractChannel {
      */
     InetSocketAddress getLocalAddress();
 
+    /**
+     * 写入数据
+     *
+     * @param obj
+     */
     void writeAndFlush(Object obj);
 
+    /**
+     * 是否可用
+     *
+     * @return
+     */
+    boolean isAvailable();
 }

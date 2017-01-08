@@ -24,23 +24,10 @@
         </dependency>
 
         <dependency>
-            <groupId>io.bsoa.rpc</groupId>
-            <artifactId>server</artifactId>
-            <version>${parent.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>io.bsoa.rpc</groupId>
-            <artifactId>protocol</artifactId>
-            <version>${parent.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
+
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>

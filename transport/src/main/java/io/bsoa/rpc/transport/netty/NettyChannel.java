@@ -81,6 +81,17 @@ public class NettyChannel implements AbstractChannel {
         });
     }
 
+    @Override
+    public boolean isAvailable() {
+        return channel.isOpen();
+    }
+
+    public void close() {
+        if (channel.isOpen() || channel.isActive()) {
+            channel.close();
+        }
+    }
+
     public Channel getChannel() {
         return channel;
     }

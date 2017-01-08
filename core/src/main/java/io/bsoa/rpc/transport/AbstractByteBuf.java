@@ -27,17 +27,17 @@ public interface AbstractByteBuf {
 
    /* public int capacity();
 
-    public ByteBufferHolder capacity(int newCapacity);
+    public AbstractByteBuf capacity(int newCapacity);
 
     public int readerIndex();
 
-    public ByteBufferHolder readerIndex(int readerIndex);
+    public AbstractByteBuf readerIndex(int readerIndex);
 
     public int writerIndex();
 */
     public AbstractByteBuf writerIndex(int writerIndex);
 /*
-    public ByteBufferHolder setIndex(int readerIndex, int writerIndex);
+    public AbstractByteBuf setIndex(int readerIndex, int writerIndex);
 
     public int readableBytes();
 
@@ -53,21 +53,21 @@ public interface AbstractByteBuf {
 
     public boolean isWritable(int size);
 
-    public ByteBufferHolder clear();
+    public AbstractByteBuf clear();
 
-    public ByteBufferHolder markReaderIndex();
+    public AbstractByteBuf markReaderIndex();
 
-    public ByteBufferHolder resetReaderIndex();
+    public AbstractByteBuf resetReaderIndex();
 
-    public ByteBufferHolder markWriterIndex();
+    public AbstractByteBuf markWriterIndex();
 
-    public ByteBufferHolder resetWriterIndex();
+    public AbstractByteBuf resetWriterIndex();
 
-    public ByteBufferHolder discardReadBytes();
+    public AbstractByteBuf discardReadBytes();
 
-    public ByteBufferHolder discardSomeReadBytes();
+    public AbstractByteBuf discardSomeReadBytes();
 
-    public ByteBufferHolder ensureWritable(int minWritableBytes);
+    public AbstractByteBuf ensureWritable(int minWritableBytes);
 
     public int ensureWritable(int minWritableBytes, boolean force);
 
@@ -111,17 +111,17 @@ public interface AbstractByteBuf {
 
     public double getDouble(int index);
 
-    public ByteBufferHolder getBytes(int index, ByteBufferHolder dst);
+    public AbstractByteBuf getBytes(int index, AbstractByteBuf dst);
 
-    public ByteBufferHolder getBytes(int index, ByteBufferHolder dst, int length);
+    public AbstractByteBuf getBytes(int index, AbstractByteBuf dst, int length);
 
-    public ByteBufferHolder getBytes(int index, ByteBufferHolder dst, int dstIndex, int length);
+    public AbstractByteBuf getBytes(int index, AbstractByteBuf dst, int dstIndex, int length);
 
-    public ByteBufferHolder getBytes(int index, byte[] dst);
+    public AbstractByteBuf getBytes(int index, byte[] dst);
 
-    public ByteBufferHolder getBytes(int index, byte[] dst, int dstIndex, int length);
+    public AbstractByteBuf getBytes(int index, byte[] dst, int dstIndex, int length);
 
-    public ByteBufferHolder getBytes(int index, OutputStream out, int length) throws IOException;
+    public AbstractByteBuf getBytes(int index, OutputStream out, int length) throws IOException;
 
     public int getBytes(int index, GatheringByteChannel out, int length) throws IOException;
 
@@ -129,41 +129,41 @@ public interface AbstractByteBuf {
 
     public CharSequence getCharSequence(int index, int length, Charset charset);
 
-    public ByteBufferHolder setBoolean(int index, boolean value);
+    public AbstractByteBuf setBoolean(int index, boolean value);
 
-    public ByteBufferHolder setByte(int index, int value);
+    public AbstractByteBuf setByte(int index, int value);
 
-    public ByteBufferHolder setShort(int index, int value);
+    public AbstractByteBuf setShort(int index, int value);
 
-    public ByteBufferHolder setShortLE(int index, int value);
+    public AbstractByteBuf setShortLE(int index, int value);
 
-    public ByteBufferHolder setMedium(int index, int value);
+    public AbstractByteBuf setMedium(int index, int value);
 
-    public ByteBufferHolder setMediumLE(int index, int value);
+    public AbstractByteBuf setMediumLE(int index, int value);
 
-    public ByteBufferHolder setInt(int index, int value);
+    public AbstractByteBuf setInt(int index, int value);
 
-    public ByteBufferHolder setIntLE(int index, int value);
+    public AbstractByteBuf setIntLE(int index, int value);
 
-    public ByteBufferHolder setLong(int index, long value);
+    public AbstractByteBuf setLong(int index, long value);
 
-    public ByteBufferHolder setLongLE(int index, long value);
+    public AbstractByteBuf setLongLE(int index, long value);
 
-    public ByteBufferHolder setChar(int index, int value);
+    public AbstractByteBuf setChar(int index, int value);
 
-    public ByteBufferHolder setFloat(int index, float value);
+    public AbstractByteBuf setFloat(int index, float value);
 
-    public ByteBufferHolder setDouble(int index, double value);
+    public AbstractByteBuf setDouble(int index, double value);
 
-    public ByteBufferHolder setBytes(int index, ByteBufferHolder src, int length);
+    public AbstractByteBuf setBytes(int index, AbstractByteBuf src, int length);
 
-    public ByteBufferHolder setBytes(int index, ByteBufferHolder src, int srcIndex, int length);
+    public AbstractByteBuf setBytes(int index, AbstractByteBuf src, int srcIndex, int length);
 
-    public ByteBufferHolder setBytes(int index, byte[] src);
+    public AbstractByteBuf setBytes(int index, byte[] src);
 
-    public ByteBufferHolder setBytes(int index, byte[] src, int srcIndex, int length);
+    public AbstractByteBuf setBytes(int index, byte[] src, int srcIndex, int length);
 
-    public ByteBufferHolder setBytes(int index, ByteBufferHolder src);
+    public AbstractByteBuf setBytes(int index, AbstractByteBuf src);
 
     public int setBytes(int index, InputStream in, int length) throws IOException;
 
@@ -171,7 +171,7 @@ public interface AbstractByteBuf {
 
     public int setBytes(int index, FileChannel in, long position, int length) throws IOException;
 
-    public ByteBufferHolder setZero(int index, int length);
+    public AbstractByteBuf setZero(int index, int length);
 
     public int setCharSequence(int index, CharSequence sequence, Charset charset);
 
@@ -215,23 +215,23 @@ public interface AbstractByteBuf {
 
     public double readDouble();
 
-    public ByteBufferHolder readBytes(int length);
+    public AbstractByteBuf readBytes(int length);
 
-    public ByteBufferHolder readSlice(int length);
+    public AbstractByteBuf readSlice(int length);
 
-    public ByteBufferHolder readRetainedSlice(int length);
+    public AbstractByteBuf readRetainedSlice(int length);
 
-    public ByteBufferHolder readBytes(ByteBufferHolder dst, int length);
+    public AbstractByteBuf readBytes(AbstractByteBuf dst, int length);
 
-    public ByteBufferHolder readBytes(ByteBufferHolder dst, int dstIndex, int length);
+    public AbstractByteBuf readBytes(AbstractByteBuf dst, int dstIndex, int length);
 
-    public ByteBufferHolder readBytes(byte[] dst);
+    public AbstractByteBuf readBytes(byte[] dst);
 
-    public ByteBufferHolder readBytes(byte[] dst, int dstIndex, int length);
+    public AbstractByteBuf readBytes(byte[] dst, int dstIndex, int length);
 
-    public ByteBufferHolder readBytes(ByteBufferHolder dst);
+    public AbstractByteBuf readBytes(AbstractByteBuf dst);
 
-    public ByteBufferHolder readBytes(OutputStream out, int length) throws IOException;
+    public AbstractByteBuf readBytes(OutputStream out, int length) throws IOException;
 
     public int readBytes(GatheringByteChannel out, int length) throws IOException;
 
@@ -239,43 +239,43 @@ public interface AbstractByteBuf {
 
     public int readBytes(FileChannel out, long position, int length) throws IOException;
 
-    public ByteBufferHolder skipBytes(int length);
+    public AbstractByteBuf skipBytes(int length);
 
-    public ByteBufferHolder writeBoolean(boolean value);
+    public AbstractByteBuf writeBoolean(boolean value);
 
-    public ByteBufferHolder writeByte(int value);
+    public AbstractByteBuf writeByte(int value);
 
-    public ByteBufferHolder writeShort(int value);
+    public AbstractByteBuf writeShort(int value);
 
-    public ByteBufferHolder writeShortLE(int value);
+    public AbstractByteBuf writeShortLE(int value);
 
-    public ByteBufferHolder writeMedium(int value);
+    public AbstractByteBuf writeMedium(int value);
 
-    public ByteBufferHolder writeMediumLE(int value);
+    public AbstractByteBuf writeMediumLE(int value);
 
-    public ByteBufferHolder writeInt(int value);
+    public AbstractByteBuf writeInt(int value);
 
-    public ByteBufferHolder writeIntLE(int value);
+    public AbstractByteBuf writeIntLE(int value);
 
-    public ByteBufferHolder writeLong(long value);
+    public AbstractByteBuf writeLong(long value);
 
-    public ByteBufferHolder writeLongLE(long value);
+    public AbstractByteBuf writeLongLE(long value);
 
-    public ByteBufferHolder writeChar(int value);
+    public AbstractByteBuf writeChar(int value);
 
-    public ByteBufferHolder writeFloat(float value);
+    public AbstractByteBuf writeFloat(float value);
 
-    public ByteBufferHolder writeDouble(double value);
+    public AbstractByteBuf writeDouble(double value);
 
-    public ByteBufferHolder writeBytes(ByteBufferHolder src, int length);
+    public AbstractByteBuf writeBytes(AbstractByteBuf src, int length);
 
-    public ByteBufferHolder writeBytes(ByteBufferHolder src, int srcIndex, int length);
+    public AbstractByteBuf writeBytes(AbstractByteBuf src, int srcIndex, int length);
 
-    public ByteBufferHolder writeBytes(byte[] src);
+    public AbstractByteBuf writeBytes(byte[] src);
 
-    public ByteBufferHolder writeBytes(byte[] src, int srcIndex, int length);
+    public AbstractByteBuf writeBytes(byte[] src, int srcIndex, int length);
 
-    public ByteBufferHolder writeBytes(ByteBufferHolder src);
+    public AbstractByteBuf writeBytes(AbstractByteBuf src);
 
     public int writeBytes(InputStream in, int length) throws IOException;
 
@@ -283,7 +283,7 @@ public interface AbstractByteBuf {
 
     public int writeBytes(FileChannel in, long position, int length) throws IOException;
 
-    public ByteBufferHolder writeZero(int length);
+    public AbstractByteBuf writeZero(int length);
 
     public int writeCharSequence(CharSequence sequence, Charset charset);
 
@@ -295,33 +295,33 @@ public interface AbstractByteBuf {
 
     public int bytesBefore(int index, int length, byte value);
 
-    public ByteBufferHolder copy();
+    public AbstractByteBuf copy();
 
-    public ByteBufferHolder copy(int index, int length);
+    public AbstractByteBuf copy(int index, int length);
 
-    public ByteBufferHolder slice();
+    public AbstractByteBuf slice();
 
-    public ByteBufferHolder retainedSlice();
+    public AbstractByteBuf retainedSlice();
 
-    public ByteBufferHolder slice(int index, int length);
+    public AbstractByteBuf slice(int index, int length);
 
-    public ByteBufferHolder retainedSlice(int index, int length);
+    public AbstractByteBuf retainedSlice(int index, int length);
 
-    public ByteBufferHolder duplicate();
+    public AbstractByteBuf duplicate();
 
-    public ByteBufferHolder retainedDuplicate();
+    public AbstractByteBuf retainedDuplicate();
 
     public int nioBufferCount();
 
-    public ByteBufferHolder nioBuffer();
+    public AbstractByteBuf nioBuffer();
 
-    public ByteBufferHolder nioBuffer(int index, int length);
+    public AbstractByteBuf nioBuffer(int index, int length);
 
-    public ByteBufferHolder internalNioBuffer(int index, int length);
+    public AbstractByteBuf internalNioBuffer(int index, int length);
 
-    public ByteBufferHolder[] nioBuffers();
+    public AbstractByteBuf[] nioBuffers();
 
-    public ByteBufferHolder[] nioBuffers(int index, int length);
+    public AbstractByteBuf[] nioBuffers(int index, int length);
 
     public boolean hasArray(); */
 
@@ -342,19 +342,19 @@ public interface AbstractByteBuf {
 
     public boolean equals(Object obj);
 
-    public int compareTo(ByteBufferHolder buffer);
+    public int compareTo(AbstractByteBuf buffer);
 
     public String toString();
 
-    public ByteBufferHolder retain(int increment);
+    public AbstractByteBuf retain(int increment);
 
     public int refCnt();
 
-    public ByteBufferHolder retain();
+    public AbstractByteBuf retain();
 
-    public ByteBufferHolder touch();
+    public AbstractByteBuf touch();
 
-    public ByteBufferHolder touch(Object hint);
+    public AbstractByteBuf touch(Object hint);
 
     public boolean release(int decrement);*/
 

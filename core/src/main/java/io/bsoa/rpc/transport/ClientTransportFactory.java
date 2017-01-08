@@ -56,6 +56,7 @@ public class ClientTransportFactory {
     public static ClientTransport getClientTransport(ClientTransportConfig config) {
         ClientTransport clientTransport = extensionLoader.getExtension(config.getContainer());
         clientTransport.setConfig(config);
+        CLIENT_TRANSPORT_MAP.put(clientTransport.toString(), clientTransport); // FIXME
         return clientTransport;
     }
 
@@ -63,6 +64,7 @@ public class ClientTransportFactory {
         if (clientTransport == null) {
             return;
         }
+        clientTransport.disconnect();
 //        AtomicInteger integer = refCountPool.get(clientTransport);
 //        if (integer == null) {
 //            return;
@@ -97,4 +99,37 @@ public class ClientTransportFactory {
 //            }
 //        }
     }
-}
+
+    /**
+     * 关闭全部客户端连接
+     */
+    public static void closeAll() {
+        LOGGER.info("Shutdown all bsoa client transport now...");
+        try {
+            for (Map.Entry<String, ClientTransport> entrySet : CLIENT_TRANSPORT_MAP.entrySet()) {
+                ClientTransport clientTransport = entrySet.getValue();
+                if (clientTransport.isAvailable()) {
+                    clientTransport.disconnect();
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 检查Future列表，删除超时请求
+     */
+//    public static void checkFuture() {
+//        for (Map.Entry<String, ClientTransport> entrySet : connectionPool.entrySet()) {
+//            try {
+//                ClientTransport clientTransport = entrySet.getValue();
+//                if (clientTransport instanceof AbstractTCPClientTransport) {
+//                    AbstractTCPClientTransport aClientTransport = (AbstractTCPClientTransport) clientTransport;
+//                    aClientTransport.checkFutureMap();
+//                }
+//            } catch (Exception e) {
+//                logger.error(e.getMessage(), e);
+//            }
+//        }
+    }

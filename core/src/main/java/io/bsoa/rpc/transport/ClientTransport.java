@@ -16,8 +16,6 @@
  */
 package io.bsoa.rpc.transport;
 
-import java.util.List;
-
 import io.bsoa.rpc.ext.Extensible;
 import io.bsoa.rpc.listener.ResponseFuture;
 import io.bsoa.rpc.message.BaseMessage;
@@ -66,7 +64,7 @@ public interface ClientTransport {
      *
      * @return
      */
-    public List<AbstractChannel> getChannels();
+    public AbstractChannel getChannel();
 
     /**
      * 当前请求数
@@ -80,19 +78,27 @@ public interface ClientTransport {
     /**
      * 异步调用
      *
-     * @param request the request 消息
-     * @param timeout the timeout 超时时间
+     * @param message 消息
+     * @param timeout 超时时间
      * @return 异步Future
      */
-    public ResponseFuture asyncSend(BaseMessage request, int timeout);
+    public ResponseFuture asyncSend(BaseMessage message, int timeout);
 
     /**
      * 同步调用
      *
-     * @param request the request 消息
-     * @param timeout the timeout 超时时间
+     * @param message 消息
+     * @param timeout 超时时间
      * @return ResponseMessage
      */
-    public BaseMessage syncSend(BaseMessage request, int timeout);
+    public BaseMessage syncSend(BaseMessage message, int timeout);
+
+    /**
+     * 单向调用
+     *
+     * @param message 消息
+     * @param timeout 超时时间
+     */
+    public void oneWaySend(BaseMessage message, int timeout);
 
 }
