@@ -209,6 +209,7 @@ public class MessageFuture<V> implements ResponseFuture<V> {
                         LOGGER.debug("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx{}", msg);
                         protocol.decoder().decodeBody(msg.getByteBuf(), Arrays.asList(msg));
                         LOGGER.debug("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx{}", msg.getByteBuf());
+                        msg.getByteBuf().release();
                         msg.setByteBuf(null);
                     }
                 }

@@ -16,8 +16,12 @@
  */
 package io.bsoa.rpc.transport.netty;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.bsoa.rpc.config.ProviderConfig;
 import io.bsoa.rpc.config.ServerConfig;
+import io.bsoa.rpc.context.BsoaContext;
 import io.bsoa.test.HelloService;
 import io.bsoa.test.HelloServiceImpl;
 
@@ -29,6 +33,11 @@ import io.bsoa.test.HelloServiceImpl;
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
 public class ServerTest {
+
+    /**
+     * slf4j Logger for this class
+     */
+    private final static Logger LOGGER = LoggerFactory.getLogger(ServerTest.class);
 
     public static void main(String[] args) {
         ServerConfig serverConfig = new ServerConfig();
@@ -45,6 +54,8 @@ public class ServerTest {
         providerConfig.setServer(serverConfig);
         providerConfig.setRegister(false);
         providerConfig.export();
+
+        LOGGER.warn("started at pid {}", BsoaContext.PID);
     }
 
 }

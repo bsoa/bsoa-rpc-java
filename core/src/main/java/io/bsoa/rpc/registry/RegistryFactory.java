@@ -126,7 +126,7 @@ public class RegistryFactory {
      */
     public static RegistryConfig defaultConfig() {
         if (defaultRegistryConfig == null) {
-            synchronized (LOGGER) {
+            synchronized (RegistryFactory.class) {
                 if (defaultRegistryConfig == null) {
                     RegistryConfig config = new RegistryConfig();
                     config.setParameter("_default", "true");
