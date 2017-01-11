@@ -144,8 +144,8 @@ public class JavaSerializer implements Serializer {
     }
 
     @Override
-    public Object decode(byte[] datas, Class clazz) {
-        UnsafeByteArrayInputStream bais = new UnsafeByteArrayInputStream(datas);
+    public Object decode(byte[] data, Class clazz) {
+        UnsafeByteArrayInputStream bais = new UnsafeByteArrayInputStream(data);
         ObjectInputStream ois = null;
         Object obj;
         try {
@@ -153,9 +153,9 @@ public class JavaSerializer implements Serializer {
             if (clazz == null) {
                 obj = readObject(ois); // 无需依赖class
             } else if (clazz == RpcRequest.class) {
-                obj = decodeRequest(ois);
+                obj = decodeRequest(ois, new RpcRequest());
             } else if (clazz == RpcResponse.class) {
-                obj = decodeResponse(ois);
+                obj = decodeResponse(ois, new RpcResponse());
             } else {
                 obj = readObject(ois); // 无需依赖class
             }
@@ -165,16 +165,37 @@ public class JavaSerializer implements Serializer {
         return obj;
     }
 
+    @Override
+    public Object decode(byte[] data, Object template) {
+        UnsafeByteArrayInputStream bais = new UnsafeByteArrayInputStream(data);
+        ObjectInputStream ois = null;
+        Object obj;
+        try {
+            ois = new ObjectInputStream(bais);
+            if (template == null) {
+                obj = readObject(ois); // 无需依赖class
+            } else if (template instanceof RpcRequest) {
+                obj = decodeRequest(ois, (RpcRequest) template);
+            } else if (template instanceof RpcResponse) {
+                obj = decodeResponse(ois, (RpcResponse) template);
+            } else {
+                obj = readObject(ois); // 无需依赖class
+            }
+        } catch (Exception e) {
+            throw new BsoaRpcException(22222, "Decode error", e);
+        }
+        return obj;
+    }
 
     /**
      * 解码客户端发来的RpcRequest.
      *
      * @param input the input
+     * @param req   请求
      * @return the request message
      * @throws IOException the iO exception
      */
-    private RpcRequest decodeRequest(ObjectInputStream input) throws IOException {
-        RpcRequest req = new RpcRequest();
+    private RpcRequest decodeRequest(ObjectInputStream input, RpcRequest req) throws IOException {
         try {
             Object[] args;
             Class<?>[] pts;
@@ -210,12 +231,12 @@ public class JavaSerializer implements Serializer {
     /**
      * 解码服务端返回的Response
      *
-     * @param in the in
+     * @param in  the in
+     * @param res 响应
      * @return the response message
      * @throws IOException the iO exception
      */
-    private RpcResponse decodeResponse(ObjectInputStream in) throws IOException, ClassNotFoundException {
-        RpcResponse res = new RpcResponse();
+    private RpcResponse decodeResponse(ObjectInputStream in, RpcResponse res) throws IOException, ClassNotFoundException {
         byte code = (byte) in.readInt();
         switch (code) {
             case HessianConstants.RESPONSE_NULL:

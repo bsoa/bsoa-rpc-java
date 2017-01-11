@@ -39,6 +39,7 @@ import io.bsoa.rpc.message.RpcResponse;
 import io.bsoa.rpc.message.StreamResponse;
 import io.bsoa.rpc.protocol.Protocol;
 import io.bsoa.rpc.protocol.ProtocolFactory;
+import io.bsoa.rpc.transport.AbstractByteBuf;
 import io.bsoa.rpc.transport.AbstractChannel;
 import io.bsoa.rpc.transport.AbstractClientTransport;
 import io.netty.bootstrap.Bootstrap;
@@ -240,10 +241,10 @@ public class NettyClientTransport extends AbstractClientTransport {
         if (!isAvailable()) {
             throw new BsoaRpcException(22222, "msg cannot be null.");
         }
-        boolean oneway = message.getDirectionType() == MessageConstants.DIRECTION_ONEWAY;
+        boolean oneWay = message.getDirectionType() == MessageConstants.DIRECTION_ONEWAY;
         MessageFuture<BaseMessage> messageFuture = null;
         Channel channel = this.channel.getChannel();
-        if (!oneway) {
+        if (!oneWay) {
             messageFuture = new MessageFuture<>(channel, message.getMessageId(), timeout);
             this.addFuture(message, messageFuture);
         }
@@ -256,9 +257,10 @@ public class NettyClientTransport extends AbstractClientTransport {
             // request = callBackHandler(request);
 
             ByteBuf byteBuf = NettyTransportHelper.getBuffer();
-            protocol.encoder().encodeBody(request, new NettyByteBuf(byteBuf));
+            AbstractByteBuf buf = new NettyByteBuf(byteBuf);
+            protocol.encoder().encodeAll(request, buf);
 
-            channel.writeAndFlush(message, channel.voidPromise());
+            channel.writeAndFlush(buf, channel.voidPromise());
 //            // 序列话Request  主要是body
 //            ByteBuf byteBuf = NettyTransportHelper.getBuffer();
 //            Protocol protocol = ProtocolFactory.getProtocol(request.getProtocolType());
@@ -290,7 +292,7 @@ public class NettyClientTransport extends AbstractClientTransport {
         } else {
             channel.writeAndFlush(message, channel.voidPromise());
         }
-        if (!oneway) {
+        if (!oneWay) {
             messageFuture.setSentTime(BsoaContext.now());// 置为已发送
         }
         return messageFuture;

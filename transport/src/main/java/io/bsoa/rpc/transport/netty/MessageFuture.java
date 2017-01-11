@@ -17,7 +17,6 @@
 package io.bsoa.rpc.transport.netty;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CancellationException;
@@ -205,10 +204,10 @@ public class MessageFuture<V> implements ResponseFuture<V> {
                 synchronized (this) {
                     if (msg.getByteBuf() != null) {
                         Protocol protocol = ProtocolFactory.getProtocol(msg.getProtocolType());
-                        LOGGER.debug("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx{}", msg.getByteBuf());
-                        LOGGER.debug("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx{}", msg);
-                        protocol.decoder().decodeBody(msg.getByteBuf(), Arrays.asList(msg));
-                        LOGGER.debug("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx{}", msg.getByteBuf());
+//                        LOGGER.debug("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx{}", msg.getByteBuf());
+//                        LOGGER.debug("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx{}", msg);
+                        protocol.decoder().decodeBody(msg.getByteBuf(), msg);
+//                        LOGGER.debug("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx{}", msg.getByteBuf());
                         msg.getByteBuf().release();
                         msg.setByteBuf(null);
                     }

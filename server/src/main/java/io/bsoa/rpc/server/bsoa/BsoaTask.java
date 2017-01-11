@@ -17,7 +17,6 @@
 package io.bsoa.rpc.server.bsoa;
 
 import java.net.InetSocketAddress;
-import java.util.Arrays;
 import java.util.PriorityQueue;
 
 import org.slf4j.Logger;
@@ -87,7 +86,7 @@ public class BsoaTask extends AbstractTask {
 
             // decode body
             Protocol protocol = ProtocolFactory.getProtocol(msg.getProtocolType());
-            protocol.decoder().decodeBody(byteBuf, Arrays.asList(msg));
+            protocol.decoder().decodeBody(byteBuf, msg);
 
             interfaceName = msg.getInterfaceName();
             methodName = msg.getMethodName();

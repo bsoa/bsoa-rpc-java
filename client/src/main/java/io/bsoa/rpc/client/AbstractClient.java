@@ -144,11 +144,11 @@ public abstract class AbstractClient implements Client {
      * 和服务端建立连接
      */
     private void initConnections() {
-        if (destroyed) { // 已销毁
-            throw new BsoaRuntimeException(22001, "Client has been destroyed!");
-        }
         if (inited) { // 已初始化
             return;
+        }
+        if (destroyed) { // 已销毁
+            throw new BsoaRuntimeException(22001, "Client has been destroyed!");
         }
         synchronized (this) {
             if (inited) {
@@ -593,10 +593,13 @@ public abstract class AbstractClient implements Client {
                     response = (RpcResponse) transport.syncSend(msg, timeout);
                 } finally {
                     long elapsed = BsoaContext.now() - start;
+                    if(elapsed>100) {
+                        LOGGER.error("elapsed>>>>{}" ,elapsed );
+                    }
                     msg.addAttachment(BsoaConstants.INTERNAL_KEY_ELAPSED, (int) elapsed);
                     // 去掉活跃数
                     RpcStatus.endCount(interfaceId, methodName, provider, elapsed,
-                            response == null ? false : !response.hasError());
+                            response != null && !response.hasError());
                 }
             }
 
@@ -679,7 +682,7 @@ public abstract class AbstractClient implements Client {
                 providers = router.route(message, providers);
             }
         }
-        if (invokedProviders != null && providers.size() > invokedProviders.size()) { // 总数大于已调用数
+        if (CommonUtils.isNotEmpty(invokedProviders) && providers.size() > invokedProviders.size()) { // 总数大于已调用数
             providers.removeAll(invokedProviders);// 已经调用异常的本次不再重试
         }
         if (providers.size() == 0) {

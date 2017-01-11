@@ -139,16 +139,9 @@ public class HessianSerializer implements Serializer {
         }
     }
 
-    /**
-     * Decode object.
-     *
-     * @param buf   the buf
-     * @param clazz the clazz
-     * @return the object
-     */
     @Override
-    public Object decode(byte[] buf, Class clazz) {
-        InputStream is = new UnsafeByteArrayInputStream(buf);
+    public Object decode(byte[] data, Class clazz) {
+        InputStream is = new UnsafeByteArrayInputStream(data);
         AbstractHessianInput mH2i = new Hessian2Input(is);
         mH2i.setSerializerFactory(HessianSerializerFactory.SERIALIZER_FACTORY);
 
@@ -157,9 +150,33 @@ public class HessianSerializer implements Serializer {
             if (clazz == null) {
                 obj = mH2i.readObject(); // 无需依赖class
             } else if (clazz == RpcRequest.class) {
-                obj = decodeRequest(mH2i);
+                obj = decodeRequest(mH2i, new RpcRequest());
             } else if (clazz == RpcResponse.class) {
-                obj = decodeResponse(mH2i);
+                obj = decodeResponse(mH2i, new RpcResponse());
+            } else {
+                obj = mH2i.readObject(); // 无需依赖class
+            }
+        } catch (Exception e) {
+            throw new BsoaRpcException(22222, "Decode error", e);
+        }
+        return obj;
+    }
+
+
+    @Override
+    public Object decode(byte[] data, Object template) {
+        InputStream is = new UnsafeByteArrayInputStream(data);
+        AbstractHessianInput mH2i = new Hessian2Input(is);
+        mH2i.setSerializerFactory(HessianSerializerFactory.SERIALIZER_FACTORY);
+
+        Object obj;
+        try {
+            if (template == null) {
+                obj = mH2i.readObject(); // 无需依赖class
+            } else if (template instanceof RpcRequest) {
+                obj = decodeRequest(mH2i, (RpcRequest) template);
+            } else if (template instanceof RpcResponse) {
+                obj = decodeResponse(mH2i, (RpcResponse) template);
             } else {
                 obj = mH2i.readObject(); // 无需依赖class
             }
@@ -173,11 +190,11 @@ public class HessianSerializer implements Serializer {
      * 解码客户端发来的RpcRequest.
      *
      * @param input the input
+     * @param req 请求
      * @return the request message
      * @throws IOException the iO exception
      */
-    private RpcRequest decodeRequest(AbstractHessianInput input) throws IOException {
-        RpcRequest req = new RpcRequest();
+    private RpcRequest decodeRequest(AbstractHessianInput input, RpcRequest req) throws IOException {
         try {
             Object[] args;
             Class<?>[] pts;
@@ -214,11 +231,11 @@ public class HessianSerializer implements Serializer {
      * 解码服务端返回的Response
      *
      * @param in the in
+     * @param res 响应
      * @return the response message
      * @throws IOException the iO exception
      */
-    private RpcResponse decodeResponse(AbstractHessianInput in) throws IOException {
-        RpcResponse res = new RpcResponse();
+    private RpcResponse decodeResponse(AbstractHessianInput in, RpcResponse res) throws IOException {
         byte code = (byte) in.readInt();
         switch (code) {
             case HessianConstants.RESPONSE_NULL:

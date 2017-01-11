@@ -27,8 +27,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.bsoa.rpc.client.Provider;
+import io.bsoa.rpc.context.BsoaContext;
 import io.bsoa.rpc.message.BaseMessage;
 import io.bsoa.rpc.message.MessageBuilder;
+import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.transport.ClientTransport;
 import io.bsoa.rpc.transport.ClientTransportConfig;
 import io.bsoa.rpc.transport.ClientTransportFactory;
@@ -62,8 +64,8 @@ public class ClientTransportMutisTest {
         } finally {
 
         }
-
-        final int threads = 10;
+        LOGGER.warn("started at pid {}", BsoaContext.PID);
+        final int threads = 50;
         final AtomicLong cnt = new AtomicLong(0);
         final ThreadPoolExecutor service1 = new ThreadPoolExecutor(threads, threads, 0L, TimeUnit.MILLISECONDS, new SynchronousQueue<Runnable>());// 无队列
         for (int i = 0; i < threads; i++) {
@@ -75,9 +77,10 @@ public class ClientTransportMutisTest {
                         try {
 //                            HeartbeatRequest request = new HeartbeatRequest();
 //                            request.setTimestamp(System.currentTimeMillis());
-                           BaseMessage request = MessageBuilder.buildRpcRequest(HelloService.class, "sayHello",
+                            RpcRequest request = MessageBuilder.buildRpcRequest(HelloService.class, "sayHello",
                                     new Class[]{String.class, int.class},
                                     new Object[]{"xxx", 1});
+                            request.setTags("tag1");
                             request.setProtocolType((byte) 10);
                             request.setSerializationType((byte) 2);
                             BaseMessage response = transport.syncSend(request, 60000);

@@ -43,4 +43,13 @@ public interface Serializer {
      * @return 反序列化后的对象
      */
     public Object decode(byte[] data, Class clazz);
+
+    /**
+     * 反序列化
+     *
+     * @param data     原始字节数组
+     * @param template 模板类型
+     * @return 反序列化后的对象
+     */
+    public Object decode(byte[] data, Object template);
 }

@@ -18,9 +18,7 @@
  */
 package io.bsoa.rpc.protocol.bsoa;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -31,7 +29,6 @@ import io.bsoa.rpc.codec.CompressorFactory;
 import io.bsoa.rpc.codec.Serializer;
 import io.bsoa.rpc.codec.SerializerFactory;
 import io.bsoa.rpc.common.BsoaConstants;
-import io.bsoa.rpc.common.utils.CommonUtils;
 import io.bsoa.rpc.common.utils.StringUtils;
 import io.bsoa.rpc.exception.BsoaRpcException;
 import io.bsoa.rpc.ext.Extension;
@@ -73,7 +70,7 @@ public class BsoaProtocolDecoder implements ProtocolDecoder {
     }
 
     @Override
-    public void decodeHeader(AbstractByteBuf byteBuf, List<Object> out) {
+    public Object decodeHeader(AbstractByteBuf byteBuf, Object out) {
         NettyByteBuf nettyByteBuf = (NettyByteBuf) byteBuf;
         ByteBuf in = nettyByteBuf.getByteBuf();
 
@@ -81,12 +78,6 @@ public class BsoaProtocolDecoder implements ProtocolDecoder {
         if (in.readerIndex() != 0) {
             throw new BsoaRpcException(22222, "readerIndex!=0");
         }
-
-        byte[] bytes = new byte[in.readableBytes()];
-        in.readBytes(bytes);
-        LOGGER.debug(Arrays.toString(bytes));
-        in.readerIndex(0);
-
         int totalLength = in.readInt();
         Short headerLength = in.readShort();
 
@@ -110,19 +101,17 @@ public class BsoaProtocolDecoder implements ProtocolDecoder {
             bytes2Map(headKeys, in);
             message.setHeaders(headKeys);
         }
-        out.add(message);
+        return message;
     }
 
     @Override
-    public void decodeBody(AbstractByteBuf byteBuf, List<Object> out) {
+    public Object decodeBody(AbstractByteBuf byteBuf, Object object) {
         NettyByteBuf nettyByteBuf = (NettyByteBuf) byteBuf;
         try {
             ByteBuf in = nettyByteBuf.getByteBuf();
-            LOGGER.debug("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@{} {}", in.hashCode(), in);
-            if (CommonUtils.isEmpty(out)) {
+            if (object == null) {
                 throw new BsoaRpcException(22222, "Need decode header first!");
             }
-            Object object = out.get(0);
             if (object instanceof RpcRequest) { // 收到请求
                 RpcRequest request = (RpcRequest) object;
 
@@ -137,12 +126,8 @@ public class BsoaProtocolDecoder implements ProtocolDecoder {
                 }
                 // 反序列话
                 Serializer serializer = SerializerFactory.getSerializer(request.getSerializationType());
-                RpcRequest tmp = (RpcRequest) serializer.decode(bodyBytes, RpcRequest.class);
+                serializer.decode(bodyBytes, request);
 
-                // TODO
-                request.setAttachments(tmp.getAttachments());
-                request.setArgsType(tmp.getArgsType());
-                request.setArgs(tmp.getArgs());
             } else if (object instanceof RpcResponse) { // 收到响应
                 RpcResponse response = (RpcResponse) object;
 
@@ -155,10 +140,7 @@ public class BsoaProtocolDecoder implements ProtocolDecoder {
                 }
                 // 反序列化
                 Serializer serializer = SerializerFactory.getSerializer(response.getSerializationType());
-                RpcResponse tmp = (RpcResponse) serializer.decode(bodyBytes, RpcResponse.class);
-
-                response.setReturnData(tmp.getReturnData());
-                response.setException(tmp.getException());
+                serializer.decode(bodyBytes, response);
             } else if (object instanceof HeartbeatRequest) { // 收到心跳
                 HeartbeatRequest request = (HeartbeatRequest) object;
                 request.setTimestamp(in.readLong());
@@ -178,12 +160,13 @@ public class BsoaProtocolDecoder implements ProtocolDecoder {
         } catch (Exception e) {
             throw new BsoaRpcException(22222, "Decode error!", e);
         }
+        return object;
     }
 
     @Override
-    public void decodeAll(AbstractByteBuf byteBuf, List<Object> out) {
-        decodeHeader(byteBuf, out);
-        BaseMessage msg = (BaseMessage) out.get(0);
+    public Object decodeAll(AbstractByteBuf byteBuf, Object out) {
+        out = decodeHeader(byteBuf, out);
+        BaseMessage msg = (BaseMessage) out;
         byte messageType = msg.getMessageType();
         if (messageType == 3 || messageType == 4 || messageType == 5 || messageType == 6) {
             // 心跳包 和协商包 在这里解析
@@ -198,13 +181,10 @@ public class BsoaProtocolDecoder implements ProtocolDecoder {
             ByteBuf body = in.slice(in.readerIndex(), in.readableBytes());
             body.retain();
             in.readerIndex(index);
-            LOGGER.debug("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@{}", byteBuf);
-            LOGGER.debug("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@{} {}", in.hashCode(), in);
-            LOGGER.debug("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@{} {}", body.hashCode(), body);
             AbstractByteBuf newBb = new NettyByteBuf(body);
-            LOGGER.debug("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx@{}", newBb);
             message.setByteBuf(newBb);
         }
+        return out;
     }
 
     /**

@@ -18,7 +18,6 @@
  */
 package io.bsoa.rpc.protocol.bsoa;
 
-import java.util.Arrays;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -118,10 +117,10 @@ public class BsoaProtocolEncoder implements ProtocolEncoder {
             }
             msg.setTotalLength(headerLength + 6); // 目前消息总长度=2位魔术+4位总长度+头长度
 
-            byte[] bytes = new byte[out.readableBytes()];
-            out.readBytes(bytes);
-            LOGGER.debug(Arrays.toString(bytes));
-            out.readerIndex(0);
+//            byte[] bytes = new byte[out.readableBytes()];
+//            out.readBytes(bytes);
+//            LOGGER.debug(Arrays.toString(bytes));
+//            out.readerIndex(0);
         } else {
             LOGGER.warn("Unsupported type :{}", object.getClass());
             throw new BsoaRpcException(22222, "Unsupported object type");
@@ -174,10 +173,10 @@ public class BsoaProtocolEncoder implements ProtocolEncoder {
             msg.setTotalLength(totalLength);
             out.setBytes(2, CodecUtils.intToBytes(totalLength)); // 更新字段
 
-            byte[] bytes = new byte[out.readableBytes()];
-            out.readBytes(bytes);
-            LOGGER.debug(Arrays.toString(bytes));
-            out.readerIndex(0);
+//            byte[] bytes = new byte[out.readableBytes()];
+//            out.readBytes(bytes);
+            //LOGGER.debug(Arrays.toString(bytes));
+//            out.readerIndex(0);
         } else {
             LOGGER.warn("Unsupported type :{}", object.getClass());
             throw new BsoaRpcException(22222, "Unsupported object type");

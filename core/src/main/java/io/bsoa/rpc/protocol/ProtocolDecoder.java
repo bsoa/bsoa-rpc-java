@@ -16,8 +16,6 @@
  */
 package io.bsoa.rpc.protocol;
 
-import java.util.List;
-
 import io.bsoa.rpc.ext.Extensible;
 import io.bsoa.rpc.transport.AbstractByteBuf;
 
@@ -43,7 +41,7 @@ public interface ProtocolDecoder {
      * @param byteBuf 字节缓冲器
      * @param out     解析处理的对象列表
      */
-    void decodeHeader(AbstractByteBuf byteBuf, List<Object> out);
+    Object decodeHeader(AbstractByteBuf byteBuf, Object out);
 
     /**
      * body解码
@@ -51,7 +49,7 @@ public interface ProtocolDecoder {
      * @param byteBuf 字节缓冲器
      * @param out     解析处理的对象列表
      */
-    void decodeBody(AbstractByteBuf byteBuf, List<Object> out);
+    Object decodeBody(AbstractByteBuf byteBuf, Object out);
 
     /**
      * 全部解码
@@ -59,5 +57,5 @@ public interface ProtocolDecoder {
      * @param byteBuf 字节缓冲器
      * @param out     解析处理的对象列表
      */
-    void decodeAll(AbstractByteBuf byteBuf, List<Object> out);
+    Object decodeAll(AbstractByteBuf byteBuf, Object out);
 }

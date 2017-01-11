@@ -26,13 +26,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.bsoa.rpc.client.Client;
 import io.bsoa.rpc.config.ConsumerConfig;
 import io.bsoa.rpc.context.BsoaContext;
-import io.bsoa.rpc.message.BaseMessage;
-import io.bsoa.rpc.message.HeadKey;
-import io.bsoa.rpc.message.MessageBuilder;
-import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.test.HelloService;
 
 /**
@@ -42,7 +37,7 @@ import io.bsoa.test.HelloService;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public class ClientMutisTest {
+public class ConsumerMutisTest {
 
     /**
      * slf4j Logger for this class
@@ -56,8 +51,6 @@ public class ClientMutisTest {
         consumerConfig.setSerialization("hessian");
         consumerConfig.setUrl("bsoa://127.0.0.1:22222");
         HelloService helloService = consumerConfig.refer();
-
-        final Client client = consumerConfig.getClient();
 
         LOGGER.warn("started at pid {}", BsoaContext.PID);
         try {
@@ -76,15 +69,7 @@ public class ClientMutisTest {
                     int n = 0;
                     while (true) {
                         try {
-
-                            RpcRequest request = MessageBuilder.buildRpcRequest(HelloService.class, "sayHello",
-                                    new Class[]{String.class, int.class},
-                                    new Object[]{"xxx", 1});
-                            request.setTags("tag1");
-                            request.setProtocolType((byte) 10);
-                            request.setSerializationType((byte) 2);
-                            request.addHeadKey(HeadKey.TIMEOUT, 5000);
-                            BaseMessage response = client.sendMsg(request);
+                            helloService.sayHello("xxx", 2);
                             // 1k
                             //service.echoStr("10241234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890");
                             // 5k
