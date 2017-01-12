@@ -25,14 +25,16 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.bsoa.rpc.common.utils.CommonUtils;
 import io.bsoa.rpc.common.utils.DateUtils;
 import io.bsoa.rpc.common.utils.NetUtils;
 import io.bsoa.rpc.context.BsoaContext;
+import io.bsoa.rpc.context.CallbackContext;
 import io.bsoa.rpc.exception.BsoaRpcException;
-import io.bsoa.rpc.ext.Extension;
-import io.bsoa.rpc.listener.ResponseFuture;
-import io.bsoa.rpc.listener.ResultListener;
+import io.bsoa.rpc.listener.ResponseListener;
 import io.bsoa.rpc.message.DecodableMessage;
+import io.bsoa.rpc.message.ResponseFuture;
+import io.bsoa.rpc.message.RpcResponse;
 import io.bsoa.rpc.protocol.Protocol;
 import io.bsoa.rpc.protocol.ProtocolFactory;
 import io.netty.channel.Channel;
@@ -44,8 +46,7 @@ import io.netty.channel.Channel;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-@Extension("netty4")
-public class MessageFuture<V> implements ResponseFuture<V> {
+public class NettyMessageFuture<V> implements ResponseFuture<V> {
 
     /**
      * slf4j Logger for this class
@@ -61,7 +62,7 @@ public class MessageFuture<V> implements ResponseFuture<V> {
     /**
      * 结果监听器，在返回成功或者异常的时候需要通知
      */
-    private volatile List<ResultListener> listeners = new ArrayList<>();
+    private volatile List<ResponseListener> listeners;
 
     private volatile Object result;
 
@@ -90,7 +91,7 @@ public class MessageFuture<V> implements ResponseFuture<V> {
      */
     private boolean asyncCall;
 
-    public MessageFuture(Channel channel, int msgId, int timeout) {
+    public NettyMessageFuture(Channel channel, int msgId, int timeout) {
         this.channel = channel;
         this.msgId = msgId;
         this.timeout = timeout;
@@ -100,7 +101,7 @@ public class MessageFuture<V> implements ResponseFuture<V> {
     @Override
     public boolean cancel(boolean mayInterruptIfRunning) {
         boolean res = this.cancle0(mayInterruptIfRunning);
-        notifyListeners();
+        notifyListeners(this.listeners);
         return res;
     }
 
@@ -315,13 +316,13 @@ public class MessageFuture<V> implements ResponseFuture<V> {
     }
 
 
-    public MessageFuture<V> setSuccess(V result) {
+    public NettyMessageFuture<V> setSuccess(V result) {
         if (this.isCancelled()) {
             this.releaseIfNeed0(result);
             return this;
         }
         if (setSuccess0(result)) {
-            notifyListeners();
+            notifyListeners(listeners);
             return this;
         }
         throw new IllegalStateException("complete already: " + this);
@@ -348,13 +349,13 @@ public class MessageFuture<V> implements ResponseFuture<V> {
     }
 
 
-    public MessageFuture<V> setFailure(Throwable cause) {
+    public NettyMessageFuture<V> setFailure(Throwable cause) {
         if (this.isCancelled()) {
             this.releaseIfNeed();
             return this;
         }
         if (setFailure0(cause)) {
-            notifyListeners();
+            notifyListeners(listeners);
             return this;
         }
         throw new IllegalStateException("complete already: " + this, cause);
@@ -380,46 +381,110 @@ public class MessageFuture<V> implements ResponseFuture<V> {
     }
 
     @Override
-    public void addListener(ResultListener listener) {
-
-        if (listener == null) {
-            throw new NullPointerException("listener");
+    public ResponseFuture addListeners(List<ResponseListener> listeners) {
+        if (CommonUtils.isEmpty(listeners)) {
+            return this;
         }
-
-        if (isDone()) {
-            notifyListener0(listener);
+        if (isDone()) { // 如过加的时候 直接已经执行完了，则立即触发结果
+            notifyListeners(listeners);
+            return this;
         }
-
         synchronized (this) {
-            if (!isDone()) {
-                listeners.add(listener);
+            if (!isDone()) { // 如果没有，则排队（加锁）加入listener
+                if (this.listeners == null) {
+                    this.listeners = new ArrayList<>();
+                }
+                this.listeners.addAll(listeners);
+                return this;
             }
         }
+        // 可能排队过程中执行完了，立即触发结果
+        notifyListeners(listeners);
+        return this;
+    }
 
-        notifyListener0(listener);
+    @Override
+    public ResponseFuture addListener(ResponseListener listener) {
+        if (listener == null) {
+            return this;
+        }
+        if (isDone()) { // 如过加的时候 直接已经执行完了，则立即触发结果
+            notifyListener(listener);
+            return this;
+        }
+        synchronized (this) {
+            if (!isDone()) { // 如果没有，则排队（加锁）加入listener
+                if (this.listeners == null) {
+                    this.listeners = new ArrayList<>();
+                }
+                this.listeners.add(listener);
+                return this;
+            }
+        }
+        // 可能排队过程中执行完了，立即触发结果
+        notifyListener(listener);
+        return this;
     }
 
     /*
-     * notify all listener.
+     * 批量通知全部Listener
      */
-    private void notifyListeners() {
+    private void notifyListeners(List<ResponseListener> listeners) {
         if (listeners == null || listeners.isEmpty()) {
             if (isAsyncCall() && !this.isCancelled()) {
                 //主要是释放掉msgBody 的buf
                 getNow();
             }
-            return;
-        }
-        for (ResultListener resultListener : listeners) {
-            notifyListener0(resultListener);
+        } else {
+            RpcResponse response = (RpcResponse) getNow();
+            CallbackContext.getCallbackThreadPool().execute(() -> {
+                if (response.hasError()) {
+                    Throwable responseException = response.getException();
+                    for (ResponseListener responseListener : listeners) {
+                        try {
+                            responseListener.catchException(responseException);
+                        } catch (Exception e) {
+                            LOGGER.warn("notify response listener error", e);
+                        }
+                    }
+                } else {
+                    Object result1 = response.getReturnData();
+                    for (ResponseListener responseListener : listeners) {
+                        try {
+                            responseListener.handleResult(result1);
+                        } catch (Exception e) {
+                            LOGGER.warn("notify response listener error", e);
+                        }
+                    }
+                }
+            });
         }
     }
 
-    /*
-     * 调用listener 新启动线程 防止阻塞当前线程
+    /**
+     * 单个通知Listener
+     *
+     * @param responseListener 单个Listener
      */
-    private void notifyListener0(final ResultListener listener) {
-        listener.operationComplete(this);
+    private void notifyListener(final ResponseListener responseListener) {
+        RpcResponse response = (RpcResponse) getNow();
+        CallbackContext.getCallbackThreadPool().execute(() -> {
+            if (response.hasError()) {
+                Throwable responseException = response.getException();
+                try {
+                    responseListener.catchException(responseException);
+                } catch (Exception e) {
+                    LOGGER.warn("notify response listener error", e);
+                }
+            } else {
+                Object result1 = response.getReturnData();
+                try {
+                    responseListener.handleResult(result1);
+                } catch (Exception e) {
+                    LOGGER.warn("notify response listener error", e);
+                }
+            }
+        });
     }
 
     private boolean hasWaiters() {

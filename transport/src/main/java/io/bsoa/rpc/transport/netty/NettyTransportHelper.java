@@ -196,11 +196,12 @@ public class NettyTransportHelper {
     }
 
     private static void setIoRatio(EventLoopGroup eventLoopGroup, int ioRatio) {
-        if (eventLoopGroup instanceof EpollEventLoopGroup) {
-            ((EpollEventLoopGroup) eventLoopGroup).setIoRatio(ioRatio);
-        } else if (eventLoopGroup instanceof NioEventLoopGroup) {
-            ((NioEventLoopGroup) eventLoopGroup).setIoRatio(ioRatio);
-        }
+//        TODO
+//        if (eventLoopGroup instanceof EpollEventLoopGroup) {
+//            ((EpollEventLoopGroup) eventLoopGroup).setIoRatio(ioRatio);
+//        } else if (eventLoopGroup instanceof NioEventLoopGroup) {
+//            ((NioEventLoopGroup) eventLoopGroup).setIoRatio(ioRatio);
+//        }
     }
 
     /**

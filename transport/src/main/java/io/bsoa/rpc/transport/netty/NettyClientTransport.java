@@ -29,11 +29,11 @@ import io.bsoa.rpc.context.BsoaContext;
 import io.bsoa.rpc.exception.BsoaRpcException;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
 import io.bsoa.rpc.ext.Extension;
-import io.bsoa.rpc.listener.ResponseFuture;
 import io.bsoa.rpc.message.BaseMessage;
 import io.bsoa.rpc.message.HeartbeatResponse;
 import io.bsoa.rpc.message.MessageConstants;
 import io.bsoa.rpc.message.NegotiatorResponse;
+import io.bsoa.rpc.message.ResponseFuture;
 import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.message.RpcResponse;
 import io.bsoa.rpc.message.StreamResponse;
@@ -75,7 +75,7 @@ public class NettyClientTransport extends AbstractClientTransport {
      */
     private final AtomicInteger requestId = new AtomicInteger();
 
-    private final ConcurrentHashMap<Integer, MessageFuture<BaseMessage>> futureMap = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Integer, NettyMessageFuture<BaseMessage>> futureMap = new ConcurrentHashMap<>();
 
     private NettyChannel channel;
 
@@ -161,7 +161,7 @@ public class NettyClientTransport extends AbstractClientTransport {
             msgId = generateRequestId();
             message.setMessageId(msgId);
             ResponseFuture<BaseMessage> f = doSend(message, timeout);
-            MessageFuture<BaseMessage> future = (MessageFuture<BaseMessage>) f;
+            NettyMessageFuture<BaseMessage> future = (NettyMessageFuture<BaseMessage>) f;
             future.setAsyncCall(true); // 标记为异步调用
             return future;
         } catch (BsoaRpcException e) {
@@ -186,7 +186,7 @@ public class NettyClientTransport extends AbstractClientTransport {
             msgId = generateRequestId();
             message.setMessageId(msgId);
             ResponseFuture<BaseMessage> f = doSend(message, timeout);
-            MessageFuture<BaseMessage> future = (MessageFuture<BaseMessage>) f;
+            NettyMessageFuture<BaseMessage> future = (NettyMessageFuture<BaseMessage>) f;
             return future.get(timeout, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             throw new BsoaRpcException(22222, "[JSF-22113]Client request thread interrupted");
@@ -234,7 +234,7 @@ public class NettyClientTransport extends AbstractClientTransport {
      * @param timeout 超时
      * @return 如果是需要返回结果的得到MessageFuture，不需要结果的返回null
      */
-    private MessageFuture<BaseMessage> doSend(BaseMessage message, int timeout) {
+    private NettyMessageFuture<BaseMessage> doSend(BaseMessage message, int timeout) {
         if (message == null) {
             throw new BsoaRpcException(22222, "msg cannot be null.");
         }
@@ -242,11 +242,11 @@ public class NettyClientTransport extends AbstractClientTransport {
             throw new BsoaRpcException(22222, "msg cannot be null.");
         }
         boolean oneWay = message.getDirectionType() == MessageConstants.DIRECTION_ONEWAY;
-        MessageFuture<BaseMessage> messageFuture = null;
+        NettyMessageFuture<BaseMessage> nettyMessageFuture = null;
         Channel channel = this.channel.getChannel();
         if (!oneWay) {
-            messageFuture = new MessageFuture<>(channel, message.getMessageId(), timeout);
-            this.addFuture(message, messageFuture);
+            nettyMessageFuture = new NettyMessageFuture<>(channel, message.getMessageId(), timeout);
+            this.addFuture(message, nettyMessageFuture);
         }
         Integer msgId = null;
         if (message instanceof RpcRequest) {
@@ -293,16 +293,16 @@ public class NettyClientTransport extends AbstractClientTransport {
             channel.writeAndFlush(message, channel.voidPromise());
         }
         if (!oneWay) {
-            messageFuture.setSentTime(BsoaContext.now());// 置为已发送
+            nettyMessageFuture.setSentTime(BsoaContext.now());// 置为已发送
         }
-        return messageFuture;
+        return nettyMessageFuture;
     }
 
     private Integer generateRequestId() {
         return requestId.getAndIncrement() & 0x7FFFFFFF;
     }
 
-    private void addFuture(BaseMessage message, MessageFuture<BaseMessage> msgFuture) {
+    private void addFuture(BaseMessage message, NettyMessageFuture<BaseMessage> msgFuture) {
         this.futureMap.put(message.getMessageId(), msgFuture);
     }
 
@@ -316,7 +316,7 @@ public class NettyClientTransport extends AbstractClientTransport {
     @Override
     public void receiveRpcResponse(RpcResponse response) {
         int messageId = response.getMessageId();
-        MessageFuture<BaseMessage> future = futureMap.get(messageId);
+        NettyMessageFuture<BaseMessage> future = futureMap.get(messageId);
         if (future == null) {
             LOGGER.warn("[JSF-22114]Not found future which msgId is {} when receive response. May be " +
                     "this future have been removed because of timeout", messageId);
@@ -333,7 +333,7 @@ public class NettyClientTransport extends AbstractClientTransport {
     @Override
     public void receiveHeartbeatResponse(HeartbeatResponse response) {
         int messageId = response.getMessageId();
-        MessageFuture<BaseMessage> future = futureMap.get(messageId);
+        NettyMessageFuture<BaseMessage> future = futureMap.get(messageId);
         if (future != null) {
             future.setSuccess(response);
             futureMap.remove(messageId);
@@ -348,7 +348,7 @@ public class NettyClientTransport extends AbstractClientTransport {
     @Override
     public void receiveNegotiatorResponse(NegotiatorResponse response) {
         int messageId = response.getMessageId();
-        MessageFuture<BaseMessage> future = futureMap.get(messageId);
+        NettyMessageFuture<BaseMessage> future = futureMap.get(messageId);
         if (future != null) {
             future.setSuccess(response);
             futureMap.remove(messageId);

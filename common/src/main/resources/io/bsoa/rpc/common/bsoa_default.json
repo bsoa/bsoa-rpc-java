@@ -19,7 +19,7 @@
 
   "extension.load.path" : ["META-INF/bsoa/", "META-INF/services/"], // 扩展点加载的路径
 
-
+  "default.tags" : "bsoa",
   "default.protocol" : "bsoa",
   "default.serialization" : "hessian",
   "default.loadbalancer" : "random",

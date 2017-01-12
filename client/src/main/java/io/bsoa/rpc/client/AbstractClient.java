@@ -15,6 +15,7 @@
  */
 package io.bsoa.rpc.client;
 
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,16 +44,17 @@ import io.bsoa.rpc.context.RpcContext;
 import io.bsoa.rpc.context.RpcStatus;
 import io.bsoa.rpc.exception.BsoaRpcException;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
-import io.bsoa.rpc.listener.ResponseFuture;
 import io.bsoa.rpc.listener.ResponseListener;
 import io.bsoa.rpc.message.HeadKey;
 import io.bsoa.rpc.message.MessageBuilder;
+import io.bsoa.rpc.message.ResponseFuture;
 import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.message.RpcResponse;
 import io.bsoa.rpc.registry.RegistryFactory;
 import io.bsoa.rpc.transport.ClientTransport;
 import io.bsoa.rpc.transport.ClientTransportConfig;
 import io.bsoa.rpc.transport.ClientTransportFactory;
+import io.bsoa.rpc.transport.ClientTransportUtils;
 
 /**
  * Created by zhanggeng on 16-7-7.
@@ -540,44 +542,31 @@ public abstract class AbstractClient implements Client {
 
             // 异步调用
             if (async || CommonUtils.isTrue(genericAsync)) {
-                // 回调监听器
-                AsyncResultListener resultListener = null;
-                // 接口或者方法级
-                final List<ResponseListener> onreturns = consumerConfig.getMethodOnreturn(methodName);
+                // 接口或者方法级 回调监听器
+                List<ResponseListener> onreturns = consumerConfig.getMethodOnreturn(methodName);
+                // 方法级的 回调监听器
+                ResponseListener methodResponseListener = (ResponseListener)
+                        RpcContext.getContext().getAttachment(BsoaConstants.INTERNAL_KEY_ONRETURN);
+
+                // 调用级 回调监听器
+                ResponseListener genericAsynReturn = (ResponseListener) msg.getAttachment(BsoaConstants.INTERNAL_KEY_ONRETURN);
+
+                // 开始调用
+                ResponseFuture future = transport.asyncSend(msg, timeout);
                 if (onreturns != null) {
-                    resultListener = new AsyncResultListener();
-                    resultListener.addResponseListeners(onreturns);
+                    future.addListeners(onreturns);
                 }
-                //方法级的回调listener since 1.6.1
-                Object methodResponseListenerObj = RpcContext.getContext().getAttachment(BsoaConstants.INTERNAL_KEY_ONRETURN);
-                if (methodResponseListenerObj instanceof ResponseListener) {
-                    ResponseListener methodResponseListener = (ResponseListener) methodResponseListenerObj;
-                    if (resultListener == null) {
-                        resultListener = new AsyncResultListener();
-                        resultListener.addResponseListener(methodResponseListener);
-                    }
-                } else if (methodResponseListenerObj != null) {
-                    LOGGER.warn("{},method response listener is not instance of ResponseListener",
-                            methodResponseListenerObj.getClass().getCanonicalName());
+                if (methodResponseListener != null) {
+                    future.addListener(methodResponseListener);
                 }
-                // 调用级
-                final ResponseListener genericAsynReturn = (ResponseListener)
-                        msg.getAttachment(BsoaConstants.INTERNAL_KEY_ONRETURN);
                 if (genericAsynReturn != null) {
                     msg.addAttachment(BsoaConstants.INTERNAL_KEY_ONRETURN, null);
-                    if (resultListener == null) {
-                        resultListener = new AsyncResultListener();
-                    }
-                    resultListener.addResponseListener(genericAsynReturn);
+                    future.addListener(genericAsynReturn);
                 }
-                ResponseFuture future = transport.asyncSend(msg, timeout); // 开始调用
-                if (resultListener != null) {
-                    // 有listener则监听
-                    future.addListener(resultListener);
-                } else {
-                    // 放入线程上下文
-                    RpcContext.getContext().setFuture(future);
-                }
+
+                // 放入线程上下文
+                RpcContext.getContext().setFuture(future);
+
                 response = MessageBuilder.buildRpcResponse(msg);
                 // 记录异步调用标记，如果是异步不清除threadlocal缓存，否则清除
                 // @see com.jd.jsf.gd.filter.ConsumerContextFilter
@@ -593,8 +582,8 @@ public abstract class AbstractClient implements Client {
                     response = (RpcResponse) transport.syncSend(msg, timeout);
                 } finally {
                     long elapsed = BsoaContext.now() - start;
-                    if(elapsed>100) {
-                        LOGGER.error("elapsed>>>>{}" ,elapsed );
+                    if (elapsed > 100) {
+                        LOGGER.error("elapsed>>>>{}", elapsed);
                     }
                     msg.addAttachment(BsoaConstants.INTERNAL_KEY_ELAPSED, (int) elapsed);
                     // 去掉活跃数
@@ -603,10 +592,10 @@ public abstract class AbstractClient implements Client {
                 }
             }
 
-//            InetSocketAddress address = transport.get();
-//            if (address != null) { // 添加调用的服务端远程地址
-//                RpcContext.getContext().setRemoteAddress(address);
-//            }
+            InetSocketAddress address = ClientTransportUtils.remoteAddress(transport);
+            if (address != null) { // 添加调用的服务端远程地址
+                RpcContext.getContext().setRemoteAddress(address);
+            }
 
             return response;
         } catch (BsoaRpcException e) {
@@ -614,6 +603,8 @@ public abstract class AbstractClient implements Client {
                 connectionHolder.aliveToRetryIfExist(provider, transport);
             }
             throw e;
+        } catch (Exception e) {
+            throw new BsoaRpcException(22222, "unknown exception");
         }
     }
 

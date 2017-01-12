@@ -17,8 +17,8 @@
 package io.bsoa.rpc.listener;
 
 /**
- * 客户端拿到结果的Listener
- *
+ * 暴露给客户端拿到结果的Listener
+ * <p>
  * Created by zhangg on 2016/7/15 23:59.
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
@@ -28,16 +28,14 @@ public interface ResponseListener {
     /**
      * 得到正常返回的结果
      *
-     * @param result
-     *         the result 正常返回结果
+     * @param result the result 正常返回结果
      */
     public void handleResult(Object result);
 
     /**
      * 捕获到异常后
      *
-     * @param e
-     *         the e 异常
+     * @param e the e 异常
      */
     public void catchException(Throwable e);
 }

@@ -88,6 +88,7 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Ser
     /**
      * 是否异步调用
      */
+    @Deprecated
     protected boolean async = false;
 
     /**
@@ -893,6 +894,7 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Ser
      *
      * @return the boolean
      */
+    @Deprecated
     public boolean isAsync() {
         return async;
     }
@@ -1099,6 +1101,7 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Ser
      * @param methodName the method name
      * @return the time out
      */
+    @Deprecated
     public boolean getMethodAsync(String methodName) {
         return (Boolean) getMethodConfigValue(methodName, BsoaConstants.CONFIG_KEY_ASYNC,
                 isAsync());
@@ -1109,6 +1112,7 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Ser
      *
      * @return the validation
      */
+    @Deprecated
     public boolean hasAsyncMethod() {
         if (isAsync()) {
             return true;

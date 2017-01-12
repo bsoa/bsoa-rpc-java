@@ -17,7 +17,7 @@
 package io.bsoa.rpc.transport;
 
 import io.bsoa.rpc.ext.Extensible;
-import io.bsoa.rpc.listener.ResponseFuture;
+import io.bsoa.rpc.message.ResponseFuture;
 import io.bsoa.rpc.message.BaseMessage;
 
 /**

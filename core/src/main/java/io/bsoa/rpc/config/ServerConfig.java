@@ -23,7 +23,6 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.bsoa.rpc.common.BsoaConfigs;
 import io.bsoa.rpc.common.BsoaConstants;
 import io.bsoa.rpc.common.SystemInfo;
 import io.bsoa.rpc.common.utils.ExceptionUtils;
@@ -33,6 +32,10 @@ import io.bsoa.rpc.common.utils.StringUtils;
 import io.bsoa.rpc.listener.ChannelListener;
 import io.bsoa.rpc.server.Server;
 import io.bsoa.rpc.server.ServerFactory;
+
+import static io.bsoa.rpc.common.BsoaConfigs.DEFAULT_PROTOCOL;
+import static io.bsoa.rpc.common.BsoaConfigs.DEFAULT_SERIALIZATION;
+import static io.bsoa.rpc.common.BsoaConfigs.getStringValue;
 
 /**
  * Created by zhanggeng on 16-7-7.
@@ -53,7 +56,7 @@ public class ServerConfig extends AbstractIdConfig implements Serializable {
     /**
      * 配置名称
      */
-    protected String protocol = BsoaConfigs.getStringValue(BsoaConfigs.DEFAULT_PROTOCOL);
+    protected String protocol = getStringValue(DEFAULT_PROTOCOL);
 
     /**
      * 实际监听IP，与网卡对应
@@ -113,7 +116,7 @@ public class ServerConfig extends AbstractIdConfig implements Serializable {
     /**
      * 序列化方式
      */
-    protected String serialization = BsoaConfigs.getStringValue(BsoaConfigs.DEFAULT_SERIALIZATION);
+    protected String serialization = getStringValue(DEFAULT_SERIALIZATION);
 
     /**
      * 事件分发规则。

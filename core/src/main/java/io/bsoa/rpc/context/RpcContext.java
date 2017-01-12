@@ -24,7 +24,7 @@ import java.util.Map;
 import io.bsoa.rpc.common.BsoaConstants;
 import io.bsoa.rpc.common.utils.NetUtils;
 import io.bsoa.rpc.config.ParameterConfig;
-import io.bsoa.rpc.listener.ResponseFuture;
+import io.bsoa.rpc.message.ResponseFuture;
 
 /**
  * Created by zhangg on 2016/7/14 21:02.

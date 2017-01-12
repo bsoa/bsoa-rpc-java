@@ -223,6 +223,10 @@ public class BsoaConfigs {
     public static final String EXTENSION_LOAD_PATH = "extension.load.path";
 
     /**
+     * 默认服务tag
+     */
+    public final static String DEFAULT_TAGS = "default.tags";
+    /**
      * 默认协议
      */
     public final static String DEFAULT_PROTOCOL = "default.protocol";

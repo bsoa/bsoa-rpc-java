@@ -16,7 +16,7 @@
  *  * limitations under the License.
  *
  */
-package io.bsoa.rpc.transport.netty;
+package io.bsoa.rpc.example.start;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,8 +42,8 @@ public class ClientTest {
 
         ConsumerConfig<HelloService> consumerConfig = new ConsumerConfig<>();
         consumerConfig.setInterfaceId(HelloService.class.getName());
-        consumerConfig.setTags("tag1");
         consumerConfig.setUrl("bsoa://127.0.0.1:22222");
+        consumerConfig.setRegister(false);
         HelloService helloService = consumerConfig.refer();
         try {
             String s = helloService.sayHello("xxx", 22);

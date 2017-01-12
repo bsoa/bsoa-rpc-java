@@ -21,12 +21,18 @@ import io.bsoa.rpc.message.NegotiatorResponse;
 
 /**
  * <p></p>
- *
+ * <p>
  * Created by zhangg on 2016/12/22 22:43. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
 public interface NegotiatorListener {
 
+    /**
+     * 处理握手请求（服务端和客户端都可以互发）
+     *
+     * @param negotiatorRequest 协商请求
+     * @return 协商响应
+     */
     NegotiatorResponse handshake(NegotiatorRequest negotiatorRequest);
 }

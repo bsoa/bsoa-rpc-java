@@ -28,7 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.bsoa.rpc.cache.Cache;
-import io.bsoa.rpc.common.BsoaConfigs;
 import io.bsoa.rpc.common.BsoaConstants;
 import io.bsoa.rpc.common.utils.BeanUtils;
 import io.bsoa.rpc.common.utils.CommonUtils;
@@ -40,6 +39,11 @@ import io.bsoa.rpc.exception.BsoaRuntimeException;
 import io.bsoa.rpc.filter.Filter;
 import io.bsoa.rpc.listener.ConfigListener;
 
+import static io.bsoa.rpc.common.BsoaConfigs.CLIENT_INVOKE_TIMEOUT;
+import static io.bsoa.rpc.common.BsoaConfigs.DEFAULT_PROXY;
+import static io.bsoa.rpc.common.BsoaConfigs.DEFAULT_TAGS;
+import static io.bsoa.rpc.common.BsoaConfigs.getIntValue;
+import static io.bsoa.rpc.common.BsoaConfigs.getStringValue;
 import static io.bsoa.rpc.config.ConfigValueHelper.checkNormalWithColon;
 
 /**
@@ -69,7 +73,7 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
     /**
      * 服务别名= "group::version"
      */
-    protected String tags = "";
+    protected String tags = getStringValue(DEFAULT_TAGS);
     /**
      * 过滤器配置，多个用逗号隔开
      */
@@ -98,12 +102,12 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
     /**
      * 远程调用超时时间(毫秒)
      */
-    protected int timeout = BsoaConfigs.getIntValue(BsoaConfigs.CLIENT_INVOKE_TIMEOUT);
+    protected int timeout = getIntValue(CLIENT_INVOKE_TIMEOUT);
 
     /**
      * 代理类型
      */
-    protected String proxy = BsoaConfigs.getStringValue(BsoaConfigs.DEFAULT_PROXY);
+    protected String proxy = getStringValue(DEFAULT_PROXY);
 
     /**
      * 结果缓存实现类
@@ -152,11 +156,6 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
      * 服务配置的listener
      */
     protected transient volatile ConfigListener configListener;
-
-    /**
-     * 注册中心的接口id
-     */
-    protected transient String ifaceId;
 
     /**
      * Gets proxy class.
@@ -423,24 +422,6 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
      */
     public void setCacheref(Cache cacheref) {
         this.cacheref = cacheref;
-    }
-
-    /**
-     * Gets iface Id.
-     *
-     * @return the iface Id
-     */
-    public String getIfaceId() {
-        return ifaceId;
-    }
-
-    /**
-     * Sets iface Id.
-     *
-     * @param ifaceId the iface Id
-     */
-    public void setIfaceId(String ifaceId) {
-        this.ifaceId = ifaceId;
     }
 
     /**

@@ -14,16 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.bsoa.rpc.listener;
+package io.bsoa.rpc.transport;
+
+import java.net.InetSocketAddress;
 
 /**
- *
- *
- * Created by zhangg on 2016/7/17 15:32.
+ * <p></p>
+ * <p>
+ * Created by zhangg on 2017/1/13 01:32. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public interface ResultListener {
+public class ClientTransportUtils {
 
-    boolean operationComplete(ResponseFuture future);
+    public static InetSocketAddress remoteAddress(ClientTransport transport) {
+        AbstractChannel channel = transport.getChannel();
+        return channel == null ? null : channel.getRemoteAddress();
+    }
+
+    public static InetSocketAddress localAddress(ClientTransport transport) {
+        AbstractChannel channel = transport.getChannel();
+        return channel == null ? null : channel.getLocalAddress();
+    }
 }
