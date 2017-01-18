@@ -41,8 +41,8 @@ public class ServerTest {
 
     public static void main(String[] args) {
         ServerConfig serverConfig = new ServerConfig();
-        serverConfig.setHost("0.0.0.0");
-        serverConfig.setPort(22222);
+//        serverConfig.setHost("0.0.0.0");
+//        serverConfig.setPort(22222);
         serverConfig.setDaemon(false);
         //serverConfig.start();
 

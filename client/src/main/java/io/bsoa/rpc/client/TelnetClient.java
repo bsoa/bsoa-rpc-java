@@ -33,6 +33,7 @@ import io.bsoa.rpc.common.BsoaConstants;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
+@Deprecated
 public class TelnetClient {
 
     private String ip;

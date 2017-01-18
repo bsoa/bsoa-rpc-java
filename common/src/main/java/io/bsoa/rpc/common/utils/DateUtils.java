@@ -21,7 +21,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- *
+ * FIXME 不要用 simpleDateFormat
  *
  * Created by zhangg on 2016/7/16 00:03.
  *

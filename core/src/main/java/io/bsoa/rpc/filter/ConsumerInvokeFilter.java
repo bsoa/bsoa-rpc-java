@@ -19,12 +19,14 @@ package io.bsoa.rpc.filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.bsoa.rpc.base.Invoker;
 import io.bsoa.rpc.client.Client;
 import io.bsoa.rpc.config.ConsumerConfig;
 import io.bsoa.rpc.exception.BsoaRpcException;
 import io.bsoa.rpc.message.MessageBuilder;
 import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.message.RpcResponse;
+import io.bsoa.rpc.server.InvokerHolder;
 
 /**
  * <p>执行真正的调用过程，使用client发送数据给server</p>
@@ -53,10 +55,8 @@ public class ConsumerInvokeFilter implements Filter {
     /**
      * Instantiates a new Consumer invoke filter.
      *
-     * @param consumerConfig
-     *         the consumer config
-     * @param client
-     *         the client
+     * @param consumerConfig the consumer config
+     * @param client         the client
      */
     public ConsumerInvokeFilter(ConsumerConfig<?> consumerConfig, Client client) {
         this.consumerConfig = consumerConfig;
@@ -66,20 +66,19 @@ public class ConsumerInvokeFilter implements Filter {
     /**
      * Invoke response message.
      *
-     * @param requestMessage
-     *         the request message
+     * @param requestMessage the request message
      * @return the response message
      */
     @Override
     public RpcResponse invoke(RpcRequest requestMessage) {
         // 优先本地调用，本地没有或者已经unexport，调用远程
-//        if (consumerConfig.isInjvm()) {
-//            Invoker injvmProviderInvoker = BaseServerHandler.getInvoker(consumerConfig.getInterfaceId(),
-//                    consumerConfig.getTags());
-//            if (injvmProviderInvoker != null) {
-//                return injvmProviderInvoker.invoke(requestMessage);
-//            }
-//        }
+        if (consumerConfig.isInJVM()) {
+            String key = consumerConfig.getInterfaceId() + "#" + consumerConfig.getTags();
+            Invoker injvmProviderInvoker = InvokerHolder.getInvoker(key);
+            if (injvmProviderInvoker != null) { // 本地有服务事项类
+                return injvmProviderInvoker.invoke(requestMessage);
+            }
+        }
         // 目前只是通过client发送给服务端
         try {
             return client.sendMsg(requestMessage);

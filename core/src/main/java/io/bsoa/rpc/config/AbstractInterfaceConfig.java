@@ -27,7 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.bsoa.rpc.cache.Cache;
+import io.bsoa.rpc.base.Cache;
 import io.bsoa.rpc.common.BsoaConstants;
 import io.bsoa.rpc.common.utils.BeanUtils;
 import io.bsoa.rpc.common.utils.CommonUtils;
@@ -39,18 +39,20 @@ import io.bsoa.rpc.exception.BsoaRuntimeException;
 import io.bsoa.rpc.filter.Filter;
 import io.bsoa.rpc.listener.ConfigListener;
 
-import static io.bsoa.rpc.common.BsoaConfigs.CLIENT_INVOKE_TIMEOUT;
 import static io.bsoa.rpc.common.BsoaConfigs.DEFAULT_PROXY;
 import static io.bsoa.rpc.common.BsoaConfigs.DEFAULT_TAGS;
-import static io.bsoa.rpc.common.BsoaConfigs.getIntValue;
+import static io.bsoa.rpc.common.BsoaConfigs.SERVICE_REGISTER;
+import static io.bsoa.rpc.common.BsoaConfigs.SERVICE_SUBSCRIBE;
+import static io.bsoa.rpc.common.BsoaConfigs.getBooleanValue;
 import static io.bsoa.rpc.common.BsoaConfigs.getStringValue;
-import static io.bsoa.rpc.config.ConfigValueHelper.checkNormalWithColon;
+import static io.bsoa.rpc.config.ConfigValueHelper.checkNormalWithCommaColon;
 
 /**
  * 接口级的公共配置
  * <p>
  * Created by zhanggeng on 16-7-7.
  *
+ * @param <T> the type parameter
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
  */
 public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implements Serializable{
@@ -71,7 +73,7 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
      */
     protected String interfaceId;
     /**
-     * 服务别名= "group::version"
+     * 服务标签
      */
     protected String tags = getStringValue(DEFAULT_TAGS);
     /**
@@ -92,17 +94,12 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
     /**
      * 是否注册，如果是false只订阅不注册
      */
-    protected boolean register = true;
+    protected boolean register = getBooleanValue(SERVICE_REGISTER);
 
     /**
      * 是否订阅服务
      */
-    protected boolean subscribe = true;
-
-    /**
-     * 远程调用超时时间(毫秒)
-     */
-    protected int timeout = getIntValue(CLIENT_INVOKE_TIMEOUT);
+    protected boolean subscribe = getBooleanValue(SERVICE_SUBSCRIBE);
 
     /**
      * 代理类型
@@ -112,7 +109,12 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
     /**
      * 结果缓存实现类
      */
-    protected transient Cache cacheref;
+    protected transient Cache cacheRef;
+
+    /**
+     * Mock实现类
+     */
+    protected transient T mockRef;
 
     /**
      * 自定义参数
@@ -123,12 +125,18 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
 
     /**
      * 接口下每方法的最大可并行执行请求数，配置-1关闭并发过滤器，等于0表示开启过滤但是不限制
+     * 子类默认值不一样
      protected int concurrents = 0;*/
+
+    /**
+     * 是否开启mock
+     */
+    protected boolean mock;
 
     /**
      * 是否开启参数验证(jsr303)
      */
-    protected boolean validation = false;
+    protected boolean validation;
 
     /**
      * 压缩算法，为空则不压缩
@@ -138,7 +146,7 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
     /**
      * 是否启动结果缓存
      */
-    protected boolean cache = false;
+    protected boolean cache;
 
 	/*-------------配置项结束----------------*/
 
@@ -204,7 +212,7 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
      * @param tags the tags
      */
     public void setTags(String tags) {
-        checkNormalWithColon("tags", tags);
+        checkNormalWithCommaColon("tags", tags);
         this.tags = tags;
     }
 
@@ -317,24 +325,6 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
     }
 
     /**
-     * Gets timeout.
-     *
-     * @return the timeout
-     */
-    public int getTimeout() {
-        return timeout;
-    }
-
-    /**
-     * Sets timeout.
-     *
-     * @param timeout the timeout
-     */
-    public void setTimeout(int timeout) {
-        this.timeout = timeout;
-    }
-
-    /**
      * Is cache.
      *
      * @return the cache
@@ -407,27 +397,67 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
     }
 
     /**
-     * Gets cacheref.
+     * Gets cacheRef.
      *
-     * @return the cacheref
+     * @return the cacheRef
      */
-    public Cache getCacheref() {
-        return cacheref;
+    public Cache getCacheRef() {
+        return cacheRef;
     }
 
     /**
-     * Sets cacheref.
+     * Gets mock ref.
      *
-     * @param cacheref the cacheref
+     * @return the mock ref
      */
-    public void setCacheref(Cache cacheref) {
-        this.cacheref = cacheref;
+    public T getMockRef() {
+        return mockRef;
+    }
+
+    /**
+     * Sets mock ref.
+     *
+     * @param mockRef the mock ref
+     * @return the mock ref
+     */
+    public AbstractInterfaceConfig setMockRef(T mockRef) {
+        this.mockRef = mockRef;
+        return this;
+    }
+
+    /**
+     * Is mock boolean.
+     *
+     * @return the boolean
+     */
+    public boolean isMock() {
+        return mock;
+    }
+
+    /**
+     * Sets mock.
+     *
+     * @param mock the mock
+     * @return the mock
+     */
+    public AbstractInterfaceConfig setMock(boolean mock) {
+        this.mock = mock;
+        return this;
+    }
+
+    /**
+     * Sets cacheRef.
+     *
+     * @param cacheRef the cacheRef
+     */
+    public void setCacheRef(Cache cacheRef) {
+        this.cacheRef = cacheRef;
     }
 
     /**
      * 得到配置监听器
      *
-     * @return 配置监听器
+     * @return 配置监听器 config listener
      */
     public ConfigListener getConfigListener() {
         return configListener;
@@ -455,7 +485,7 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
     /**
      * 是否有缓存
      *
-     * @return 是否配置了cache
+     * @return 是否配置了cache boolean
      */
     public boolean hasCache() {
         if (isCache()) {
@@ -474,7 +504,7 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
     /**
      * 是否有token配置
      *
-     * @return 是否配置了token
+     * @return 是否配置了token boolean
      */
     public boolean hasToken() {
         if (getParameter(BsoaConstants.HIDDEN_KEY_TOKEN) != null) {
@@ -535,7 +565,7 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
      * 接口属性和方法属性加载配置到缓存
      *
      * @param rebuild 是否重建
-     * @return Map<String, Object> unmodifiableMap
+     * @return Map<String Object> unmodifiableMap
      */
     public synchronized Map<String, Object> getConfigValueCache(boolean rebuild) {
         if (configValueCache != null && !rebuild) {
@@ -609,7 +639,7 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
      * @param property    属性
      * @param newValueStr 要设置的值
      * @param overwrite   是否覆盖 true直接覆盖，false为检查
-     * @return 是否有变更
+     * @return 是否有变更 boolean
      */
     protected boolean updateAttribute(String property, String newValueStr, boolean overwrite) {
         try {
@@ -685,7 +715,7 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
      * @param methodName   方法名
      * @param configKey    配置key，例如参数
      * @param defaultValue 默认值
-     * @return 配置值
+     * @return 配置值 method config value
      */
     public Object getMethodConfigValue(String methodName, String configKey, Object defaultValue) {
         Object value = getMethodConfigValue(methodName, configKey);
@@ -697,7 +727,7 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
      *
      * @param methodName 方法名
      * @param configKey  配置key，例如参数
-     * @return 配置值
+     * @return 配置值 method config value
      */
     public Object getMethodConfigValue(String methodName, String configKey) {
         if (configValueCache == null) {

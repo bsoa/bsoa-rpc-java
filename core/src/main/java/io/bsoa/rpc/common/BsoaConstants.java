@@ -18,6 +18,8 @@ package io.bsoa.rpc.common;
 
 import java.nio.charset.Charset;
 
+import static io.bsoa.rpc.common.BsoaConfigs.getStringValue;
+
 /**
  * Created by zhangg on 2016/7/13 22:28.
  *
@@ -36,33 +38,6 @@ public class BsoaConstants {
      * 当前Build版本，每次发布修改  //FIXME
      */
     public static final String JSF_BUILD_VERSION = "1.6.1_201606211749";
-
-    /**
-     * JSF协议头的魔术位
-     public static final int MAGICCODE = 0xADCF;*/
-
-    /**
-     * JSF协议头的魔术位
-     */
-    public static final byte[] MAGICCODEBYTE = new byte[]{(byte) 0xAD, (byte) 0xCF};
-
-    /*---------消息类型开始-----------*/
-    public static final int REQUEST_MSG = 1;
-
-    public static final int RESPONSE_MSG = 2;
-
-    public static final int HEARTBEAT_REQUEST_MSG = 10;//connection heartbeat message
-
-    public static final int HEARTBEAT_RESPONSE_MSG = 11;//connection heartbeat message
-
-    public static final int SHAKEHAND_MSG = 6;
-
-    public static final int SHAKEHAND_RESULT_MSG = 7;
-
-    public static final int CALLBACK_REQUEST_MSG = 4;
-
-    public static final int CALLBACK_RESPONSE_MSG = 5;
-    /*---------消息类型结束-----------*/
 
     /**--------Config配置值相关开始---------*/
     /**
@@ -128,25 +103,6 @@ public class BsoaConstants {
      */
     public static final String CLUSTER_TRANSPORT_RESETTABLE = "resettable";
 
-    /**
-     * 默认consumer连provider超时时间
-     */
-    public static final int DEFAULT_CLIENT_CONNECT_TIMEOUT = 5000;
-
-    /**
-     * 默认consumer断开时等待结果的超时时间
-     */
-    public static final int DEFAULT_CLIENT_DISCONNECT_TIMEOUT = 10000;
-
-    /**
-     * 默认consumer调用provider超时时间
-     */
-    public static final int DEFAULT_CLIENT_INVOKE_TIMEOUT = 5000;
-
-    /**
-     * 默认连注册中心的超时时间
-     */
-    public static final int DEFAULT_REGISTRY_CONNECT_TIMEOUT = 20000;
 
     /**
      * 默认失败重试次数
@@ -267,17 +223,17 @@ public class BsoaConstants {
     /**
      * 代理类型：jdk
      */
-    public final static String PROXY_JDK = "jdk";
+//    public final static String PROXY_JDK = "jdk";
 
     /**
      * 代理类型：javassist
      */
-    public final static String PROXY_JAVASSIST = "javassist";
+//    public final static String PROXY_JAVASSIST = "javassist";
 
     /**
      * 默认字符集 utf-8
      */
-    public final static Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
+    public final static Charset DEFAULT_CHARSET = Charset.forName(getStringValue(BsoaConfigs.DEFAULT_CHARSET));
 
     /**
      * 默认启动端口，包括不配置或者随机，都从此端口开始计算
@@ -303,18 +259,6 @@ public class BsoaConstants {
      * 默认服务端 数据包限制
      */
     public final static int DEFAULT_PAYLOAD = 8 * 1024 * 1024;
-    /**
-     * 默认IO的buffer大小
-     */
-    public final static int DEFAULT_BUFFER_SIZE = 8 * 1024;
-    /**
-     * 最大IO的buffer大小
-     */
-    public final static int MAX_BUFFER_SIZE = 32 * 1024;
-    /**
-     * 最小IO的buffer大小
-     */
-    public final static int MIN_BUFFER_SIZE = 1 * 1024;
 
     /**
      * Consumer给Provider发心跳的间隔

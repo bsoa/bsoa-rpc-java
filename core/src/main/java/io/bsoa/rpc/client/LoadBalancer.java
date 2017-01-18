@@ -23,8 +23,8 @@ import io.bsoa.rpc.ext.Extensible;
 import io.bsoa.rpc.message.RpcRequest;
 
 /**
- *
- *
+ * 负载均衡器：从一堆Provider列表里选出一个
+ * <p>
  * Created by zhangg on 2016/7/17 15:06.
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
@@ -32,7 +32,19 @@ import io.bsoa.rpc.message.RpcRequest;
 @Extensible(singleton = false)
 public interface LoadBalancer {
 
+    /**
+     * 初始化负载均衡器
+     *
+     * @param consumerConfig 客户端配置
+     */
     public void init(ConsumerConfig consumerConfig);
 
+    /**
+     * 选择服务
+     *
+     * @param request   本次调用（可以得到类名，方法名，方法参数，参数值等）
+     * @param providers providers（<b>当前可用</b>的服务Provider列表）
+     * @return 选择其中一个Provider
+     */
     public Provider select(RpcRequest request, List<Provider> providers);
 }

@@ -41,7 +41,6 @@ public abstract class RPCMessage extends DecodableMessage {
 
     private RPCMessage() {
         super((byte) 0);
-
     }
 
     /**

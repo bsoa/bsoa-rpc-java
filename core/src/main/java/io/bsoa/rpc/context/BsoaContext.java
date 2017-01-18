@@ -27,6 +27,7 @@ import java.util.concurrent.ConcurrentMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.bsoa.rpc.common.BsoaConfigs;
 import io.bsoa.rpc.common.BsoaConstants;
 import io.bsoa.rpc.common.BsoaVersion;
 import io.bsoa.rpc.common.SystemInfo;
@@ -101,9 +102,9 @@ public class BsoaContext {
      * 初始化一些上下文
      */
     private static void putPropertyToContext() {
-        putIfAbsent(KEY_APPID, System.getProperty("bsoa.app.id"));
-        putIfAbsent(KEY_APPNAME, System.getProperty("bsoa.app.name"));
-        putIfAbsent(KEY_APPINSID, System.getProperty("bsoa.instance.id"));
+        putIfAbsent(KEY_APPID, BsoaConfigs.getOrDefaultValue("bsoa.appId", null));
+        putIfAbsent(KEY_APPNAME, BsoaConfigs.getOrDefaultValue("bsoa.appName", null));
+        putIfAbsent(KEY_APPINSID, BsoaConfigs.getOrDefaultValue("bsoa.instanceId", null));
     }
 
     /**

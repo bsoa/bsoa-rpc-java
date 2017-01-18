@@ -26,6 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.bsoa.rpc.base.Invoker;
 import io.bsoa.rpc.common.BsoaConstants;
 import io.bsoa.rpc.common.struct.ConcurrentHashSet;
 import io.bsoa.rpc.common.utils.ClassLoaderUtils;
@@ -38,16 +39,29 @@ import io.bsoa.rpc.exception.BsoaRuntimeException;
 import io.bsoa.rpc.listener.ConfigListener;
 import io.bsoa.rpc.registry.Registry;
 import io.bsoa.rpc.registry.RegistryFactory;
+import io.bsoa.rpc.server.InvokerHolder;
 import io.bsoa.rpc.server.ProviderProxyInvoker;
 import io.bsoa.rpc.server.Server;
 import io.bsoa.rpc.server.ServerFactory;
+
+import static io.bsoa.rpc.common.BsoaConfigs.PROVIDER_CONCURRENTS;
+import static io.bsoa.rpc.common.BsoaConfigs.PROVIDER_DELAY;
+import static io.bsoa.rpc.common.BsoaConfigs.PROVIDER_DYNAMIC;
+import static io.bsoa.rpc.common.BsoaConfigs.PROVIDER_EXCLUDE;
+import static io.bsoa.rpc.common.BsoaConfigs.PROVIDER_INCLUDE;
+import static io.bsoa.rpc.common.BsoaConfigs.PROVIDER_INVOKE_TIMEOUT;
+import static io.bsoa.rpc.common.BsoaConfigs.PROVIDER_PRIORITY;
+import static io.bsoa.rpc.common.BsoaConfigs.PROVIDER_WEIGHT;
+import static io.bsoa.rpc.common.BsoaConfigs.getBooleanValue;
+import static io.bsoa.rpc.common.BsoaConfigs.getIntValue;
+import static io.bsoa.rpc.common.BsoaConfigs.getStringValue;
 
 /**
  * Created by zhanggeng on 16-7-7.
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
  */
-public class ProviderConfig<T> extends AbstractInterfaceConfig implements Serializable {
+public class ProviderConfig<T> extends AbstractInterfaceConfig<T> implements Serializable {
 
     /**
      * The constant serialVersionUID.
@@ -73,32 +87,32 @@ public class ProviderConfig<T> extends AbstractInterfaceConfig implements Serial
     /**
      * 服务发布延迟,单位毫秒，默认0，配置为-1代表spring加载完毕（通过spring才生效）
      */
-    protected int delay = BsoaConstants.DEFAULT_PROVIDER_DELAY;
+    protected int delay = getIntValue(PROVIDER_DELAY);
 
     /**
      * 权重
      */
-    protected int weight = BsoaConstants.DEFAULT_PROVIDER_WEIGHT;
+    protected int weight = getIntValue(PROVIDER_WEIGHT);
 
     /**
      * 包含的方法
      */
-    protected String include = "*";
+    protected String include = getStringValue(PROVIDER_INCLUDE);
 
     /**
      * 不发布的方法列表，逗号分隔
      */
-    protected String exclude;
+    protected String exclude = getStringValue(PROVIDER_EXCLUDE);
 
     /**
      * 是否动态注册，默认为true，配置为false代表不主动发布，需要到管理端进行上线操作
      */
-    protected boolean dynamic = true;
+    protected boolean dynamic = getBooleanValue(PROVIDER_DYNAMIC);
 
     /**
      * 服务优先级，越大越高
      */
-    protected int priority = BsoaConstants.DEFAULT_METHOD_PRIORITY;
+    protected int priority = getIntValue(PROVIDER_PRIORITY);
 
     /**
      * whitelist blacklist
@@ -107,9 +121,14 @@ public class ProviderConfig<T> extends AbstractInterfaceConfig implements Serial
     /*-------- 下面是方法级配置 --------*/
 
     /**
+     * 服务端执行超时时间(毫秒)
+     */
+    protected int timeout = getIntValue(PROVIDER_INVOKE_TIMEOUT);
+
+    /**
      * 接口下每方法的最大可并行执行请求数，配置-1关闭并发过滤器，等于0表示开启过滤但是不限制
      */
-    protected int concurrents = 0;
+    protected int concurrents = getIntValue(PROVIDER_CONCURRENTS);
 
     /*---------- 参数配置项结束 ------------*/
 
@@ -124,6 +143,11 @@ public class ProviderConfig<T> extends AbstractInterfaceConfig implements Serial
     protected transient volatile ConcurrentHashMap<String, Boolean> methodsLimit;
 
     /**
+     * 服务端Invoker对象
+     */
+    protected transient Invoker providerProxyInvoker;
+
+    /**
      * 发布的服务配置
      */
     private final static ConcurrentHashSet<String> EXPORTED_KEYS
@@ -131,6 +155,7 @@ public class ProviderConfig<T> extends AbstractInterfaceConfig implements Serial
 
     /**
      * 发布服务，有延迟加载
+     *
      * @throws BsoaRuntimeException the init error exception
      */
     public synchronized void export() throws BsoaRuntimeException {
@@ -155,6 +180,7 @@ public class ProviderConfig<T> extends AbstractInterfaceConfig implements Serial
 
     /**
      * 发布服务
+     *
      * @throws BsoaRuntimeException the init error exception
      */
     private synchronized void doExport() throws BsoaRuntimeException {
@@ -195,7 +221,9 @@ public class ProviderConfig<T> extends AbstractInterfaceConfig implements Serial
 //        CallbackUtil.autoRegisterCallBack(getProxyClass());
 
         // 构造请求调用器
-        ProviderProxyInvoker invoker = new ProviderProxyInvoker(this);
+        providerProxyInvoker = new ProviderProxyInvoker(this);
+        // 记录到本地
+        InvokerHolder.setInvoker(InvokerHolder.buildKey(interfaceId, tags), providerProxyInvoker);
 
         // 初始化注册中心
         if (isRegister()) {
@@ -219,7 +247,7 @@ public class ProviderConfig<T> extends AbstractInterfaceConfig implements Serial
                 Server server = serverConfig.getServer();
                 // 注册序列化接口
 //                    CodecUtils.registryService(serverConfig.getSerialization(), getProxyClass());
-                server.registerProcessor(this, invoker);
+                server.registerProcessor(this, providerProxyInvoker);
             } catch (BsoaRuntimeException e) {
                 throw e;
             } catch (Exception e) {
@@ -268,6 +296,11 @@ public class ProviderConfig<T> extends AbstractInterfaceConfig implements Serial
         }
         String key = buildKey();
         LOGGER.info("Unexport provider config : {} {}", key, getId() != null ? "with bean id " + getId() : "");
+
+        // 取消注册到本地
+        InvokerHolder.removeInvoker(InvokerHolder.buildKey(interfaceId, tags));
+        providerProxyInvoker = null;
+
         // 取消将处理器注册到server
         List<ServerConfig> serverConfigs = getServer();
         if (serverConfigs != null) {
@@ -598,6 +631,24 @@ public class ProviderConfig<T> extends AbstractInterfaceConfig implements Serial
     }
 
     /**
+     * Gets timeout.
+     *
+     * @return the timeout
+     */
+    public int getTimeout() {
+        return timeout;
+    }
+
+    /**
+     * Sets timeout.
+     *
+     * @param timeout the timeout
+     */
+    public void setTimeout(int timeout) {
+        this.timeout = timeout;
+    }
+
+    /**
      * Gets concurrents.
      *
      * @return the concurrents
@@ -609,8 +660,7 @@ public class ProviderConfig<T> extends AbstractInterfaceConfig implements Serial
     /**
      * Sets concurrents.
      *
-     * @param concurrents
-     *         the concurrents
+     * @param concurrents the concurrents
      */
     public void setConcurrents(int concurrents) {
         this.concurrents = concurrents;
@@ -651,17 +701,16 @@ public class ProviderConfig<T> extends AbstractInterfaceConfig implements Serial
                 for (ServerConfig server : servers) {
                     StringBuilder sb = new StringBuilder(200);
                     sb.append(server.getProtocol()).append("://").append(server.getHost())
-                            .append(":").append(server.getPort()).append(server.getContextpath())
+                            .append(":").append(server.getPort()).append(server.getContextPath())
                             .append(getInterfaceId()).append("?tags=").append(getTags())
                             .append(getKeyPairs("delay", getDelay()))
                             .append(getKeyPairs("weight", getWeight()))
                             .append(getKeyPairs("register", isRegister()))
-                            .append(getKeyPairs("threads", server.getThreads()))
-                            .append(getKeyPairs("iothreads", server.getIothreads()))
-                            .append(getKeyPairs("threadpool", server.getThreadpool()))
+                            .append(getKeyPairs("maxThreads", server.getMaxThreads()))
+                            .append(getKeyPairs("ioThreads", server.getIoThreads()))
+                            .append(getKeyPairs("threadPoolType", server.getThreadPoolType()))
                             .append(getKeyPairs("accepts", server.getAccepts()))
                             .append(getKeyPairs("dynamic", isDynamic()))
-                            .append(getKeyPairs("debug", server.isDebug()))
                             .append(getKeyPairs(BsoaConstants.CONFIG_KEY_JSFVERSION, BsoaConstants.JSF_VERSION));
                     urls.add(sb.toString());
                 }
@@ -674,7 +723,7 @@ public class ProviderConfig<T> extends AbstractInterfaceConfig implements Serial
     /**
      * Gets key pairs.
      *
-     * @param key the key
+     * @param key   the key
      * @param value the value
      * @return the key pairs
      */
@@ -698,19 +747,16 @@ public class ProviderConfig<T> extends AbstractInterfaceConfig implements Serial
     /**
      * 接口可以按方法发布
      *
-     * @param includeMethods
-     *         包含的方法列表
-     * @param excludeMethods
-     *         不包含的方法列表
-     * @param methodName
-     *         方法名
+     * @param includeMethods 包含的方法列表
+     * @param excludeMethods 不包含的方法列表
+     * @param methodName     方法名
      * @return 方法
      */
-    private boolean inList(String includeMethods,String excludeMethods, String methodName) {
+    private boolean inList(String includeMethods, String excludeMethods, String methodName) {
         //判断是否在白名单中
         if (includeMethods != null && !"*".equals(includeMethods)) {
             includeMethods = includeMethods + ",";
-            boolean inwhite = includeMethods.indexOf(methodName+",") >= 0;
+            boolean inwhite = includeMethods.indexOf(methodName + ",") >= 0;
             if (!inwhite) {
                 return false;
             }
@@ -720,7 +766,7 @@ public class ProviderConfig<T> extends AbstractInterfaceConfig implements Serial
             return true;
         } else {
             excludeMethods = excludeMethods + ",";
-            boolean inblack = excludeMethods.indexOf(methodName+",") >= 0;
+            boolean inblack = excludeMethods.indexOf(methodName + ",") >= 0;
             return !inblack;
         }
     }

@@ -221,6 +221,15 @@ public class BsoaConfigs {
      * 扩展点加载的路径
      */
     public static final String EXTENSION_LOAD_PATH = "extension.load.path";
+    /**
+     * Consumer共享心跳重连线程？ FIXME
+     */
+    public final static String CONSUMER_SHARE_RECONNECT_THREAD = "consumer.share.reconnect.thread";
+    /**
+     * 是否跨接口的长连接复用 FIXME
+     */
+    public final static String TRANSPORT_CONNECTION_REUSE = "transport.connection.reuse";
+
 
     /**
      * 默认服务tag
@@ -234,10 +243,6 @@ public class BsoaConfigs {
      * 默认序列化
      */
     public final static String DEFAULT_SERIALIZATION = "default.serialization";
-    /**
-     * 默认负载均衡算法
-     */
-    public final static String DEFAULT_LOADBALANCER = "default.loadbalancer";
     /**
      * 默认代理类型
      */
@@ -254,44 +259,41 @@ public class BsoaConfigs {
      * 默认压缩算法
      */
     public final static String DEFAULT_COMPRESS = "default.compress";
-    /**
-     * 默认集群策略
-     */
-    public final static String DEFAULT_CLUSTER = "default.cluster";
+
 
     /**
      * 默认连注册中心的超时时间
      */
     public static final String REGISTRY_CONNECT_TIMEOUT = "registry.connect.timeout";
     /**
-     * 默认连注册中心的超时时间
+     * 注册中心等待结果的超时时间
      */
-    public static final String REGISTRY_REGISTER_BATCH = "registry.register.batch";
+    public static final String REGISTRY_DISCONNECT_TIMEOUT = "registry.disconnect.timeout";
+    /**
+     * 注册中心调用超时时间
+     */
+    public static final String REGISTRY_INVOKE_TIMEOUT = "registry.invoke.timeout";
+    /**
+     * 注册中心心跳发送间隔
+     */
+    public final static String REGISTRY_HEARTBEAT_PERIOD = "registry.heartbeat.period";
+    /**
+     * 注册中心重建连接的间隔
+     */
+    public final static String REGISTRY_RECONNECT_PERIOD = "registry.reconnect.period";
+    /**
+     * 是否批量操作
+     */
+    public static final String REGISTRY_BATCH = "registry.batch";
+    /**
+     * 批量注册的大小
+     */
+    public static final String REGISTRY_BATCH_SIZE = "registry.batch.size";
 
     /**
-     * 默认服务端业务线程池类型
+     * 默认绑定网卡
      */
-    public final static String SERVER_POOL_TYPE = "server.pool.type";
-    /**
-     * 默认服务端业务线程池最小
-     */
-    public final static String SERVER_POOL_CORE = "server.pool.core";
-    /**
-     * 默认服务端业务线程池最大
-     */
-    public final static String SERVER_POOL_MAX = "server.pool.max";
-    /**
-     * 默认服务端业务线程池队列类型
-     */
-    public final static String SERVER_POOL_QUEUE_TYPE = "server.pool.queue.type";
-    /**
-     * 默认服务端业务线程池队列
-     */
-    public final static String SERVER_POOL_QUEUE = "server.pool.queue";
-    /**
-     * 默认服务端业务线程池回收时间
-     */
-    public final static String SERVER_POOL_TIME = "server.pool.time";
+    public static final String SERVER_HOST = "server.host";
     /**
      * 默认启动端口，包括不配置或者随机，都从此端口开始计算
      */
@@ -305,6 +307,60 @@ public class BsoaConfigs {
      */
     public static final String SERVER_CONTEXT_PATH = "server.context.path";
     /**
+     * 默认io线程大小，推荐自动设置
+     */
+    public final static String SERVER_IOTHREADS = "server.ioThreads";
+    /**
+     * 默认服务端业务线程池类型
+     */
+    public final static String SERVER_POOL_TYPE = "server.pool.type";
+    /**
+     * 默认服务端业务线程池最小
+     */
+    public final static String SERVER_POOL_CORE = "server.pool.core";
+    /**
+     * 默认服务端业务线程池最大
+     */
+    public final static String SERVER_POOL_MAX = "server.pool.max";
+    /**
+     * 是否允许telnet，针对自定义协议
+     */
+    public final static String SERVER_TELNET = "server.telnet";
+    /**
+     * 默认服务端业务线程池队列类型
+     */
+    public final static String SERVER_POOL_QUEUE_TYPE = "server.pool.queue.type";
+    /**
+     * 默认服务端业务线程池队列
+     */
+    public final static String SERVER_POOL_QUEUE = "server.pool.queue";
+    /**
+     * 默认服务端业务线程池回收时间
+     */
+    public final static String SERVER_POOL_ALIVETIME = "server.pool.aliveTime";
+    /**
+     * 最大支持长连接
+     */
+    public final static String SERVER_ACCEPTS = "server.accepts";
+    /**
+     * 是否启动epoll
+     */
+    public final static String SERVER_EPOLL = "server.epoll";
+    /**
+     * 是否hold住端口，true的话随主线程退出而退出，false的话则要主动退出
+     */
+    public final static String SERVER_DAEMON = "server.daemon";
+
+
+    /**
+     * 默认服务是否注册
+     */
+    public final static String SERVICE_REGISTER = "service.register";
+    /**
+     * 默认服务是否订阅
+     */
+    public final static String SERVICE_SUBSCRIBE = "service.subscribe";
+    /**
      * 默认权重
      */
     public final static String PROVIDER_WEIGHT = "provider.weight";
@@ -313,13 +369,86 @@ public class BsoaConfigs {
      */
     public static final String PROVIDER_DELAY = "provider.delay";
     /**
+     * 默认发布方法
+     */
+    public final static String PROVIDER_INCLUDE = "provider.include";
+    /**
+     * 默认不发布方法
+     */
+    public static final String PROVIDER_EXCLUDE = "provider.exclude";
+    /**
+     * 是否动态注册
+     */
+    public static final String PROVIDER_DYNAMIC = "provider.dynamic";
+    /**
+     * 接口优先级
+     */
+    public static final String PROVIDER_PRIORITY = "provider.priority";
+    /**
+     * 服务端调用超时（不打断执行）
+     */
+    public static final String PROVIDER_INVOKE_TIMEOUT = "provider.invoke.timeout";
+    /**
+     * 接口下每方法的最大可并行执行请求数
+     */
+    public static final String PROVIDER_CONCURRENTS = "provider.concurrents";
+
+    /**
+     * 默认集群策略
+     */
+    public final static String CONSUMER_CLUSTER = "consumer.cluster";
+    /**
+     * 默认负载均衡算法
+     */
+    public final static String CONSUMER_LOADBALANCER = "consumer.loadbalancer";
+    /**
      * 默认失败重试次数
      */
     public static final String CONSUMER_RETRIES = "consumer.retries";
     /**
+     * 默认是否异步
+     */
+    public static final String CONSUMER_ASYNC = "consumer.async";
+    /**
+     * 默认不延迟加载
+     */
+    public static final String CONSUMER_LAZY = "consumer.lazy";
+    /**
+     * 默认粘滞连接
+     */
+    public static final String CONSUMER_STICKY = "consumer.sticky";
+    /**
+     * 是否jvm内部调用（provider和consumer配置在同一个jvm内，则走本地jvm内部，不走远程）
+     */
+    public static final String CONSUMER_INJVM = "consumer.inJVM";
+    /**
+     * 是否强依赖（即没有服务节点就启动失败）
+     */
+    public static final String CONSUMER_CHECK = "consumer.check";
+    /**
+     * 是否单向调用（不关心结果，服务端不响应）
+     */
+    public static final String CONSUMER_ONEWAY = "consumer.oneWay";
+    /**
+     * 接口下每方法的最大可并行执行请求数
+     */
+    public static final String CONSUMER_CONCURRENTS = "consumer.concurrents";
+    /**
      * 默认一个ip端口建立的长连接数量
      */
-    public static final String CONSUMER_CONNECTION_NUM = "consumer.connection.num";
+    public static final String CONSUMER_CONNECTION = "consumer.connection";
+    /**
+     * 默认consumer连provider超时时间
+     */
+    public static final String CONSUMER_CONNECT_TIMEOUT = "consumer.connect.timeout";
+    /**
+     * 默认consumer断开时等待结果的超时时间
+     */
+    public static final String CONSUMER_DISCONNECT_TIMEOUT = "consumer.disconnect.timeout";
+    /**
+     * 默认consumer调用provider超时时间
+     */
+    public static final String CONSUMER_INVOKE_TIMEOUT = "consumer.invoke.timeout";
     /**
      * Consumer给Provider发心跳的间隔
      */
@@ -328,22 +457,7 @@ public class BsoaConfigs {
      * Consumer给Provider重连的间隔
      */
     public final static String CONSUMER_RECONNECT_PERIOD = "consumer.reconnect.period";
-    /**
-     * Consumer共享心跳重连线程？
-     */
-    public final static String CONSUMER_SHARE_RECONNECT_THREAD = "consumer.share.reconnect.thread";
-    /**
-     * 默认consumer连provider超时时间
-     */
-    public static final String CLIENT_CONNECT_TIMEOUT = "client.connect.timeout";
-    /**
-     * 默认consumer断开时等待结果的超时时间
-     */
-    public static final String CLIENT_DISCONNECT_TIMEOUT = "client.disconnect.timeout";
-    /**
-     * 默认consumer调用provider超时时间
-     */
-    public static final String CLIENT_INVOKE_TIMEOUT = "client.invoke.timeout";
+
     /**
      * 默认回调线程池类型
      */
@@ -385,10 +499,6 @@ public class BsoaConfigs {
      */
     public final static String TRANSPORT_BUFFER_MIN = "transport.buffer.min";
     /**
-     * 是否跨接口的长连接复用
-     */
-    public final static String TRANSPORT_CONNECTION_REUSE = "transport.connection.reuse";
-    /**
      * 客户端IO线程池
      */
     public final static String TRANSPORT_CLIENT_IO_THREADS = "transport.client.io.threads";
@@ -426,18 +536,6 @@ public class BsoaConfigs {
      * 服务端IO线程数
      */
     public final static String TRANSPORT_SERVER_IO_THREADS = "transport.server.io.threads";
-    /**
-     * 最大长连接数
-     */
-    public final static String TRANSPORT_SERVER_MAX_CONNECTION = "transport.server.max.connection";
-    /**
-     * 是否允许telnet
-     */
-    public final static String TRANSPORT_SERVER_TELNET = "transport.server.telnet";
-    /**
-     * 是否守护线程，true随主线程退出而退出，false需要主动退出
-     */
-    public final static String TRANSPORT_SERVER_DAEMON = "transport.server.daemon";
     /**
      * 线程方法模型
      */

@@ -700,16 +700,16 @@ public class ConnectionHolder {
 //                    try {
 //                        Map map = JSON.parseObject(versionStr, Map.class);
 //                        int realVersion = CommonUtils.parseInt(StringUtils.toString(map.get("jsfVersion")),
-//                                provider.getJsfVersion());
-//                        if (realVersion != provider.getJsfVersion()) {
-//                            provider.setJsfVersion(realVersion);
+//                                provider.getBsoaVersion());
+//                        if (realVersion != provider.getBsoaVersion()) {
+//                            provider.setBsoaVersion(realVersion);
 //                        }
 //                    } catch (Exception e) {
 //                    }
 //                    // 检查服务端是否支持invocation简化
 //                    String ifaceId = consumerConfig.getIfaceId();
 //                    if (StringUtils.isNotEmpty(ifaceId)) {
-//                        if (provider.getJsfVersion() >= 1500) {
+//                        if (provider.getBsoaVersion() >= 1500) {
 //                            String result = client.telnetJSF("check iface " + consumerConfig.getInterfaceId()
 //                                    + " " + ifaceId);
 //                            if (result != null) {

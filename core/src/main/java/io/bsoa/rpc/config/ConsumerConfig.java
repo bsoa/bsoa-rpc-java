@@ -49,13 +49,30 @@ import io.bsoa.rpc.listener.ResponseListener;
 import io.bsoa.rpc.proxy.ProxyFactory;
 import io.bsoa.rpc.registry.Registry;
 import io.bsoa.rpc.registry.RegistryFactory;
+import io.bsoa.rpc.server.InvokerHolder;
 
+import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_ASYNC;
+import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_CHECK;
+import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_CONCURRENTS;
+import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_CONNECTION;
+import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_CONNECT_TIMEOUT;
+import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_HEARTBEAT_PERIOD;
+import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_INJVM;
+import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_INVOKE_TIMEOUT;
+import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_LAZY;
+import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_ONEWAY;
+import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_RECONNECT_PERIOD;
+import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_STICKY;
+import static io.bsoa.rpc.common.BsoaConfigs.DEFAULT_PROTOCOL;
+import static io.bsoa.rpc.common.BsoaConfigs.DEFAULT_SERIALIZATION;
+import static io.bsoa.rpc.common.BsoaConfigs.getBooleanValue;
 import static io.bsoa.rpc.common.BsoaConfigs.getIntValue;
 import static io.bsoa.rpc.common.BsoaConfigs.getStringValue;
 
 /**
  * Created by zhanggeng on 16-7-7.
  *
+ * @param <T> the type parameter
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
  */
 public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Serializable {
@@ -73,7 +90,12 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Ser
     /**
      * 调用的协议
      */
-    protected String protocol = getStringValue(BsoaConfigs.DEFAULT_PROTOCOL);
+    protected String protocol = getStringValue(DEFAULT_PROTOCOL);
+
+    /**
+     * 默认序列化
+     */
+    protected String serialization = getStringValue(DEFAULT_SERIALIZATION);
 
     /**
      * 直连调用地址
@@ -83,28 +105,27 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Ser
     /**
      * 是否泛化调用
      */
-    protected boolean generic = false;
+    protected boolean generic;
 
     /**
      * 是否异步调用
      */
-    @Deprecated
-    protected boolean async = false;
+    protected boolean async = getBooleanValue(CONSUMER_ASYNC);
 
     /**
      * 连接超时时间
      */
-    protected int connectTimeout = getIntValue(BsoaConfigs.CLIENT_CONNECT_TIMEOUT);
+    protected int connectTimeout = getIntValue(CONSUMER_CONNECT_TIMEOUT);
 
     /**
      * 关闭超时时间（如果还有请求，会等待请求结束或者超时）
      */
-    protected int disconnectTimeout = getIntValue(BsoaConfigs.CLIENT_DISCONNECT_TIMEOUT);
+    protected int disconnectTimeout = getIntValue(BsoaConfigs.CONSUMER_DISCONNECT_TIMEOUT);
 
     /**
      * 集群处理，默认是failover
      */
-    protected String cluster = getStringValue(BsoaConfigs.DEFAULT_CLUSTER);
+    protected String cluster = getStringValue(BsoaConfigs.CONSUMER_CLUSTER);
 
     /**
      * The Retries. 失败后重试次数
@@ -114,34 +135,54 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Ser
     /**
      * The Loadbalance. 负载均衡
      */
-    protected String loadbalance = getStringValue(BsoaConfigs.DEFAULT_LOADBALANCER);
+    protected String loadbalancer = getStringValue(BsoaConfigs.CONSUMER_LOADBALANCER);
 
     /**
      * 是否延迟建立长连接,
      * connect transport when invoke, but not when init
      */
-    protected boolean lazy = false;
+    protected boolean lazy = getBooleanValue(CONSUMER_LAZY);
 
     /**
      * 粘滞连接，一个断开才选下一个
      * change transport when current is disconnected
      */
-    protected boolean sticky = false;
+    protected boolean sticky = getBooleanValue(CONSUMER_STICKY);
 
     /**
      * 是否jvm内部调用（provider和consumer配置在同一个jvm内，则走本地jvm内部，不走远程）
      */
-    protected boolean injvm = true;
+    protected boolean inJVM = getBooleanValue(CONSUMER_INJVM);
 
     /**
      * 是否强依赖（即没有服务节点就启动失败）
      */
-    protected boolean check = false;
+    protected boolean check = getBooleanValue(CONSUMER_CHECK);
 
     /**
-     * 默认序列化
+     * 是否单向调用（不关心结果，服务端不响应）
      */
-    protected String serialization = getStringValue(BsoaConfigs.DEFAULT_SERIALIZATION);
+    protected boolean oneWay = getBooleanValue(CONSUMER_ONEWAY);
+
+    /**
+     * 长连接个数
+     */
+    protected int connection = getIntValue(CONSUMER_CONNECTION);
+
+    /**
+     * Consumer给Provider发心跳的间隔
+     */
+    protected int heartbeat = getIntValue(CONSUMER_HEARTBEAT_PERIOD);
+
+    /**
+     * Consumer给Provider重连的间隔
+     */
+    protected int reconnect = getIntValue(CONSUMER_RECONNECT_PERIOD);
+
+    /**
+     * 路由规则引用，多个用英文逗号隔开。List<Router>
+     */
+    protected transient List<Router> router;
 
     /**
      * 返回值之前的listener,处理结果或者异常
@@ -158,47 +199,17 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Ser
      */
     protected transient List<ConsumerStateListener> onavailable;
 
-    /**
-     * 线程池类型
-     */
-    protected String threadpool = BsoaConstants.THREADPOOL_TYPE_CACHED;
-
-    /**
-     * 业务线程池大小
-     */
-    protected int threads = BsoaConstants.DEFAULT_CLIENT_BIZ_THREADS;
-
-    /**
-     * io线程池大小
-     */
-    protected int iothreads;
-
-    /**
-     * Consumer给Provider发心跳的间隔
-     */
-    protected int heartbeat = BsoaConstants.DEFAULT_HEARTBEAT_TIME;
-
-    /**
-     * Consumer给Provider重连的间隔
-     */
-    protected int reconnect = BsoaConstants.DEFAULT_RECONNECT_TIME;
-
-    /**
-     * 最大数据包大小
-     */
-    protected  int payload = BsoaConstants.DEFAULT_PAYLOAD;
-
-    /**
-     * 路由规则引用，多个用英文逗号隔开。List<Router>
-     */
-    protected transient List<Router> router;
 
     /*-------- 下面是方法级配置 --------*/
+    /**
+     * 服务端执行超时时间(毫秒)
+     */
+    protected int timeout = getIntValue(CONSUMER_INVOKE_TIMEOUT);
 
     /**
      * 接口下每方法的最大可并行执行请求数，配置-1关闭并发过滤器，等于0表示开启过滤但是不限制
      */
-    protected int concurrents = 0;
+    protected int concurrents = getIntValue(CONSUMER_CONCURRENTS);
 
 	/*---------- 参数配置项结束 ------------*/
 
@@ -287,10 +298,10 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Ser
 //            }
 //        }
         // 如果本地发布了服务，则优选走本地代理，没有则走远程代理
-//        if (isInjvm() && BaseServerHandler.getInvoker(getInterfaceId(), getTags()) != null) {
-//            LOGGER.info("Find matched provider invoker in current jvm, " +
-//                    "will invoke preferentially until it unexported");
-//        }
+        if (isInJVM() && InvokerHolder.getInvoker(getInterfaceId(), getTags()) != null) {
+            LOGGER.info("Find matched provider invoker in current jvm, " +
+                    "will invoke preferentially until it unexported");
+        }
 
         configListener = new ConsumerAttributeListener();
         providerListener = new ClientProviderListener();
@@ -653,21 +664,21 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Ser
     }
 
     /**
-     * Gets loadbalance.
+     * Gets loadbalancer.
      *
-     * @return the loadbalance
+     * @return the loadbalancer
      */
-    public String getLoadbalance() {
-        return loadbalance;
+    public String getLoadbalancer() {
+        return loadbalancer;
     }
 
     /**
-     * Sets loadbalance.
+     * Sets loadbalancer.
      *
-     * @param loadbalance the loadbalance
+     * @param loadbalancer the loadbalancer
      */
-    public void setLoadbalance(String loadbalance) {
-        this.loadbalance = loadbalance;
+    public void setLoadbalancer(String loadbalancer) {
+        this.loadbalancer = loadbalancer;
     }
 
     /**
@@ -707,43 +718,6 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Ser
     }
 
     /**
-     * Gets threads.
-     *
-     * @return the threads
-     */
-    public int getThreads() {
-        return threads;
-    }
-
-    /**
-     * Sets threads.
-     *
-     * @param threads the threads
-     */
-    @Deprecated
-    public void setThreads(int threads) {
-        this.threads = threads;
-    }
-
-    /**
-     * Gets iothreads.
-     *
-     * @return the iothreads
-     */
-    public int getIothreads() {
-        return iothreads;
-    }
-
-    /**
-     * Sets iothreads.
-     *
-     * @param iothreads the iothreads
-     */
-    public void setIothreads(int iothreads) {
-        this.iothreads = iothreads;
-    }
-
-    /**
      * Gets connect timeout.
      *
      * @return the connect timeout
@@ -777,25 +751,6 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Ser
      */
     public void setDisconnectTimeout(int disconnectTimeout) {
         this.disconnectTimeout = disconnectTimeout;
-    }
-
-    /**
-     * Gets threadpool.
-     *
-     * @return the threadpool
-     */
-    public String getThreadpool() {
-        return threadpool;
-    }
-
-    /**
-     * Sets threadpool.
-     *
-     * @param threadpool the threadpool
-     */
-    @Deprecated
-    public void setThreadpool(String threadpool) {
-        this.threadpool = threadpool;
     }
 
     /**
@@ -883,7 +838,7 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Ser
     /**
      * Sets onavailable.
      *
-     * @param onavailable  the onavailable
+     * @param onavailable the onavailable
      */
     public void setOnavailable(List<ConsumerStateListener> onavailable) {
         this.onavailable = onavailable;
@@ -894,7 +849,6 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Ser
      *
      * @return the boolean
      */
-    @Deprecated
     public boolean isAsync() {
         return async;
     }
@@ -909,21 +863,21 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Ser
     }
 
     /**
-     * Is injvm.
+     * Is inJVM.
      *
      * @return the boolean
      */
-    public boolean isInjvm() {
-        return injvm;
+    public boolean isInJVM() {
+        return inJVM;
     }
 
     /**
-     * Sets injvm.
+     * Sets inJVM.
      *
-     * @param injvm the injvm
+     * @param inJVM the inJVM
      */
-    public void setInjvm(boolean injvm) {
-        this.injvm = injvm;
+    public void setInJVM(boolean inJVM) {
+        this.inJVM = inJVM;
     }
 
     /**
@@ -942,6 +896,26 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Ser
      */
     public void setLazy(boolean lazy) {
         this.lazy = lazy;
+    }
+
+    /**
+     * Is oneWay boolean.
+     *
+     * @return the boolean
+     */
+    public boolean isOneWay() {
+        return oneWay;
+    }
+
+    /**
+     * Sets oneWay.
+     *
+     * @param oneWay the oneWay
+     * @return the oneWay
+     */
+    public ConsumerConfig setOneWay(boolean oneWay) {
+        this.oneWay = oneWay;
+        return this;
     }
 
     /**
@@ -999,24 +973,6 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Ser
     }
 
     /**
-     * Gets payload.
-     *
-     * @return the payload
-     */
-    public int getPayload() {
-        return payload;
-    }
-
-    /**
-     * Sets payload.
-     *
-     * @param payload the payload
-     */
-    public void setPayload(int payload) {
-        this.payload = payload;
-    }
-
-    /**
      * Gets router.
      *
      * @return the router
@@ -1032,6 +988,24 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Ser
      */
     public void setRouter(List<Router> router) {
         this.router = router;
+    }
+
+    /**
+     * Gets timeout.
+     *
+     * @return the timeout
+     */
+    public int getTimeout() {
+        return timeout;
+    }
+
+    /**
+     * Sets timeout.
+     *
+     * @param timeout the timeout
+     */
+    public void setTimeout(int timeout) {
+        this.timeout = timeout;
     }
 
     /**
@@ -1130,7 +1104,7 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Ser
     /**
      * 得到实现代理类
      *
-     * @return 实现代理类
+     * @return 实现代理类 proxy ins
      */
     public T getProxyIns() {
         return proxyIns;
@@ -1139,7 +1113,7 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Ser
     /**
      * 得到实现代理类Invoker
      *
-     * @return 实现代理类Invoker
+     * @return 实现代理类Invoker proxy invoker
      */
     public Invoker getProxyInvoker() {
         return proxyInvoker;

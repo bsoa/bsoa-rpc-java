@@ -23,10 +23,10 @@ import io.bsoa.rpc.common.BsoaConfigs;
 import io.bsoa.rpc.listener.ChannelListener;
 import io.bsoa.rpc.listener.NegotiatorListener;
 
-import static io.bsoa.rpc.common.BsoaConfigs.CLIENT_CONNECT_TIMEOUT;
-import static io.bsoa.rpc.common.BsoaConfigs.CLIENT_DISCONNECT_TIMEOUT;
-import static io.bsoa.rpc.common.BsoaConfigs.CLIENT_INVOKE_TIMEOUT;
-import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_CONNECTION_NUM;
+import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_CONNECTION;
+import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_CONNECT_TIMEOUT;
+import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_DISCONNECT_TIMEOUT;
+import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_INVOKE_TIMEOUT;
 import static io.bsoa.rpc.common.BsoaConfigs.DEFAULT_TRANSPORT;
 import static io.bsoa.rpc.common.BsoaConfigs.TRANSPORT_PAYLOAD_MAX;
 import static io.bsoa.rpc.common.BsoaConfigs.getIntValue;
@@ -45,13 +45,13 @@ public class ClientTransportConfig {
 
     private String container = getStringValue(DEFAULT_TRANSPORT);
 
-    private int connectTimeout = getIntValue(CLIENT_CONNECT_TIMEOUT);// 默认连接超时时间
+    private int connectTimeout = getIntValue(CONSUMER_CONNECT_TIMEOUT);// 默认连接超时时间
 
-    private int disconnectTimeout = getIntValue(CLIENT_DISCONNECT_TIMEOUT);// 默认断开连接超时时间
+    private int disconnectTimeout = getIntValue(CONSUMER_DISCONNECT_TIMEOUT);// 默认断开连接超时时间
 
-    private int invokeTimeout = getIntValue(CLIENT_INVOKE_TIMEOUT); // 默认的调用超时时间（长连接调用时会被覆盖）
+    private int invokeTimeout = getIntValue(CONSUMER_INVOKE_TIMEOUT); // 默认的调用超时时间（长连接调用时会被覆盖）
 
-    private int connectionNum = getIntValue(CONSUMER_CONNECTION_NUM); // 默认一个地址建立长连接的数量
+    private int connectionNum = getIntValue(CONSUMER_CONNECTION); // 默认一个地址建立长连接的数量
 
     private int payload = getIntValue(TRANSPORT_PAYLOAD_MAX); // 最大数据量
 

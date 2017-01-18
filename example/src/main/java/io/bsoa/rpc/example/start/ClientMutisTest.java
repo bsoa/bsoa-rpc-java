@@ -16,7 +16,7 @@
  *  * limitations under the License.
  *
  */
-package io.bsoa.rpc.transport.netty;
+package io.bsoa.rpc.example.start;
 
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -47,14 +47,13 @@ public class ClientMutisTest {
     /**
      * slf4j Logger for this class
      */
-    private final static Logger LOGGER = LoggerFactory.getLogger(ClientTransportTest.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(ClientMutisTest.class);
 
     public static void main(String[] args) throws InterruptedException {
         ConsumerConfig<HelloService> consumerConfig = new ConsumerConfig<>();
         consumerConfig.setInterfaceId(HelloService.class.getName());
-        consumerConfig.setTags("tag1");
         consumerConfig.setSerialization("hessian");
-        consumerConfig.setUrl("bsoa://127.0.0.1:22222");
+        consumerConfig.setUrl("bsoa://127.0.0.1:22000");
         HelloService helloService = consumerConfig.refer();
 
         final Client client = consumerConfig.getClient();

@@ -70,10 +70,11 @@ public class NettyServerTransport implements ServerTransport {
                 .childOption(ChannelOption.SO_KEEPALIVE, transportConfig.isKeepAlive())
                 .childOption(ChannelOption.TCP_NODELAY, transportConfig.isTcpNoDelay())
                 .childOption(ChannelOption.ALLOCATOR, NettyTransportHelper.getByteBufAllocator())
-                .childOption(ChannelOption.SO_RCVBUF, 8192 * 128)
+                .childOption(ChannelOption.SO_RCVBUF, 8192 * 128) // TODO
                 .childOption(ChannelOption.SO_SNDBUF, 8192 * 128)
                 .option(ChannelOption.RCVBUF_ALLOCATOR, NettyTransportHelper.RECV_BYTEBUF_ALLOCATOR)
-                .childOption(ChannelOption.WRITE_BUFFER_WATER_MARK, new WriteBufferWaterMark(8 * 1024, 32 * 1024))
+                .childOption(ChannelOption.WRITE_BUFFER_WATER_MARK,
+                        new WriteBufferWaterMark(transportConfig.getBufferMin(), transportConfig.getBufferMax()))
 //                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, transportConfig.getc()) // ????????
 //                 .childOption(ChannelOption.SO_TIMEOUT, config.getTIMEOUT())
                 .childHandler(new NettyServerChannelInitializer(transportConfig));

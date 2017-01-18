@@ -23,8 +23,6 @@ import io.bsoa.rpc.ext.ExtensionLoader;
 import io.bsoa.rpc.ext.ExtensionLoaderFactory;
 
 /**
- *
- *
  * Created by zhangg on 2016/7/17 15:22.
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
@@ -37,12 +35,17 @@ public class LoadBalancerFactory {
     private static ExtensionLoader<LoadBalancer> EXTENSION_LOADER
             = ExtensionLoaderFactory.getExtensionLoader(LoadBalancer.class);
 
-    public static LoadBalancer getLoadBalancer(String lb) {
+    /**
+     * 根据名字的到负载均衡器
+     *
+     * @param lbName 负载均衡器名字
+     * @return LoadBalancer
+     */
+    public static LoadBalancer getLoadBalancer(String lbName) {
         try {
-            LoadBalancer loadBalancer = null;
-            ExtensionClass<LoadBalancer> ext = EXTENSION_LOADER.getExtensionClass(lb);
+            ExtensionClass<LoadBalancer> ext = EXTENSION_LOADER.getExtensionClass(lbName);
             if (ext == null) {
-                throw ExceptionUtils.buildRuntime(22222, "consumer.loadbalance", lb,
+                throw ExceptionUtils.buildRuntime(22222, "consumer.loadbalance", lbName,
                         "Unsupported loadbalance of server!");
             }
             return ext.getExtInstance();

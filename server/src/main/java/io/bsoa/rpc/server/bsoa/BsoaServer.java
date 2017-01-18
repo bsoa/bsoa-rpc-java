@@ -24,6 +24,7 @@ import io.bsoa.rpc.config.ProviderConfig;
 import io.bsoa.rpc.config.ServerConfig;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
 import io.bsoa.rpc.ext.Extension;
+import io.bsoa.rpc.server.InvokerHolder;
 import io.bsoa.rpc.server.Server;
 import io.bsoa.rpc.transport.ServerTransport;
 import io.bsoa.rpc.transport.ServerTransportConfig;
@@ -60,12 +61,6 @@ public class BsoaServer implements Server {
      * 服务端处理器
      */
     private BsoaServerHandler serverHandler;
-
-    /**
-     * private
-     *
-     * @param serverConfig
-     */
 
     @Override
     public void init(ServerConfig serverConfig) {
@@ -112,45 +107,46 @@ public class BsoaServer implements Server {
 
     @Override
     public void registerProcessor(ProviderConfig providerConfig, Invoker instance) {
-        String key = buildKey(providerConfig);
+        String key = InvokerHolder.buildKey(providerConfig.getInterfaceId(), providerConfig.getTags());
         serverHandler.registerProcessor(key, instance);
 //        ServerAuthHelper.addInterface(providerConfig.getInterfaceId(), providerConfig.getTags());
     }
 
-    private String buildKey(ProviderConfig providerConfig) {
-        return providerConfig.getInterfaceId() + "/" + providerConfig.getTags();
-    }
-
     @Override
     public void unRegisterProcessor(ProviderConfig providerConfig, boolean closeIfNoEntry) {
-        String key = buildKey(providerConfig);
+        String key = InvokerHolder.buildKey(providerConfig.getInterfaceId(), providerConfig.getTags());
         serverHandler.unRegisterProcessor(key);
         if (closeIfNoEntry && hasNoEntry()) { //如果需要关闭 则关闭
             stop();
         }
     }
 
+    /**
+     * ServerConfig转ServerTransportConfig
+     *
+     * @param serverConfig 服务端配置
+     * @return ServerTransportConfig 服务传输层配置
+     */
     private static ServerTransportConfig convertConfig(ServerConfig serverConfig) {
         ServerTransportConfig serverTransportConfig = new ServerTransportConfig();
         serverTransportConfig.setPort(serverConfig.getPort());
         serverTransportConfig.setProtocolType(serverConfig.getProtocol());
         serverTransportConfig.setHost(serverConfig.getBoundHost());
-//        serverTransportConfig.setPrintMessage(serverConfig.isDebug());
-        serverTransportConfig.setContextPath(serverConfig.getContextpath());
-        serverTransportConfig.setBizMaxThreads(serverConfig.getThreads());
-        serverTransportConfig.setBizPoolType(serverConfig.getThreadpool());
-        serverTransportConfig.setIoThreads(serverConfig.getIothreads());
+        serverTransportConfig.setContextPath(serverConfig.getContextPath());
+        serverTransportConfig.setBizMaxThreads(serverConfig.getMaxThreads());
+        serverTransportConfig.setBizPoolType(serverConfig.getThreadPoolType());
+        serverTransportConfig.setIoThreads(serverConfig.getIoThreads());
         serverTransportConfig.setChannelListeners(serverConfig.getOnconnect());
         serverTransportConfig.setMaxConnection(serverConfig.getAccepts());
-        serverTransportConfig.setBuffer(serverConfig.getBuffer());
         serverTransportConfig.setPayload(serverConfig.getPayload());
         serverTransportConfig.setTelnet(serverConfig.isTelnet());
         serverTransportConfig.setUseEpoll(serverConfig.isEpoll());
-        serverTransportConfig.setBizPoolQueueType(serverConfig.getQueuetype());
+        serverTransportConfig.setBizPoolQueueType(serverConfig.getQueueType());
         serverTransportConfig.setBizPoolQueues(serverConfig.getQueues());
         serverTransportConfig.setDispatcher(serverConfig.getDispatcher());
         serverTransportConfig.setDaemon(serverConfig.isDaemon());
         serverTransportConfig.setParameters(serverConfig.getParameters());
+        serverTransportConfig.setContainer(serverConfig.getTransport());
         return serverTransportConfig;
     }
 }

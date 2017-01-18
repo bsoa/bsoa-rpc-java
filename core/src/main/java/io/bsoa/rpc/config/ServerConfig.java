@@ -35,6 +35,23 @@ import io.bsoa.rpc.server.ServerFactory;
 
 import static io.bsoa.rpc.common.BsoaConfigs.DEFAULT_PROTOCOL;
 import static io.bsoa.rpc.common.BsoaConfigs.DEFAULT_SERIALIZATION;
+import static io.bsoa.rpc.common.BsoaConfigs.DEFAULT_TRANSPORT;
+import static io.bsoa.rpc.common.BsoaConfigs.SERVER_ACCEPTS;
+import static io.bsoa.rpc.common.BsoaConfigs.SERVER_CONTEXT_PATH;
+import static io.bsoa.rpc.common.BsoaConfigs.SERVER_DAEMON;
+import static io.bsoa.rpc.common.BsoaConfigs.SERVER_EPOLL;
+import static io.bsoa.rpc.common.BsoaConfigs.SERVER_HOST;
+import static io.bsoa.rpc.common.BsoaConfigs.SERVER_IOTHREADS;
+import static io.bsoa.rpc.common.BsoaConfigs.SERVER_POOL_ALIVETIME;
+import static io.bsoa.rpc.common.BsoaConfigs.SERVER_POOL_CORE;
+import static io.bsoa.rpc.common.BsoaConfigs.SERVER_POOL_MAX;
+import static io.bsoa.rpc.common.BsoaConfigs.SERVER_POOL_QUEUE;
+import static io.bsoa.rpc.common.BsoaConfigs.SERVER_POOL_QUEUE_TYPE;
+import static io.bsoa.rpc.common.BsoaConfigs.SERVER_POOL_TYPE;
+import static io.bsoa.rpc.common.BsoaConfigs.SERVER_PORT_START;
+import static io.bsoa.rpc.common.BsoaConfigs.SERVER_TELNET;
+import static io.bsoa.rpc.common.BsoaConfigs.getBooleanValue;
+import static io.bsoa.rpc.common.BsoaConfigs.getIntValue;
 import static io.bsoa.rpc.common.BsoaConfigs.getStringValue;
 
 /**
@@ -61,57 +78,70 @@ public class ServerConfig extends AbstractIdConfig implements Serializable {
     /**
      * 实际监听IP，与网卡对应
      */
-    protected String host;
+    protected String host = getStringValue(SERVER_HOST);
 
     /**
      * 监听端口
      */
-    protected int port = BsoaConstants.DEFAULT_SERVER_PORT;
+    protected int port = getIntValue(SERVER_PORT_START);
 
     /**
      * 基本路径 默认"/"
      */
-    protected String contextpath = BsoaConstants.DEFAULT_SERVER_CONTEXT_PATH;
-
-    /**
-     * 业务线程池大小
-     */
-    protected int threads = BsoaConstants.DEFAULT_SERVER_BIZ_THREADS;
+    protected String contextPath = getStringValue(SERVER_CONTEXT_PATH);
 
     /**
      * io线程池大小
      */
-    protected int iothreads;
+    protected int ioThreads = getIntValue(SERVER_IOTHREADS);
 
     /**
      * 线程池类型
      */
-    protected String threadpool = BsoaConstants.THREADPOOL_TYPE_CACHED;
+    protected String threadPoolType = getStringValue(SERVER_POOL_TYPE);
+
+    /**
+     * 业务线程池大小
+     */
+    protected int coreThreads = getIntValue(SERVER_POOL_CORE);
+
+    /**
+     * 业务线程池大小
+     */
+    protected int maxThreads = getIntValue(SERVER_POOL_MAX);
 
     /**
      * 是否允许telnet，针对自定义协议
      */
-    protected boolean telnet = true;
+    protected boolean telnet = getBooleanValue(SERVER_TELNET);
 
     /**
-     * 业务线程池队列大小
+     * 线程池类型，默认普通线程池
      */
-    protected int queues = BsoaConstants.DEFAULT_SERVER_QUEUE;
+    protected String queueType = getStringValue(SERVER_POOL_QUEUE_TYPE);
+
+    /**
+     * 业务线程池回收时间
+     */
+    protected int queues = getIntValue(SERVER_POOL_QUEUE);
+
+    /**
+     * 线程池类型，默认普通线程池
+     */
+    protected int aliveTime = getIntValue(SERVER_POOL_ALIVETIME);
 
     /**
      * 服务端允许客户端建立的连接数
      */
-    protected int accepts = Integer.MAX_VALUE;
+    protected int accepts = getIntValue(SERVER_ACCEPTS);
 
     /**
      * 最大数据包大小
+     *
+     * @Deprecated
      */
+    @Deprecated
     protected int payload = BsoaConstants.DEFAULT_PAYLOAD;
-
-    /**
-     * IO的buffer大小
-     */
-    protected int buffer = BsoaConstants.DEFAULT_BUFFER_SIZE;
 
     /**
      * 序列化方式
@@ -120,7 +150,10 @@ public class ServerConfig extends AbstractIdConfig implements Serializable {
 
     /**
      * 事件分发规则。
+     *
+     * @deprecated
      */
+    @Deprecated
     protected String dispatcher = BsoaConstants.DISPATCHER_MESSAGE;
 
     /**
@@ -144,24 +177,19 @@ public class ServerConfig extends AbstractIdConfig implements Serializable {
     protected transient List<ChannelListener> onconnect;
 
     /**
-     * 是否打印消息信息
+     * 是否启动epoll
      */
-    protected boolean debug = false;
-
-    /**
-     * 是否启动epoll，
-     */
-    protected boolean epoll = false;
-
-    /**
-     * 线程池类型，默认普通线程池
-     */
-    protected String queuetype = BsoaConstants.QUEUE_TYPE_NORMAL;
+    protected boolean epoll = getBooleanValue(SERVER_EPOLL);
 
     /**
      * 是否hold住端口，true的话随主线程退出而退出，false的话则要主动退出
      */
-    protected boolean daemon = true;
+    protected boolean daemon = getBooleanValue(SERVER_DAEMON);
+
+    /**
+     * 传输层
+     */
+    protected String transport = getStringValue(DEFAULT_TRANSPORT);
 
     /*------------- 参数配置项结束-----------------*/
 
@@ -241,42 +269,6 @@ public class ServerConfig extends AbstractIdConfig implements Serializable {
     }
 
     /**
-     * Gets virtual host.
-     *
-     * @return the virtual host
-     */
-    public String getVirtualhost() {
-        return virtualhost;
-    }
-
-    /**
-     * Sets virtual host.h
-     *
-     * @param virtualHost the virtual host
-     */
-    public void setVirtualhost(String virtualHost) {
-        this.virtualhost = virtualHost;
-    }
-
-    /**
-     * Gets virtualhostfile.
-     *
-     * @return the virtualhostfile
-     */
-    public String getVirtualhostfile() {
-        return virtualhostfile;
-    }
-
-    /**
-     * Sets virtualhostfile.
-     *
-     * @param virtualhostfile the virtualhostfile
-     */
-    public void setVirtualhostfile(String virtualhostfile) {
-        this.virtualhostfile = virtualhostfile;
-    }
-
-    /**
      * Gets protocol.
      *
      * @return the protocol
@@ -289,9 +281,11 @@ public class ServerConfig extends AbstractIdConfig implements Serializable {
      * Sets protocol.
      *
      * @param protocol the protocol
+     * @return the protocol
      */
-    public void setProtocol(String protocol) {
+    public ServerConfig setProtocol(String protocol) {
         this.protocol = protocol;
+        return this;
     }
 
     /**
@@ -307,12 +301,11 @@ public class ServerConfig extends AbstractIdConfig implements Serializable {
      * Sets host.
      *
      * @param host the host
+     * @return the host
      */
-    public void setHost(String host) {
-//        if (!NetUtils.isValidHost(host)) {
-//            throw new IllegalConfigureException("server.host", host);
-//        }
+    public ServerConfig setHost(String host) {
         this.host = host;
+        return this;
     }
 
     /**
@@ -328,8 +321,9 @@ public class ServerConfig extends AbstractIdConfig implements Serializable {
      * Sets port.
      *
      * @param port the port
+     * @return the port
      */
-    public void setPort(int port) {
+    public ServerConfig setPort(int port) {
         if (NetUtils.isRandomPort(port)) {
             randomPort = true;
         } else if (NetUtils.isInvalidPort(port)) {
@@ -337,64 +331,111 @@ public class ServerConfig extends AbstractIdConfig implements Serializable {
                     "port must between -1 and 65535 (-1 means random port)");
         }
         this.port = port;
+        return this;
     }
 
     /**
-     * Gets threads.
+     * Gets context path.
      *
-     * @return the threads
+     * @return the context path
      */
-    public int getThreads() {
-        return threads;
+    public String getContextPath() {
+        return contextPath;
     }
 
     /**
-     * Sets threads.
+     * Sets context path.
      *
-     * @param threads the threads
+     * @param contextPath the context path
+     * @return the context path
      */
-    public void setThreads(int threads) {
-        this.threads = threads;
+    public ServerConfig setContextPath(String contextPath) {
+        this.contextPath = contextPath;
+        return this;
     }
 
     /**
-     * Gets iothreads.
+     * Gets ioThreads.
      *
-     * @return the iothreads
+     * @return the ioThreads
      */
-    public int getIothreads() {
-        return iothreads;
+    public int getIoThreads() {
+        return ioThreads;
     }
 
     /**
-     * Sets iothreads.
+     * Sets ioThreads.
      *
-     * @param iothreads the iothreads
+     * @param ioThreads the ioThreads
+     * @return the ioThreads
      */
-    public void setIothreads(int iothreads) {
-        this.iothreads = iothreads;
+    public ServerConfig setIoThreads(int ioThreads) {
+        this.ioThreads = ioThreads;
+        return this;
     }
 
     /**
-     * Gets threadpool.
+     * Gets threadPoolType.
      *
-     * @return the threadpool
+     * @return the threadPoolType
      */
-    public String getThreadpool() {
-        return threadpool;
+    public String getThreadPoolType() {
+        return threadPoolType;
     }
 
     /**
-     * Sets threadpool.
+     * Sets threadPoolType.
      *
-     * @param threadpool the threadpool
+     * @param threadPoolType the threadPoolType
+     * @return the threadPoolType
      */
-    public void setThreadpool(String threadpool) {
-        this.threadpool = threadpool;
+    public ServerConfig setThreadPoolType(String threadPoolType) {
+        this.threadPoolType = threadPoolType;
+        return this;
     }
 
     /**
-     * Is telnet.
+     * Gets core threads.
+     *
+     * @return the core threads
+     */
+    public int getCoreThreads() {
+        return coreThreads;
+    }
+
+    /**
+     * Sets core threads.
+     *
+     * @param coreThreads the core threads
+     * @return the core threads
+     */
+    public ServerConfig setCoreThreads(int coreThreads) {
+        this.coreThreads = coreThreads;
+        return this;
+    }
+
+    /**
+     * Gets max threads.
+     *
+     * @return the max threads
+     */
+    public int getMaxThreads() {
+        return maxThreads;
+    }
+
+    /**
+     * Sets max threads.
+     *
+     * @param maxThreads the max threads
+     * @return the max threads
+     */
+    public ServerConfig setMaxThreads(int maxThreads) {
+        this.maxThreads = maxThreads;
+        return this;
+    }
+
+    /**
+     * Is telnet boolean.
      *
      * @return the boolean
      */
@@ -406,109 +447,31 @@ public class ServerConfig extends AbstractIdConfig implements Serializable {
      * Sets telnet.
      *
      * @param telnet the telnet
+     * @return the telnet
      */
-    public void setTelnet(boolean telnet) {
+    public ServerConfig setTelnet(boolean telnet) {
         this.telnet = telnet;
+        return this;
     }
 
     /**
-     * Is random port.
+     * Gets queue type.
      *
-     * @return the boolean
+     * @return the queue type
      */
-    public boolean isRandomPort() {
-        return randomPort;
+    public String getQueueType() {
+        return queueType;
     }
 
     /**
-     * Gets contextpath.
+     * Sets queue type.
      *
-     * @return the contextpath
+     * @param queueType the queue type
+     * @return the queue type
      */
-    public String getContextpath() {
-        return contextpath;
-    }
-
-    /**
-     * Sets contextpath.
-     *
-     * @param contextpath the contextpath
-     */
-    public void setContextpath(String contextpath) {
-        this.contextpath = contextpath;
-    }
-
-    /**
-     * Gets accepts.
-     *
-     * @return the accepts
-     */
-    public int getAccepts() {
-        return accepts;
-    }
-
-    /**
-     * Sets accepts.
-     *
-     * @param accepts the accepts
-     */
-    public void setAccepts(int accepts) {
-        ConfigValueHelper.checkPositiveInteger("server.accept", accepts);
-        this.accepts = accepts;
-    }
-
-    /**
-     * Gets serialization.
-     *
-     * @return the serialization
-     */
-    public String getSerialization() {
-        return serialization;
-    }
-
-    /**
-     * Gets serialization.
-     *
-     * @param serialization the serialization
-     */
-    public void setSerialization(String serialization) {
-        this.serialization = serialization;
-    }
-
-    /**
-     * Gets onconnect.
-     *
-     * @return the onconnect
-     */
-    public List<ChannelListener> getOnconnect() {
-        return onconnect;
-    }
-
-    /**
-     * Sets onconnect.
-     *
-     * @param onconnect the onconnect
-     */
-    public void setOnconnect(List<ChannelListener> onconnect) {
-        this.onconnect = onconnect;
-    }
-
-    /**
-     * Is debug.
-     *
-     * @return the boolean
-     */
-    public boolean isDebug() {
-        return debug;
-    }
-
-    /**
-     * Sets debug.
-     *
-     * @param debug the debug
-     */
-    public void setDebug(boolean debug) {
-        this.debug = debug;
+    public ServerConfig setQueueType(String queueType) {
+        this.queueType = queueType;
+        return this;
     }
 
     /**
@@ -524,9 +487,52 @@ public class ServerConfig extends AbstractIdConfig implements Serializable {
      * Sets queues.
      *
      * @param queues the queues
+     * @return the queues
      */
-    public void setQueues(int queues) {
+    public ServerConfig setQueues(int queues) {
         this.queues = queues;
+        return this;
+    }
+
+    /**
+     * Gets alive time.
+     *
+     * @return the alive time
+     */
+    public int getAliveTime() {
+        return aliveTime;
+    }
+
+    /**
+     * Sets alive time.
+     *
+     * @param aliveTime the alive time
+     * @return the alive time
+     */
+    public ServerConfig setAliveTime(int aliveTime) {
+        this.aliveTime = aliveTime;
+        return this;
+    }
+
+    /**
+     * Gets accepts.
+     *
+     * @return the accepts
+     */
+    public int getAccepts() {
+        return accepts;
+    }
+
+    /**
+     * Sets accepts.
+     *
+     * @param accepts the accepts
+     * @return the accepts
+     */
+    public ServerConfig setAccepts(int accepts) {
+        ConfigValueHelper.checkPositiveInteger("server.accept", accepts);
+        this.accepts = accepts;
+        return this;
     }
 
     /**
@@ -542,9 +548,31 @@ public class ServerConfig extends AbstractIdConfig implements Serializable {
      * Sets payload.
      *
      * @param payload the payload
+     * @return the payload
      */
-    public void setPayload(int payload) {
+    public ServerConfig setPayload(int payload) {
         this.payload = payload;
+        return this;
+    }
+
+    /**
+     * Gets serialization.
+     *
+     * @return the serialization
+     */
+    public String getSerialization() {
+        return serialization;
+    }
+
+    /**
+     * Sets serialization.
+     *
+     * @param serialization the serialization
+     * @return the serialization
+     */
+    public ServerConfig setSerialization(String serialization) {
+        this.serialization = serialization;
+        return this;
     }
 
     /**
@@ -560,63 +588,11 @@ public class ServerConfig extends AbstractIdConfig implements Serializable {
      * Sets dispatcher.
      *
      * @param dispatcher the dispatcher
+     * @return the dispatcher
      */
-    public void setDispatcher(String dispatcher) {
+    public ServerConfig setDispatcher(String dispatcher) {
         this.dispatcher = dispatcher;
-    }
-
-    /**
-     * Is epoll.
-     *
-     * @return the boolean
-     */
-    public boolean isEpoll() {
-        return epoll;
-    }
-
-    /**
-     * Sets epoll.
-     *
-     * @param epoll the epoll
-     */
-    public void setEpoll(boolean epoll) {
-        this.epoll = epoll;
-    }
-
-    /**
-     * Gets queuetype.
-     *
-     * @return the queuetype
-     */
-    public String getQueuetype() {
-        return queuetype;
-    }
-
-    /**
-     * Sets queuetype.
-     *
-     * @param queuetype the queuetype
-     */
-    public void setQueuetype(String queuetype) {
-        this.queuetype = queuetype;
-    }
-
-    /**
-     * Is daemon.
-     *
-     * @return the boolean
-     */
-    public boolean isDaemon() {
-        return daemon;
-    }
-
-    /**
-     * Sets daemon.
-     *
-     * @param daemon the daemon
-     */
-    public void setDaemon(boolean daemon) {
-        this.daemon = daemon;
+        return this;
     }
 
     /**
@@ -632,33 +608,131 @@ public class ServerConfig extends AbstractIdConfig implements Serializable {
      * Sets parameters.
      *
      * @param parameters the parameters
+     * @return the parameters
      */
-    public void setParameters(Map<String, String> parameters) {
+    public ServerConfig setParameters(Map<String, String> parameters) {
         this.parameters = parameters;
+        return this;
     }
 
     /**
-     * Gets buffer.
+     * Gets virtualhost.
      *
-     * @return the buffer
+     * @return the virtualhost
      */
-    public int getBuffer() {
-        return buffer;
+    public String getVirtualhost() {
+        return virtualhost;
     }
 
     /**
-     * Sets buffer.
+     * Sets virtualhost.
      *
-     * @param buffer the buffer
+     * @param virtualhost the virtualhost
+     * @return the virtualhost
      */
-    public void setBuffer(int buffer) {
-        if (buffer > BsoaConstants.MAX_BUFFER_SIZE) {
-            this.buffer = BsoaConstants.MAX_BUFFER_SIZE;
-        } else if (buffer < BsoaConstants.MIN_BUFFER_SIZE) {
-            this.buffer = BsoaConstants.MIN_BUFFER_SIZE;
-        } else {
-            this.buffer = buffer;
-        }
+    public ServerConfig setVirtualhost(String virtualhost) {
+        this.virtualhost = virtualhost;
+        return this;
+    }
+
+    /**
+     * Gets virtualhostfile.
+     *
+     * @return the virtualhostfile
+     */
+    public String getVirtualhostfile() {
+        return virtualhostfile;
+    }
+
+    /**
+     * Sets virtualhostfile.
+     *
+     * @param virtualhostfile the virtualhostfile
+     * @return the virtualhostfile
+     */
+    public ServerConfig setVirtualhostfile(String virtualhostfile) {
+        this.virtualhostfile = virtualhostfile;
+        return this;
+    }
+
+    /**
+     * Gets onconnect.
+     *
+     * @return the onconnect
+     */
+    public List<ChannelListener> getOnconnect() {
+        return onconnect;
+    }
+
+    /**
+     * Sets onconnect.
+     *
+     * @param onconnect the onconnect
+     * @return the onconnect
+     */
+    public ServerConfig setOnconnect(List<ChannelListener> onconnect) {
+        this.onconnect = onconnect;
+        return this;
+    }
+
+    /**
+     * Is epoll boolean.
+     *
+     * @return the boolean
+     */
+    public boolean isEpoll() {
+        return epoll;
+    }
+
+    /**
+     * Sets epoll.
+     *
+     * @param epoll the epoll
+     * @return the epoll
+     */
+    public ServerConfig setEpoll(boolean epoll) {
+        this.epoll = epoll;
+        return this;
+    }
+
+    /**
+     * Is daemon boolean.
+     *
+     * @return the boolean
+     */
+    public boolean isDaemon() {
+        return daemon;
+    }
+
+    /**
+     * Sets daemon.
+     *
+     * @param daemon the daemon
+     * @return the daemon
+     */
+    public ServerConfig setDaemon(boolean daemon) {
+        this.daemon = daemon;
+        return this;
+    }
+
+    /**
+     * Gets transport.
+     *
+     * @return the transport
+     */
+    public String getTransport() {
+        return transport;
+    }
+
+    /**
+     * Sets transport.
+     *
+     * @param transport the transport
+     * @return the transport
+     */
+    public ServerConfig setTransport(String transport) {
+        this.transport = transport;
+        return this;
     }
 
     /**

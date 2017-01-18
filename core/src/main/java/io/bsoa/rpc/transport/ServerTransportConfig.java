@@ -35,16 +35,16 @@ import static io.bsoa.rpc.common.BsoaConfigs.*;
  */
 public class ServerTransportConfig {
 
-    private String host = "0.0.0.0";
-    private int port = 20220;
+    private String host = getStringValue(SERVER_HOST);
+    private int port = getIntValue(SERVER_PORT_START);
 
     private String contextPath = getStringValue(SERVER_CONTEXT_PATH);
     private String container = getStringValue(DEFAULT_TRANSPORT);
     private int backlog = getIntValue(TRANSPORT_SERVER_BACKLOG);
     private String protocolType = getStringValue(DEFAULT_PROTOCOL);
     private boolean reuseAddr = getBooleanValue(TRANSPORT_SERVER_REUSE_ADDR);
-    private boolean keepAlive =  getBooleanValue(TRANSPORT_SERVER_KEEPALIVE);
-    private boolean tcpNoDelay =  getBooleanValue(TRANSPORT_SERVER_TCPNODELAY);
+    private boolean keepAlive = getBooleanValue(TRANSPORT_SERVER_KEEPALIVE);
+    private boolean tcpNoDelay = getBooleanValue(TRANSPORT_SERVER_TCPNODELAY);
     //    private int CONNECTTIMEOUT = 5000;
 //    private int TIMEOUT = 2000;//server side timeout config default ..
     private int bizMaxThreads = getIntValue(SERVER_POOL_MAX); //default business pool set to 200
@@ -58,12 +58,16 @@ public class ServerTransportConfig {
 
     private int ioThreads = getIntValue(TRANSPORT_SERVER_IO_THREADS); // worker线程==IO线程，一个长连接绑定到一个线程
 
-    private int maxConnection = getIntValue(TRANSPORT_SERVER_MAX_CONNECTION); // 最大连接数 default set to 100
+    private int maxConnection = getIntValue(SERVER_ACCEPTS); // 最大连接数 default set to 100
     private int payload = getIntValue(TRANSPORT_PAYLOAD_MAX); // 最大数据包 default set to 8M
     private int buffer = getIntValue(TRANSPORT_BUFFER_SIZE); // 缓冲器大小
-    private boolean telnet = getBooleanValue(TRANSPORT_SERVER_TELNET); // 是否允许telnet
+    private boolean telnet = getBooleanValue(SERVER_TELNET); // 是否允许telnet
     private String dispatcher = getStringValue(TRANSPORT_SERVER_DISPATCHER); // 线程方法模型
-    private boolean daemon = getBooleanValue(TRANSPORT_SERVER_DAEMON); // 是否守护线程，true随主线程退出而退出，false需要主动退出
+    private boolean daemon = getBooleanValue(SERVER_DAEMON); // 是否守护线程，true随主线程退出而退出，false需要主动退出
+
+    private int bufferMin = getIntValue(TRANSPORT_BUFFER_MIN);
+    private int bufferMax = getIntValue(TRANSPORT_BUFFER_MAX);
+
     private Map<String, String> parameters;//其他一些参数配置
 
     private List<ChannelListener> channelListeners;
@@ -247,6 +251,24 @@ public class ServerTransportConfig {
 
     public void setDaemon(boolean daemon) {
         this.daemon = daemon;
+    }
+
+    public int getBufferMin() {
+        return bufferMin;
+    }
+
+    public ServerTransportConfig setBufferMin(int bufferMin) {
+        this.bufferMin = bufferMin;
+        return this;
+    }
+
+    public int getBufferMax() {
+        return bufferMax;
+    }
+
+    public ServerTransportConfig setBufferMax(int bufferMax) {
+        this.bufferMax = bufferMax;
+        return this;
     }
 
     public Map<String, String> getParameters() {

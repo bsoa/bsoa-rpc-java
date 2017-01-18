@@ -21,8 +21,8 @@ import java.util.List;
 import io.bsoa.rpc.message.RpcRequest;
 
 /**
- *
- *
+ * 路由器：从一堆Provider中筛选出一堆Provider
+ * <p>
  * Created by zhangg on 2016/7/16 01:05.
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
@@ -32,12 +32,10 @@ public interface Router {
     /**
      * 筛选Provider
      *
-     * @param invocation
-     *         本次调用（可以得到类名，方法名，方法参数，参数值等）
-     * @param providers
-     *         providers（<b>当前可用</b>的服务Provider列表）
+     * @param request   本次调用（可以得到类名，方法名，方法参数，参数值等）
+     * @param providers providers（<b>当前可用</b>的服务Provider列表）
      * @return 路由匹配的服务Provider列表
      */
-    public List<Provider> route(RpcRequest invocation, List<Provider> providers);
+    public List<Provider> route(RpcRequest request, List<Provider> providers);
 
 }

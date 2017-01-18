@@ -109,7 +109,7 @@ public abstract class AbstractClient implements Client {
         this.consumerConfig = consumerConfig;
 
         // 负载均衡策略 考虑是否可动态替换？
-        String lb = consumerConfig.getLoadbalance();
+        String lb = consumerConfig.getLoadbalancer();
         loadBalancer = LoadBalancerFactory.getLoadBalancer(lb);
         loadBalancer.init(consumerConfig);
 
@@ -356,7 +356,6 @@ public abstract class AbstractClient implements Client {
         config.setProvider(provider);
         config.setConnectTimeout(config.getConnectTimeout());
         config.setInvokeTimeout(consumerConfig.getTimeout());
-        config.setPayload(consumerConfig.getPayload());
         config.setChannelListeners(consumerConfig.getOnconnect());
         return config;
     }
@@ -582,9 +581,6 @@ public abstract class AbstractClient implements Client {
                     response = (RpcResponse) transport.syncSend(msg, timeout);
                 } finally {
                     long elapsed = BsoaContext.now() - start;
-                    if (elapsed > 100) {
-                        LOGGER.error("elapsed>>>>{}", elapsed);
-                    }
                     msg.addAttachment(BsoaConstants.INTERNAL_KEY_ELAPSED, (int) elapsed);
                     // 去掉活跃数
                     RpcStatus.endCount(interfaceId, methodName, provider, elapsed,
@@ -615,7 +611,7 @@ public abstract class AbstractClient implements Client {
      * @param request  请求对象
      */
     private void checkProviderVersion(Provider provider, RpcRequest request) {
-        int version = provider.getJsfVersion();
+        int version = provider.getBsoaVersion();
         if (version >= 1500) {
             // 服务端版本号供本地序列化使用
             RpcContext.getContext().setAttachment(BsoaConstants.HIDDEN_KEY_DST_JSF_VERSION, (short) version);

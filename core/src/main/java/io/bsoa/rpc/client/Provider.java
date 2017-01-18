@@ -23,8 +23,8 @@ import io.bsoa.rpc.common.BsoaConstants;
 import io.bsoa.rpc.common.utils.StringUtils;
 
 /**
- *
- *
+ * 抽象的服务提供列表
+ * <p>
  * Created by zhangg on 2016/7/14 22:42.
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
@@ -59,15 +59,9 @@ public class Provider implements Serializable {
     private int weight = BsoaConstants.DEFAULT_PROVIDER_WEIGHT;
 
     /**
-     * The Saf version.
+     * The bsoa Version
      */
-    private int safVersion;
-
-    /**
-     * The Jsf Version
-     */
-    @Deprecated
-    private int jsfVersion;
+    private int bsoaVersion;
 
     /**
      * The tags.
@@ -107,7 +101,7 @@ public class Provider implements Serializable {
      * @param host the host
      * @param port the port
      */
-    private Provider(String host, int port){
+    private Provider(String host, int port) {
         this.ip = host;
         this.port = port;
     }
@@ -119,8 +113,8 @@ public class Provider implements Serializable {
      * @param port the port
      * @return the provider
      */
-    public static Provider getProvider(String host, int port){
-        return new Provider(host,port);
+    public static Provider getProvider(String host, int port) {
+        return new Provider(host, port);
     }
 
     /**
@@ -169,16 +163,13 @@ public class Provider implements Serializable {
                     // 剩下是params,例如a=1&b=2
                     remainUrl = remainUrl.substring(itfIndex + 1);
                     String[] params = remainUrl.split("&", -1);
-                    for(String parm: params){
+                    for (String parm : params) {
                         String[] kvpair = parm.split("=", -1);
                         if (BsoaConstants.CONFIG_KEY_WEIGHT.equals(kvpair[0]) && StringUtils.isNotEmpty(kvpair[1])) {
                             this.setWeight(Integer.valueOf(kvpair[1]));
                         }
-                        if (BsoaConstants.CONFIG_KEY_SAFVERSION.equals(kvpair[0]) && StringUtils.isNotEmpty(kvpair[1])) {
-                            this.setSafVersion(Integer.valueOf(kvpair[1]));
-                        }
                         if (BsoaConstants.CONFIG_KEY_JSFVERSION.equals(kvpair[0]) && StringUtils.isNotEmpty(kvpair[1])) {
-                            this.setJsfVersion(Integer.valueOf(kvpair[1]));
+                            this.setBsoaVersion(Integer.valueOf(kvpair[1]));
                         }
                         if (BsoaConstants.CONFIG_KEY_INTERFACE.equals(kvpair[0]) && StringUtils.isNotEmpty(kvpair[1])) {
                             this.setInterfaceId(kvpair[1]);
@@ -250,39 +241,21 @@ public class Provider implements Serializable {
     }
 
     /**
-     * Gets saf version.
-     *
-     * @return the saf version
-     */
-    public int getSafVersion() {
-        return safVersion;
-    }
-
-    /**
-     * Sets saf version.
-     *
-     * @param safVersion the saf version
-     */
-    public void setSafVersion(int safVersion) {
-        this.safVersion = safVersion;
-    }
-
-    /**
      * Gets jsf version.
      *
      * @return the jsf version
      */
-    public int getJsfVersion() {
-        return jsfVersion;
+    public int getBsoaVersion() {
+        return bsoaVersion;
     }
 
     /**
      * Sets jsf version.
      *
-     * @param jsfVersion the jsf version
+     * @param bsoaVersion the jsf version
      */
-    public void setJsfVersion(int jsfVersion) {
-        this.jsfVersion = jsfVersion;
+    public void setBsoaVersion(int bsoaVersion) {
+        this.bsoaVersion = bsoaVersion;
     }
 
     /**
@@ -398,17 +371,14 @@ public class Provider implements Serializable {
      *
      * @return the string
      */
-    public String toUrl(){
+    public String toUrl() {
         String uri = protocolType + "://" + ip + ":" + port + "/" + StringUtils.trimToEmpty(path);
         StringBuilder sb = new StringBuilder();
         if (weight != BsoaConstants.DEFAULT_PROVIDER_WEIGHT) {
             sb.append("&").append(BsoaConstants.CONFIG_KEY_WEIGHT).append("=").append(weight);
         }
-        if (safVersion > 0) {
-            sb.append("&").append(BsoaConstants.CONFIG_KEY_SAFVERSION).append("=").append(safVersion);
-        }
-        if (jsfVersion > 0) {
-            sb.append("&").append(BsoaConstants.CONFIG_KEY_JSFVERSION).append("=").append(jsfVersion);
+        if (bsoaVersion > 0) {
+            sb.append("&").append(BsoaConstants.CONFIG_KEY_JSFVERSION).append("=").append(bsoaVersion);
         }
         if (interfaceId != null) {
             sb.append("&").append(BsoaConstants.CONFIG_KEY_INTERFACE).append("=").append(interfaceId);
@@ -419,7 +389,7 @@ public class Provider implements Serializable {
         if (serializationType != null) {
             sb.append("&").append(BsoaConstants.CONFIG_KEY_SERIALIZATION).append("=").append(serializationType);
         }
-        if(sb.length() > 0){
+        if (sb.length() > 0) {
             uri += sb.replace(0, 1, "?").toString();
         }
         return uri;
@@ -452,7 +422,8 @@ public class Provider implements Serializable {
         if (port != provider.port) return false;
         if (tags != null ? !tags.equals(provider.tags) : provider.tags != null) return false;
         if (ip != null ? !ip.equals(provider.ip) : provider.ip != null) return false;
-        if (interfaceId != null ? !interfaceId.equals(provider.interfaceId) : provider.interfaceId != null) return false;
+        if (interfaceId != null ? !interfaceId.equals(provider.interfaceId) : provider.interfaceId != null)
+            return false;
         if (path != null ? !path.equals(provider.path) : provider.path != null) return false;
         if (protocolType != provider.protocolType) return false;
         if (weight != provider.weight) return false;
@@ -489,7 +460,7 @@ public class Provider implements Serializable {
     /**
      * Sets invocation optimizing.
      *
-     * @param invocationOptimizing  the invocation optimizing
+     * @param invocationOptimizing the invocation optimizing
      */
     public void setInvocationOptimizing(boolean invocationOptimizing) {
         this.invocationOptimizing = invocationOptimizing;
@@ -509,7 +480,7 @@ public class Provider implements Serializable {
     /**
      * Sets reconnect period coefficient.
      *
-     * @param reconnectPeriodCoefficient  the reconnect period coefficient
+     * @param reconnectPeriodCoefficient the reconnect period coefficient
      */
     public void setReconnectPeriodCoefficient(int reconnectPeriodCoefficient) {
         // 最小是1

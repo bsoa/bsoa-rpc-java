@@ -42,12 +42,12 @@ public class ClientTest {
 
         ConsumerConfig<HelloService> consumerConfig = new ConsumerConfig<>();
         consumerConfig.setInterfaceId(HelloService.class.getName());
-        consumerConfig.setUrl("bsoa://127.0.0.1:22222");
+        consumerConfig.setUrl("bsoa://127.0.0.1:22000");
         consumerConfig.setRegister(false);
         HelloService helloService = consumerConfig.refer();
         try {
             String s = helloService.sayHello("xxx", 22);
-            LOGGER.info("{}", s);
+            LOGGER.warn("{}", s);
         } catch (Exception e) {
             LOGGER.error("", e);
         }

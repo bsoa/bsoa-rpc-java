@@ -21,6 +21,17 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import io.bsoa.rpc.common.BsoaConstants;
 
+import static io.bsoa.rpc.common.BsoaConfigs.REGISTRY_BATCH;
+import static io.bsoa.rpc.common.BsoaConfigs.REGISTRY_BATCH_SIZE;
+import static io.bsoa.rpc.common.BsoaConfigs.REGISTRY_CONNECT_TIMEOUT;
+import static io.bsoa.rpc.common.BsoaConfigs.REGISTRY_HEARTBEAT_PERIOD;
+import static io.bsoa.rpc.common.BsoaConfigs.REGISTRY_INVOKE_TIMEOUT;
+import static io.bsoa.rpc.common.BsoaConfigs.REGISTRY_RECONNECT_PERIOD;
+import static io.bsoa.rpc.common.BsoaConfigs.SERVICE_REGISTER;
+import static io.bsoa.rpc.common.BsoaConfigs.SERVICE_SUBSCRIBE;
+import static io.bsoa.rpc.common.BsoaConfigs.getBooleanValue;
+import static io.bsoa.rpc.common.BsoaConfigs.getIntValue;
+
 /**
  * Created by zhanggeng on 16-7-7.
  *
@@ -50,22 +61,22 @@ public class RegistryConfig extends AbstractIdConfig implements Serializable {
     /**
      * 是否注册，如果是false只订阅不注册
      */
-    private boolean register = true;
+    private boolean register = getBooleanValue(SERVICE_REGISTER);
 
     /**
      * 是否订阅服务
      */
-    private boolean subscribe = true;
+    private boolean subscribe = getBooleanValue(SERVICE_SUBSCRIBE);
 
     /**
      * 调用注册中心超时时间
      */
-    private int timeout = BsoaConstants.DEFAULT_CLIENT_INVOKE_TIMEOUT;
+    private int timeout = getIntValue(REGISTRY_INVOKE_TIMEOUT);
 
     /**
      * 连接注册中心超时时间
      */
-    private int connectTimeout = BsoaConstants.DEFAULT_REGISTRY_CONNECT_TIMEOUT;
+    private int connectTimeout = getIntValue(REGISTRY_CONNECT_TIMEOUT);
 
     /**
      * 保存到本地文件的位置，默认$HOME下
@@ -73,32 +84,29 @@ public class RegistryConfig extends AbstractIdConfig implements Serializable {
     private String file;
 
     /**
+     * 是否批量操作
+     */
+    private boolean batch = getBooleanValue(REGISTRY_BATCH);
+
+    /**
      * 定时批量检查时的条目数
      */
-    private int batchCheck = 10;
+    private int batchSize = getIntValue(REGISTRY_BATCH_SIZE);
+
+    /**
+     * Consumer给Provider发心跳的间隔
+     */
+    protected int heartbeat = getIntValue(REGISTRY_HEARTBEAT_PERIOD);
+
+    /**
+     * Consumer给Provider重连的间隔
+     */
+    protected int reconnect = getIntValue(REGISTRY_RECONNECT_PERIOD);
 
     /**
      * The Parameters. 自定义参数
      */
     protected Map<String, String> parameters;
-
-    /**
-     * Gets address.
-     *
-     * @return the address
-     */
-    public String getAddress() {
-        return address;
-    }
-
-    /**
-     * Sets address.
-     *
-     * @param address the address
-     */
-    public void setAddress(String address) {
-        this.address = address;
-    }
 
     /**
      * Gets protocol.
@@ -113,99 +121,31 @@ public class RegistryConfig extends AbstractIdConfig implements Serializable {
      * Sets protocol.
      *
      * @param protocol the protocol
+     * @return the protocol
      */
-    public void setProtocol(String protocol) {
+    public RegistryConfig setProtocol(String protocol) {
         this.protocol = protocol;
+        return this;
     }
 
     /**
-     * Is register.
+     * Gets address.
      *
-     * @return the boolean
+     * @return the address
      */
-    public boolean isRegister() {
-        return register;
+    public String getAddress() {
+        return address;
     }
 
     /**
-     * Sets register.
+     * Sets address.
      *
-     * @param register the register
+     * @param address the address
+     * @return the address
      */
-    public void setRegister(boolean register) {
-        this.register = register;
-    }
-
-    /**
-     * Is subscribe.
-     *
-     * @return the boolean
-     */
-    public boolean isSubscribe() {
-        return subscribe;
-    }
-
-    /**
-     * Sets subscribe.
-     *
-     * @param subscribe the subscribe
-     */
-    public void setSubscribe(boolean subscribe) {
-        this.subscribe = subscribe;
-    }
-
-    /**
-     * Gets timeout.
-     *
-     * @return the timeout
-     */
-    public int getTimeout() {
-        return timeout;
-    }
-
-    /**
-     * Sets timeout.
-     *
-     * @param timeout the timeout
-     */
-    public void setTimeout(int timeout) {
-        this.timeout = timeout;
-    }
-
-    /**
-     * Gets connect timeout.
-     *
-     * @return the connect timeout
-     */
-    public int getConnectTimeout() {
-        return connectTimeout;
-    }
-
-    /**
-     * Sets connect timeout.
-     *
-     * @param connectTimeout the connect timeout
-     */
-    public void setConnectTimeout(int connectTimeout) {
-        this.connectTimeout = connectTimeout;
-    }
-
-    /**
-     * Is file.
-     *
-     * @return the boolean
-     */
-    public String getFile() {
-        return file;
-    }
-
-    /**
-     * Sets file.
-     *
-     * @param file the file
-     */
-    public void setFile(String file) {
-        this.file = file;
+    public RegistryConfig setAddress(String address) {
+        this.address = address;
+        return this;
     }
 
     /**
@@ -221,9 +161,131 @@ public class RegistryConfig extends AbstractIdConfig implements Serializable {
      * Sets index.
      *
      * @param index the index
+     * @return the index
      */
-    public void setIndex(String index) {
+    public RegistryConfig setIndex(String index) {
         this.index = index;
+        return this;
+    }
+
+    /**
+     * Is register boolean.
+     *
+     * @return the boolean
+     */
+    public boolean isRegister() {
+        return register;
+    }
+
+    /**
+     * Sets register.
+     *
+     * @param register the register
+     * @return the register
+     */
+    public RegistryConfig setRegister(boolean register) {
+        this.register = register;
+        return this;
+    }
+
+    /**
+     * Is subscribe boolean.
+     *
+     * @return the boolean
+     */
+    public boolean isSubscribe() {
+        return subscribe;
+    }
+
+    /**
+     * Sets subscribe.
+     *
+     * @param subscribe the subscribe
+     * @return the subscribe
+     */
+    public RegistryConfig setSubscribe(boolean subscribe) {
+        this.subscribe = subscribe;
+        return this;
+    }
+
+    /**
+     * Gets timeout.
+     *
+     * @return the timeout
+     */
+    public int getTimeout() {
+        return timeout;
+    }
+
+    /**
+     * Sets timeout.
+     *
+     * @param timeout the timeout
+     * @return the timeout
+     */
+    public RegistryConfig setTimeout(int timeout) {
+        this.timeout = timeout;
+        return this;
+    }
+
+    /**
+     * Gets connect timeout.
+     *
+     * @return the connect timeout
+     */
+    public int getConnectTimeout() {
+        return connectTimeout;
+    }
+
+    /**
+     * Sets connect timeout.
+     *
+     * @param connectTimeout the connect timeout
+     * @return the connect timeout
+     */
+    public RegistryConfig setConnectTimeout(int connectTimeout) {
+        this.connectTimeout = connectTimeout;
+        return this;
+    }
+
+    /**
+     * Gets file.
+     *
+     * @return the file
+     */
+    public String getFile() {
+        return file;
+    }
+
+    /**
+     * Sets file.
+     *
+     * @param file the file
+     * @return the file
+     */
+    public RegistryConfig setFile(String file) {
+        this.file = file;
+        return this;
+    }
+
+    /**
+     * Is batch boolean.
+     *
+     * @return the boolean
+     */
+    public boolean isBatch() {
+        return batch;
+    }
+
+    /**
+     * Sets batch.
+     *
+     * @param batch the batch
+     * @return the batch
+     */
+    public RegistryConfig setBatch(boolean batch) {
+        this.batch = batch;
+        return this;
     }
 
     /**
@@ -231,17 +293,59 @@ public class RegistryConfig extends AbstractIdConfig implements Serializable {
      *
      * @return the batch check
      */
-    public int getBatchCheck() {
-        return batchCheck;
+    public int getBatchSize() {
+        return batchSize;
     }
 
     /**
      * Sets batch check.
      *
-     * @param batchCheck the batch check
+     * @param batchSize the batch check
+     * @return the batch check
      */
-    public void setBatchCheck(int batchCheck) {
-        this.batchCheck = batchCheck;
+    public RegistryConfig setBatchSize(int batchSize) {
+        this.batchSize = batchSize;
+        return this;
+    }
+
+    /**
+     * Gets heartbeat.
+     *
+     * @return the heartbeat
+     */
+    public int getHeartbeat() {
+        return heartbeat;
+    }
+
+    /**
+     * Sets heartbeat.
+     *
+     * @param heartbeat the heartbeat
+     * @return the heartbeat
+     */
+    public RegistryConfig setHeartbeat(int heartbeat) {
+        this.heartbeat = heartbeat;
+        return this;
+    }
+
+    /**
+     * Gets reconnect.
+     *
+     * @return the reconnect
+     */
+    public int getReconnect() {
+        return reconnect;
+    }
+
+    /**
+     * Sets reconnect.
+     *
+     * @param reconnect the reconnect
+     * @return the reconnect
+     */
+    public RegistryConfig setReconnect(int reconnect) {
+        this.reconnect = reconnect;
+        return this;
     }
 
     /**
@@ -257,9 +361,11 @@ public class RegistryConfig extends AbstractIdConfig implements Serializable {
      * Sets parameters.
      *
      * @param parameters the parameters
+     * @return the parameters
      */
-    public void setParameters(Map<String, String> parameters) {
+    public RegistryConfig setParameters(Map<String, String> parameters) {
         this.parameters = parameters;
+        return this;
     }
 
     /**
@@ -296,7 +402,10 @@ public class RegistryConfig extends AbstractIdConfig implements Serializable {
                 ", timeout=" + timeout +
                 ", connectTimeout=" + connectTimeout +
                 ", file='" + file + '\'' +
-                ", batchCheck=" + batchCheck +
+                ", batch=" + batch +
+                ", batchSize=" + batchSize +
+                ", heartbeat=" + heartbeat +
+                ", reconnect=" + reconnect +
                 ", parameters=" + parameters +
                 '}';
     }
@@ -306,25 +415,27 @@ public class RegistryConfig extends AbstractIdConfig implements Serializable {
         if (this == o) return true;
         if (!(o instanceof RegistryConfig)) return false;
 
-        RegistryConfig config = (RegistryConfig) o;
+        RegistryConfig that = (RegistryConfig) o;
 
-        if (register != config.register) return false;
-        if (subscribe != config.subscribe) return false;
-        if (timeout != config.timeout) return false;
-        if (connectTimeout != config.connectTimeout) return false;
-        if (batchCheck != config.batchCheck) return false;
-        if (protocol != null ? !protocol.equals(config.protocol) : config.protocol != null) return false;
-        if (address != null ? !address.equals(config.address) : config.address != null) return false;
-        if (index != null ? !index.equals(config.index) : config.index != null) return false;
-        if (file != null ? !file.equals(config.file) : config.file != null) return false;
-        if (parameters != null ? !parameters.equals(config.parameters) : config.parameters != null) return false;
+        if (register != that.register) return false;
+        if (subscribe != that.subscribe) return false;
+        if (timeout != that.timeout) return false;
+        if (connectTimeout != that.connectTimeout) return false;
+        if (batch != that.batch) return false;
+        if (batchSize != that.batchSize) return false;
+        if (heartbeat != that.heartbeat) return false;
+        if (reconnect != that.reconnect) return false;
+        if (!protocol.equals(that.protocol)) return false;
+        if (address != null ? !address.equals(that.address) : that.address != null) return false;
+        if (index != null ? !index.equals(that.index) : that.index != null) return false;
+        if (file != null ? !file.equals(that.file) : that.file != null) return false;
+        return parameters != null ? parameters.equals(that.parameters) : that.parameters == null;
 
-        return true;
     }
 
     @Override
     public int hashCode() {
-        int result = protocol != null ? protocol.hashCode() : 0;
+        int result = protocol.hashCode();
         result = 31 * result + (address != null ? address.hashCode() : 0);
         result = 31 * result + (index != null ? index.hashCode() : 0);
         result = 31 * result + (register ? 1 : 0);
@@ -332,7 +443,10 @@ public class RegistryConfig extends AbstractIdConfig implements Serializable {
         result = 31 * result + timeout;
         result = 31 * result + connectTimeout;
         result = 31 * result + (file != null ? file.hashCode() : 0);
-        result = 31 * result + batchCheck;
+        result = 31 * result + (batch ? 1 : 0);
+        result = 31 * result + batchSize;
+        result = 31 * result + heartbeat;
+        result = 31 * result + reconnect;
         result = 31 * result + (parameters != null ? parameters.hashCode() : 0);
         return result;
     }

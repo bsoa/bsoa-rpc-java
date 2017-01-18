@@ -101,7 +101,7 @@ public class BusinessPool {
             maxPoolSize = Math.max(minPoolSize, maxPoolSize);
             aliveTime = 60000;
         } else {
-            throw new BsoaRuntimeException(21401, "server.threadpool");
+            throw new BsoaRuntimeException(21401, "server.threadPoolType");
         }
 
         // 初始化队列

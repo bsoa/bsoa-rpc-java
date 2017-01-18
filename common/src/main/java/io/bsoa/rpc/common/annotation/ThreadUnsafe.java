@@ -14,24 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.bsoa.rpc.context;
+package io.bsoa.rpc.common.annotation;
 
-import java.util.Map;
-
-import io.bsoa.rpc.common.annotation.ThreadUnsafe;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
+ * <p>代表这个类似非线程安全的，只是源码级别</p>
  *
- *
- * Created by zhangg on 2016/7/14 21:03.
+ * Created by zhangg on 2017/1/19 00:00. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-@ThreadUnsafe
-public class HiddenParam {
-
-    /**
-     * The Attachments.
-     */
-    private Map<String, Object> attachments;
+@Documented
+@Retention(RetentionPolicy.SOURCE)
+@Target({ElementType.TYPE})
+public @interface ThreadUnsafe {
 }
