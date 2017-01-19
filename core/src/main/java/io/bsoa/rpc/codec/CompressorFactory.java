@@ -49,7 +49,6 @@ public final class CompressorFactory {
      */
     private final static ConcurrentHashMap<String, Byte> TYPE_CODE_MAP = new ConcurrentHashMap<>();
 
-
     /**
      * 扩展加载器
      */

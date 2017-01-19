@@ -53,6 +53,11 @@ public interface ClientTransport {
     public void disconnect();
 
     /**
+     * 销毁
+     */
+    public void destroy();
+
+    /**
      * 是否可用（有可用的长连接）
      *
      * @return the boolean

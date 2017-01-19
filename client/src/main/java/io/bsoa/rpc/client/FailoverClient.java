@@ -68,7 +68,7 @@ public class FailoverClient extends AbstractClient {
                 throwable = e;
                 time++;
 			} catch (Exception e) { // 其它异常不重试
-                throw new BsoaRpcException("[JSF-22102]Failed to call " + msg.getInterfaceName() + "." + methodName
+                throw new BsoaRpcException(22222, "Failed to call " + msg.getInterfaceName() + "." + methodName
                         + " on remote server: " + connection.getConfig().getProvider() + ", cause by unknown exception: "
                         + e.getClass().getName() + ", message is: " + e.getMessage(), e);
             }
@@ -76,11 +76,11 @@ public class FailoverClient extends AbstractClient {
 		} while (time <= retries);
 
         if (retries == 0) {
-            throw new BsoaRpcException("[JSF-22103]Failed to call " + msg.getInterfaceName() + "." + methodName
+            throw new BsoaRpcException(22222, "Failed to call " + msg.getInterfaceName() + "." + methodName
                     + " on remote server: " + invokedProviders + ", cause by: "
                     + throwable.getClass().getName() + ", message is: " + throwable.getMessage(), throwable);
         } else {
-            throw new BsoaRpcException("[JSF-22104]Failed to call " + msg.getInterfaceName() + "." + methodName
+            throw new BsoaRpcException(22222, "Failed to call " + msg.getInterfaceName() + "." + methodName
                     + " on remote server after retry "+ (retries + 1) + " times: "
                     + invokedProviders + ", last exception is cause by:"
                     + throwable.getClass().getName() + ", message is: " + throwable.getMessage(), throwable);

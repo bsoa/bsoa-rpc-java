@@ -45,8 +45,8 @@ public class LoadBalancerFactory {
         try {
             ExtensionClass<LoadBalancer> ext = EXTENSION_LOADER.getExtensionClass(lbName);
             if (ext == null) {
-                throw ExceptionUtils.buildRuntime(22222, "consumer.loadbalance", lbName,
-                        "Unsupported loadbalance of server!");
+                throw ExceptionUtils.buildRuntime(22222, "consumer.loadBalancer", lbName,
+                        "Unsupported loadBalancer of client!");
             }
             return ext.getExtInstance();
         } catch (BsoaRuntimeException e) {

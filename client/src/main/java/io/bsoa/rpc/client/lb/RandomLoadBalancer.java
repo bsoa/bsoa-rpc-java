@@ -14,18 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.bsoa.rpc.client;
+package io.bsoa.rpc.client.lb;
 
 import java.util.List;
 import java.util.Random;
 
+import io.bsoa.rpc.client.AbstractLoadBalancer;
+import io.bsoa.rpc.client.Provider;
 import io.bsoa.rpc.config.ConsumerConfig;
 import io.bsoa.rpc.ext.Extension;
 import io.bsoa.rpc.message.RpcRequest;
 
 /**
- *
- *
+ * 负载均衡随机算法:全部列表按权重随机选择
+ * <p>
  * Created by zhangg on 2017/01/07 15:32.
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>

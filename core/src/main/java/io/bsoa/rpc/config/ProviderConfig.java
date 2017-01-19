@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import io.bsoa.rpc.base.Invoker;
 import io.bsoa.rpc.common.BsoaConstants;
+import io.bsoa.rpc.common.BsoaVersion;
 import io.bsoa.rpc.common.struct.ConcurrentHashSet;
 import io.bsoa.rpc.common.utils.ClassLoaderUtils;
 import io.bsoa.rpc.common.utils.CommonUtils;
@@ -711,7 +712,7 @@ public class ProviderConfig<T> extends AbstractInterfaceConfig<T> implements Ser
                             .append(getKeyPairs("threadPoolType", server.getThreadPoolType()))
                             .append(getKeyPairs("accepts", server.getAccepts()))
                             .append(getKeyPairs("dynamic", isDynamic()))
-                            .append(getKeyPairs(BsoaConstants.CONFIG_KEY_JSFVERSION, BsoaConstants.JSF_VERSION));
+                            .append(getKeyPairs(BsoaConstants.CONFIG_KEY_BSOAVERSION, BsoaVersion.BSOA_VERSION));
                     urls.add(sb.toString());
                 }
                 return urls;

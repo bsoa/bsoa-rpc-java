@@ -133,9 +133,9 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Ser
     protected int retries = getIntValue(BsoaConfigs.CONSUMER_RETRIES);
 
     /**
-     * The Loadbalance. 负载均衡
+     * The LoadBalancer. 负载均衡
      */
-    protected String loadbalancer = getStringValue(BsoaConfigs.CONSUMER_LOADBALANCER);
+    protected String loadBalancer = getStringValue(BsoaConfigs.CONSUMER_LOADBALANCER);
 
     /**
      * 是否延迟建立长连接,
@@ -298,7 +298,7 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Ser
 //            }
 //        }
         // 如果本地发布了服务，则优选走本地代理，没有则走远程代理
-        if (isInJVM() && InvokerHolder.getInvoker(getInterfaceId(), getTags()) != null) {
+        if (isInJVM() && InvokerHolder.getInvoker(InvokerHolder.buildKey(getInterfaceId(), getTags())) != null) {
             LOGGER.info("Find matched provider invoker in current jvm, " +
                     "will invoke preferentially until it unexported");
         }
@@ -664,21 +664,21 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Ser
     }
 
     /**
-     * Gets loadbalancer.
+     * Gets loadBalancer.
      *
-     * @return the loadbalancer
+     * @return the loadBalancer
      */
-    public String getLoadbalancer() {
-        return loadbalancer;
+    public String getLoadBalancer() {
+        return loadBalancer;
     }
 
     /**
-     * Sets loadbalancer.
+     * Sets loadBalancer.
      *
-     * @param loadbalancer the loadbalancer
+     * @param loadBalancer the loadBalancer
      */
-    public void setLoadbalancer(String loadbalancer) {
-        this.loadbalancer = loadbalancer;
+    public void setLoadBalancer(String loadBalancer) {
+        this.loadBalancer = loadBalancer;
     }
 
     /**

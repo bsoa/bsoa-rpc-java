@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import io.bsoa.rpc.base.Invoker;
 import io.bsoa.rpc.codec.SerializerFactory;
 import io.bsoa.rpc.common.BsoaConstants;
+import io.bsoa.rpc.common.annotation.ThreadSafe;
 import io.bsoa.rpc.config.ConsumerConfig;
 import io.bsoa.rpc.filter.ConsumerInvokeFilter;
 import io.bsoa.rpc.filter.FilterChain;
@@ -40,6 +41,7 @@ import io.bsoa.rpc.protocol.ProtocolFactory;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
+@ThreadSafe
 public class ClientProxyInvoker implements Invoker {
     /**
      * slf4j Logger for this class

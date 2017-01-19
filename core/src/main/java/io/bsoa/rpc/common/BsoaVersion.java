@@ -26,14 +26,14 @@ package io.bsoa.rpc.common;
 public final class BsoaVersion {
 
     /**
-     * 当前JSF版本，例如：<br>
+     * 当前BSOA版本，例如：<br>
      * 1.2.3-SNAPSHOT对应1230<br>
      * 1.2.3正式版对应1231
      */
-    public static final int JSF_VERSION = 1610;
+    public static final int BSOA_VERSION = 2000;
 
     /**
      * 当前Build版本，每次发布修改  //FIXME
      */
-    public static final String JSF_BUILD_VERSION = "1.6.1_201606211749";
+    public static final String BUILD_VERSION = "2.0.0_201701010000";
 }

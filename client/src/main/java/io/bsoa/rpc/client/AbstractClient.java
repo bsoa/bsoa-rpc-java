@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import io.bsoa.rpc.codec.SerializerFactory;
 import io.bsoa.rpc.common.BsoaConstants;
+import io.bsoa.rpc.common.BsoaVersion;
 import io.bsoa.rpc.common.struct.ListDifference;
 import io.bsoa.rpc.common.struct.NamedThreadFactory;
 import io.bsoa.rpc.common.utils.CommonUtils;
@@ -105,11 +106,11 @@ public abstract class AbstractClient implements Client {
 
 
     @Override
-    public void init(ConsumerConfig consumerConfig) {
+    public void init(ConsumerConfig<?> consumerConfig) {
         this.consumerConfig = consumerConfig;
 
         // 负载均衡策略 考虑是否可动态替换？
-        String lb = consumerConfig.getLoadbalancer();
+        String lb = consumerConfig.getLoadBalancer();
         loadBalancer = LoadBalancerFactory.getLoadBalancer(lb);
         loadBalancer.init(consumerConfig);
 
@@ -131,14 +132,15 @@ public abstract class AbstractClient implements Client {
      */
     private List<Router> initRouterByRule() {
         List<Router> routers = null;
-        String interfaceId = consumerConfig.getInterfaceId();
-        boolean open = CommonUtils.isTrue(BsoaContext.getInterfaceVal(interfaceId, BsoaConstants.SETTING_ROUTER_OPEN, "true"));
-        if (open) {
-            String routerRule = BsoaContext.getInterfaceVal(interfaceId, BsoaConstants.SETTING_ROUTER_RULE, null);
-            if (StringUtils.isNotBlank(routerRule)) {
-                routers = RouterFactory.getRouters(routerRule);
-            }
-        }
+//        TODO
+//        String interfaceId = consumerConfig.getInterfaceId();
+//        boolean open = CommonUtils.isTrue(BsoaContext.getInterfaceVal(interfaceId, BsoaConstants.SETTING_ROUTER_OPEN, "true"));
+//        if (open) {
+//            String routerRule = BsoaContext.getInterfaceVal(interfaceId, BsoaConstants.SETTING_ROUTER_RULE, null);
+//            if (StringUtils.isNotBlank(routerRule)) {
+//                routers = RouterFactory.getRouters(routerRule);
+//            }
+//        }
         return routers;
     }
 
@@ -194,8 +196,8 @@ public abstract class AbstractClient implements Client {
             String cTags = consumerConfig.getTags();
             String cProtocol = consumerConfig.getProtocol();
             String[] providerStrs = StringUtils.splitWithCommaOrSemicolon(url);
-            for (int i = 0; i < providerStrs.length; i++) {
-                Provider provider = Provider.valueOf(providerStrs[i]);
+            for (String providerStr : providerStrs) {
+                Provider provider = Provider.valueOf(providerStr);
                 if (!CommonUtils.isFalse(consumerConfig.getParameter(BsoaConstants.HIDDEN_KEY_WARNNING))) {
                     if (!provider.getProtocolType().equals(cProtocol)) {
                         throw ExceptionUtils.buildRuntime(21308, "consumer.url", url,
@@ -616,7 +618,7 @@ public abstract class AbstractClient implements Client {
             // 服务端版本号供本地序列化使用
             RpcContext.getContext().setAttachment(BsoaConstants.HIDDEN_KEY_DST_JSF_VERSION, (short) version);
             // head增加客户端版本号供服务端用
-            request.addHeadKey(HeadKey.BSOA_VERSION, (short) BsoaConstants.JSF_VERSION);
+            request.addHeadKey(HeadKey.BSOA_VERSION, (short) BsoaVersion.BSOA_VERSION);
             if (!CommonUtils.isTrue((Boolean) request.getAttachment(BsoaConstants.CONFIG_KEY_GENERIC))
                     && provider.openInvocationOptimizing()) { // 是否开启invocation优化
 //                request.setIfaceId(BsoaContext.getIfaceIdByClassName(consumerConfig.getInterfaceId()));
@@ -802,6 +804,11 @@ public abstract class AbstractClient implements Client {
                 closepool.shutdown();
             }
         }
+    }
+
+    protected BsoaRpcException noAliveProvider(String key, String IP) {
+        // TODO
+        return new BsoaRpcException(22222, "No Alive Provider");
     }
 
     /**

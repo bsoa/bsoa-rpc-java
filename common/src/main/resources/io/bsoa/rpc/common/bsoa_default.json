@@ -1,10 +1,12 @@
 /*
 本文件为Beyond RPC客户端默认配置文件。
 用户可以在自己的工程中自定义bsoa.json进行默认配置覆盖。
-PS:大家也看到了，本JSON文档是支持注释的，这属于宽松的的json格式哦！
+PS:大家也看到了，本JSON文档是支持注释的，而标准JSOB是不支持的，这属于宽松的的json格式哦！
 */
 {
   "app.id" : 0,
+
+  "system.cpu" : 0, // 0代表自动判断，也可以自定义注入，或者启动参数注入
   "aaa" : "ii",
   "ttt" : 1.5,
   // 默认连注册中心的超时时间
@@ -74,7 +76,7 @@ PS:大家也看到了，本JSON文档是支持注释的，这属于宽松的的j
   "provider.concurrents" : 0, //接口下每方法的最大可并行执行请求数，配置-1关闭并发过滤器，等于0表示开启过滤但是不限制
 
   "consumer.cluster": "failover",
-  "consumer.loadbalancer" : "random",
+  "consumer.loadBalancer" : "random",
   "consumer.retries" : 0, //默认失败重试次数
   "consumer.concurrents": 0, //接口下每方法的最大可并行执行请求数，配置-1关闭并发过滤器，等于0表示开启过滤但是不限制
   "consumer.async" : false, // 默认是否异步
@@ -88,12 +90,12 @@ PS:大家也看到了，本JSON文档是支持注释的，这属于宽松的的j
   "consumer.disconnect.timeout" : 10000, //默认consumer断开时等待结果的超时时间
   "consumer.invoke.timeout" : 5000, // 默认consumer调用provider超时时间
   "consumer.heartbeat.period" : 30000, //心跳发送间隔
-  "consumer.reconnect.period" : 30000, //重建连接间隔
+  "consumer.reconnect.period" : 10000, //重建连接间隔
 
   "callback.pool.type": "cached", // 默认回调线程池类型
   "callback.pool.core" : 10, // 默认回调线程池最小
   "callback.pool.max" : 200, // 默认回调线程池最大
-  "callback.pool.queue" : 0, // 默认回调线程池队列
+  "callback.pool.queue" : 256, // 默认回调线程池队列
   "callback.pool.time" : 60000, //  默认回调线程池回收时间
 
   "transport.use.epoll" : false,

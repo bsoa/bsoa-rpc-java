@@ -27,18 +27,6 @@ import static io.bsoa.rpc.common.BsoaConfigs.getStringValue;
  */
 public class BsoaConstants {
 
-    /**
-     * 当前JSF版本，例如：<br>
-     * 1.2.3-SNAPSHOT对应1230<br>
-     * 1.2.3正式版对应1231
-     */
-    public static final int JSF_VERSION = 1610;
-
-    /**
-     * 当前Build版本，每次发布修改  //FIXME
-     */
-    public static final String JSF_BUILD_VERSION = "1.6.1_201606211749";
-
     /**--------Config配置值相关开始---------*/
     /**
      * zookeeper注册中心
@@ -54,61 +42,13 @@ public class BsoaConstants {
     public static final String REGISTRY_PROTOCOL_JSF = "jsfRegistry";
 
     /**
-     * 随机
-     */
-    public static final String LOADBALANCE_RANDOM = "random";
-
-    /**
-     * 轮询
-     */
-    public static final String LOADBALANCE_ROUNDROBIN = "roundrobin";
-
-    /**
-     * 最小调用
-     */
-    public static final String LOADBALANCE_LEASTACTIVE = "leastactive";
-
-    /**
-     * 一致性hash
-     */
-    public static final String LOADBALANCE_CONSISTENTHASH = "consistenthash";
-
-    /**
-     * 本地（本机器）优先
-     */
-    public static final String LOADBALANCE_LOCALPREF = "localpref";
-
-    /**
-     * 失败重试
-     */
-    public static final String CLUSTER_FAILOVER = "failover";
-
-    /**
-     * 失败忽略，快速失败
-     */
-    public static final String CLUSTER_FAILFAST = "failfast";
-
-    /**
      * 分发全部
      */
     public static final String CLUSTER_BROADCAST = "broadcast";
 
     /**
-     * 客户端可以指定调用地址，继承于failover
-     */
-    public static final String CLUSTER_TRANSPORT_PINPOINT = "pinpoint";
-
-    /**
-     * 客户端可以替换transport列表，继承于failover
-     */
-    public static final String CLUSTER_TRANSPORT_RESETTABLE = "resettable";
-
-
-    /**
      * 默认失败重试次数
      */
-//    public static final int DEFAULT_RETRIES_TIME = 0;
-
     /**
      * 线程池类型：固定线程池
      */
@@ -155,95 +95,9 @@ public class BsoaConstants {
     public final static String QUEUE_TYPE_PRIORITY = "priority";
 
     /**
-     * 默认io线程池大小
-     */
-    public final static int DEFAULT_IO_THREADS = SystemInfo.CPU_CORES + 1;
-
-    /**
-     * 默认服务端业务线程池大小
-     */
-    public final static int DEFAULT_SERVER_BIZ_THREADS = 200;
-
-    /**
-     * 默认服务端业务线程池队列大小
-     */
-    public final static int DEFAULT_SERVER_QUEUE = 0;
-
-    /**
-     * 默认权重 100
-     */
-    public final static int DEFAULT_PROVIDER_WEIGHT = 100;
-
-    /**
-     * 默认客户端线程池大小
-     */
-    public final static int DEFAULT_CLIENT_BIZ_THREADS = 20;
-
-    /**
-     * 默认客户端异步返回调用线程池大小
-     */
-    public final static int DEFAULT_CLIENT_CALLBACK_CORE_THREADS = 20;
-
-    /**
-     * 默认客户端异步返回调用线程池大小
-     */
-    public final static int DEFAULT_CLIENT_CALLBACK_MAX_THREADS = 200;
-
-    /**
-     * 默认客户端异步返回调用线程池队列大小
-     */
-    public final static int DEFAULT_CLIENT_CALLBACK_QUEUE = 256;
-
-    /**
-     * 默认协议类型:jsf
-     */
-//    public final static ProtocolType DEFAULT_PROTOCOL_TYPE = ProtocolType.jsf;
-
-    /**
-     * 默认压缩:不压缩
-     */
-//    public final static CompressType DEFAULT_COMPRESS_TYPE = CompressType.NONE;
-
-    /**
-     * 默认协议:jsf
-     */
-
-//    public final static String DEFAULT_PROTOCOL = "jsf";
-
-    /**
-     * 默认序列话:msgpack
-     */
-//    public final static SerializationType DEFAULT_CODEC_TYPE = SerializationType.msgpack;
-
-    /**
-     * 默认序列话:msgpack
-     */
-//    public final static String DEFAULT_SERIALIZATION = "hessian";
-
-    /**
-     * 代理类型：jdk
-     */
-//    public final static String PROXY_JDK = "jdk";
-
-    /**
-     * 代理类型：javassist
-     */
-//    public final static String PROXY_JAVASSIST = "javassist";
-
-    /**
      * 默认字符集 utf-8
      */
     public final static Charset DEFAULT_CHARSET = Charset.forName(getStringValue(BsoaConfigs.DEFAULT_CHARSET));
-
-    /**
-     * 默认启动端口，包括不配置或者随机，都从此端口开始计算
-     */
-    public static final int DEFAULT_SERVER_PORT = 22000;
-
-    /**
-     * 默认发布路径 "/"
-     */
-    public static final String DEFAULT_SERVER_CONTEXT_PATH = "/";
 
     /**
      * 默认方法优先级为0
@@ -251,33 +105,15 @@ public class BsoaConstants {
     public static final int DEFAULT_METHOD_PRIORITY = 0;
 
     /**
-     * 默认服务启动延迟
-     */
-    public static final int DEFAULT_PROVIDER_DELAY = -1;
-
-    /**
      * 默认服务端 数据包限制
      */
     public final static int DEFAULT_PAYLOAD = 8 * 1024 * 1024;
-
-    /**
-     * Consumer给Provider发心跳的间隔
-     */
-    public final static int DEFAULT_HEARTBEAT_TIME = 30000;
-
-    /**
-     * Consumer给Provider重连的间隔
-     */
-    public final static int DEFAULT_RECONNECT_TIME = 10000;
 
     /**--------Config配置值相关结束---------*/
 
 
     /**--------客户端相关开始---------*/
-    /**
-     * 客户端channelhandler名字
-     */
-    public static final String CLIENT_CHANNELHANDLE_NAME = "JSF_CLIENT_CHANNELHANDLE";
+
 
     /**--------客户端相关结束---------*/
 
@@ -496,7 +332,7 @@ public class BsoaConstants {
     /**
      * 配置key:jsfVersion
      */
-    public static final String CONFIG_KEY_JSFVERSION = "jsfVersion";
+    public static final String CONFIG_KEY_BSOAVERSION = "jsfVersion";
 
     /**
      * 配置key:crosslang 是否支持跨语言
@@ -628,18 +464,7 @@ public class BsoaConstants {
      */
     public static final String SETTING_TRANSPORT_CONSUMER_BATCH = "transport.consumer.ringbuffer";
 
-    /**
-     * 自定义设置：callback的线程池初始大小
-     */
-    public static final String SETTING_CALLBACK_POOL_CORE_SIZE = "callback.pool.coresize";
-    /**
-     * 自定义设置：callback的线程池最大大小
-     */
-    public static final String SETTING_CALLBACK_POOL_MAX_SIZE = "callback.pool.maxsize";
-    /**
-     * 自定义设置：callback的线程池队列
-     */
-    public static final String SETTING_CALLBACK_POOL_QUEUE = "callback.pool.queue";
+
     /**
      * 自定义设置：序列化是否检测Object的类型（父子类检查）
      */
@@ -662,19 +487,19 @@ public class BsoaConstants {
      * @deprecated Use Constants#SETTING_JSON_SERIALIZER_FEATURES
      */
     @Deprecated
-    public static final String SETTING_JSON_SERIALIZE_FILL_EMPTY = "json1.serialize.fill.empty";
+    public static final String SETTING_JSON_SERIALIZE_FILL_EMPTY = "fastjson.serialize.fill.empty";
     /**
      * 自定义设置：json序列化的时候，开启的特性
      *
      * @since 1.6.0
      */
-    public static final String SETTING_JSON_SERIALIZER_FEATURES = "json1.serializer.features";
+    public static final String SETTING_JSON_SERIALIZER_FEATURES = "fastjson.serializer.features";
     /**
      * 自定义设置：json解析的时候，开启的特性
      *
      * @since 1.6.0
      */
-    public static final String SETTING_JSON_PARSER_FEATURES = "json1.parser.features";
+    public static final String SETTING_JSON_PARSER_FEATURES = "fastjson.parser.features";
     /**
      * 自定义设置: 是否忽略Consumer变化时最终的删除命令，默认false
      *

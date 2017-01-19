@@ -15,3 +15,10 @@
  * limitations under the License.
  */
 package io.bsoa.rpc.common.json;
+/*
+ * 本包为简单的JSON解析类，性能一般，支持格式也有限，主要用于配置文件解析。
+ * 建议只在配置加载等场景中使用。
+ * 但是有一个亮点就是支持注释的json文档。
+ * <p>
+ * 自定义对象通过先转为Map再转为对象：JSON<-> Map <-> Object
+ */

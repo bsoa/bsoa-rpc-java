@@ -16,14 +16,15 @@
  */
 package io.bsoa.rpc.client;
 
-import java.util.List;
-
+import io.bsoa.rpc.common.utils.ExceptionUtils;
+import io.bsoa.rpc.exception.BsoaRuntimeException;
+import io.bsoa.rpc.ext.ExtensionClass;
 import io.bsoa.rpc.ext.ExtensionLoader;
 import io.bsoa.rpc.ext.ExtensionLoaderFactory;
 
 /**
  * <p></p>
- *
+ * <p>
  * Created by zhangg on 2017/1/4 23:53. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
@@ -36,7 +37,18 @@ public class RouterFactory {
     private static ExtensionLoader<Router> EXTENSION_LOADER
             = ExtensionLoaderFactory.getExtensionLoader(Router.class);
 
-    public static List<Router> getRouters(String routerRule) {
-        return null;
+    public static Router getRouters(String alias) {
+        try {
+            ExtensionClass<Router> ext = EXTENSION_LOADER.getExtensionClass(alias);
+            if (ext == null) {
+                throw ExceptionUtils.buildRuntime(22222, "consumer.router", alias,
+                        "Unsupported router of client!");
+            }
+            return ext.getExtInstance();
+        } catch (BsoaRuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BsoaRuntimeException(22222, e.getMessage(), e);
+        }
     }
 }

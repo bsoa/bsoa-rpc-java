@@ -51,6 +51,23 @@ public class ClientTest {
         } catch (Exception e) {
             LOGGER.error("", e);
         }
+
+
+        ConsumerConfig<HelloService> consumerConfig2 = new ConsumerConfig<>();
+        consumerConfig2.setInterfaceId(HelloService.class.getName());
+        consumerConfig2.setUrl("bsoa://127.0.0.1:22000");
+        consumerConfig2.setRegister(false);
+        HelloService helloService2 = consumerConfig2.refer();
+        try {
+            String s = helloService2.sayHello("xxx", 22);
+            LOGGER.warn("{}", s);
+        } catch (Exception e) {
+            LOGGER.error("", e);
+        }
+
+        consumerConfig2.unrefer();
+
+        consumerConfig.unrefer();
     }
 
 }

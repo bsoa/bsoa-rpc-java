@@ -162,12 +162,12 @@ public class FilterChain {
         }
         //加载META-INF目录下的自定义filter
         ExtensionLoader<Filter> extensionLoader = ExtensionLoaderFactory.getExtensionLoader(Filter.class);
-        if ( extensionLoader != null ){
-            for (ExtensionClass<Filter> extensionClass : extensionLoader.getProviderSideAutoActives()){
+        if (extensionLoader != null) {
+            for (ExtensionClass<Filter> extensionClass : extensionLoader.getProviderSideAutoActives()) {
                 Filter filter = extensionClass.getExtInstance();
-                if ( filter != null && filter instanceof AbstractFilter ){
-                    LOGGER.info("load provider extension filter:{}",filter.getClass().getCanonicalName());
-                    filters.add((AbstractFilter)filter);
+                if (filter != null && filter instanceof AbstractFilter) {
+                    LOGGER.info("load provider extension filter:{}", filter.getClass().getCanonicalName());
+                    filters.add((AbstractFilter) filter);
                 }
             }
         }

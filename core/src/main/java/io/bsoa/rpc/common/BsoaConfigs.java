@@ -22,6 +22,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -55,33 +56,32 @@ public class BsoaConfigs {
     private final static ConcurrentHashMap<String, List<ConfigListener>> CFG_LISTENER = new ConcurrentHashMap<>();
 
     static {
+        init();
+    }
+    private static void init() {
         try {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Load config from file start!");
             }
-            loadDefault();
-            loadCustom();
-            // FIXME 读取system.properties
+            // loadDefault
+            String json = FileUtils.file2String(BsoaConfigs.class, "bsoa_default.json", "UTF-8");
+            Map map = JSON.parseObject(json, Map.class);
+            CFG.putAll(map);
+
+            // loadCustom();
+            loadCustom("bsoa.json");
+            loadCustom("META-INF/bsoa.json");
+
+            CFG.putAll(new HashMap(System.getProperties())); //读取system.properties
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Load config from file ok!");
                 for (Map.Entry<String, Object> entry : CFG.entrySet()) {
                     LOGGER.debug("{}: {}", entry.getKey(), entry.getValue());
                 }
+                LOGGER.debug("Load config from file end!");
             }
         } catch (Exception e) {
             throw new BsoaRuntimeException(22222, "", e);
         }
-    }
-
-    private static void loadDefault() throws IOException {
-        String json = FileUtils.file2String(BsoaConfigs.class, "bsoa_default.json", "UTF-8");
-        Map map = JSON.parseObject(json, Map.class);
-        CFG.putAll(map);
-    }
-
-    private static void loadCustom() throws IOException {
-        loadCustom("bsoa.json");
-        loadCustom("META-INF/bsoa.json");
     }
 
     private static void loadCustom(String fileName) throws IOException {
@@ -128,7 +128,7 @@ public class BsoaConfigs {
     public static boolean getBooleanValue(String primaryKey) {
         Boolean val = (Boolean) CFG.get(primaryKey);
         if (val == null) {
-            throw new BsoaRuntimeException(22222, "");
+            throw new BsoaRuntimeException(22222, "Not found key: " + primaryKey);
         } else {
             return val;
         }
@@ -139,7 +139,7 @@ public class BsoaConfigs {
         if (val == null) {
             val = (Boolean) CFG.get(secondaryKey);
             if (val == null) {
-                throw new BsoaRuntimeException(22222, "");
+                throw new BsoaRuntimeException(22222, "Not found key: " + primaryKey + "/" + secondaryKey);
             } else {
                 return val;
             }
@@ -151,7 +151,7 @@ public class BsoaConfigs {
     public static int getIntValue(String primaryKey) {
         Integer val = (Integer) CFG.get(primaryKey);
         if (val == null) {
-            throw new BsoaRuntimeException(22222, "Not found key:" + primaryKey);
+            throw new BsoaRuntimeException(22222, "Not found key: " + primaryKey);
         } else {
             return val;
         }
@@ -167,7 +167,7 @@ public class BsoaConfigs {
         if (val == null) {
             val = (Integer) CFG.get(secondaryKey);
             if (val == null) {
-                throw new BsoaRuntimeException(22222, "");
+                throw new BsoaRuntimeException(22222, "Not found key: " + primaryKey + "/" + secondaryKey);
             } else {
                 return val;
             }
@@ -179,7 +179,7 @@ public class BsoaConfigs {
     public static <T extends Enum<T>> T getEnumValue(String primaryKey, Class<T> enumClazz) {
         String val = (String) CFG.get(primaryKey);
         if (val == null) {
-            throw new BsoaRuntimeException(22222, "Not Found");
+            throw new BsoaRuntimeException(22222, "Not Found Key: " + primaryKey);
         } else {
             return Enum.valueOf(enumClazz, val);
         }
@@ -188,7 +188,7 @@ public class BsoaConfigs {
     public static String getStringValue(String primaryKey) {
         String val = (String) CFG.get(primaryKey);
         if (val == null) {
-            throw new BsoaRuntimeException(22222, "Not Found");
+            throw new BsoaRuntimeException(22222, "Not Found Key: " + primaryKey);
         } else {
             return val;
         }
@@ -199,7 +199,7 @@ public class BsoaConfigs {
         if (val == null) {
             val = (String) CFG.get(secondaryKey);
             if (val == null) {
-                throw new BsoaRuntimeException(22222, "");
+                throw new BsoaRuntimeException(22222, "Not found key: " + primaryKey + "/" + secondaryKey);
             } else {
                 return val;
             }
@@ -211,7 +211,7 @@ public class BsoaConfigs {
     public static List getListValue(String primaryKey) {
         List val = (List) CFG.get(primaryKey);
         if (val == null) {
-            throw new BsoaRuntimeException(22222, "Not Found");
+            throw new BsoaRuntimeException(22222, "Not found key: " + primaryKey);
         } else {
             return val;
         }
@@ -226,7 +226,7 @@ public class BsoaConfigs {
      */
     public final static String CONSUMER_SHARE_RECONNECT_THREAD = "consumer.share.reconnect.thread";
     /**
-     * 是否跨接口的长连接复用 FIXME
+     * 是否跨接口的长连接复用
      */
     public final static String TRANSPORT_CONNECTION_REUSE = "transport.connection.reuse";
 
@@ -400,7 +400,7 @@ public class BsoaConfigs {
     /**
      * 默认负载均衡算法
      */
-    public final static String CONSUMER_LOADBALANCER = "consumer.loadbalancer";
+    public final static String CONSUMER_LOADBALANCER = "consumer.loadBalancer";
     /**
      * 默认失败重试次数
      */

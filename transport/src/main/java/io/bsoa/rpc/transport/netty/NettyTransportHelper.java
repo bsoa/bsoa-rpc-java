@@ -186,13 +186,40 @@ public class NettyTransportHelper {
                     clientIOEventLoopGroup = useEpoll ? new EpollEventLoopGroup(threads, threadName)
                             : new NioEventLoopGroup(threads, threadName);
                     setIoRatio(clientIOEventLoopGroup, getIntValue(TRANSPORT_CLIENT_IO_RATIO));
-                    refCounter.putIfAbsent(clientIOEventLoopGroup, new AtomicInteger());
+                    refCounter.putIfAbsent(clientIOEventLoopGroup, new AtomicInteger(0));
                     // SelectStrategyFactory 未设置
                 }
             }
         }
         refCounter.get(clientIOEventLoopGroup).incrementAndGet();
         return clientIOEventLoopGroup;
+    }
+
+    /**
+     * 关闭客户端IO线程池
+     */
+    public static void closeClientIOEventGroup() {
+        if (clientIOEventLoopGroup != null) {
+            synchronized (NettyTransportHelper.class) {
+                if (clientIOEventLoopGroup != null) {
+                    AtomicInteger ref = refCounter.get(clientIOEventLoopGroup);
+                    if (ref.decrementAndGet() <= 0) {
+                        if (!clientIOEventLoopGroup.isShutdown() && !clientIOEventLoopGroup.isShuttingDown()) {
+                            clientIOEventLoopGroup.shutdownGracefully();
+                        }
+                        refCounter.remove(clientIOEventLoopGroup);
+                        if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("Closing Client EventLoopGroup, ref : 0");
+                        }
+                    } else {
+                        if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("Client EventLoopGroup still has ref : {}", ref.get());
+                        }
+                    }
+                }
+                clientIOEventLoopGroup = null;
+            }
+        }
     }
 
     private static void setIoRatio(EventLoopGroup eventLoopGroup, int ioRatio) {
@@ -202,25 +229,6 @@ public class NettyTransportHelper {
 //        } else if (eventLoopGroup instanceof NioEventLoopGroup) {
 //            ((NioEventLoopGroup) eventLoopGroup).setIoRatio(ioRatio);
 //        }
-    }
-
-    /**
-     * 关闭客户端IO线程池
-     */
-    public synchronized static void closeClientIOEventGroup() {
-        LOGGER.debug("close Client EventLoopGroup...");
-        if (clientIOEventLoopGroup != null) {
-            AtomicInteger ref = refCounter.get(clientIOEventLoopGroup);
-            if (ref.decrementAndGet() <= 0) {
-                if (!clientIOEventLoopGroup.isShutdown() && !clientIOEventLoopGroup.isShuttingDown()) {
-                    clientIOEventLoopGroup.shutdownGracefully();
-                }
-                refCounter.remove(clientIOEventLoopGroup);
-            } else {
-                LOGGER.warn("Client EventLoopGroup has ref : ", ref.get());
-            }
-            clientIOEventLoopGroup = null;
-        }
     }
 
     protected static AdaptiveRecvByteBufAllocator RECV_BYTEBUF_ALLOCATOR = AdaptiveRecvByteBufAllocator.DEFAULT;

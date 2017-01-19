@@ -24,10 +24,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.bsoa.rpc.common.SystemInfo;
+import io.bsoa.rpc.common.struct.PositiveAtomicCounter;
 import io.bsoa.rpc.common.utils.NetUtils;
 import io.bsoa.rpc.context.BsoaContext;
 import io.bsoa.rpc.exception.BsoaRpcException;
-import io.bsoa.rpc.exception.BsoaRuntimeException;
 import io.bsoa.rpc.ext.Extension;
 import io.bsoa.rpc.message.BaseMessage;
 import io.bsoa.rpc.message.HeartbeatResponse;
@@ -73,7 +74,7 @@ public class NettyClientTransport extends AbstractClientTransport {
     /**
      * 请求id计数器（一个Transport一个）
      */
-    private final AtomicInteger requestId = new AtomicInteger();
+    private final PositiveAtomicCounter requestId = new PositiveAtomicCounter();
 
     private final ConcurrentHashMap<Integer, NettyMessageFuture<BaseMessage>> futureMap = new ConcurrentHashMap<>();
 
@@ -85,10 +86,13 @@ public class NettyClientTransport extends AbstractClientTransport {
     public void connect() {
         // 已经初始化，或者被复用
         if (connected) {
-            throw new BsoaRuntimeException(22222, "Has been call connect(), Illegal Access");
+            LOGGER.info("Has been call connect(), ignore this if connection reuse");
         }
 
         String host = config.getProvider().getIp();
+        if (host.equals(SystemInfo.getLocalHost())) { //本机跨jvm服务，降级为127.0.0.1,不走网卡
+            host = NetUtils.LOCALHOST;
+        }
         int port = config.getProvider().getPort();
         int num = config.getConnectionNum(); // 建立几个长连接
         int connectTimeout = config.getConnectTimeout();
@@ -140,6 +144,17 @@ public class NettyClientTransport extends AbstractClientTransport {
     public void disconnect() {
         if (channel != null) {
             channel.close();
+            channel = null;
+            connected = false;
+        }
+    }
+
+    @Override
+    public void destroy() {
+        try {
+            disconnect();
+        } finally {
+            NettyTransportHelper.closeClientIOEventGroup();
         }
     }
 
@@ -299,7 +314,7 @@ public class NettyClientTransport extends AbstractClientTransport {
     }
 
     private Integer generateRequestId() {
-        return requestId.getAndIncrement() & 0x7FFFFFFF;
+        return requestId.getAndIncrement();
     }
 
     private void addFuture(BaseMessage message, NettyMessageFuture<BaseMessage> msgFuture) {

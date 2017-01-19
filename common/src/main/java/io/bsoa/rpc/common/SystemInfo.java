@@ -48,7 +48,7 @@ public class SystemInfo {
             IS_LINUX = true;
         }
 
-        LOCALHOST = NetUtils.getLocalHost();
+        LOCALHOST = NetUtils.getLocalIpv4();
     }
 
     private static boolean IS_WINDOWS;

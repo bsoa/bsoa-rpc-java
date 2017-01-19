@@ -220,6 +220,12 @@ public class ExtensionLoader<T> {
                         + className + ".");
             }
         }
+        // 不可以是default和*
+        if (alias.equals("default") || alias.equals("*")) {
+            throw new IllegalArgumentException("Error when load extension of interface "
+                    + interfaceName + " from file:" + url
+                    + ", alias of @Extension must not \"default\" and \"*\" at " + className + ".");
+        }
         // 提前试试能不能实例化，
         try {
             implClass.getConstructor(interfaceClass);

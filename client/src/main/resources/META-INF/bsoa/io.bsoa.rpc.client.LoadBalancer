@@ -1,1 +1,5 @@
-io.bsoa.rpc.client.RandomLoadBalancer
+io.bsoa.rpc.client.lb.ConsistentHashLoadBalancer
+io.bsoa.rpc.client.lb.LeastActiveLoadBalancer
+io.bsoa.rpc.client.lb.LocalPreferenceLoadBalancer
+io.bsoa.rpc.client.lb.RandomLoadBalancer
+io.bsoa.rpc.client.lb.RoundRobinLoadBalancer

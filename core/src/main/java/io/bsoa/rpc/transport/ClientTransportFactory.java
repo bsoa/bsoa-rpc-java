@@ -16,15 +16,21 @@
  */
 package io.bsoa.rpc.transport;
 
+import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 
+import io.bsoa.rpc.client.Provider;
+import io.bsoa.rpc.common.utils.NetUtils;
+import io.bsoa.rpc.context.BsoaContext;
 import io.bsoa.rpc.ext.ExtensionLoader;
 import io.bsoa.rpc.ext.ExtensionLoaderFactory;
 
+import static io.bsoa.rpc.common.BsoaConfigs.TRANSPORT_CONNECTION_REUSE;
+import static io.bsoa.rpc.common.BsoaConfigs.getBooleanValue;
 import static org.slf4j.LoggerFactory.getLogger;
 
 /**
@@ -40,69 +46,148 @@ public class ClientTransportFactory {
      */
     private final static Logger LOGGER = getLogger(ClientTransportFactory.class);
 
+    /**
+     * Extension加载器
+     */
     private final static ExtensionLoader<ClientTransport> extensionLoader
             = ExtensionLoaderFactory.getExtensionLoader(ClientTransport.class);
 
     /**
-     * 连接池，一个服务端ip和端口同一协议只建立一个长连接，不管多少接口，共用长连接
+     * 是否长连接复用
      */
-    private final static Map<String, ClientTransport> CLIENT_TRANSPORT_MAP = new ConcurrentHashMap<>();
+    private final static boolean channelReuse = getBooleanValue(TRANSPORT_CONNECTION_REUSE);
 
     /**
-     * 共享长连接？？
+     * 长连接不复用的时候，一个ClientTransportConfig对应一个ClientTransport
      */
-    private final static Map<ClientTransport, AtomicInteger> refCountPool = new ConcurrentHashMap<>();//weak ref
+    private final static Map<ClientTransportConfig, ClientTransport> ALL_TRANSPORT_MAP
+            = channelReuse ? null : new ConcurrentHashMap<>();
+
+    /**
+     * 长连接复用时，共享长连接的连接池，一个服务端ip和端口同一协议只建立一个长连接，不管多少接口，共用长连接
+     */
+    private final static Map<String, ClientTransport> CLIENT_TRANSPORT_MAP
+            = channelReuse ? new ConcurrentHashMap<>() : null;
+
+    /**
+     * 长连接复用时，共享长连接的计数器
+     */
+    private final static Map<ClientTransport, AtomicInteger> TRANSPORT_REF_COUNTER
+            = channelReuse ? new ConcurrentHashMap<>() : null;
 
     public static ClientTransport getClientTransport(ClientTransportConfig config) {
-        ClientTransport clientTransport = extensionLoader.getExtension(config.getContainer());
-        clientTransport.setConfig(config);
-        CLIENT_TRANSPORT_MAP.put(clientTransport.toString(), clientTransport); // FIXME
-        return clientTransport;
+        if (channelReuse) {
+            String key = getAddr(config);
+            ClientTransport transport = CLIENT_TRANSPORT_MAP.get(key);
+            if (transport == null) {
+                transport = extensionLoader.getExtension(config.getContainer());
+                transport.setConfig(config);
+                ClientTransport oldTransport = CLIENT_TRANSPORT_MAP.putIfAbsent(key, transport); // 保存唯一长连接
+                if (oldTransport != null) {
+                    LOGGER.warn("Multiple threads init ClientTransport with same key:" + key);
+                    transport.destroy(); //如果同时有人插入，则使用第一个
+                    transport = oldTransport;
+                }
+            }
+            AtomicInteger counter = TRANSPORT_REF_COUNTER.get(transport);
+            if (counter == null) {
+                counter = new AtomicInteger(0);
+                AtomicInteger oldCounter = TRANSPORT_REF_COUNTER.putIfAbsent(transport, counter);
+                if (oldCounter != null) {
+                    counter = oldCounter;
+                }
+            }
+            counter.incrementAndGet(); // 计数器加1
+            return transport;
+        } else {
+            ClientTransport transport = ALL_TRANSPORT_MAP.get(config);
+            if (transport == null) {
+                transport = extensionLoader.getExtension(config.getContainer());
+                transport.setConfig(config);
+                ClientTransport old = ALL_TRANSPORT_MAP.putIfAbsent(config, transport); // 保存唯一长连接
+                if (old != null) {
+                    LOGGER.warn("Multiple threads init ClientTransport with same ClientTransportConfig!");
+                    transport.destroy(); //如果同时有人插入，则使用第一个
+                    transport = old;
+                }
+            }
+            return transport;
+        }
     }
 
-    public static void releaseTransport(ClientTransport clientTransport, int timeout){
+    private static String getAddr(ClientTransportConfig config) {
+        Provider provider = config.getProvider();
+        return provider.getProtocolType() + "://" + provider.getIp() + ":" + provider.getPort();
+    }
+
+    public static void releaseTransport(ClientTransport clientTransport, int disconnectTimeout) {
         if (clientTransport == null) {
             return;
         }
-        clientTransport.disconnect();
-//        AtomicInteger integer = refCountPool.get(clientTransport);
-//        if (integer == null) {
-//            return;
-//        } else {
-//            int currentCount = refCountPool.get(clientTransport).decrementAndGet();
-//            InetSocketAddress local = clientTransport.getLocalAddress();
-//            InetSocketAddress remote = clientTransport.getRemoteAddress();
-//            logger.debug("Client transport {} of {} , current ref count is: {}", new Object[]{clientTransport,
-//                    NetUtils.channelToString(local, remote), currentCount});
-//            if(currentCount <= 0){ // 此长连接无任何引用
-//                String ip = NetUtils.toIpString(remote);
-//                int port = remote.getPort();
-//                String key = NetUtils.getClientTransportKey(clientTransport.getConfig().getProvider().getProtocolType().name(),ip,port);
-//                logger.info("Shutting down client transport {} now..", NetUtils.channelToString(local, remote));
-//                connectionPool.remove(key);
-//                refCountPool.remove(clientTransport);
-//                if (timeout > 0) {
-//                    int count = clientTransport.currentRequests();
-//                    if (count > 0) { // 有正在调用的请求
-//                        long start = JSFContext.systemClock.now();
-//                        logger.info("There are {} outstanding call in transport, will shutdown util return", count);
-//                        while (clientTransport.currentRequests() > 0
-//                                && JSFContext.systemClock.now() - start < timeout) { // 等待返回结果
-//                            try {
-//                                Thread.sleep(10);
-//                            } catch (InterruptedException e) {
-//                            }
-//                        }
-//                    } // 关闭前检查已有请求？
-//                }
-//                clientTransport.shutdown();
-//            }
-//        }
+        boolean needDestroy;
+        if (channelReuse) { // 开启长连接复用，根据连接引用数判断
+            AtomicInteger integer = TRANSPORT_REF_COUNTER.get(clientTransport);
+            if (integer == null) {
+                needDestroy = true;
+            } else {
+                int currentCount = integer.decrementAndGet(); // 当前连接引用数
+                if (LOGGER.isDebugEnabled()) {
+                    InetSocketAddress local = clientTransport.getChannel().getLocalAddress();
+                    InetSocketAddress remote = clientTransport.getChannel().getRemoteAddress();
+                    LOGGER.debug("Client transport {} of {} , current ref count is: {}", clientTransport,
+                            NetUtils.channelToString(local, remote), currentCount);
+                }
+                if (currentCount <= 0) { // 此长连接无任何引用，可以销毁
+                    String key = getAddr(clientTransport.getConfig());
+                    if (LOGGER.isInfoEnabled()) {
+                        LOGGER.info("Shutting down client transport {} now..",
+                                NetUtils.channelToString(clientTransport.getChannel().getLocalAddress(),
+                                        clientTransport.getChannel().getRemoteAddress()));
+                    }
+                    CLIENT_TRANSPORT_MAP.remove(key);
+                    TRANSPORT_REF_COUNTER.remove(clientTransport);
+                    needDestroy = true;
+                } else {
+                    needDestroy = false;
+                }
+            }
+        } else {  // 未开启长连接复用，可以销毁
+            ALL_TRANSPORT_MAP.remove(clientTransport.getConfig());
+            needDestroy = true;
+        }
+        // 执行销毁动作
+        if (needDestroy) {
+            if (disconnectTimeout > 0) { // 需要等待结束时间
+                int count = clientTransport.currentRequests();
+                if (count > 0) { // 有正在调用的请求
+                    long start = BsoaContext.now();
+                    if (LOGGER.isInfoEnabled()) {
+                        LOGGER.info("There are {} outstanding call in transport, wait {}ms to end",
+                                count, disconnectTimeout);
+                    }
+                    while (clientTransport.currentRequests() > 0
+                            && BsoaContext.now() - start < disconnectTimeout) { // 等待返回结果
+                        try {
+                            Thread.sleep(10);
+                        } catch (InterruptedException e) {
+                        }
+                    }
+                } // 关闭前检查已有请求？
+            }
+            // disconnectTimeout已过
+            int count = clientTransport.currentRequests();
+            if (count > 0) { // 还有正在调用的请求
+                LOGGER.warn("There are {} outstanding call in client transport," +
+                        " and shutdown now", count);
+            }
+            clientTransport.destroy();
+        }
     }
 
     /**
      * 关闭全部客户端连接
      */
+
     public static void closeAll() {
         LOGGER.info("Shutdown all bsoa client transport now...");
         try {
@@ -132,4 +217,4 @@ public class ClientTransportFactory {
 //                logger.error(e.getMessage(), e);
 //            }
 //        }
-    }
+}

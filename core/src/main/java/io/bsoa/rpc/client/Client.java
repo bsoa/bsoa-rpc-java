@@ -17,6 +17,7 @@ package io.bsoa.rpc.client;
 
 import java.util.List;
 
+import io.bsoa.rpc.common.annotation.ThreadSafe;
 import io.bsoa.rpc.config.ConsumerConfig;
 import io.bsoa.rpc.ext.Extensible;
 import io.bsoa.rpc.message.RpcRequest;
@@ -28,9 +29,10 @@ import io.bsoa.rpc.message.RpcResponse;
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
  */
 @Extensible(singleton = false)
+@ThreadSafe
 public interface Client {
 
-    void init(ConsumerConfig consumerConfig);
+    void init(ConsumerConfig<?> consumerConfig);
 
     void destroy();
 

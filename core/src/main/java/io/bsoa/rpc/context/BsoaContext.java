@@ -82,8 +82,8 @@ public class BsoaContext {
 
 
     static {
-        LOGGER.info("Welcome! Loading Beyond SOA RPC Framework : {}", BsoaVersion.JSF_BUILD_VERSION);
-        put(BsoaConstants.CONFIG_KEY_JSFVERSION, BsoaConstants.JSF_BUILD_VERSION);
+        LOGGER.info("Welcome! Loading Beyond SOA RPC Framework : {}", BsoaVersion.BUILD_VERSION);
+        put(BsoaConstants.CONFIG_KEY_BSOAVERSION, BsoaVersion.BUILD_VERSION);
         // 初始化一些上下文
         putPropertyToContext();
         // 增加jvm关闭事件
@@ -416,6 +416,7 @@ public class BsoaContext {
      *
      * @return ip地址 local host
      */
+    @Deprecated
     public static String getLocalHost() {
         return SystemInfo.getLocalHost();
     }

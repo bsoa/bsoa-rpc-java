@@ -14,39 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.bsoa.rpc.client;
+package io.bsoa.rpc.client.router;
 
-import java.util.List;
-
-import io.bsoa.rpc.common.annotation.ThreadSafe;
-import io.bsoa.rpc.ext.Extensible;
+import io.bsoa.rpc.ext.Extension;
 import io.bsoa.rpc.message.RpcRequest;
 
 /**
- * 路由器：从一堆Provider中筛选出一堆Provider
+ * 按方法名进行路由
  * <p>
- * Created by zhangg on 2016/7/16 01:05.
+ * Created by zhangg on 2017/01/07 15:32.
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-@Extensible(singleton = false)
-@ThreadSafe
-public interface Router {
+@Extension("methodIp")
+public class MethodNameRouter extends ParameterizedRouter {
 
-    /**
-     * 指定规则，自定义路由的话可以忽略。
-     *
-     * @param ruleJson 规则json字符串
-     */
-    public void setRule(String ruleJson);
-
-    /**
-     * 筛选Provider
-     *
-     * @param request   本次调用（可以得到类名，方法名，方法参数，参数值等）
-     * @param providers providers（<b>当前可用</b>的服务Provider列表）
-     * @return 路由匹配的服务Provider列表
-     */
-    public List<Provider> route(RpcRequest request, List<Provider> providers);
-
+    public boolean matchRule(ParameterizedRule rule, RpcRequest request) {
+        // 匹配方法
+        return matchString(rule, request.getMethodName());
+    }
 }

@@ -47,7 +47,7 @@ public final class InvokerHolder {
      * 初始化Server实例
      *
      * @param key invoker
-     * @return
+     * @return Invoker
      */
     public static Invoker getInvoker(String key) {
         return EXPORTED_INVOKER.get(key);
@@ -58,7 +58,6 @@ public final class InvokerHolder {
      *
      * @param key     invoker关键字
      * @param invoker invoker
-     * @return
      */
     public static void setInvoker(String key, Invoker invoker) {
         Invoker oldInvoker = EXPORTED_INVOKER.putIfAbsent(key, invoker);
@@ -70,9 +69,7 @@ public final class InvokerHolder {
     /**
      * 初始化Server实例
      *
-     * @param key     invoker关键字
-     * @param invoker invoker
-     * @return
+     * @param key invoker关键字
      */
     public static void removeInvoker(String key) {
         EXPORTED_INVOKER.remove(key);

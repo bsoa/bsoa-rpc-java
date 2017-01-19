@@ -64,9 +64,9 @@ public class ExtensionLoaderTest {
     @Test
     public void testReadLine() throws Exception {
         ExtensionLoader loader = new ExtensionLoader<Filter>(Filter.class, false, null);
-        URL url = Filter.class.getResource("/META-INF/jsf/" + Filter.class.getName());
+        URL url = Filter.class.getResource("/META-INF/bsoa/" + Filter.class.getName());
         try {
-            loader.readLine(url, "com.jd.jsf.gd.test.HelloServiceImpl");
+            loader.readLine(url, "io.bsoa.rpc.test.HelloServiceImpl");
         } catch (Throwable t) {
             LOGGER.error(t.getMessage());
         }
@@ -74,40 +74,46 @@ public class ExtensionLoaderTest {
 
         loader.all.clear();
         try {
-            loader.readLine(url,  "com.jd.jsf.gd.config.ext.WrongFilter");
+            loader.readLine(url,  "io.bsoa.rpc.ext.WrongFilter0");
+        } catch (Throwable t) {
+            LOGGER.error(t.getMessage());
+        }
+        try {
+            loader.readLine(url,  "io.bsoa.rpc.ext.WrongFilter1");
+        } catch (Throwable t) {
+            LOGGER.error(t.getMessage());
+        }
+        try {
+            loader.readLine(url,  "io.bsoa.rpc.ext.WrongFilter2");
+        } catch (Throwable t) {
+            LOGGER.error(t.getMessage());
+        }
+
+        try {
+            loader.readLine(url, "echo1=io.bsoa.rpc.ext.ExtensionFilter");
         } catch (Throwable t) {
             LOGGER.error(t.getMessage());
         }
         Assert.assertTrue(loader.all.isEmpty());
 
-        loader.all.clear();
         try {
-            loader.readLine(url, "echo1=com.jd.jsf.gd.config.ext.ExtensionFilter");
+            loader.readLine(url, "io.bsoa.rpc.ext.ExtensionFilter");
         } catch (Throwable t) {
             LOGGER.error(t.getMessage());
         }
-        Assert.assertTrue(loader.all.isEmpty());
+        Assert.assertFalse(loader.all.isEmpty());
 
         loader.all.clear();
         try {
-            loader.readLine(url, "com.jd.jsf.gd.config.ext.ExtensionFilter");
+            loader.readLine(url, "testext=io.bsoa.rpc.ext.ExtensionFilter");
         } catch (Throwable t) {
             LOGGER.error(t.getMessage());
         }
-        Assert.assertTrue(!loader.all.isEmpty());
-
-
-        loader.all.clear();
-        try {
-            loader.readLine(url, "testext=com.jd.jsf.gd.config.ext.ExtensionFilter");
-        } catch (Throwable t) {
-            LOGGER.error(t.getMessage());
-        }
-        Assert.assertTrue(!loader.all.isEmpty());
+        Assert.assertFalse(loader.all.isEmpty());
 
         boolean isOk = true;
         try {
-            loader.readLine(url, "com.jd.jsf.gd.config.ext.ExtensionFilter");
+            loader.readLine(url, "io.bsoa.rpc.ext.ExtensionFilter");
         } catch (Throwable t) {
             LOGGER.error(t.getMessage());
             isOk = false;

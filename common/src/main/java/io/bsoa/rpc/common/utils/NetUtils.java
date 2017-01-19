@@ -34,8 +34,6 @@ import org.slf4j.LoggerFactory;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
 
 /**
- *
- *
  * Created by zhangg on 2016/7/14 22:55.
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
@@ -59,8 +57,7 @@ public class NetUtils {
     /**
      * 判断端口是否有效 0-65535
      *
-     * @param port
-     *         端口
+     * @param port 端口
      * @return 是否有效
      */
     public static boolean isInvalidPort(int port) {
@@ -70,8 +67,7 @@ public class NetUtils {
     /**
      * 判断端口是否随机端口 小于0表示随机
      *
-     * @param port
-     *         端口
+     * @param port 端口
      * @return 是否随机端口
      */
     public static boolean isRandomPort(int port) {
@@ -81,16 +77,14 @@ public class NetUtils {
     /**
      * 检查当前指定端口是否可用，不可用则自动+1再试（随机端口从默认端口开始检查）
      *
-     * @param host
-     *         当前ip地址
-     * @param port
-     *         当前指定端口
+     * @param host 当前ip地址
+     * @param port 当前指定端口
      * @return 从指定端口开始后第一个可用的端口
      */
     public static int getAvailablePort(String host, int port) {
-        if(isAnyHost(host)
+        if (isAnyHost(host)
                 || isLocalHost(host)
-                || isHostInNetworkCard(host)){
+                || isHostInNetworkCard(host)) {
         } else {
             throw new BsoaRuntimeException(22222, "The host " + host
                     + " is not found in network cards, please check config");
@@ -128,6 +122,10 @@ public class NetUtils {
      * 任意地址
      */
     public static final String ANYHOST = "0.0.0.0";
+    /**
+     * 本机地址
+     */
+    public static final String LOCALHOST = "127.0.0.1";
 
     private static final Pattern LOCAL_IP_PATTERN = Pattern.compile("127(\\.\\d{1,3}){3}$");
 
@@ -140,8 +138,7 @@ public class NetUtils {
     /**
      * 是否本地地址 127.x.x.x 或者 localhost
      *
-     * @param host
-     *         地址
+     * @param host 地址
      * @return 是否本地地址
      */
     public static boolean isLocalHost(String host) {
@@ -152,8 +149,7 @@ public class NetUtils {
     /**
      * 是否默认地址 0.0.0.0
      *
-     * @param host
-     *         地址
+     * @param host 地址
      * @return 是否默认地址
      */
     public static boolean isAnyHost(String host) {
@@ -163,8 +159,7 @@ public class NetUtils {
     /**
      * 是否IPv4地址 0.0.0.0
      *
-     * @param host
-     *         地址
+     * @param host 地址
      * @return 是否默认地址
      */
     public static boolean isIPv4Host(String host) {
@@ -175,8 +170,7 @@ public class NetUtils {
     /**
      * 是否非法地址（本地或默认）
      *
-     * @param host
-     *         地址
+     * @param host 地址
      * @return 是否非法地址
      */
     private static boolean isInvalidLocalHost(String host) {
@@ -188,8 +182,7 @@ public class NetUtils {
     /**
      * 是否合法地址（非本地，非默认的IPv4地址）
      *
-     * @param address
-     *         InetAddress
+     * @param address InetAddress
      * @return 是否合法
      */
     private static boolean isValidAddress(InetAddress address) {
@@ -205,8 +198,7 @@ public class NetUtils {
     /**
      * 是否网卡上的地址
      *
-     * @param host
-     *         地址
+     * @param host 地址
      * @return 是否默认地址
      */
     public static boolean isHostInNetworkCard(String host) {
@@ -223,7 +215,7 @@ public class NetUtils {
      *
      * @return ip地址
      */
-    public static String getLocalHost() {
+    public static String getLocalIpv4() {
         InetAddress address = getLocalAddress();
         return address == null ? null : address.getHostAddress();
     }
@@ -241,7 +233,7 @@ public class NetUtils {
                 return localAddress;
             }
         } catch (Throwable e) {
-            logger.warn("Error when retriving ip address: " + e.getMessage(), e);
+            logger.warn("Error when retrieving ip address: " + e.getMessage(), e);
         }
         try {
             Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
@@ -250,25 +242,23 @@ public class NetUtils {
                     try {
                         NetworkInterface network = interfaces.nextElement();
                         Enumeration<InetAddress> addresses = network.getInetAddresses();
-                        if (addresses != null) {
-                            while (addresses.hasMoreElements()) {
-                                try {
-                                    InetAddress address = addresses.nextElement();
-                                    if (isValidAddress(address)) {
-                                        return address;
-                                    }
-                                } catch (Throwable e) {
-                                    logger.warn("Error when retriving ip address: " + e.getMessage(), e);
+                        while (addresses.hasMoreElements()) {
+                            try {
+                                InetAddress address = addresses.nextElement();
+                                if (isValidAddress(address)) {
+                                    return address;
                                 }
+                            } catch (Throwable e) {
+                                logger.warn("Error when retrieving ip address: " + e.getMessage(), e);
                             }
                         }
                     } catch (Throwable e) {
-                        logger.warn("Error when retriving ip address: " + e.getMessage(), e);
+                        logger.warn("Error when retrieving ip address: " + e.getMessage(), e);
                     }
                 }
             }
         } catch (Throwable e) {
-            logger.warn("Error when retriving ip address: " + e.getMessage(), e);
+            logger.warn("Error when retrieving ip address: " + e.getMessage(), e);
         }
         logger.error("Can't get valid host, will use 127.0.0.1 instead.");
         return localAddress;
@@ -277,8 +267,7 @@ public class NetUtils {
     /**
      * InetSocketAddress转 host:port 字符串
      *
-     * @param address
-     *         InetSocketAddress转
+     * @param address InetSocketAddress转
      * @return host:port 字符串
      */
     public static String toAddressString(InetSocketAddress address) {
@@ -292,8 +281,7 @@ public class NetUtils {
     /**
      * 得到ip地址
      *
-     * @param address
-     *         InetSocketAddress
+     * @param address InetSocketAddress
      * @return ip地址
      */
     public static String toIpString(InetSocketAddress address) {
@@ -309,8 +297,7 @@ public class NetUtils {
     /**
      * 本地多ip情况下、连一下注册中心地址得到本地IP地址
      *
-     * @param registryIp
-     *         注册中心地址
+     * @param registryIp 注册中心地址
      * @return 本地多ip情况下得到本地能连上注册中心的IP地址
      */
     public static String getLocalHostByRegistry(String registryIp) {
@@ -328,7 +315,7 @@ public class NetUtils {
             }
         }
         if (NetUtils.isInvalidLocalHost(host)) {
-            host = NetUtils.getLocalHost();
+            host = NetUtils.getLocalIpv4();
         }
         return host;
     }
@@ -336,8 +323,7 @@ public class NetUtils {
     /**
      * 通过连接远程地址得到本机内网地址
      *
-     * @param remoteAddress
-     *         远程地址
+     * @param remoteAddress 远程地址
      * @return 本机内网地址
      */
     private static InetAddress getLocalHostBySocket(InetSocketAddress remoteAddress) {
@@ -365,8 +351,7 @@ public class NetUtils {
     /**
      * 解析注册中心地址配置为多个连接地址
      *
-     * @param registryIp
-     *         注册中心地址
+     * @param registryIp 注册中心地址
      * @return
      */
     public static List<InetSocketAddress> getIpListByRegistry(String registryIp) {
@@ -407,18 +392,16 @@ public class NetUtils {
     /**
      * 判断当前ip是否符合白名单
      *
-     * @param whitelist
-     *         白名单，可以配置为*
-     * @param localIP
-     *         当前地址
+     * @param whiteList 白名单，可以配置为*
+     * @param localIP   当前地址
      * @return
      */
-    public static boolean isMatchIPByPattern(String whitelist, String localIP) {
-        if (StringUtils.isNotBlank(whitelist)) {
-            if ("*".equals(whitelist)) {
+    public static boolean isMatchIPByPattern(String whiteList, String localIP) {
+        if (StringUtils.isNotBlank(whiteList)) {
+            if ("*".equals(whiteList)) {
                 return true;
             }
-            for (String ips : whitelist.replace(',', ';').split(";", -1)) {
+            for (String ips : whiteList.replace(',', ';').split(";", -1)) {
                 try {
                     if (ips.contains("*")) { // 带通配符
                         String regex = ips.trim().replace(".", "\\.").replace("*", ".*");
@@ -448,10 +431,8 @@ public class NetUtils {
     /**
      * 连接转字符串
      *
-     * @param local
-     *         本地地址
-     * @param remote
-     *         远程地址
+     * @param local  本地地址
+     * @param remote 远程地址
      * @return
      */
     public static String connectToString(InetSocketAddress local, InetSocketAddress remote) {
@@ -461,10 +442,8 @@ public class NetUtils {
     /**
      * 连接转字符串
      *
-     * @param local1
-     *         本地地址
-     * @param remote1
-     *         远程地址
+     * @param local1  本地地址
+     * @param remote1 远程地址
      * @return
      */
     public static String channelToString(SocketAddress local1, SocketAddress remote1) {
@@ -480,12 +459,9 @@ public class NetUtils {
     /**
      * 是否可以telnet
      *
-     * @param ip
-     *         远程地址
-     * @param port
-     *         远程端口
-     * @param timeout
-     *         连接超时
+     * @param ip      远程地址
+     * @param port    远程端口
+     * @param timeout 连接超时
      * @return 是否可连接
      */
     public static boolean canTelnet(String ip, int port, int timeout) {
@@ -505,19 +481,4 @@ public class NetUtils {
             }
         }
     }
-//
-//    public static String getTransportKey(String ip, int port) {
-//        return ip + "::" + port;
-//    }
-//
-//    public static String getClientTransportKey(String protocolName,String ip,int port){
-//        return protocolName + "::" +ip + "::" + port;
-//    }
-//
-//    public static String getTransportKey(Channel channel) {
-//        InetSocketAddress address = (InetSocketAddress) channel.remoteAddress();
-//        String remoteIp = NetUtils.toIpString(address);
-//        int port = address.getPort();
-//        return getTransportKey(remoteIp, port);
-//    }
 }

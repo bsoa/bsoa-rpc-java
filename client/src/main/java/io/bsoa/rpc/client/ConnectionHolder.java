@@ -49,7 +49,6 @@ import io.bsoa.rpc.transport.ClientTransport;
  */
 public class ConnectionHolder {
 
-
     /**
      * slf4j Logger for this class
      */
@@ -629,7 +628,7 @@ public class ConnectionHolder {
 //                    MonitorFactory.STATUS_FLAG, null)) {
 //                // 除非主动不监控
 //                ProviderStat stat = new ProviderStat(provider.getIp(), provider.getPort(),
-//                        JSFContext.getLocalHost(), exception.getClass().getName());
+//                        JSFContext.getLocalIpv4(), exception.getClass().getName());
 //                MonitorFactory.getMonitor(MonitorFactory.MONITOR_CONSUMER_STATUS, interfaceId)
 //                        .recordInvoked(stat);
 //            }

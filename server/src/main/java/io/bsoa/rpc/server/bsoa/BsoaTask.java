@@ -34,6 +34,7 @@ import io.bsoa.rpc.message.RpcResponse;
 import io.bsoa.rpc.protocol.Protocol;
 import io.bsoa.rpc.protocol.ProtocolFactory;
 import io.bsoa.rpc.server.AbstractTask;
+import io.bsoa.rpc.server.InvokerHolder;
 import io.bsoa.rpc.transport.AbstractByteBuf;
 import io.bsoa.rpc.transport.AbstractChannel;
 
@@ -102,7 +103,7 @@ public class BsoaTask extends AbstractTask {
 //            if (CallbackUtil.isCallbackRegister(className, methodName)) {
 //                CallbackUtil.msgHandle(msg, channel);
 //            }
-            String key = interfaceName + "/" + tags;
+            String key = InvokerHolder.buildKey(interfaceName, tags);
             Invoker invoker = serverHandler.getInvoker(key);
             if (invoker == null) {
                 throw new BsoaRpcException(222222, "[JSF-23006]Cannot found invoker of "

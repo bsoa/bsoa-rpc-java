@@ -17,13 +17,17 @@ import io.bsoa.rpc.message.RpcResponse;
  * 3.在getNext().invoke(request)前加的代码，将在远程方法调用前执行<br>
  * 4.在getNext().invoke(request)后加的代码，将在远程方法调用后执行<br>
  * <p/>
- *
+ * <p>
  * Created by zhanggeng on 16-6-7.
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
  */
 public abstract class AbstractFilter implements Filter, Serializable, Cloneable {
 
+    /**
+     * The constant serialVersionUID.
+     */
+    private static final long serialVersionUID = -8174323768497164218L;
     /**
      * 下一层过滤器
      */
@@ -40,8 +44,7 @@ public abstract class AbstractFilter implements Filter, Serializable, Cloneable 
     /**
      * 调用远程服务
      *
-     * @param request
-     *         the request
+     * @param request the request
      * @return the response message
      */
     abstract public RpcResponse invoke(RpcRequest request);
@@ -58,8 +61,7 @@ public abstract class AbstractFilter implements Filter, Serializable, Cloneable 
     /**
      * Sets next.
      *
-     * @param next
-     *         the next to set
+     * @param next the next to set
      */
     protected void setNext(Filter next) {
         this.next = next;
@@ -80,8 +82,7 @@ public abstract class AbstractFilter implements Filter, Serializable, Cloneable 
     /**
      * Sets configContext.
      *
-     * @param configContext
-     *         the configContext
+     * @param configContext the configContext
      */
     protected void setConfigContext(Map<String, Object> configContext) {
         this.configContext = configContext;
@@ -90,13 +91,10 @@ public abstract class AbstractFilter implements Filter, Serializable, Cloneable 
     /**
      * 取得方法的特殊参数配置
      *
-     * @param methodName
-     *         方法名
-     * @param paramKey
-     *         参数关键字
-     * @param defaultValue
-     *         默认值
-     * @return 都找不到为false
+     * @param methodName   方法名
+     * @param paramKey     参数关键字
+     * @param defaultValue 默认值
+     * @return 都找不到为false boolean method param
      */
     protected boolean getBooleanMethodParam(String methodName, String paramKey, boolean defaultValue) {
         if (CommonUtils.isEmpty(configContext)) {
@@ -114,13 +112,10 @@ public abstract class AbstractFilter implements Filter, Serializable, Cloneable 
     /**
      * 取得方法的特殊参数配置
      *
-     * @param methodName
-     *         方法名
-     * @param paramKey
-     *         参数关键字
-     * @param defaultValue
-     *         默认值
-     * @return 都找不到为null
+     * @param methodName   方法名
+     * @param paramKey     参数关键字
+     * @param defaultValue 默认值
+     * @return 都找不到为null string method param
      */
     protected String getStringMethodParam(String methodName, String paramKey, String defaultValue) {
         if (CommonUtils.isEmpty(configContext)) {
@@ -138,13 +133,10 @@ public abstract class AbstractFilter implements Filter, Serializable, Cloneable 
     /**
      * 取得方法的特殊参数配置
      *
-     * @param methodName
-     *         方法名
-     * @param paramKey
-     *         参数关键字
-     * @param defaultValue
-     *         默认值
-     * @return 都找不到为defaultValue
+     * @param methodName   方法名
+     * @param paramKey     参数关键字
+     * @param defaultValue 默认值
+     * @return 都找不到为defaultValue int method param
      */
     protected int getIntMethodParam(String methodName, String paramKey, int defaultValue) {
         if (CommonUtils.isEmpty(configContext)) {
@@ -162,11 +154,9 @@ public abstract class AbstractFilter implements Filter, Serializable, Cloneable 
     /**
      * 取得方法的特殊参数配置
      *
-     * @param methodName
-     *         方法名
-     * @param paramKey
-     *         参数关键字
-     * @return 都找不到为null
+     * @param methodName 方法名
+     * @param paramKey   参数关键字
+     * @return 都找不到为null method param
      */
     protected Object getMethodParam(String methodName, String paramKey) {
         if (CommonUtils.isEmpty(configContext)) {
@@ -179,10 +169,8 @@ public abstract class AbstractFilter implements Filter, Serializable, Cloneable 
     /**
      * Buildmkey string.
      *
-     * @param methodName
-     *         the method name
-     * @param key
-     *         the key
+     * @param methodName the method name
+     * @param key        the key
      * @return the string
      */
     private String buildmkey(String methodName, String key) {

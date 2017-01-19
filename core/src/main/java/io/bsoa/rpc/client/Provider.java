@@ -56,7 +56,7 @@ public class Provider implements Serializable {
     /**
      * The Weight.
      */
-    private int weight = BsoaConstants.DEFAULT_PROVIDER_WEIGHT;
+    private int weight = BsoaConfigs.getIntValue(BsoaConfigs.PROVIDER_WEIGHT);
 
     /**
      * The bsoa Version
@@ -168,7 +168,7 @@ public class Provider implements Serializable {
                         if (BsoaConstants.CONFIG_KEY_WEIGHT.equals(kvpair[0]) && StringUtils.isNotEmpty(kvpair[1])) {
                             this.setWeight(Integer.valueOf(kvpair[1]));
                         }
-                        if (BsoaConstants.CONFIG_KEY_JSFVERSION.equals(kvpair[0]) && StringUtils.isNotEmpty(kvpair[1])) {
+                        if (BsoaConstants.CONFIG_KEY_BSOAVERSION.equals(kvpair[0]) && StringUtils.isNotEmpty(kvpair[1])) {
                             this.setBsoaVersion(Integer.valueOf(kvpair[1]));
                         }
                         if (BsoaConstants.CONFIG_KEY_INTERFACE.equals(kvpair[0]) && StringUtils.isNotEmpty(kvpair[1])) {
@@ -374,11 +374,11 @@ public class Provider implements Serializable {
     public String toUrl() {
         String uri = protocolType + "://" + ip + ":" + port + "/" + StringUtils.trimToEmpty(path);
         StringBuilder sb = new StringBuilder();
-        if (weight != BsoaConstants.DEFAULT_PROVIDER_WEIGHT) {
+        if (weight > 0) {
             sb.append("&").append(BsoaConstants.CONFIG_KEY_WEIGHT).append("=").append(weight);
         }
         if (bsoaVersion > 0) {
-            sb.append("&").append(BsoaConstants.CONFIG_KEY_JSFVERSION).append("=").append(bsoaVersion);
+            sb.append("&").append(BsoaConstants.CONFIG_KEY_BSOAVERSION).append("=").append(bsoaVersion);
         }
         if (interfaceId != null) {
             sb.append("&").append(BsoaConstants.CONFIG_KEY_INTERFACE).append("=").append(interfaceId);

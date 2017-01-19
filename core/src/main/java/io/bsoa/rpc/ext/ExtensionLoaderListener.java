@@ -17,13 +17,18 @@
 package io.bsoa.rpc.ext;
 
 /**
- * <p></p>
- *
+ * <p>当扩展点加载时，可以做一些事情，例如解析code，初始化等动作</p>
+ * <p>
  * Created by zhangg on 2016/12/24 23:47. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
 public interface ExtensionLoaderListener<T> {
 
+    /**
+     * 当扩展点加载时，触发的事件
+     *
+     * @param extensionClass 扩展点类对象
+     */
     public void onLoad(ExtensionClass<T> extensionClass);
 }

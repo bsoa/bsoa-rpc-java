@@ -1,1 +1,4 @@
+failfast=io.bsoa.rpc.client.FailFastClient
 failover=io.bsoa.rpc.client.FailoverClient
+pinpoint=io.bsoa.rpc.client.PinpointFailoverClient
+resettable=io.bsoa.rpc.client.TransportResettableClient
