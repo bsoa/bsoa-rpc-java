@@ -26,6 +26,7 @@ import java.lang.annotation.Target;
  * Created by zhangg on 2016/7/14 22:09.
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
+ * @see Extensible
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
@@ -34,20 +35,23 @@ public @interface Extension {
     /**
      * 扩展点名字
      *
-     * @return
+     * @return 扩展点名字
      */
     String value();
 
     /**
-     * 扩展点编码
-     * @return
+     * 扩展点编码，默认不需要，当接口需要编码的时候需要
+     *
+     * @return 扩展点编码
+     * @see Extensible#coded()
      */
     byte code() default -1;
+
     /**
-     * 默认排序
+     * 排序，默认不需要
      *
-     * @return
+     * @return 排序
      */
-    int order() default -1;
+    int order() default 0;
 
 }

@@ -468,26 +468,6 @@ public class ProviderConfig<T> extends AbstractInterfaceConfig<T> implements Ser
     }
 
     /**
-     * Is register.
-     *
-     * @return the boolean
-     */
-    @Override
-    public boolean isRegister() {
-        return register;
-    }
-
-    /**
-     * Sets register.
-     *
-     * @param register the register
-     */
-    @Override
-    public void setRegister(boolean register) {
-        this.register = register;
-    }
-
-    /**
      * Gets server.
      *
      * @return the server

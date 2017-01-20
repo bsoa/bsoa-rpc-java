@@ -16,6 +16,7 @@
  */
 package io.bsoa.rpc.client.router;
 
+import io.bsoa.rpc.ext.Extension;
 import io.bsoa.rpc.message.RpcRequest;
 
 /**
@@ -25,6 +26,7 @@ import io.bsoa.rpc.message.RpcRequest;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
+@Extension("methodParam")
 public class MethodParameterRouter extends ParameterizedRouter {
 
     private final String methodName;

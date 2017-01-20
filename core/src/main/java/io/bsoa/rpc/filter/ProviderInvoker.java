@@ -39,13 +39,13 @@ import io.bsoa.rpc.message.RpcResponse;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public class ProviderInvokeFilter<T> implements Filter {
+public class ProviderInvoker<T> extends FilterInvoker {
 
     /**
      * slf4j logger for this class
      */
     private final static Logger LOGGER = LoggerFactory
-            .getLogger(ProviderInvokeFilter.class);
+            .getLogger(ProviderInvoker.class);
 
     /**
      * The Provider config.
@@ -53,18 +53,13 @@ public class ProviderInvokeFilter<T> implements Filter {
     private final ProviderConfig<T> providerConfig;
 
     /**
-     * The Ref.
-     */
-    private final T ref;
-
-    /**
      * Instantiates a new Provider invoke filter.
      *
      * @param providerConfig the provider config
      */
-    public ProviderInvokeFilter(ProviderConfig<T> providerConfig) {
+    public ProviderInvoker(ProviderConfig<T> providerConfig) {
+        super(null, null, providerConfig);
         this.providerConfig = providerConfig;
-        this.ref = providerConfig.getRef();
     }
 
     /**
@@ -101,7 +96,7 @@ public class ProviderInvokeFilter<T> implements Filter {
             // 反射 真正调用业务代码
             Method method = ReflectUtils.getMethod(request.getInterfaceName(),
                     request.getMethodName(), request.getArgsType());
-            Object result = method.invoke(ref, request.getArgs());
+            Object result = method.invoke(providerConfig.getRef(), request.getArgs());
 
             responseMessage.setReturnData(result);
         } catch (IllegalArgumentException   // 非法参数，可能是实现类和接口类不对应
@@ -116,6 +111,4 @@ public class ProviderInvokeFilter<T> implements Filter {
 
         return responseMessage;
     }
-
-
 }

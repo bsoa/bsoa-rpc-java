@@ -53,7 +53,7 @@ public class ProtocolFactory {
     /**
      * 扩展加载器
      */
-    private final static ExtensionLoader<Protocol> extensionLoader
+    private final static ExtensionLoader<Protocol> EXTENSION_LOADER
             = ExtensionLoaderFactory.getExtensionLoader(Protocol.class, extensionClass -> {
         // 除了保留 alias：Protocol外， 需要保留 code：Protocol
         Protocol protocol = extensionClass.getExtInstance();
@@ -73,7 +73,7 @@ public class ProtocolFactory {
      */
     public static Protocol getProtocol(String alias) {
         // 工厂模式  托管给ExtensionLoader
-        return extensionLoader.getExtension(alias);
+        return EXTENSION_LOADER.getExtension(alias);
     }
 
     /**

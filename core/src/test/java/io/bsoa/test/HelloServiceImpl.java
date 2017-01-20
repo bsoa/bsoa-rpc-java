@@ -14,23 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.bsoa.rpc.client.router;
-
-import io.bsoa.rpc.ext.Extension;
-import io.bsoa.rpc.message.RpcRequest;
+package io.bsoa.test;
 
 /**
- * 按方法名进行路由
- * <p>
- * Created by zhangg on 2017/01/07 15:32.
+ * <p></p>
+ *
+ * Created by zhangg on 2017/1/21 00:32. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-@Extension("methodName")
-public class MethodNameRouter extends ParameterizedRouter {
-
-    public boolean matchRule(ParameterizedRule rule, RpcRequest request) {
-        // 匹配方法
-        return matchString(rule, request.getMethodName());
+public class HelloServiceImpl implements HelloService {
+    @Override
+    public String sayHello(String name) {
+        return "Hello, " + name + "!";
     }
 }

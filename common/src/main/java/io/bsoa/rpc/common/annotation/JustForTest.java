@@ -14,23 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.bsoa.rpc.client.router;
+package io.bsoa.rpc.common.annotation;
 
-import io.bsoa.rpc.ext.Extension;
-import io.bsoa.rpc.message.RpcRequest;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * 按方法名进行路由
- * <p>
- * Created by zhangg on 2017/01/07 15:32.
+ * <p>代表这个只是为了测试用例才开放的，</p>
+ * <p>例如：<br>
+ * 1.某个字段或者方法本来应该是private，结果是protected的；<br>
+ * 2.某个构造函数本来不应该出现的；<br>
+ * 3.某个类主要就是测试用的</p>
+ * Created by zhangg on 2017/1/19 00:00. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-@Extension("methodName")
-public class MethodNameRouter extends ParameterizedRouter {
-
-    public boolean matchRule(ParameterizedRule rule, RpcRequest request) {
-        // 匹配方法
-        return matchString(rule, request.getMethodName());
-    }
+@Documented
+@Retention(RetentionPolicy.SOURCE)
+@Target({ElementType.TYPE, ElementType.METHOD, ElementType.FIELD, ElementType.CONSTRUCTOR})
+public @interface JustForTest {
 }

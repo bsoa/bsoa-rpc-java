@@ -13,10 +13,13 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package io.bsoa.rpc.ext;
+package io.bsoa.rpc.filter;
 
-import io.bsoa.rpc.filter.Filter;
-import io.bsoa.rpc.filter.FilterInvoker;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.message.RpcResponse;
 
@@ -25,11 +28,20 @@ import io.bsoa.rpc.message.RpcResponse;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
  */
-@Extension("*")
-public class WrongFilter2 implements Filter {
+public class EchoFilter implements Filter {
+
+    /**
+     * slf4j Logger for this class
+     */
+    private final static Logger LOGGER = LoggerFactory.getLogger(EchoFilter.class);
+
 
     @Override
-    public RpcResponse invoke(FilterInvoker filterInvoker, RpcRequest request) {
-        return null;
+    public RpcResponse invoke(FilterInvoker invoker, RpcRequest request) {
+        Map<String, Object> configContext = invoker.getConfigContext(); // 可以拿到一些配置里的信息
+        LOGGER.info("before invoke..");  // 在getNext().invoke(request)前加的代码，将在远程方法调用前执行
+        RpcResponse response = invoker.invoke(request); // 调用链自动往下层执行
+        LOGGER.info("after invoke..");  // 在getNext().invoke(request)后加的代码，将在远程方法调用后执行
+        return response;
     }
 }

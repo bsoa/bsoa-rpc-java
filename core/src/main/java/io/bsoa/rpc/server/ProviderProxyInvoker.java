@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 import io.bsoa.rpc.base.Invoker;
 import io.bsoa.rpc.config.ProviderConfig;
 import io.bsoa.rpc.filter.FilterChain;
-import io.bsoa.rpc.filter.ProviderInvokeFilter;
+import io.bsoa.rpc.filter.ProviderInvoker;
 import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.message.RpcResponse;
 
@@ -59,7 +59,7 @@ public class ProviderProxyInvoker implements Invoker {
         this.providerConfig = providerConfig;
         // 最底层是调用过滤器
         this.filterChain = FilterChain.buildProviderChain(providerConfig,
-                new ProviderInvokeFilter(providerConfig));
+                new ProviderInvoker(providerConfig));
     }
 
     /**

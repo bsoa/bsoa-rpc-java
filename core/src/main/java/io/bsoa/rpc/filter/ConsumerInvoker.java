@@ -35,12 +35,12 @@ import io.bsoa.rpc.server.InvokerHolder;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public class ConsumerInvokeFilter implements Filter {
+public class ConsumerInvoker extends FilterInvoker {
 
     /**
      * slf4j logger for this class
      */
-    private final static Logger LOGGER = LoggerFactory.getLogger(ConsumerInvokeFilter.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(ConsumerInvoker.class);
 
     /**
      * The Consumer config.
@@ -58,32 +58,27 @@ public class ConsumerInvokeFilter implements Filter {
      * @param consumerConfig the consumer config
      * @param client         the client
      */
-    public ConsumerInvokeFilter(ConsumerConfig<?> consumerConfig, Client client) {
+    public ConsumerInvoker(ConsumerConfig<?> consumerConfig, Client client) {
+        super(consumerConfig);
         this.consumerConfig = consumerConfig;
         this.client = client;
     }
 
-    /**
-     * Invoke response message.
-     *
-     * @param requestMessage the request message
-     * @return the response message
-     */
     @Override
-    public RpcResponse invoke(RpcRequest requestMessage) {
+    public RpcResponse invoke(RpcRequest rpcRequest) {
         // 优先本地调用，本地没有或者已经unexport，调用远程
         if (consumerConfig.isInJVM()) {
-            String key = consumerConfig.getInterfaceId() + "#" + consumerConfig.getTags();
+            String key = InvokerHolder.buildKey(consumerConfig.getInterfaceId(), consumerConfig.getTags());
             Invoker injvmProviderInvoker = InvokerHolder.getInvoker(key);
             if (injvmProviderInvoker != null) { // 本地有服务事项类
-                return injvmProviderInvoker.invoke(requestMessage);
+                return injvmProviderInvoker.invoke(rpcRequest);
             }
         }
         // 目前只是通过client发送给服务端
         try {
-            return client.sendMsg(requestMessage);
+            return client.sendMsg(rpcRequest);
         } catch (BsoaRpcException e) {
-            RpcResponse response = MessageBuilder.buildRpcResponse(requestMessage);
+            RpcResponse response = MessageBuilder.buildRpcResponse(rpcRequest);
             response.setException(e);
             return response;
         }

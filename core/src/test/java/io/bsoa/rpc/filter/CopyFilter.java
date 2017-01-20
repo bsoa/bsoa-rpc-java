@@ -13,10 +13,11 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package io.bsoa.rpc.ext;
+package io.bsoa.rpc.filter;
 
-import io.bsoa.rpc.filter.Filter;
-import io.bsoa.rpc.filter.FilterInvoker;
+import java.util.List;
+import java.util.Map;
+
 import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.message.RpcResponse;
 
@@ -25,11 +26,49 @@ import io.bsoa.rpc.message.RpcResponse;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
  */
-@Extension("*")
-public class WrongFilter2 implements Filter {
+public class CopyFilter implements Filter {
+
+    public Map<String, String> map;
+
+    public List<String> list;
+
+    private String s;
+    private int i;
+
+    public Map<String, String> getMap() {
+        return map;
+    }
+
+    public void setMap(Map<String, String> map) {
+        this.map = map;
+    }
+
+    public List<String> getList() {
+        return list;
+    }
+
+    public void setList(List<String> list) {
+        this.list = list;
+    }
+
+    public String getS() {
+        return s;
+    }
+
+    public void setS(String s) {
+        this.s = s;
+    }
+
+    public int getI() {
+        return i;
+    }
+
+    public void setI(int i) {
+        this.i = i;
+    }
 
     @Override
-    public RpcResponse invoke(FilterInvoker filterInvoker, RpcRequest request) {
+    public RpcResponse invoke(FilterInvoker invoker, RpcRequest request) {
         return null;
     }
 }

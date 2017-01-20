@@ -19,8 +19,6 @@ package io.bsoa.rpc.ext;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.List;
@@ -30,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.bsoa.rpc.common.BsoaConfigs;
+import io.bsoa.rpc.common.annotation.JustForTest;
 import io.bsoa.rpc.common.utils.ClassLoaderUtils;
 import io.bsoa.rpc.common.utils.ClassTypeUtils;
 import io.bsoa.rpc.common.utils.StringUtils;
@@ -69,11 +68,6 @@ public class ExtensionLoader<T> {
     protected final ConcurrentHashMap<String, ExtensionClass<T>> all;
 
     /**
-     * 自动激活的 {"alias":ExtensionClass}
-     */
-    protected final ConcurrentHashMap<String, ExtensionClass<T>> autoActives;
-
-    /**
      * 如果是单例，那么factory不为空
      */
     protected final ConcurrentHashMap<String, T> factory;
@@ -108,6 +102,7 @@ public class ExtensionLoader<T> {
      * @param interfaceClass 接口类
      * @param autoLoad       是否自动开始加载
      */
+    @JustForTest
     protected ExtensionLoader(Class<T> interfaceClass, boolean autoLoad, ExtensionLoaderListener<T> listener) {
         if (interfaceClass == null || !interfaceClass.isInterface()) {
             throw new IllegalArgumentException("Extensible class must be interface!");
@@ -125,7 +120,6 @@ public class ExtensionLoader<T> {
 
         factory = extensible.singleton() ? new ConcurrentHashMap<>() : null;
         all = new ConcurrentHashMap<>();
-        autoActives = new ConcurrentHashMap<>();
         if (autoLoad) {
             List<String> paths = BsoaConfigs.getListValue(BsoaConfigs.EXTENSION_LOAD_PATH);
             for (String path : paths) {
@@ -141,6 +135,7 @@ public class ExtensionLoader<T> {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Loading extension of interface {} from path: {}", interfaceName, path);
         }
+        // 默认如果不指定文件名字，就是接口名
         String file = StringUtils.isBlank(extensible.file()) ? interfaceName : extensible.file().trim();
         String fullFileName = path + file;
         try {
@@ -178,6 +173,7 @@ public class ExtensionLoader<T> {
         }
     }
 
+    @JustForTest
     protected void readLine(URL url, String line) throws Throwable {
         String[] aliasAndClassName = parseAliasAndClassName(line);
         if (aliasAndClassName == null || aliasAndClassName.length != 2) {
@@ -245,18 +241,6 @@ public class ExtensionLoader<T> {
             extensionClass.setSingleton(extensible.singleton());
             extensionClass.setClazz(implClass);
             extensionClass.setOrder(extension.order());
-            // 读取自动加载的类列表。
-            AutoActive autoActive = implClass.getAnnotation(AutoActive.class);
-            if (autoActive != null) {
-                extensionClass.setAutoActive(true);
-                extensionClass.setProviderSide(autoActive.providerSide());
-                extensionClass.setConsumerSide(autoActive.consumerSide());
-                autoActives.put(alias, extensionClass);
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Extension of interface " + interfaceName + " from file:" + url
-                            + ", " + implClass + "(" + alias + ") will auto active");
-                }
-            }
             all.put(alias, extensionClass);
             if (listener != null) {
                 listener.onLoad(extensionClass); // 加载完毕，通知监听器
@@ -289,38 +273,51 @@ public class ExtensionLoader<T> {
         return new String[]{alias, className};
     }
 
-    /**
-     * 得到服务端的全部自动激活扩展
-     *
-     * @return 自动激活扩展列表
-     */
-    public List<ExtensionClass<T>> getProviderSideAutoActives() {
-        List<ExtensionClass<T>> extensionClasses = new ArrayList<ExtensionClass<T>>();
-        for (ConcurrentHashMap.Entry<String, ExtensionClass<T>> entry : all.entrySet()) {
-            ExtensionClass<T> extensionClass = entry.getValue();
-            if (extensionClass.isAutoActive() && extensionClass.isProviderSide()) {
-                extensionClasses.add(extensionClass);
-            }
-        }
-        Collections.sort(extensionClasses, new OrderComparator());
-        return extensionClasses;
-    }
+//    /**
+//     * 得到服务端的全部自动激活扩展
+//     *
+//     * @return 自动激活扩展列表
+//     */
+//    @JustForTest
+//    protected List<ExtensionClass<T>> getProviderSideAutoActives() {
+//        List<ExtensionClass<T>> extensionClasses = new ArrayList<>();
+//        for (ConcurrentHashMap.Entry<String, ExtensionClass<T>> entry : all.entrySet()) {
+//            ExtensionClass<T> extensionClass = entry.getValue();
+//            if (extensionClass.isAutoActive() && extensionClass.isProviderSide()) {
+//                extensionClasses.add(extensionClass);
+//            }
+//        }
+//        Collections.sort(extensionClasses, new OrderComparator());
+//        return extensionClasses;
+//    }
+//
+//    /**
+//     * 得到调用端的全部自动激活扩展
+//     *
+//     * @return 自动激活扩展列表
+//     */
+//    @JustForTest
+//    protected List<ExtensionClass<T>> getConsumerSideAutoActives() {
+//        List<ExtensionClass<T>> extensionClasses = new ArrayList<>();
+//        for (ConcurrentHashMap.Entry<String, ExtensionClass<T>> entry : all.entrySet()) {
+//            ExtensionClass<T> extensionClass = entry.getValue();
+//            if (extensionClass.isAutoActive() && extensionClass.isConsumerSide()) {
+//                extensionClasses.add(extensionClass);
+//            }
+//        }
+//        Collections.sort(extensionClasses, new OrderComparator());
+//        return extensionClasses;
+//    }
+
 
     /**
-     * 得到调用端的全部自动激活扩展
+     * 返回全部扩展类
      *
-     * @return 自动激活扩展列表
+     * @return 扩展类对象
      */
-    public List<ExtensionClass<T>> getConsumerSideAutoActives() {
-        List<ExtensionClass<T>> extensionClasses = new ArrayList<ExtensionClass<T>>();
-        for (ConcurrentHashMap.Entry<String, ExtensionClass<T>> entry : all.entrySet()) {
-            ExtensionClass<T> extensionClass = entry.getValue();
-            if (extensionClass.isAutoActive() && extensionClass.isConsumerSide()) {
-                extensionClasses.add(extensionClass);
-            }
-        }
-        Collections.sort(extensionClasses, new OrderComparator());
-        return extensionClasses;
+    @JustForTest
+    protected ConcurrentHashMap<String, ExtensionClass<T>> getAllExtensions() {
+        return all;
     }
 
     /**
@@ -362,12 +359,13 @@ public class ExtensionLoader<T> {
         }
     }
 
-    protected static class OrderComparator implements Comparator<ExtensionClass> {
+    /**
+     * 从小到大排列
+     */
+    public static class OrderComparator implements Comparator<ExtensionClass> {
         public int compare(ExtensionClass o1, ExtensionClass o2) {
             // order一样的情况下，先加入的在前面
             return o2.getOrder() > o1.getOrder() ? -1 : 1;
         }
     }
-
-
 }

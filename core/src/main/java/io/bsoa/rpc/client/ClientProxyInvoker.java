@@ -27,7 +27,7 @@ import io.bsoa.rpc.codec.SerializerFactory;
 import io.bsoa.rpc.common.BsoaConstants;
 import io.bsoa.rpc.common.annotation.ThreadSafe;
 import io.bsoa.rpc.config.ConsumerConfig;
-import io.bsoa.rpc.filter.ConsumerInvokeFilter;
+import io.bsoa.rpc.filter.ConsumerInvoker;
 import io.bsoa.rpc.filter.FilterChain;
 import io.bsoa.rpc.listener.ResponseListener;
 import io.bsoa.rpc.message.RpcRequest;
@@ -75,7 +75,7 @@ public class ClientProxyInvoker implements Invoker {
         this.client = consumerConfig.getClient();
         // 构造执行链,最底层是调用过滤器
         this.filterChain = FilterChain.buildConsumerChain(this.consumerConfig,
-                new ConsumerInvokeFilter(consumerConfig, client));
+                new ConsumerInvoker(consumerConfig, client));
     }
 
     /**
@@ -176,7 +176,7 @@ public class ClientProxyInvoker implements Invoker {
     public Client setClient(Client newClient) {
         // 构造执行链,最底层是调用过滤器
         FilterChain newChain = FilterChain.buildConsumerChain(this.consumerConfig,
-                new ConsumerInvokeFilter(consumerConfig, newClient));
+                new ConsumerInvoker(consumerConfig, newClient));
         // 开始切换
         Client old = this.client;
         this.client = newClient;

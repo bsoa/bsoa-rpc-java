@@ -1,37 +1,57 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package io.bsoa.rpc.filter;
 
-import java.io.Serializable;
 import java.util.Map;
 
+import io.bsoa.rpc.base.Invoker;
 import io.bsoa.rpc.common.BsoaConstants;
+import io.bsoa.rpc.common.annotation.JustForTest;
+import io.bsoa.rpc.common.annotation.ThreadSafe;
 import io.bsoa.rpc.common.utils.CommonUtils;
-import io.bsoa.rpc.exception.BsoaRuntimeException;
+import io.bsoa.rpc.config.AbstractInterfaceConfig;
+import io.bsoa.rpc.exception.BsoaRpcException;
 import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.message.RpcResponse;
 
 /**
- * 接口抽象类（Filter不对外，需实现自定义接口，继承此类）<br>
- * <p/>
- * Description: 1.实现invoke方法，可以对request和response进行处理，统计等<br>
- * 2.执行getNext().invoke(request)，调用链自动往下层执行<br>
- * 3.在getNext().invoke(request)前加的代码，将在远程方法调用前执行<br>
- * 4.在getNext().invoke(request)后加的代码，将在远程方法调用后执行<br>
- * <p/>
+ * <p>过滤器包装的Invoker对象，主要是隔离了filter和service的关系，这样的话filter也可以是单例</p>
  * <p>
- * Created by zhanggeng on 16-6-7.
+ * Created by zhangg on 2017/1/20 22:56. <br/>
  *
- * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
+ * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public abstract class AbstractFilter implements Filter, Serializable, Cloneable {
+@ThreadSafe
+public class FilterInvoker implements Invoker {
 
-    /**
-     * The constant serialVersionUID.
-     */
-    private static final long serialVersionUID = -8174323768497164218L;
     /**
      * 下一层过滤器
      */
-    private Filter next;
+    protected Filter nextFilter;
+
+    /**
+     * 下一层Invoker
+     */
+    protected FilterInvoker invoker;
+
+    /**
+     * 过滤器所在的接口，可能是provider或者consumer
+     */
+    protected AbstractInterfaceConfig config;
 
     /**
      * <B>unmodifiable</B><br/>
@@ -39,32 +59,45 @@ public abstract class AbstractFilter implements Filter, Serializable, Cloneable 
      * 例如是否开启validation配置，方法级是否开启配置。<br/>
      * 像请求ip端口这种和invocation有关的上下文不在此map中。
      */
-    private Map<String, Object> configContext;
+    protected Map<String, Object> configContext;
+
 
     /**
-     * 调用远程服务
+     * 如果无需下一层过滤器
      *
-     * @param request the request
-     * @return the response message
+     * @param config 过滤器所在的接口配置
      */
-    abstract public RpcResponse invoke(RpcRequest request);
-
-    /**
-     * 下一级过滤器
-     *
-     * @return the next
-     */
-    protected Filter getNext() {
-        return next;
+    protected FilterInvoker(AbstractInterfaceConfig config) {
+        this.config = config;
+        if (config != null) {
+            this.configContext = config.getConfigValueCache(false);
+        }
     }
 
     /**
-     * Sets next.
+     * 构造函数
      *
-     * @param next the next to set
+     * @param nextFilter    下一层过滤器
+     * @param invoker 下一层调用器
+     * @param config  过滤器所在的接口配置
      */
-    protected void setNext(Filter next) {
-        this.next = next;
+    public FilterInvoker(Filter nextFilter, FilterInvoker invoker, AbstractInterfaceConfig config) {
+        this.nextFilter = nextFilter;
+        this.invoker = invoker;
+        this.config = config;
+        if (config != null) {
+            this.configContext = config.getConfigValueCache(false);
+        }
+    }
+
+    @Override
+    public RpcResponse invoke(RpcRequest rpcRequest) {
+        if (nextFilter == null && invoker == null) {
+            throw new BsoaRpcException(22222, "Next filter or invoker is null!");
+        }
+        return nextFilter == null ?
+                invoker.invoke(rpcRequest) :
+                nextFilter.invoke(invoker, rpcRequest);
     }
 
     /**
@@ -80,12 +113,32 @@ public abstract class AbstractFilter implements Filter, Serializable, Cloneable 
     }
 
     /**
-     * Sets configContext.
+     * 得到接口配置
      *
-     * @param configContext the configContext
+     * @return 接口配置
      */
-    protected void setConfigContext(Map<String, Object> configContext) {
-        this.configContext = configContext;
+    public AbstractInterfaceConfig getConfig() {
+        return config;
+    }
+
+    /**
+     * 得到下一个Filter
+     *
+     * @return Filter
+     */
+    @JustForTest
+    protected Filter getNextFilter() {
+        return nextFilter;
+    }
+
+    /**
+     * 得到下一个FilterInvoker
+     *
+     * @return FilterInvoker
+     */
+    @JustForTest
+    protected FilterInvoker getInvoker() {
+        return invoker;
     }
 
     /**
@@ -100,7 +153,7 @@ public abstract class AbstractFilter implements Filter, Serializable, Cloneable 
         if (CommonUtils.isEmpty(configContext)) {
             return defaultValue;
         }
-        Boolean o = (Boolean) configContext.get(buildmkey(methodName, paramKey));
+        Boolean o = (Boolean) configContext.get(buildMethodKey(methodName, paramKey));
         if (o == null) {
             o = (Boolean) configContext.get(paramKey);
             return o == null ? defaultValue : o;
@@ -121,7 +174,7 @@ public abstract class AbstractFilter implements Filter, Serializable, Cloneable 
         if (CommonUtils.isEmpty(configContext)) {
             return defaultValue;
         }
-        String o = (String) configContext.get(buildmkey(methodName, paramKey));
+        String o = (String) configContext.get(buildMethodKey(methodName, paramKey));
         if (o == null) {
             o = (String) configContext.get(paramKey);
             return o == null ? defaultValue : o;
@@ -142,7 +195,7 @@ public abstract class AbstractFilter implements Filter, Serializable, Cloneable 
         if (CommonUtils.isEmpty(configContext)) {
             return defaultValue;
         }
-        Integer o = (Integer) configContext.get(buildmkey(methodName, paramKey));
+        Integer o = (Integer) configContext.get(buildMethodKey(methodName, paramKey));
         if (o == null) {
             o = (Integer) configContext.get(paramKey);
             return o == null ? defaultValue : o;
@@ -162,7 +215,7 @@ public abstract class AbstractFilter implements Filter, Serializable, Cloneable 
         if (CommonUtils.isEmpty(configContext)) {
             return null;
         }
-        Object o = configContext.get(buildmkey(methodName, paramKey));
+        Object o = configContext.get(buildMethodKey(methodName, paramKey));
         return o == null ? configContext.get(paramKey) : o;
     }
 
@@ -173,20 +226,7 @@ public abstract class AbstractFilter implements Filter, Serializable, Cloneable 
      * @param key        the key
      * @return the string
      */
-    private String buildmkey(String methodName, String key) {
+    private String buildMethodKey(String methodName, String key) {
         return BsoaConstants.HIDE_KEY_PREFIX + methodName + BsoaConstants.HIDE_KEY_PREFIX + key;
-    }
-
-    /**
-     * 浅复制（字段值指向同一个对象）
-     *
-     * @return 过滤器对象
-     */
-    public Object clone() {
-        try {
-            return super.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new BsoaRuntimeException(22222, "Filter clone not supported!", e);
-        }
     }
 }

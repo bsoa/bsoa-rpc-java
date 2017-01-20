@@ -14,37 +14,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.bsoa.rpc.ext;
+package io.bsoa.rpc.filter;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import io.bsoa.rpc.message.MessageBuilder;
+import io.bsoa.rpc.message.RpcRequest;
+import io.bsoa.rpc.message.RpcResponse;
 
 /**
+ * <p></p>
  *
- *
- * Created by zhangg on 2016/7/14 21:58.
+ * Created by zhangg on 2017/1/21 00:23. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-@Documented
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE})
-public @interface AutoActive {
+public class MockInvoker extends FilterInvoker {
 
-    /**
-     * 服务端侧是否开启此过滤器
-     *
-     * @return
-     */
-    boolean providerSide() default false;
+    public MockInvoker() {
+        super(null);
+    }
 
-    /**
-     * 客户端侧是否开启此过滤器
-     *
-     * @return
-     */
-    boolean consumerSide() default false;
+    public RpcResponse invoke(RpcRequest rpcRequest) {
+        RpcResponse response = MessageBuilder.buildRpcResponse(rpcRequest);
+        response.setReturnData("xxxx hello");
+        return response;
+    }
 }

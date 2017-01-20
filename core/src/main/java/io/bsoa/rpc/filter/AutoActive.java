@@ -14,23 +14,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.bsoa.rpc.client.router;
+package io.bsoa.rpc.filter;
 
-import io.bsoa.rpc.ext.Extension;
-import io.bsoa.rpc.message.RpcRequest;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * 按方法名进行路由
- * <p>
- * Created by zhangg on 2017/01/07 15:32.
+ *
+ *
+ * Created by zhangg on 2016/7/14 21:58.
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-@Extension("methodName")
-public class MethodNameRouter extends ParameterizedRouter {
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE})
+public @interface AutoActive {
 
-    public boolean matchRule(ParameterizedRule rule, RpcRequest request) {
-        // 匹配方法
-        return matchString(rule, request.getMethodName());
-    }
+    /**
+     * 服务端侧是否开启此过滤器
+     *
+     * @return
+     */
+    boolean providerSide() default false;
+
+    /**
+     * 客户端侧是否开启此过滤器
+     *
+     * @return
+     */
+    boolean consumerSide() default false;
 }

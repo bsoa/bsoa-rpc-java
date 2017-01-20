@@ -1,3 +1,18 @@
+/*
+ * Copyright 2016 The BSOA Project
+ *
+ * The BSOA Project licenses this file to you under the Apache License,
+ * version 2.0 (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at:
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
+ */
 package io.bsoa.rpc.ext;
 
 import java.net.URL;
@@ -10,11 +25,12 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.bsoa.rpc.common.utils.CommonUtils;
 import io.bsoa.rpc.filter.Filter;
 
 /**
- * Created by zhangg on 2016/12/17.
+ * Created by zhanggeng on 17-01-20.
+ *
+ * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
  */
 public class ExtensionLoaderTest {
 
@@ -37,12 +53,12 @@ public class ExtensionLoaderTest {
         Collections.sort(list, new ExtensionLoader.OrderComparator());
 
         int i = 0; // 2,3,6,4,1,5
-        Assert.assertEquals(list.get(i++).getAlias(),"2");
-        Assert.assertEquals(list.get(i++).getAlias(),"3");
-        Assert.assertEquals(list.get(i++).getAlias(),"6");
-        Assert.assertEquals(list.get(i++).getAlias(),"4");
-        Assert.assertEquals(list.get(i++).getAlias(),"1");
-        Assert.assertEquals(list.get(i++).getAlias(),"5");
+        Assert.assertEquals(list.get(i++).getAlias(), "2");
+        Assert.assertEquals(list.get(i++).getAlias(), "3");
+        Assert.assertEquals(list.get(i++).getAlias(), "6");
+        Assert.assertEquals(list.get(i++).getAlias(), "4");
+        Assert.assertEquals(list.get(i++).getAlias(), "1");
+        Assert.assertEquals(list.get(i++).getAlias(), "5");
     }
 
 
@@ -52,13 +68,15 @@ public class ExtensionLoaderTest {
         loader.loadFromFile("META-INF/exttest/");
         Assert.assertTrue(!loader.all.isEmpty());
 
+        Assert.assertTrue(loader.getAllExtensions().size() > 0);
+
         ExtensionClass extensibleClass = loader.getExtensionClass("testext");
         Assert.assertNotNull(extensibleClass);
         Assert.assertTrue(extensibleClass.getOrder() == 2);
         Assert.assertTrue(extensibleClass.isProviderSide());
         Assert.assertFalse(extensibleClass.isConsumerSide());
-        Assert.assertTrue(CommonUtils.isNotEmpty(loader.getProviderSideAutoActives()));
-        Assert.assertTrue(CommonUtils.isEmpty(loader.getConsumerSideAutoActives()));
+//        Assert.assertTrue(CommonUtils.isNotEmpty(loader.getProviderSideAutoActives()));
+//        Assert.assertTrue(CommonUtils.isEmpty(loader.getConsumerSideAutoActives()));
     }
 
     @Test
@@ -74,17 +92,17 @@ public class ExtensionLoaderTest {
 
         loader.all.clear();
         try {
-            loader.readLine(url,  "io.bsoa.rpc.ext.WrongFilter0");
+            loader.readLine(url, "io.bsoa.rpc.ext.WrongFilter0");
         } catch (Throwable t) {
             LOGGER.error(t.getMessage());
         }
         try {
-            loader.readLine(url,  "io.bsoa.rpc.ext.WrongFilter1");
+            loader.readLine(url, "io.bsoa.rpc.ext.WrongFilter1");
         } catch (Throwable t) {
             LOGGER.error(t.getMessage());
         }
         try {
-            loader.readLine(url,  "io.bsoa.rpc.ext.WrongFilter2");
+            loader.readLine(url, "io.bsoa.rpc.ext.WrongFilter2");
         } catch (Throwable t) {
             LOGGER.error(t.getMessage());
         }

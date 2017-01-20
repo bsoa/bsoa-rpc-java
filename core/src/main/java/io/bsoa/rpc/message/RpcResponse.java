@@ -58,8 +58,9 @@ public class RpcResponse extends RPCMessage implements Serializable {
      * @param returnData the return data
      * @return the return data
      */
-    public void setReturnData(Object returnData) {
+    public RpcResponse setReturnData(Object returnData) {
         this.returnData = returnData;
+        return this;
     }
 
     /**
@@ -77,8 +78,9 @@ public class RpcResponse extends RPCMessage implements Serializable {
      * @param exception the exception
      * @return the exception
      */
-    public void setException(Throwable exception) {
+    public RpcResponse setException(Throwable exception) {
         this.exception = exception;
+        return this;
     }
 
     /**

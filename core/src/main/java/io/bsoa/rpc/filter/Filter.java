@@ -20,6 +20,8 @@ import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.message.RpcResponse;
 
 /**
+ * <p>过滤器接口</p>
+ * <p>
  * Created by zhanggeng on 16-6-7.
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
@@ -29,10 +31,15 @@ public interface Filter {
 
     /**
      * 过滤执行
+     * <pre><code>
+     *  doBeforeInvoke(); // 调用前逻辑，甚至可以new一个Response进行提取返回
+     *  RpcResponse response = invoker.invoke(request); // 调用链往后执行
+     *  doAfterInvoke(); // 调用后的逻辑
+     * </code></pre>
      *
-     * @param request
-     *            请求
+     * @param invoker    调用器
+     * @param rpcRequest 请求
      * @return ResponseMessage 响应
      */
-    public RpcResponse invoke(RpcRequest request);
+    public RpcResponse invoke(FilterInvoker invoker, RpcRequest rpcRequest);
 }

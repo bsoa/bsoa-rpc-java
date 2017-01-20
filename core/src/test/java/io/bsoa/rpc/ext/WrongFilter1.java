@@ -16,6 +16,7 @@
 package io.bsoa.rpc.ext;
 
 import io.bsoa.rpc.filter.Filter;
+import io.bsoa.rpc.filter.FilterInvoker;
 import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.message.RpcResponse;
 
@@ -28,7 +29,7 @@ import io.bsoa.rpc.message.RpcResponse;
 public class WrongFilter1 implements Filter {
 
     @Override
-    public RpcResponse invoke(RpcRequest request) {
+    public RpcResponse invoke(FilterInvoker filterInvoker, RpcRequest request) {
         return null;
     }
 }

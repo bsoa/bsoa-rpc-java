@@ -28,9 +28,12 @@ import io.bsoa.rpc.common.utils.ClassUtils;
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  * @see Extension
  * @see Extensible
- * @see AutoActive
  */
 public class ExtensionClass<T> {
+
+    /**
+     * slf4j Logger for this class
+     */
     private static final Logger logger = LoggerFactory.getLogger(ExtensionClass.class);
 
     /**
@@ -54,18 +57,18 @@ public class ExtensionClass<T> {
      * 扩展点排序值
      */
     protected int order;
-    /**
-     * 是否自动激活该扩展
-     */
-    protected boolean autoActive;
-    /**
-     * 服务提供者端是否自动激活
-     */
-    protected boolean providerSide;
-    /**
-     * 服务调用端是否自动激活
-     */
-    protected boolean consumerSide;
+//    /**
+//     * 是否自动激活该扩展
+//     */
+//    protected boolean autoActive;
+//    /**
+//     * 服务提供者端是否自动激活
+//     */
+//    protected boolean providerSide;
+//    /**
+//     * 服务调用端是否自动激活
+//     */
+//    protected boolean consumerSide;
 
     /**
      * 服务端实例对象（只在是单例的时候保留）
@@ -198,76 +201,76 @@ public class ExtensionClass<T> {
         return this;
     }
 
-    /**
-     * Is provider side boolean.
-     *
-     * @return the boolean
-     */
-    public boolean isProviderSide() {
-        return providerSide;
-    }
-
-    /**
-     * Sets provider side.
-     *
-     * @param providerSide the provider side
-     * @return the provider side
-     */
-    public ExtensionClass setProviderSide(boolean providerSide) {
-        this.providerSide = providerSide;
-        return this;
-    }
-
-    /**
-     * Is consumer side boolean.
-     *
-     * @return the boolean
-     */
-    public boolean isConsumerSide() {
-        return consumerSide;
-    }
-
-    /**
-     * Sets consumer side.
-     *
-     * @param consumerSide the consumer side
-     * @return the consumer side
-     */
-    public ExtensionClass setConsumerSide(boolean consumerSide) {
-        this.consumerSide = consumerSide;
-        return this;
-    }
-
-    /**
-     * Is auto active boolean.
-     *
-     * @return the boolean
-     */
-    public boolean isAutoActive() {
-        return autoActive;
-    }
-
-    /**
-     * Sets auto active.
-     *
-     * @param autoActive the auto active
-     * @return the auto active
-     */
-    public ExtensionClass setAutoActive(boolean autoActive) {
-        this.autoActive = autoActive;
-        return this;
-    }
+//    /**
+//     * Is provider side boolean.
+//     *
+//     * @return the boolean
+//     */
+//    public boolean isProviderSide() {
+//        return providerSide;
+//    }
+//
+//    /**
+//     * Sets provider side.
+//     *
+//     * @param providerSide the provider side
+//     * @return the provider side
+//     */
+//    public ExtensionClass setProviderSide(boolean providerSide) {
+//        this.providerSide = providerSide;
+//        return this;
+//    }
+//
+//    /**
+//     * Is consumer side boolean.
+//     *
+//     * @return the boolean
+//     */
+//    public boolean isConsumerSide() {
+//        return consumerSide;
+//    }
+//
+//    /**
+//     * Sets consumer side.
+//     *
+//     * @param consumerSide the consumer side
+//     * @return the consumer side
+//     */
+//    public ExtensionClass setConsumerSide(boolean consumerSide) {
+//        this.consumerSide = consumerSide;
+//        return this;
+//    }
+//
+//    /**
+//     * Is auto active boolean.
+//     *
+//     * @return the boolean
+//     */
+//    public boolean isAutoActive() {
+//        return autoActive;
+//    }
+//
+//    /**
+//     * Sets auto active.
+//     *
+//     * @param autoActive the auto active
+//     * @return the auto active
+//     */
+//    public ExtensionClass setAutoActive(boolean autoActive) {
+//        this.autoActive = autoActive;
+//        return this;
+//    }
 
     @Override
     public String toString() {
         return "ExtensibleClass{" +
                 "alias='" + alias + '\'' +
-                "code=" + code +
+                ", code=" + code +
                 ", clazz=" + clazz +
                 ", order=" + order +
-                ", providerSide=" + providerSide +
-                ", consumerSide=" + consumerSide +
-                ", autoActive=" + autoActive +
+//                ", providerSide=" + providerSide +
+//                ", consumerSide=" + consumerSide +
+//                ", autoActive=" + autoActive +
                 '}';
     }
 }

@@ -55,7 +55,7 @@ import static io.bsoa.rpc.config.ConfigValueHelper.checkNormalWithCommaColon;
  * @param <T> the type parameter
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
  */
-public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implements Serializable{
+public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implements Serializable {
 
     /**
      * The constant serialVersionUID.
@@ -76,10 +76,16 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
      * 服务标签
      */
     protected String tags = getStringValue(DEFAULT_TAGS);
+
     /**
-     * 过滤器配置，多个用逗号隔开
+     * 过滤器配置实例，多个用逗号隔开
      */
-    protected transient List<Filter> filter;
+    protected transient List<Filter> filterRef;
+
+    /**
+     * 过滤器配置别名
+     */
+    protected List<String> filter;
 
     /**
      * 注册中心配置，可配置多个
@@ -179,6 +185,7 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
      */
     protected abstract String buildKey();
 
+
     /**
      * Gets interface id.
      *
@@ -192,9 +199,11 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
      * Sets interface id.
      *
      * @param interfaceId the interface id
+     * @return the interface id
      */
-    public void setInterfaceId(String interfaceId) {
+    public AbstractInterfaceConfig setInterfaceId(String interfaceId) {
         this.interfaceId = interfaceId;
+        return this;
     }
 
     /**
@@ -217,11 +226,31 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
     }
 
     /**
-     * Gets filter.
+     * Gets filter ref.
      *
-     * @return the filter
+     * @return the filter ref
      */
-    public List<Filter> getFilter() {
+    public List<Filter> getFilterRef() {
+        return filterRef;
+    }
+
+    /**
+     * Sets filter ref.
+     *
+     * @param filterRef the filter ref
+     * @return the filter ref
+     */
+    public AbstractInterfaceConfig setFilterRef(List<Filter> filterRef) {
+        this.filterRef = filterRef;
+        return this;
+    }
+
+    /**
+     * Gets filters.
+     *
+     * @return the filters
+     */
+    public List<String> getFilter() {
         return filter;
     }
 
@@ -229,9 +258,11 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
      * Sets filter.
      *
      * @param filter the filter
+     * @return the filter
      */
-    public void setFilter(List<Filter> filter) {
+    public AbstractInterfaceConfig setFilters(List<String> filter) {
         this.filter = filter;
+        return this;
     }
 
     /**
@@ -247,9 +278,11 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
      * Sets registry.
      *
      * @param registry the registry
+     * @return the registry
      */
-    public void setRegistry(List<RegistryConfig> registry) {
+    public AbstractInterfaceConfig setRegistry(List<RegistryConfig> registry) {
         this.registry = registry;
+        return this;
     }
 
     /**
@@ -265,13 +298,15 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
      * Sets methods.
      *
      * @param methods the methods
+     * @return the methods
      */
-    public void setMethods(Map<String, MethodConfig> methods) {
+    public AbstractInterfaceConfig setMethods(Map<String, MethodConfig> methods) {
         this.methods = methods;
+        return this;
     }
 
     /**
-     * Is register.
+     * Is register boolean.
      *
      * @return the boolean
      */
@@ -283,13 +318,15 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
      * Sets register.
      *
      * @param register the register
+     * @return the register
      */
-    public void setRegister(boolean register) {
+    public AbstractInterfaceConfig setRegister(boolean register) {
         this.register = register;
+        return this;
     }
 
     /**
-     * Is subscribe.
+     * Is subscribe boolean.
      *
      * @return the boolean
      */
@@ -301,45 +338,11 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
      * Sets subscribe.
      *
      * @param subscribe the subscribe
+     * @return the subscribe
      */
-    public void setSubscribe(boolean subscribe) {
+    public AbstractInterfaceConfig setSubscribe(boolean subscribe) {
         this.subscribe = subscribe;
-    }
-
-    /**
-     * Gets parameters.
-     *
-     * @return the parameters
-     */
-    public Map<String, String> getParameters() {
-        return parameters;
-    }
-
-    /**
-     * Sets parameters.
-     *
-     * @param parameters the parameters
-     */
-    public void setParameters(Map<String, String> parameters) {
-        this.parameters = parameters;
-    }
-
-    /**
-     * Is cache.
-     *
-     * @return the cache
-     */
-    public boolean isCache() {
-        return cache;
-    }
-
-    /**
-     * Sets cache.
-     *
-     * @param cache the cache
-     */
-    public void setCache(boolean cache) {
-        this.cache = cache;
+        return this;
     }
 
     /**
@@ -355,54 +358,31 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
      * Sets proxy.
      *
      * @param proxy the proxy
+     * @return the proxy
      */
-    public void setProxy(String proxy) {
+    public AbstractInterfaceConfig setProxy(String proxy) {
         this.proxy = proxy;
+        return this;
     }
 
     /**
-     * Gets compress.
+     * Gets cache ref.
      *
-     * @return the compress
-     */
-    public String getCompress() {
-        return compress;
-    }
-
-    /**
-     * Sets compress.
-     *
-     * @param compress the compress
-     */
-    public void setCompress(String compress) {
-        this.compress = compress;
-    }
-
-    /**
-     * Sets validation.
-     *
-     * @param validation the validation
-     */
-    public void setValidation(boolean validation) {
-        this.validation = validation;
-    }
-
-    /**
-     * Gets validation.
-     *
-     * @return the validation
-     */
-    public boolean isValidation() {
-        return validation;
-    }
-
-    /**
-     * Gets cacheRef.
-     *
-     * @return the cacheRef
+     * @return the cache ref
      */
     public Cache getCacheRef() {
         return cacheRef;
+    }
+
+    /**
+     * Sets cache ref.
+     *
+     * @param cacheRef the cache ref
+     * @return the cache ref
+     */
+    public AbstractInterfaceConfig setCacheRef(Cache cacheRef) {
+        this.cacheRef = cacheRef;
+        return this;
     }
 
     /**
@@ -422,6 +402,26 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
      */
     public AbstractInterfaceConfig setMockRef(T mockRef) {
         this.mockRef = mockRef;
+        return this;
+    }
+
+    /**
+     * Gets parameters.
+     *
+     * @return the parameters
+     */
+    public Map<String, String> getParameters() {
+        return parameters;
+    }
+
+    /**
+     * Sets parameters.
+     *
+     * @param parameters the parameters
+     * @return the parameters
+     */
+    public AbstractInterfaceConfig setParameters(Map<String, String> parameters) {
+        this.parameters = parameters;
         return this;
     }
 
@@ -446,12 +446,105 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
     }
 
     /**
-     * Sets cacheRef.
+     * Is validation boolean.
      *
-     * @param cacheRef the cacheRef
+     * @return the boolean
      */
-    public void setCacheRef(Cache cacheRef) {
-        this.cacheRef = cacheRef;
+    public boolean isValidation() {
+        return validation;
+    }
+
+    /**
+     * Sets validation.
+     *
+     * @param validation the validation
+     * @return the validation
+     */
+    public AbstractInterfaceConfig setValidation(boolean validation) {
+        this.validation = validation;
+        return this;
+    }
+
+    /**
+     * Gets compress.
+     *
+     * @return the compress
+     */
+    public String getCompress() {
+        return compress;
+    }
+
+    /**
+     * Sets compress.
+     *
+     * @param compress the compress
+     * @return the compress
+     */
+    public AbstractInterfaceConfig setCompress(String compress) {
+        this.compress = compress;
+        return this;
+    }
+
+    /**
+     * Is cache boolean.
+     *
+     * @return the boolean
+     */
+    public boolean isCache() {
+        return cache;
+    }
+
+    /**
+     * Sets cache.
+     *
+     * @param cache the cache
+     * @return the cache
+     */
+    public AbstractInterfaceConfig setCache(boolean cache) {
+        this.cache = cache;
+        return this;
+    }
+
+    /**
+     * Gets config value cache.
+     *
+     * @return the config value cache
+     */
+    public Map<String, Object> getConfigValueCache() {
+        return configValueCache;
+    }
+
+    /**
+     * Sets config value cache.
+     *
+     * @param configValueCache the config value cache
+     * @return the config value cache
+     */
+    public AbstractInterfaceConfig setConfigValueCache(Map<String, Object> configValueCache) {
+        this.configValueCache = configValueCache;
+        return this;
+    }
+
+    /**
+     * Sets proxy class.
+     *
+     * @param proxyClass the proxy class
+     * @return the proxy class
+     */
+    public AbstractInterfaceConfig setProxyClass(Class proxyClass) {
+        this.proxyClass = proxyClass;
+        return this;
+    }
+
+    /**
+     * Sets config listener.
+     *
+     * @param configListener the config listener
+     * @return the config listener
+     */
+    public AbstractInterfaceConfig setConfigListener(ConfigListener configListener) {
+        this.configListener = configListener;
+        return this;
     }
 
     /**

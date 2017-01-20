@@ -15,7 +15,7 @@ import io.bsoa.rpc.message.RpcResponse;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
  */
-public class ExcludeFilter extends AbstractFilter {
+public class ExcludeFilter implements Filter{
 
     /**
      * 要排除的过滤器 -*和 -default表示不加载默认过滤器
@@ -32,5 +32,10 @@ public class ExcludeFilter extends AbstractFilter {
 
     public String getExcludeFilterName() {
         return excludeFilterName;
+    }
+
+    @Override
+    public RpcResponse invoke(FilterInvoker invoker, RpcRequest request) {
+        throw new UnsupportedOperationException();
     }
 }

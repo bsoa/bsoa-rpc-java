@@ -590,26 +590,6 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Ser
     }
 
     /**
-     * Is subscribe.
-     *
-     * @return the boolean
-     */
-    @Override
-    public boolean isSubscribe() {
-        return subscribe;
-    }
-
-    /**
-     * Sets subscribe.
-     *
-     * @param subscribe the subscribe
-     */
-    @Override
-    public void setSubscribe(boolean subscribe) {
-        this.subscribe = subscribe;
-    }
-
-    /**
      * Gets url.
      *
      * @return the url
