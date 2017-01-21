@@ -14,7 +14,7 @@
     <version>${parent.version}</version>
     <packaging>jar</packaging>
 
-    <name>BSOA-RPC/All-in-One</name>
+    <name>BSOA-RPC-JAVA/All-in-One</name>
 
     <dependencies>
 
@@ -32,24 +32,37 @@
 
         <dependency>
             <groupId>io.bsoa.rpc</groupId>
-            <artifactId>protocol</artifactId>
+            <artifactId>client</artifactId>
             <version>${parent.version}</version>
         </dependency>
+
         <dependency>
             <groupId>io.bsoa.rpc</groupId>
             <artifactId>codec</artifactId>
             <version>${parent.version}</version>
         </dependency>
 
+        <!--<dependency>-->
+            <!--<groupId>io.bsoa.rpc</groupId>-->
+            <!--<artifactId>config</artifactId>-->
+            <!--<version>${parent.version}</version>-->
+        <!--</dependency>-->
+
         <dependency>
             <groupId>io.bsoa.rpc</groupId>
-            <artifactId>config</artifactId>
+            <artifactId>filter</artifactId>
             <version>${parent.version}</version>
         </dependency>
 
         <dependency>
             <groupId>io.bsoa.rpc</groupId>
-            <artifactId>client</artifactId>
+            <artifactId>protocol</artifactId>
+            <version>${parent.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.bsoa.rpc</groupId>
+            <artifactId>proxy</artifactId>
             <version>${parent.version}</version>
         </dependency>
 
@@ -91,7 +104,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.0.2</version>
+                <version>2.5.1</version>
                 <configuration>
                     <source>1.6</source>
                     <target>1.6</target>
@@ -106,19 +119,6 @@
                 <version>2.5</version>
                 <configuration>
                     <encoding>${project.build.sourceEncoding}</encoding>
-                </configuration>
-            </plugin>
-
-            <!-- eclipse -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-eclipse-plugin</artifactId>
-                <version>2.8</version>
-                <configuration>
-                    <wtpversion>2.0</wtpversion>
-                    <additionalProjectnatures>
-                        <projectnature>org.springframework.ide.eclipse.core.springnature</projectnature>
-                    </additionalProjectnatures>
                 </configuration>
             </plugin>
 
@@ -148,25 +148,34 @@
                             <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
                             <artifactSet>
                                 <includes>
-                                    <include>com.jd:saf-config</include>
-                                    <include>com.jd:saf-registry</include>
-                                    <include>com.jd:saf-common</include>
-                                    <include>com.jd:saf-service</include>
+                                    <include>io.bsoa.rpc:common</include>
+                                    <include>io.bsoa.rpc:core</include>
+                                    <include>io.bsoa.rpc:client</include>
+                                    <include>io.bsoa.rpc:codec</include>
+                                    <!--<include>io.bsoa.rpc:config</include>-->
+                                    <include>io.bsoa.rpc:filter</include>
+                                    <include>io.bsoa.rpc:protocol</include>
+                                    <include>io.bsoa.rpc:proxy</include>
+                                    <include>io.bsoa.rpc:server</include>
+                                    <include>io.bsoa.rpc:transport</include>
                                 </includes>
                             </artifactSet>
                             <transformers>
+                                <!-- META-INF/services -->
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                                <!-- spring相关 -->
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                                     <resource>META-INF/spring.handlers</resource>
                                 </transformer>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                                     <resource>META-INF/spring.schemas</resource>
                                 </transformer>
-                                <!-- <transformer implementation="org.apache.maven.plugins.shade.resource.DontIncludeResourceTransformer">
-                                    <resource>pom.xml</resource> </transformer> -->
-                                <!-- <transformer implementation="org.apache.maven.plugins.shade.resource.DontIncludeResourceTransformer">
+                                <!-- 不包含pom信息 -->
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.DontIncludeResourceTransformer">
+                                    <resource>pom.xml</resource> </transformer>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.DontIncludeResourceTransformer">
                                     <resource>pom.properties</resource>
-                                </transformer> -->
+                                </transformer>
                             </transformers>
                         </configuration>
                     </execution>

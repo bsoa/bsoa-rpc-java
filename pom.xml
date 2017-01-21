@@ -2,26 +2,59 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>9</version>
+    </parent>
     <groupId>io.bsoa.rpc</groupId>
     <artifactId>bsoa-rpc-java</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>bsoa-rpc</name>
-    <description>[Beyond SOA] RPC Framework of Java</description>
+    <name>[Beyond SOA] - RPC Framework</name>
+    <url>http://www.bsoa.io</url>
+    <description>[Beyond SOA] RPC Framework of Java.</description>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+        </license>
+    </licenses>
+    <inceptionYear>2016</inceptionYear>
+
+    <organization>
+        <name>The BSOA Project</name>
+        <url>http://www.bsoa.io/</url>
+    </organization>
+
+    <developers>
+        <developer>
+            <name>Geng Zhang</name>
+            <email>zhanggeng@howtimeflies.org</email>
+            <organization>The BSOA Project</organization>
+        </developer>
+    </developers>
+
+    <scm>
+        <url>https://github.com/bsoa/bsoa-rpc/java</url>
+        <connection>scm:git:git://github.com/bsoa/bsoa-rpc/java.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/bsoa/bsoa-rpc/java.git</developerConnection>
+        <!--<tag>HEAD</tag>-->
+    </scm>
 
     <modules>
         <module>core</module>
         <module>common</module>
-
         <module>client</module>
         <module>codec</module>
         <!--<module>config</module>-->
-        <!--<module>filter</module>-->
+        <module>filter</module>
         <module>protocol</module>
         <module>proxy</module>
         <module>server</module>
         <module>transport</module>
-        <!--<module>all</module>-->
+        <module>all</module>
         <module>example</module>
     </modules>
 
@@ -367,26 +400,12 @@
         </plugins>
     </build>
 
-    <!-- users -->
-    <organization>
-        <name>Beyond SOA</name>
-        <url>http://www.bsoa.io</url>
-    </organization>
-    <developers>
-        <developer>
-            <name>Geng Zhang</name>
-            <email>zhanggeng@howtimeflies.org</email>
-            <organization>Beyond SOA</organization>
-        </developer>
-    </developers>
-
-
     <profiles>
         <profile>
             <id>production</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
-                <jdk>1.6</jdk>
+                <jdk>[1.8,)</jdk>
             </activation>
             <properties>
                 <maven.compiler.source>${jdk.version}</maven.compiler.source>

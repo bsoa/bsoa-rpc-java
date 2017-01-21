@@ -25,7 +25,7 @@ PS:大家也看到了，本JSON文档是支持注释的，而标准JSOB是不支
   "transport.negotiator.async" : false, // 协商请求在IO线程执行吗？ TODO
 
 
-  "extension.load.path" : ["META-INF/bsoa/", "META-INF/services/"], // 扩展点加载的路径
+  "extension.load.path" : ["META-INF/services/bsoa/", "META-INF/services/"], // 扩展点加载的路径
   "consumer.share.reconnect.thread" : false, //是否所有客户端共享一个重连线程
 
   "default.tags" : "bsoa",
