@@ -51,9 +51,9 @@ public class FilterChainTest {
         Assert.assertNull(chain.getInvoker().getInvoker().getNextFilter());
         Assert.assertEquals(chain.getInvoker().getInvoker().getClass(), MockInvoker.class);
 
-        RpcRequest requestMessage = MessageBuilder.buildRpcRequest(HelloService.class, "world", new Class[0], new Object[0]);
+        RpcRequest rpcRequest = MessageBuilder.buildRpcRequest(HelloService.class, "world", new Class[0], new Object[0]);
 
-        RpcResponse response = filter.invoke(requestMessage);
+        RpcResponse response = filter.invoke(rpcRequest);
         Assert.assertNotNull(response);
         Assert.assertNotNull(response.getReturnData());
     }

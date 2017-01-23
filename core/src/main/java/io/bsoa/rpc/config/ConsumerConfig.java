@@ -187,17 +187,17 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Ser
     /**
      * 返回值之前的listener,处理结果或者异常
      */
-    protected transient List<ResponseListener> onreturn;
+    protected transient List<ResponseListener> onReturn;
 
     /**
      * 连接事件监听器实例，连接或者断开时触发
      */
-    protected transient List<ChannelListener> onconnect;
+    protected transient List<ChannelListener> onConnect;
 
     /**
      * 客户端状态变化监听器实例，状态可用和不可以时触发
      */
-    protected transient List<ConsumerStateListener> onavailable;
+    protected transient List<ConsumerStateListener> onAvailable;
 
 
     /*-------- 下面是方法级配置 --------*/
@@ -326,7 +326,7 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Ser
                 throw new BsoaRuntimeException(22222, "[JSF-21306]Build consumer proxy error!", e);
             }
         }
-        if (onavailable != null && client != null) {
+        if (onAvailable != null && client != null) {
             client.checkStateChange(false); // 状态变化通知监听器
         }
         BsoaContext.cacheConsumerConfig(this);
@@ -771,57 +771,57 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Ser
     }
 
     /**
-     * Gets onreturn.
+     * Gets onReturn.
      *
-     * @return the onreturn
+     * @return the onReturn
      */
-    public List<ResponseListener> getOnreturn() {
-        return onreturn;
+    public List<ResponseListener> getOnReturn() {
+        return onReturn;
     }
 
     /**
-     * Sets onreturn.
+     * Sets onReturn.
      *
-     * @param onreturn the onreturn
+     * @param onReturn the onReturn
      */
-    public void setOnreturn(List<ResponseListener> onreturn) {
-        this.onreturn = onreturn;
+    public void setOnReturn(List<ResponseListener> onReturn) {
+        this.onReturn = onReturn;
     }
 
     /**
-     * Gets onconnect.
+     * Gets onConnect.
      *
-     * @return the onconnect
+     * @return the onConnect
      */
-    public List<ChannelListener> getOnconnect() {
-        return onconnect;
+    public List<ChannelListener> getOnConnect() {
+        return onConnect;
     }
 
     /**
-     * Sets onconnect.
+     * Sets onConnect.
      *
-     * @param onconnect the onconnect
+     * @param onConnect the onConnect
      */
-    public void setOnconnect(List<ChannelListener> onconnect) {
-        this.onconnect = onconnect;
+    public void setOnConnect(List<ChannelListener> onConnect) {
+        this.onConnect = onConnect;
     }
 
     /**
-     * Gets onavailable.
+     * Gets onAvailable.
      *
-     * @return the onavailable
+     * @return the onAvailable
      */
-    public List<ConsumerStateListener> getOnavailable() {
-        return onavailable;
+    public List<ConsumerStateListener> getOnAvailable() {
+        return onAvailable;
     }
 
     /**
-     * Sets onavailable.
+     * Sets onAvailable.
      *
-     * @param onavailable the onavailable
+     * @param onAvailable the onAvailable
      */
-    public void setOnavailable(List<ConsumerStateListener> onavailable) {
-        this.onavailable = onavailable;
+    public void setOnAvailable(List<ConsumerStateListener> onAvailable) {
+        this.onAvailable = onAvailable;
     }
 
     /**
@@ -1006,6 +1006,21 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Ser
         this.concurrents = concurrents;
     }
 
+    @Override
+    public boolean hasTimeout() {
+        if (timeout > 0) {
+            return true;
+        }
+        if (CommonUtils.isNotEmpty(methods)) {
+            for (MethodConfig methodConfig : methods.values()) {
+                if (methodConfig.getTimeout() != null && methodConfig.getTimeout() > 0) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     /**
      * 是否有并发控制需求，有就打开过滤器
      * 配置-1关闭并发过滤器，等于0表示开启过滤但是不限制
@@ -1013,7 +1028,18 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Ser
      * @return 是否配置了concurrents boolean
      */
     public boolean hasConcurrents() {
-        return concurrents >= 0;
+        if (concurrents > 0) {
+            return true;
+        }
+        if (CommonUtils.isNotEmpty(methods)) {
+            for (MethodConfig methodConfig : methods.values()) {
+                if (methodConfig.getConcurrents() != null
+                        && methodConfig.getConcurrents() > 0) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -1042,11 +1068,11 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Ser
      * 得到方法名对应的自定义参数列表
      *
      * @param methodName 方法名，不支持重载
-     * @return method onreturn
+     * @return method onReturn
      */
     public List<ResponseListener> getMethodOnreturn(String methodName) {
         return (List<ResponseListener>) getMethodConfigValue(methodName, BsoaConstants.CONFIG_KEY_ONRETURN,
-                getOnreturn());
+                getOnReturn());
     }
 
     /**

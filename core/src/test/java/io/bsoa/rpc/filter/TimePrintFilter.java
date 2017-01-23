@@ -40,7 +40,7 @@ public class TimePrintFilter implements Filter {
         long start = BsoaContext.now();
         RpcResponse response = invoker.invoke(request); // 调用链自动往下层执行
         long end = BsoaContext.now();
-        LOGGER.info("elpased {}ms..", (end - start));  // 在getNext().invoke(request)后加的代码，将在远程方法调用后执行
+        LOGGER.info("elpased {}ms..", (end - start));  // 在invoker.invoke(request)后加的代码，将在远程方法调用后执行
         return response;
     }
 }

@@ -233,8 +233,8 @@ public class NettyMessageFuture<V> implements ResponseFuture<V> {
     }
 
     private synchronized void releaseIfNeed0(V result) {
-//        if(result instanceof ResponseMessage){
-//            ByteBuf byteBuf = ((ResponseMessage) result).getMsgBody();
+//        if(result instanceof RpcResponse){
+//            ByteBuf byteBuf = ((RpcResponse) result).getMsgBody();
 //            if(byteBuf != null && byteBuf.refCnt() > 0 ){
 //                byteBuf.release();
 //            }

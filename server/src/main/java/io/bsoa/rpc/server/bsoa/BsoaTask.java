@@ -122,21 +122,21 @@ public class BsoaTask extends AbstractTask {
             protocol.encoder().encodeAll(response, responseByteBuf);
 
 //            // 判断是否启动监控，如果启动则运行
-//            if (!CommonUtils.isFalse((String) invocation.getAttachment(Constants.INTERNAL_KEY_MONITOR))
+//            if (!CommonUtils.isFalse((String) invocation.getAttachment(BsoaConstants.INTERNAL_KEY_MONITOR))
 //                    && MonitorFactory.isMonitorOpen(className, methodName)) {
 //                String ip = NetUtils.toIpString(localAddress);
 //                int port = localAddress.getPort();
 //                Monitor monitor = MonitorFactory.getMonitor(MonitorFactory.MONITOR_PROVIDER_METRIC,
 //                        className, methodName, ip, port);
 //                if (monitor != null) { // 需要记录日志
-//                    boolean iserror = responseMessage.isError();
-//                    invocation.addAttachment(Constants.INTERNAL_KEY_INPUT, msg.getMsgHeader().getLength());
+//                    boolean iserror = rpcResponse.isError();
+//                    invocation.addAttachment(BsoaConstants.INTERNAL_KEY_INPUT, msg.getMsgHeader().getLength());
 //                    // 报文长度+magiccode(2) + totallength(4)
-//                    invocation.addAttachment(Constants.INTERNAL_KEY_OUTPUT, buf.readableBytes() + 6);
-//                    invocation.addAttachment(Constants.INTERNAL_KEY_RESULT, !iserror);
-//                    invocation.addAttachment(Constants.INTERNAL_KEY_PROTOCOL, ProtocolType.jsf.value() + "");
+//                    invocation.addAttachment(BsoaConstants.INTERNAL_KEY_OUTPUT, buf.readableBytes() + 6);
+//                    invocation.addAttachment(BsoaConstants.INTERNAL_KEY_RESULT, !iserror);
+//                    invocation.addAttachment(BsoaConstants.INTERNAL_KEY_PROTOCOL, ProtocolType.jsf.value() + "");
 //                    if (iserror) { // 失败
-//                        monitor.recordException(invocation, responseMessage.getException());
+//                        monitor.recordException(invocation, rpcResponse.getException());
 //                    } else { // 成功
 //                        monitor.recordInvoked(invocation);
 //                    }

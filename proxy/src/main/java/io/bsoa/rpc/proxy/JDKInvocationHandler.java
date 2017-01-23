@@ -53,12 +53,12 @@ public class JDKInvocationHandler implements InvocationHandler {
         } else if ("equals".equals(methodName) && paramTypes.length == 1) {
             return proxyInvoker.equals(paramValues[0]);
         }
-        RpcRequest requestMessage = MessageBuilder.buildRpcRequest(method.getDeclaringClass(),
+        RpcRequest rpcRequest = MessageBuilder.buildRpcRequest(method.getDeclaringClass(),
                 methodName, paramTypes, paramValues);
-        RpcResponse rpcResponseMessage = proxyInvoker.invoke(requestMessage);
-        if(rpcResponseMessage.hasError()){
-            throw rpcResponseMessage.getException();
+        RpcResponse rpcRpcResponse = proxyInvoker.invoke(rpcRequest);
+        if(rpcRpcResponse.hasError()){
+            throw rpcRpcResponse.getException();
         }
-        return rpcResponseMessage.getReturnData();
+        return rpcRpcResponse.getReturnData();
     }
 }

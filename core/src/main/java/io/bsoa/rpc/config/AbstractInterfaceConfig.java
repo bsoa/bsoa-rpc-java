@@ -557,6 +557,20 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
     }
 
     /**
+     * 是否有超时配置
+     *
+     * @return 是否配置了timeout
+     */
+    public abstract boolean hasTimeout();
+
+    /**
+     * 是否有并发限制配置
+     *
+     * @return 是否配置了并发限制
+     */
+    public abstract boolean hasConcurrents();
+
+    /**
      * 除了判断自己，还有判断下面方法的自定义判断
      *
      * @return the validation

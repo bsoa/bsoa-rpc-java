@@ -18,8 +18,6 @@ package io.bsoa.rpc.context;
 
 import java.util.Map;
 
-import io.bsoa.rpc.common.annotation.ThreadUnsafe;
-
 /**
  *
  *
@@ -27,7 +25,6 @@ import io.bsoa.rpc.common.annotation.ThreadUnsafe;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-@ThreadUnsafe
 public class HiddenParam {
 
     /**

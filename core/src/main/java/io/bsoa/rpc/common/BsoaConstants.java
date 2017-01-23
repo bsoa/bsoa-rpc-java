@@ -162,7 +162,7 @@ public class BsoaConstants {
     /**
      * 内部使用的key：返回值
      */
-    public static final String INTERNAL_KEY_ONRETURN = INTERNAL_KEY_PREFIX + "onreturn";
+    public static final String INTERNAL_KEY_ONRETURN = INTERNAL_KEY_PREFIX + "onReturn";
     /**
      * 内部使用的key：调用协议
      */
@@ -275,9 +275,9 @@ public class BsoaConstants {
     public static final String CONFIG_KEY_PARAMS = "parameters";
 
     /**
-     * 配置key:onreturn
+     * 配置key:onReturn
      */
-    public static final String CONFIG_KEY_ONRETURN = "onreturn";
+    public static final String CONFIG_KEY_ONRETURN = "onReturn";
 
     /**
      * 配置key:weight

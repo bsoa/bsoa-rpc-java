@@ -38,14 +38,6 @@ public class CommonUtils {
      * slf4j Logger for this class
      */
     private final static Logger LOGGER = LoggerFactory.getLogger(CommonUtils.class);
-//    /**
-//     * 是否单元测试模式
-//     *
-//     * @return 单元测试模式不加载
-//     */
-//    public static boolean isUnitTestMode() {
-//        return isTrue((Boolean) JSFContext.get(JSFContext.KEY_UNIT_TEST));
-//    }
 
     /**
      * byte array copy.

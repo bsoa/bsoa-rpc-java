@@ -4,11 +4,12 @@
 PS:大家也看到了，本JSON文档是支持注释的，而标准JSOB是不支持的，这属于宽松的的json格式哦！
 */
 {
-  "app.id" : 0,
+//  "app.id" : null,
+//  "app.name": null,
+//  "instance.id" : null,
 
-  "system.cpu" : 0, // 0代表自动判断，也可以自定义注入，或者启动参数注入
-  "aaa" : "ii",
-  "ttt" : 1.5,
+  "system.cpu.cores" : 0, // 0代表自动判断，也可以自定义注入，或者启动参数注入
+
   // 默认连注册中心的超时时间
   "serialize.check.class":	false,//	序列化时是否检查父子类（声明参数和传入值是父子类）	boolean	默认true，如果业务不存在这种情况可以配置为false，提高性能	1.0.0
   "transport.consumer.epoll"	:false,//	客户端是否使用epoll（针对linux）	boolean	默认false，Linux开启epoll可提高性能	1.0.3

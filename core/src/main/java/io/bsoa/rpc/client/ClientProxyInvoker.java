@@ -18,6 +18,7 @@ package io.bsoa.rpc.client;
 
 import java.util.List;
 import java.util.Map;
+import javax.annotation.concurrent.ThreadSafe;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +26,6 @@ import org.slf4j.LoggerFactory;
 import io.bsoa.rpc.base.Invoker;
 import io.bsoa.rpc.codec.SerializerFactory;
 import io.bsoa.rpc.common.BsoaConstants;
-import io.bsoa.rpc.common.annotation.ThreadSafe;
 import io.bsoa.rpc.config.ConsumerConfig;
 import io.bsoa.rpc.filter.ConsumerInvoker;
 import io.bsoa.rpc.filter.FilterChain;

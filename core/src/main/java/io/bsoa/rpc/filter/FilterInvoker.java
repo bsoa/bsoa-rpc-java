@@ -17,11 +17,11 @@
 package io.bsoa.rpc.filter;
 
 import java.util.Map;
+import javax.annotation.concurrent.ThreadSafe;
 
 import io.bsoa.rpc.base.Invoker;
 import io.bsoa.rpc.common.BsoaConstants;
 import io.bsoa.rpc.common.annotation.JustForTest;
-import io.bsoa.rpc.common.annotation.ThreadSafe;
 import io.bsoa.rpc.common.utils.CommonUtils;
 import io.bsoa.rpc.config.AbstractInterfaceConfig;
 import io.bsoa.rpc.exception.BsoaRpcException;

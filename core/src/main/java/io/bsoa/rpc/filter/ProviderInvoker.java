@@ -62,12 +62,6 @@ public class ProviderInvoker<T> extends FilterInvoker {
         this.providerConfig = providerConfig;
     }
 
-    /**
-     * Invoke response message.
-     *
-     * @param request the request
-     * @return the response message
-     */
     @Override
     public RpcResponse invoke(RpcRequest request) {
 
@@ -84,12 +78,12 @@ public class ProviderInvoker<T> extends FilterInvoker {
             context.setAttachments(params);
         }
 
-        RpcResponse responseMessage = MessageBuilder.buildRpcResponse(request);
+        RpcResponse rpcResponse = MessageBuilder.buildRpcResponse(request);
 
         // 是否启动压缩
         if (providerConfig.getCompress() != null) {
             byte b = CompressorFactory.getCodeByAlias(providerConfig.getCompress());
-            responseMessage.setCompressType(b);
+            rpcResponse.setCompressType(b);
         }
 
         try {
@@ -98,17 +92,17 @@ public class ProviderInvoker<T> extends FilterInvoker {
                     request.getMethodName(), request.getArgsType());
             Object result = method.invoke(providerConfig.getRef(), request.getArgs());
 
-            responseMessage.setReturnData(result);
+            rpcResponse.setReturnData(result);
         } catch (IllegalArgumentException   // 非法参数，可能是实现类和接口类不对应
                 | IllegalAccessException    //如果此 Method 对象强制执行 Java 语言访问控制，并且底层方法是不可访问的
                 | NoSuchMethodException     // 如果找不到匹配的方法
                 | ClassNotFoundException e  // 如果指定的类加载器无法定位该类
                 ) {
-            responseMessage.setException(e);
+            rpcResponse.setException(e);
         } catch (InvocationTargetException e) { // 业务代码抛出异常
-            responseMessage.setException(e.getCause());
+            rpcResponse.setException(e.getCause());
         }
 
-        return responseMessage;
+        return rpcResponse;
     }
 }

@@ -356,25 +356,25 @@ public class RpcContext {
     /**
      * 当前组
      */
-    private String alias;
+    private String tags;
 
     /**
-     * Gets alias.
+     * Gets tags.
      *
-     * @return the alias
+     * @return the tags
      */
-    public String getAlias() {
-        return alias;
+    public String getTags() {
+        return tags;
     }
 
     /**
-     * Sets alias.
+     * Sets tags.
      *
-     * @param alias the alias
+     * @param tags the tags
      * @return RpcContext
      */
-    public RpcContext setAlias(String alias) {
-        this.alias = alias;
+    public RpcContext setTags(String tags) {
+        this.tags = tags;
         return this;
     }
 

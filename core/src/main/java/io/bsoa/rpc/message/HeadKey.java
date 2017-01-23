@@ -52,8 +52,14 @@ public enum HeadKey {
 
     //compress((byte) 6, String.class),
     //jsfVersion((byte) 7, Short.class), // 客户端的JSF版本
-    //srcLanguage((byte) 8, Byte.class), // 请求的语言（针对跨语言 1c++ 2lua）
-    //responseCode((byte) 9, Byte.class), // 返回结果（针对跨语言 0成功 1失败）
+    /**
+     * 请求的语言（针对跨语言 1c++ 2lua）
+     */
+    srcLanguage((byte) 8, Byte.class),
+    /**
+     * 返回结果（针对跨语言 0成功 1失败）
+     */
+    responseCode((byte) 9, Byte.class),
     /**
      * rpc客户端版本
      */
@@ -148,13 +154,13 @@ public enum HeadKey {
                 break;
             /*case 7:
                 key = jsfVersion;
-                break;
+                break;*/
             case 8:
                 key = srcLanguage;
                 break;
             case 9:
                 key = responseCode;
-                break;*/
+                break;
             case 12:
                 key = INTERFACE_NAME_REF;
                 break;

@@ -39,9 +39,9 @@ public class EchoFilter implements Filter {
     @Override
     public RpcResponse invoke(FilterInvoker invoker, RpcRequest request) {
         Map<String, Object> configContext = invoker.getConfigContext(); // 可以拿到一些配置里的信息
-        LOGGER.info("before invoke..");  // 在getNext().invoke(request)前加的代码，将在远程方法调用前执行
+        LOGGER.info("before invoke..");  // 在invoker.invoke(request)前加的代码，将在远程方法调用前执行
         RpcResponse response = invoker.invoke(request); // 调用链自动往下层执行
-        LOGGER.info("after invoke..");  // 在getNext().invoke(request)后加的代码，将在远程方法调用后执行
+        LOGGER.info("after invoke..");  // 在invoker.invoke(request)后加的代码，将在远程方法调用后执行
         return response;
     }
 }

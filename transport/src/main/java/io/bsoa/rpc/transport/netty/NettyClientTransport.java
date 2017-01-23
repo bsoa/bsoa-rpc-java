@@ -287,7 +287,7 @@ public class NettyClientTransport extends AbstractClientTransport {
 //                byteBuf = protocol.encode(request, byteBuf);
 //            } finally {
 //                if (providerJsfVersion != null) {
-//                    RpcContext.getContext().removeAttachment(Constants.HIDDEN_KEY_DST_JSF_VERSION);
+//                    RpcContext.getContext().removeAttachment(BsoaConstants.HIDDEN_KEY_DST_JSF_VERSION);
 //                }
 //            }
 //            request.setMsg(byteBuf);

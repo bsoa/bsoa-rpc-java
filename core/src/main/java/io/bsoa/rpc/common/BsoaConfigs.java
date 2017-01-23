@@ -218,6 +218,24 @@ public class BsoaConfigs {
     }
 
     /**
+     * 应用Id
+     */
+    public static final String APP_ID = "app.id";
+    /**
+     * 应用名称
+     */
+    public static final String APP_name = "app.name";
+    /**
+     * 应用实例Id
+     */
+    public static final String INSTANCE_ID = "instance.id";
+
+    /**
+     * 系统cpu核数
+     */
+    public static final String SYSTEM_CPU_CORES = "system.cpu.cores";
+
+    /**
      * 扩展点加载的路径
      */
     public static final String EXTENSION_LOAD_PATH = "extension.load.path";

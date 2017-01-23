@@ -647,6 +647,21 @@ public class ProviderConfig<T> extends AbstractInterfaceConfig<T> implements Ser
         this.concurrents = concurrents;
     }
 
+    @Override
+    public boolean hasTimeout() {
+        if (timeout > 0) {
+            return true;
+        }
+        if (CommonUtils.isNotEmpty(methods)) {
+            for (MethodConfig methodConfig : methods.values()) {
+                if (methodConfig.getTimeout() > 0) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     /**
      * 是否有并发控制需求，有就打开过滤器
      * 配置-1关闭并发过滤器，等于0表示开启过滤但是不限制
@@ -654,7 +669,18 @@ public class ProviderConfig<T> extends AbstractInterfaceConfig<T> implements Ser
      * @return 是否配置了concurrents boolean
      */
     public boolean hasConcurrents() {
-        return concurrents >= 0;
+        if (concurrents > 0) {
+            return true;
+        }
+        if (CommonUtils.isNotEmpty(methods)) {
+            for (MethodConfig methodConfig : methods.values()) {
+                if (methodConfig.getConcurrents() != null
+                        && methodConfig.getConcurrents() > 0) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**

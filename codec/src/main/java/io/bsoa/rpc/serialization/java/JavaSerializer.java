@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import io.bsoa.rpc.codec.Serializer;
 import io.bsoa.rpc.common.struct.UnsafeByteArrayInputStream;
 import io.bsoa.rpc.common.struct.UnsafeByteArrayOutputStream;
+import io.bsoa.rpc.common.utils.CodecUtils;
 import io.bsoa.rpc.common.utils.ReflectUtils;
 import io.bsoa.rpc.common.utils.StringUtils;
 import io.bsoa.rpc.exception.BsoaRpcException;
@@ -201,8 +202,8 @@ public class JavaSerializer implements Serializer {
             Class<?>[] pts;
             String desc = readString(input);
             if (StringUtils.isEmpty(desc)) {
-                pts = EMPTY_CLASS_ARRAY;
-                args = EMPTY_OBJECT_ARRAY;
+                pts = CodecUtils.EMPTY_CLASS_ARRAY;
+                args = CodecUtils.EMPTY_OBJECT_ARRAY;
             } else {
                 pts = ReflectUtils.desc2classArray(desc);
                 args = new Object[pts.length];
@@ -252,14 +253,4 @@ public class JavaSerializer implements Serializer {
         }
         return res;
     }
-
-    /**
-     * 空的Object数组，无参方法
-     */
-    public static final Object[] EMPTY_OBJECT_ARRAY = new Object[0];
-
-    /**
-     * 空的Class数组，无参方法
-     */
-    public static final Class<?>[] EMPTY_CLASS_ARRAY = new Class<?>[0];
 }

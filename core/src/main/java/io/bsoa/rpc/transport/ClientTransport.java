@@ -94,7 +94,7 @@ public interface ClientTransport {
      *
      * @param message 消息
      * @param timeout 超时时间
-     * @return ResponseMessage
+     * @return RpcResponse
      */
     public BaseMessage syncSend(BaseMessage message, int timeout);
 

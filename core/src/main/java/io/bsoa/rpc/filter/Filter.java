@@ -30,6 +30,15 @@ import io.bsoa.rpc.message.RpcResponse;
 public interface Filter {
 
     /**
+     * 是否自动加载
+     *
+     * @param invoker 调用器
+     * @return 是否加载本过滤器
+     */
+    public default boolean needToLoad(FilterInvoker invoker) {
+        return true;
+    }
+    /**
      * 过滤执行
      * <pre><code>
      *  doBeforeInvoke(); // 调用前逻辑，甚至可以new一个Response进行提取返回
@@ -39,7 +48,7 @@ public interface Filter {
      *
      * @param invoker    调用器
      * @param rpcRequest 请求
-     * @return ResponseMessage 响应
+     * @return RpcResponse 响应
      */
     public RpcResponse invoke(FilterInvoker invoker, RpcRequest rpcRequest);
 }

@@ -17,8 +17,8 @@
 package io.bsoa.rpc.client;
 
 import java.util.List;
+import javax.annotation.concurrent.ThreadSafe;
 
-import io.bsoa.rpc.common.annotation.ThreadSafe;
 import io.bsoa.rpc.ext.Extensible;
 import io.bsoa.rpc.message.RpcRequest;
 

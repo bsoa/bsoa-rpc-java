@@ -109,7 +109,9 @@ public class FilterChain<T> {
             for (int i = filters.size() - 1; i >= 0; i--) {
                 try {
                     Filter filter = filters.get(i);
-                    invokerChain = new FilterInvoker(filter, invokerChain, config);
+                    if (filter.needToLoad(invokerChain)) {
+                        invokerChain = new FilterInvoker(filter, invokerChain, config);
+                    }
                 } catch (Exception e) {
                     LOGGER.error("Error when build filter chain", e);
                     throw new BsoaRuntimeException(22222, "加载filter列表异常", e);
@@ -138,7 +140,7 @@ public class FilterChain<T> {
          */
         // 用户通过自己new实例的方式注入的filter，优先级高
         List<Filter> customFilters = providerConfig.getFilterRef() == null ?
-                null : new CopyOnWriteArrayList<>(providerConfig.getFilterRef());
+                new ArrayList<>() : new CopyOnWriteArrayList<>(providerConfig.getFilterRef());
         // 先解析是否有特殊处理
         HashSet<String> excludes = parseExcludeFilter(customFilters);
 
@@ -173,62 +175,6 @@ public class FilterChain<T> {
         }
         // 加入自定义的过滤器
         actualFilters.addAll(customFilters);
-
-        // 排序
-//            if (CommonUtils.isLinux()
-//                    && !CommonUtils.isFalse(JSFContext.getGlobalVal(Constants.SETTING_CHECK_SYSTEM_TIME, "true"))) {
-//                filters.add(new SystemTimeCheckFilter()); // 系统时间检查过滤器
-//            }
-//            if (!excludes.contains("exception")) {
-//                filters.add(new ExceptionFilter()); // 异常过滤器
-//            }
-//            filters.add(new ProviderContextFilter()); // 上下文过滤器
-//            if (!excludes.contains("providerGeneric")) {
-//                filters.add(new ProviderGenericFilter()); // 泛化调用过滤器
-//            }
-//            if (!excludes.contains("providerHttpGW")) {
-//                filters.add(new ProviderHttpGWFilter());
-//            }
-//            if (!excludes.contains("providerLimiter")){
-//                filters.add(new ProviderInvokeLimitFilter());
-//            }
-//            if (providerConfig.hasToken() && !excludes.contains("token")) {
-//                filters.add(new TokenFilter()); // Token认证过滤器
-//            }
-//            if(!excludes.contains("providerMethodCheck")) {
-//                filters.add(new ProviderMethodCheckFilter(providerConfig)); // 检查方法是否调用
-//            }
-//            if(!excludes.contains("providerTimeout")) {
-//                filters.add(new ProviderTimeoutFilter()); // 超时过滤器
-//            }
-//            if (providerConfig.hasValidation() && !excludes.contains("validation")) {
-//                filters.add(new ValidationFilter()); // 参数校验过滤器
-//            }
-//            if (providerConfig.hasCache() && !excludes.contains("cache")) {
-//                filters.add(new CacheFilter(providerConfig)); // 缓存过滤器
-//            }
-//            //if (!excludes.contains("mock")) {
-//            //    filters.add(new MockFilter(providerConfig));
-//            //}
-//            if (providerConfig.hasConcurrents() && !excludes.contains("providerConcurrents")) { // 并发控制过滤器
-//                filters.add(new ProviderConcurrentsFilter(providerConfig));
-//            }
-//        }
-
-//        加载META-INF目录下的自定义filter
-//        ExtensionLoader<Filter> extensionLoader = ExtensionLoaderFactory.getExtensionLoader(Filter.class);
-//        if (extensionLoader != null) {
-//            for (ExtensionClass<Filter> extensionClass : extensionLoader.getProviderSideAutoActives()) {
-//                Filter filter = extensionClass.getExtInstance();
-//                if (filter != null) {
-//                    LOGGER.info("load provider extension filter:{}", filter.getClass().getCanonicalName());
-//                    filters.add(filter);
-//                }
-//            }
-//        }
-//        if (CommonUtils.isNotEmpty(customFilters)) {
-//            filters.addAll(customFilters);
-//        }
         return new FilterChain(actualFilters, lastFilter, providerConfig);
     }
 
@@ -241,63 +187,54 @@ public class FilterChain<T> {
      */
     public static FilterChain buildConsumerChain(ConsumerConfig consumerConfig, FilterInvoker lastFilter) {
 
-        Map<String, Object> context = consumerConfig.getConfigValueCache(true);
-        // 自定义的filter处理，如果通过spring加载，可以设置scope来设置是单例还是多例
+         /*
+         * 例如自动装载扩展 A(a),B(b),C(c)  filter=[-a,d]  filterRef=[new E, new Exclude(b)]
+         * 逻辑如下：
+         * 1.解析config.getFilterRef()，记录E和-b
+         * 2.解析config.getFilter()字符串，记录 d 和 -a,-b
+         * 3.再解析自动装载扩展，a,b被排除了，所以拿到c,d
+         * 4.对c d进行排序
+         * 5.拿到C、D实现类
+         * 6.加上自定义，返回C、D、E
+         */
+        // 用户通过自己new实例的方式注入的filter，优先级高
         List<Filter> customFilters = consumerConfig.getFilterRef() == null ?
-                null : new CopyOnWriteArrayList(consumerConfig.getFilterRef());
+                new ArrayList<>() : new CopyOnWriteArrayList<>(consumerConfig.getFilterRef());
         // 先解析是否有特殊处理
         HashSet<String> excludes = parseExcludeFilter(customFilters);
 
-        // 构造执行链
-        List<Filter> filters = new ArrayList<Filter>();
-//        if (!excludes.contains("*") && !excludes.contains("default")) {
-//            if (CommonUtils.isLinux()
-//                    && !excludes.contains("systemTimeCheck")
-//                    && !CommonUtils.isFalse(JSFContext.getGlobalVal(Constants.SETTING_CHECK_SYSTEM_TIME, "true"))) {
-//                filters.add(new SystemTimeCheckFilter()); // 系统时间检查过滤器
-//            }
-//            if (!excludes.contains("exception")) {
-//                filters.add(new ExceptionFilter()); // 异常过滤器
-//            }
-//            if (consumerConfig.isGeneric() && !excludes.contains("consumerGeneric")) { // 泛化调用过滤器
-//                filters.add(new ConsumerGenericFilter());
-//            }
-//            filters.add(new ConsumerContextFilter()); // 上下文过滤器
-//            if (consumerConfig.hasCache() && !excludes.contains("cache")) {
-//                filters.add(new CacheFilter(consumerConfig)); // 缓存过滤器
-//            }
-//            if (!excludes.contains("mock")) { // 模拟调用过滤器
-//                filters.add(new MockFilter(consumerConfig));
-//            }
-//            if (JSFContext.get(JSFContext.KEY_APPID) != null && !excludes.contains("consumerInvokeLimit")) {
-//                filters.add(new ConsumerInvokeLimitFilter()); // 调用次数限制过滤器
-//            }
-//            if (consumerConfig.hasValidation() && !excludes.contains("validation")) {
-//                filters.add(new ValidationFilter()); // 参数校验过滤器
-//            }
-//
-//            if (consumerConfig.hasConcurrents() && !excludes.contains("consumerConcurrents")) { // 并发控制过滤器
-//                filters.add(new ConsumerConcurrentsFilter(consumerConfig));
-//            }
-//            filters.add(new ConsumerMonitorFilter());
-//        }
-
-        if (CommonUtils.isNotEmpty(customFilters)) {
-            filters.addAll(customFilters);
+        // 准备数据：用户通过别名的方式注入的filter，需要解析
+        List<ExtensionClass<Filter>> extensionFilters = new ArrayList<>();
+        List<String> filterAliases = consumerConfig.getFilter(); //
+        if (CommonUtils.isNotEmpty(filterAliases)) {
+            for (String filterAlias : filterAliases) {
+                if (filterAlias.startsWith("-")) { // 排除用的特殊字符
+                    excludes.add(filterAlias.substring(1));
+                } else {
+                    extensionFilters.add(EXTENSION_LOADER.getExtensionClass(filterAlias));
+                }
+            }
         }
-        //加载META-INF目录下的自定义filter
-        ExtensionLoader<Filter> extensionLoader = ExtensionLoaderFactory.getExtensionLoader(Filter.class);
-//        if (extensionLoader != null) {
-//            for (ExtensionClass<Filter> extensionClass : extensionLoader.getConsumerSideAutoActives()) {
-//                Filter filter = extensionClass.getExtInstance();
-//                if (filter != null) {
-//                    LOGGER.info("load consumer extension filter:{}", filter.getClass().getCanonicalName());
-//                    filters.add(filter);
-//                }
-//            }
-//        }
-        // filter排序 TODO
-        return new FilterChain(filters, lastFilter, consumerConfig);
+        // 解析自动加载的过滤器
+        if (!excludes.contains("*") && !excludes.contains("default")) {  // 配了-*和-default表示不加载内置
+            for (Map.Entry<String, ExtensionClass<Filter>> entry : consumerAutoActives.entrySet()) {
+                if (!excludes.contains(entry.getKey())) {
+                    extensionFilters.add(entry.getValue());
+                }
+            }
+        }
+        excludes = null; // 不需要了
+        // 按order从小到大排序
+        if (extensionFilters.size() > 1) {
+            extensionFilters.sort(new ExtensionLoader.OrderComparator());
+        }
+        List<Filter> actualFilters = new ArrayList<>();
+        for (ExtensionClass<Filter> extensionFilter : extensionFilters) {
+            actualFilters.add(extensionFilter.getExtInstance());
+        }
+        // 加入自定义的过滤器
+        actualFilters.addAll(customFilters);
+        return new FilterChain(actualFilters, lastFilter, consumerConfig);
     }
 
     /**
@@ -330,11 +267,11 @@ public class FilterChain<T> {
     /**
      * proxy拦截的调用
      *
-     * @param requestMessage 请求支持
+     * @param rpcRequest 请求支持
      * @return 调用结果 response message
      */
-    public RpcResponse invoke(RpcRequest requestMessage) {
-        return getChain().invoke(requestMessage);
+    public RpcResponse invoke(RpcRequest rpcRequest) {
+        return getChain().invoke(rpcRequest);
     }
 
     /**

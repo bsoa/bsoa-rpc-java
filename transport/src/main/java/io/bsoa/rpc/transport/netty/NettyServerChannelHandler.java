@@ -148,15 +148,15 @@ public class NettyServerChannelHandler extends ChannelInboundHandlerAdapter {
 //            BsoaRpcException rpc = (BsoaRpcException) cause;
 //            MessageHeader header = rpc.getMsgHeader();
 //            if (header != null) {
-//                RpcResponse responseMessage = new RpcResponse();
-//                responseMessage.getMsgHeader().copyHeader(header);
-//                responseMessage.getMsgHeader().setMsgType(Constants.RESPONSE_MSG);
+//                RpcResponse rpcResponse = new RpcResponse();
+//                rpcResponse.getMsgHeader().copyHeader(header);
+//                rpcResponse.getMsgHeader().setMsgType(BsoaConstants.RESPONSE_MSG);
 //                String causeMsg = cause.getMessage();
 //                String channelInfo = BaseServerHandler.getKey(ctx.channel());
 //                String causeMsg2 = "Remote Error Channel:" + channelInfo + " cause: " + causeMsg;
 //                ((RpcException) cause).setErrorMsg(causeMsg2);
-//                responseMessage.setException(cause);
-//                ChannelFuture channelFuture = ctx.writeAndFlush(responseMessage);
+//                rpcResponse.setException(cause);
+//                ChannelFuture channelFuture = ctx.writeAndFlush(rpcResponse);
 //                channelFuture.addListener(new ChannelFutureListener() {
 //
 //                    @Override

@@ -133,7 +133,7 @@ public class BsoaContext {
         /*
         // 关闭启动的分组调用端
         for (ConsumerGroupConfig config : REFERRED_CONSUMER_GROUP_CONFIGS) {
-            if (!CommonUtils.isFalse(config.getParameter(Constants.HIDDEN_KEY_DESTROY))) { // 除非不让主动unrefer
+            if (!CommonUtils.isFalse(config.getParameter(BsoaConstants.HIDDEN_KEY_DESTROY))) { // 除非不让主动unrefer
                 config.setRegister(config.isRegister() && !JSFLogicSwitch.REGISTRY_REGISTER_BATCH);
                 config.unrefer();
             }

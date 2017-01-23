@@ -138,8 +138,8 @@ public class NettyClientChannelHandler extends ChannelInboundHandlerAdapter {
             }
             // RPC请求：callback线程池处理
             else if (msg instanceof RpcRequest) { // callback请求
-//            //receive the callback ResponseMessage
-//            ResponseMessage responseMsg = (ResponseMessage) msg;
+//            //receive the callback RpcResponse
+//            RpcResponse responseMsg = (RpcResponse) msg;
 //            if (responseMsg.getMsgHeader().getMsgType() != Constants.CALLBACK_RESPONSE_MSG) {
 //                throw new RpcException(responseMsg.getMsgHeader(), "Can not handle normal response message" +
 //                        " in server channel handler : " + responseMsg.toString());
@@ -191,9 +191,9 @@ public class NettyClientChannelHandler extends ChannelInboundHandlerAdapter {
 //            RpcException rpcException = (RpcException) cause;
 //            final MessageHeader header = rpcException.getMsgHeader();
 //            if (header != null && header.getMsgType() == Constants.CALLBACK_REQUEST_MSG) {
-//                ResponseMessage response = new ResponseMessage();
+//                RpcResponse response = new RpcResponse();
 //                response.getMsgHeader().copyHeader(header);
-//                response.getMsgHeader().setMsgType(Constants.CALLBACK_RESPONSE_MSG);
+//                response.getMsgHeader().setMsgType(BsoaConstants.CALLBACK_RESPONSE_MSG);
 //                Future future = channel.writeAndFlush(response);
 //                future.addListener(new FutureListener() {
 //                    @Override

@@ -358,7 +358,7 @@ public abstract class AbstractClient implements Client {
         config.setProvider(provider);
         config.setConnectTimeout(config.getConnectTimeout());
         config.setInvokeTimeout(consumerConfig.getTimeout());
-        config.setChannelListeners(consumerConfig.getOnconnect());
+        config.setChannelListeners(consumerConfig.getOnConnect());
         return config;
     }
 

@@ -133,12 +133,12 @@ public class JavassistProxy implements Proxy {
 //                                                : "arg" + i + ".getClass();"));
             }
 
-//            RequestMessage requestMessage = MessageBuilder.buildRequest(clazz, methodName, paramTypes, paramValues);
-//            ResponseMessage responseMessage = proxyInvoker.invoke(requestMessage);
-//            if(responseMessage.isError()){
-//                throw responseMessage.getException();
+//            RpcRequest rpcRequest = MessageBuilder.buildRequest(clazz, methodName, paramTypes, paramValues);
+//            RpcResponse rpcResponse = proxyInvoker.invoke(rpcRequest);
+//            if(rpcResponse.isError()){
+//                throw rpcResponse.getException();
 //            }
-//            return responseMessage.getResponse();
+//            return rpcResponse.getResponse();
 
             sb.append(RpcRequest.class.getCanonicalName() + " req = " +
                     MessageBuilder.class.getCanonicalName() +

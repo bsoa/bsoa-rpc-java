@@ -83,7 +83,7 @@ public class NettyTransportHelper {
                 bossGroup = serverBossGroups.get(config.getProtocolType());
                 if (bossGroup == null) {
                     int bossThreads = config.getBossThreads();
-                    bossThreads = bossThreads <= 0 ? Math.max(4, SystemInfo.CPU_CORES / 2) : bossThreads;
+                    bossThreads = bossThreads <= 0 ? Math.max(4, SystemInfo.getCpuCores() / 2) : bossThreads;
                     NamedThreadFactory threadName =
                             new NamedThreadFactory("BSOA-SEV-" + config.getPort() + "-BOSS", config.isDaemon());
                     bossGroup = config.isUseEpoll() ?
@@ -122,7 +122,7 @@ public class NettyTransportHelper {
                 ioGroup = serverIoGroups.get(config.getProtocolType());
                 if (ioGroup == null) {
                     int ioThreads = config.getIoThreads();
-                    ioThreads = ioThreads <= 0 ? Math.max(8, SystemInfo.CPU_CORES + 1) : ioThreads;
+                    ioThreads = ioThreads <= 0 ? Math.max(8, SystemInfo.getCpuCores() + 1) : ioThreads;
                     NamedThreadFactory threadName =
                             new NamedThreadFactory("BSOA-SEV-" + config.getPort() + "-IO", config.isDaemon());
                     ioGroup = config.isUseEpoll() ?
@@ -180,7 +180,7 @@ public class NettyTransportHelper {
                     int clientIoThreads = getIntValue(TRANSPORT_CLIENT_IO_THREADS);
                     int threads = clientIoThreads > 0 ?
                             clientIoThreads : // 用户配置
-                            Math.max(4, SystemInfo.CPU_CORES + 1); // 默认cpu+1,至少4个
+                            Math.max(4, SystemInfo.getCpuCores() + 1); // 默认cpu+1,至少4个
                     NamedThreadFactory threadName = new NamedThreadFactory("BSOA-CLI-WORKER", true);
                     boolean useEpoll = getBooleanValue(TRANSPORT_USE_EPOLL);
                     clientIOEventLoopGroup = useEpoll ? new EpollEventLoopGroup(threads, threadName)

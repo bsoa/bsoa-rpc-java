@@ -331,7 +331,7 @@ public class ConnectionHolder {
      * 2.连接断线后（心跳+调用），如果是可用节点为空
      */
     public void notifyStateChangeToUnavailable() {
-        final List<ConsumerStateListener> onprepear = consumerConfig.getOnavailable();
+        final List<ConsumerStateListener> onprepear = consumerConfig.getOnAvailable();
         if (onprepear != null) {
 //            TODO
 //            CallbackUtil.getCallbackThreadPool().execute(new Runnable() {
@@ -357,7 +357,7 @@ public class ConnectionHolder {
      * 3.重连上从一个可用节点都没有-->有可用节点时
      */
     public void notifyStateChangeToAvailable() {
-        final List<ConsumerStateListener> onprepear = consumerConfig.getOnavailable();
+        final List<ConsumerStateListener> onprepear = consumerConfig.getOnAvailable();
         if (onprepear != null) {
             //            TODO
 //            CallbackUtil.getCallbackThreadPool().execute(new Runnable() {

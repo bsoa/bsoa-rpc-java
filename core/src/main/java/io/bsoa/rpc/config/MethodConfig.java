@@ -234,18 +234,18 @@ public class MethodConfig implements Serializable{
     }
 
     /**
-     * Gets onreturn.
+     * Gets onReturn.
      *
-     * @return the onreturn
+     * @return the onReturn
      */
     public List<ResponseListener> getOnreturn() {
         return onreturn;
     }
 
     /**
-     * Sets onreturn.
+     * Sets onReturn.
      *
-     * @param onreturn the onreturn
+     * @param onreturn the onReturn
      */
     public void setOnreturn(List<ResponseListener> onreturn) {
         this.onreturn = onreturn;

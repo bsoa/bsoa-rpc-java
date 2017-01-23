@@ -35,7 +35,6 @@ public class SystemInfo {
      */
     private final static Logger LOGGER = LoggerFactory.getLogger(SystemInfo.class);
     
-    public static final int CPU_CORES = getCpuCores();
     private static String LOCALHOST;
 
 
@@ -84,7 +83,8 @@ public class SystemInfo {
 //        } catch (Exception e) {
 //        }
         // 找不到文件或者异常，则去物理机的核心数
-        return Runtime.getRuntime().availableProcessors();
+        int cpu = BsoaConfigs.getIntValue(BsoaConfigs.SYSTEM_CPU_CORES);
+        return cpu > 0 ? cpu : Runtime.getRuntime().availableProcessors();
     }
 
     public static String getLocalHost() {

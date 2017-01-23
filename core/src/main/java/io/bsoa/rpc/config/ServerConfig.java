@@ -656,19 +656,19 @@ public class ServerConfig extends AbstractIdConfig implements Serializable {
     }
 
     /**
-     * Gets onconnect.
+     * Gets onConnect.
      *
-     * @return the onconnect
+     * @return the onConnect
      */
     public List<ChannelListener> getOnconnect() {
         return onconnect;
     }
 
     /**
-     * Sets onconnect.
+     * Sets onConnect.
      *
-     * @param onconnect the onconnect
-     * @return the onconnect
+     * @param onconnect the onConnect
+     * @return the onConnect
      */
     public ServerConfig setOnconnect(List<ChannelListener> onconnect) {
         this.onconnect = onconnect;
