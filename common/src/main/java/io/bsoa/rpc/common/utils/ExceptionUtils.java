@@ -20,7 +20,7 @@ import io.bsoa.rpc.exception.BsoaRuntimeException;
 /**
  * 异常构造器
  *
- * Created by zhanggeng on 16-6-7.
+ * Created by zhangg on 16-6-7.
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
  */

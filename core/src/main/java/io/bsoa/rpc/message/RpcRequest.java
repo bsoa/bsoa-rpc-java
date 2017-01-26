@@ -21,7 +21,7 @@ import java.io.Serializable;
 import io.bsoa.rpc.common.utils.ClassTypeUtils;
 
 /**
- * Created by zhanggeng on 16-6-6.
+ * Created by zhangg on 16-6-6.
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */

@@ -26,7 +26,7 @@ import io.bsoa.rpc.message.RpcResponse;
 /**
  * JDK代理处理器，拦截请求变为invocation进行调用
  *
- * Created by zhanggeng on 16-6-7.
+ * Created by zhangg on 16-6-7.
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
  */

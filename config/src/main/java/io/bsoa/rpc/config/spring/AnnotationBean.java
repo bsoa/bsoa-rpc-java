@@ -62,12 +62,12 @@ import io.bsoa.rpc.config.annotation.Server;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
 
 /**
- * Created by zhanggeng on 16-7-7.
+ * Created by zhangg on 16-7-7.
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
  */
-public class AnnotationBean implements InitializingBean,
-        DisposableBean, BeanFactoryPostProcessor, BeanPostProcessor, ApplicationContextAware {
+public class AnnotationBean implements InitializingBean, DisposableBean,
+        BeanFactoryPostProcessor, BeanPostProcessor, ApplicationContextAware {
     /**
      * slf4j Logger for this class
      */
@@ -139,11 +139,11 @@ public class AnnotationBean implements InitializingBean,
      *
      * @param registryConfigs          注册中心地址
      * @param serverConfigs          配置协议
-     * @param basepackage          扫描包路径, 多个用英文逗号分隔
+     * @param basePackage          扫描包路径, 多个用英文逗号分隔
      * @throws org.springframework.beans.BeansException          the beans exception
      */
     public AnnotationBean(List<RegistryConfig> registryConfigs,
-                          List<ServerConfig> serverConfigs, String basepackage)
+                          List<ServerConfig> serverConfigs, String basePackage)
             throws BeansException {
 
         this.registryConfigs = registryConfigs;
@@ -153,7 +153,7 @@ public class AnnotationBean implements InitializingBean,
                 serverCache.put(serverConfig.getProtocol() + ":" + serverConfig.getPort(), serverConfig);
             }
         }
-        setBasepackage(basepackage);
+        setBasePackage(basePackage);
         scanAndExport();
     }
 
@@ -161,13 +161,13 @@ public class AnnotationBean implements InitializingBean,
      * 构造函数 API方式配置annotation  reference应使用该构造方法
      *
      * @param registryConfigs          注册中心地址
-     * @param basepackage          扫描包路径, 多个用英文逗号分隔
+     * @param basePackage          扫描包路径, 多个用英文逗号分隔
      * @throws org.springframework.beans.BeansException          the beans exception
      */
-    public AnnotationBean(List<RegistryConfig> registryConfigs, String basepackage) throws BeansException {
+    public AnnotationBean(List<RegistryConfig> registryConfigs, String basePackage) throws BeansException {
         this.registryConfigs = registryConfigs;
         this.serverConfigs = new ArrayList<ServerConfig>();
-        setBasepackage(basepackage);
+        setBasePackage(basePackage);
         scanAndExport();
     }
 
@@ -207,8 +207,8 @@ public class AnnotationBean implements InitializingBean,
      */
     @Override
     public void afterPropertiesSet() throws Exception {
-        if (StringUtils.isBlank(basepackage)) {
-            throw ExceptionUtils.buildRuntime(21801, "annotation.basepackage", basepackage);
+        if (StringUtils.isBlank(basePackage)) {
+            throw ExceptionUtils.buildRuntime(21801, "annotation.basePackage", basePackage);
         }
         //scanAndExport();
     }
@@ -247,8 +247,8 @@ public class AnnotationBean implements InitializingBean,
     public void postProcessBeanFactory(
             ConfigurableListableBeanFactory beanFactory) throws BeansException {
         this.beanFactory = beanFactory;
-        if (StringUtils.isBlank(basepackage)) {
-            throw ExceptionUtils.buildRuntime(21801, "annotation.basepackage", basepackage);
+        if (StringUtils.isBlank(basePackage)) {
+            throw ExceptionUtils.buildRuntime(21801, "annotation.basePackage", basePackage);
         }
         scanAndExport();
     }
@@ -291,7 +291,7 @@ public class AnnotationBean implements InitializingBean,
      * Scan and export.
      */
     private void scanAndExport() {
-        LOGGER.info("Scaning jsf annotation of package: {} ", basepackage);
+        LOGGER.info("Scaning jsf annotation of package: {} ", basePackage);
         for (String basePackage : annotationPackages) {
             try {
                 findCandidateComponents(basePackage);
@@ -495,7 +495,7 @@ public class AnnotationBean implements InitializingBean,
                 if (configs != null && configs.size() > 0) {// 既配置了xml，又配置了annotation, 报错
                     for (ProviderConfig<?> xmlProvider : configs) {
                         if (xmlProvider.getRef().getClass().getName().equals(providerConfig.getRef().getClass().getName())
-                                && xmlProvider.getAlias().equals(provider.alias())) {
+                                && xmlProvider.getTags().equals(provider.alias())) {
                             throw new BsoaRuntimeException(22222, "Duplicate providers with same alias " +
                                     "are specified in annotation and spring-xml");
                         }
@@ -503,7 +503,7 @@ public class AnnotationBean implements InitializingBean,
                 }
             }
             providerConfig.setRegistry(registryConfigs);
-            providerConfig.setAlias(provider.alias());
+            providerConfig.setTags(provider.alias());
             // 解析服务端
             List<ServerConfig> serverConfigs = parseAnnotationServers(provider.server());
             providerConfig.setServer(serverConfigs);
@@ -539,8 +539,6 @@ public class AnnotationBean implements InitializingBean,
                 // 其它选填属性
                 serverConfig.setHost(server.host());
                 serverConfig.setPort(port);
-                serverConfig.setThreads(server.threads());
-                serverConfig.setThreadpool(server.threadpool());
                 serverCache.put(key, serverConfig);
             }
             serverConfigs.add(serverConfig);
@@ -563,14 +561,14 @@ public class AnnotationBean implements InitializingBean,
             consumerConfig = new ConsumerBean();
             consumerConfig.setInterfaceId(interfaceName);
             consumerConfig.setRegistry(registryConfigs);
-            consumerConfig.setAlias(consumer.alias());
+            consumerConfig.setTags(consumer.alias());
             consumerConfig.setProtocol(consumer.protocol());
             // 其它属性，选填
             consumerConfig.setCluster(consumer.cluster());
             consumerConfig.setRetries(consumer.retries());
             consumerConfig.setTimeout(consumer.timeout());
             consumerConfig.setUrl(consumer.url());
-            consumerConfig.setLoadbalance(consumer.loadbalance());
+            consumerConfig.setLoadBalancer(consumer.loadBalancer());
             consumerConfig.setSerialization(consumer.serialization());
             consumerConfig.setLazy(consumer.lazy());
 
@@ -630,7 +628,7 @@ public class AnnotationBean implements InitializingBean,
     /**
      * 包的基本路径（前缀）
      */
-    protected String basepackage;
+    protected String basePackage;
 
     /**
      * 是否扫描provider
@@ -650,23 +648,23 @@ public class AnnotationBean implements InitializingBean,
     protected transient String[] annotationPackages;
 
     /**
-     * Gets basepackage.
+     * Gets basePackage.
      *
-     * @return the basepackage
+     * @return the basePackage
      */
-    public String getBasepackage() {
-        return basepackage;
+    public String getBasePackage() {
+        return basePackage;
     }
 
     /**
-     * Sets basepackage.
+     * Sets basePackage.
      *
-     * @param basepackage          the basepackage
+     * @param basePackage          the basePackage
      */
-    public void setBasepackage(String basepackage) {
-        this.basepackage = basepackage;
-        this.annotationPackages = StringUtils.isBlank(basepackage) ? null
-                : StringUtils.splitWithCommaOrSemicolon(this.basepackage);
+    public void setBasePackage(String basePackage) {
+        this.basePackage = basePackage;
+        this.annotationPackages = StringUtils.isBlank(basePackage) ? null
+                : StringUtils.splitWithCommaOrSemicolon(this.basePackage);
     }
 
     /**

@@ -42,11 +42,11 @@
             <version>${parent.version}</version>
         </dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>io.bsoa.rpc</groupId>-->
-            <!--<artifactId>config</artifactId>-->
-            <!--<version>${parent.version}</version>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>io.bsoa.rpc</groupId>
+            <artifactId>config</artifactId>
+            <version>${parent.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>io.bsoa.rpc</groupId>
@@ -152,7 +152,7 @@
                                     <include>io.bsoa.rpc:core</include>
                                     <include>io.bsoa.rpc:client</include>
                                     <include>io.bsoa.rpc:codec</include>
-                                    <!--<include>io.bsoa.rpc:config</include>-->
+                                    <include>io.bsoa.rpc:config</include>
                                     <include>io.bsoa.rpc:filter</include>
                                     <include>io.bsoa.rpc:protocol</include>
                                     <include>io.bsoa.rpc:proxy</include>

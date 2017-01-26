@@ -55,7 +55,7 @@ import static io.bsoa.rpc.common.BsoaConfigs.getIntValue;
 import static io.bsoa.rpc.common.BsoaConfigs.getStringValue;
 
 /**
- * Created by zhanggeng on 16-7-7.
+ * Created by zhangg on 16-7-7.
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
  */
@@ -174,7 +174,7 @@ public class ServerConfig extends AbstractIdConfig implements Serializable {
     /**
      * 连接事件监听器实例，连接或者断开时触发
      */
-    protected transient List<ChannelListener> onconnect;
+    protected transient List<ChannelListener> onConnect;
 
     /**
      * 是否启动epoll
@@ -660,18 +660,18 @@ public class ServerConfig extends AbstractIdConfig implements Serializable {
      *
      * @return the onConnect
      */
-    public List<ChannelListener> getOnconnect() {
-        return onconnect;
+    public List<ChannelListener> getOnConnect() {
+        return onConnect;
     }
 
     /**
      * Sets onConnect.
      *
-     * @param onconnect the onConnect
+     * @param onConnect the onConnect
      * @return the onConnect
      */
-    public ServerConfig setOnconnect(List<ChannelListener> onconnect) {
-        this.onconnect = onconnect;
+    public ServerConfig setOnConnect(List<ChannelListener> onConnect) {
+        this.onConnect = onConnect;
         return this;
     }
 

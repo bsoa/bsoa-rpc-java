@@ -40,12 +40,12 @@ import io.bsoa.rpc.common.utils.ExceptionUtils;
 import io.bsoa.rpc.common.utils.StringUtils;
 import io.bsoa.rpc.config.ConsumerConfig;
 import io.bsoa.rpc.config.MethodConfig;
-import io.bsoa.rpc.filter.AbstractFilter;
+import io.bsoa.rpc.config.ParameterConfig;
 import io.bsoa.rpc.filter.ExcludeFilter;
 import io.bsoa.rpc.filter.Filter;
 
 /**
- * Created by zhanggeng on 16-7-7.
+ * Created by zhangg on 16-7-7.
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
  */
@@ -150,10 +150,10 @@ public class BsoaBeanDefinitionParser implements BeanDefinitionParser {
                 case 15: // filter
                     parseFilters(property, value, beanDefinition, parserContext);
                     break;
-                case 16: // onreturn/ onconnect / onavailable / router
+                case 16: // onReturn/ onConnect / onAvailable / router
                     parseMultiRef(property, value, beanDefinition, parserContext);
                     break;
-                case 17: // mockref / cacheref / groupRouter
+                case 17: // mockRef / cacheRef / groupRouter
                     if (StringUtils.isNotBlank(value)) {
                         reference = new RuntimeBeanReference(value);
                     } else {
@@ -203,7 +203,7 @@ public class BsoaBeanDefinitionParser implements BeanDefinitionParser {
             type = 1;
         } else if ("protocol".equals(propertyName)) {
             type = 2;
-//        } else if ("onreturn".equals(propertyName)) {
+//        } else if ("onReturn".equals(propertyName)) {
 //            type = 3;
 //        } else if ("onthrow".equals(propertyName)) {
 //            type = 4;
@@ -229,13 +229,13 @@ public class BsoaBeanDefinitionParser implements BeanDefinitionParser {
             type = 14;
         } else if ("filter".equals(propertyName)) {
             type = 15;
-        } else if ("onreturn".equals(propertyName)
-                || "onconnect".equals(propertyName)
-                || "onavailable".equals(propertyName)
+        } else if ("onReturn".equals(propertyName)
+                || "onConnect".equals(propertyName)
+                || "onAvailable".equals(propertyName)
                 || "router".equals(propertyName)) {  // 逗号分隔的多个ref
             type = 16;
-        } else if ("mockref".equals(propertyName)
-                || "cacheref".equals(propertyName)
+        } else if ("mockRef".equals(propertyName)
+                || "cacheRef".equals(propertyName)
                 || "groupRouter".equals(propertyName)) { // 单个ref
             type = 17;
         } else if ("clazz".equals(propertyName)) {
@@ -286,7 +286,7 @@ public class BsoaBeanDefinitionParser implements BeanDefinitionParser {
                             parameters = new ManagedMap();
                         }
                         String key = ((Element) node).getAttribute("key");
-                        if (!StringUtils.isValidParamKey(key)) {
+                        if (!ParameterConfig.isValidParamKey(key)) {
                             throw ExceptionUtils.buildRuntime(21000, "param.key", key, "key can not start with "
                                     + BsoaConstants.HIDE_KEY_PREFIX + " and " + BsoaConstants.INTERNAL_KEY_PREFIX);
                         }
@@ -389,7 +389,7 @@ public class BsoaBeanDefinitionParser implements BeanDefinitionParser {
                         logger.warn("If custom filter:\"{}\" used by multiple provider/consumer," +
                                 " you need to set attribute scope=\"property\"!", v);
                     }
-                    if (!AbstractFilter.class.isAssignableFrom(ClassLoaderUtils.forName(fd.getBeanClassName()))) {
+                    if (!Filter.class.isAssignableFrom(ClassLoaderUtils.forName(fd.getBeanClassName()))) {
                         IllegalArgumentException exception = new IllegalArgumentException("Failed to set "
                                 + property + ", cause by type of \"" + v + "\" is " + fd.getBeanClassName()
                                 + ", not " + Filter.class.getName());

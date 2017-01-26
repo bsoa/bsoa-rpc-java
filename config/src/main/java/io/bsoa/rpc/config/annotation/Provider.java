@@ -22,7 +22,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import io.bsoa.rpc.common.BsoaConstants;
+import static io.bsoa.rpc.config.annotation.AnnotationConstants.DEFAULT_INT_NULL;
+import static io.bsoa.rpc.config.annotation.AnnotationConstants.DEFAULT_REGISTER;
+import static io.bsoa.rpc.config.annotation.AnnotationConstants.DEFAULT_SUBSCRIBE;
 
 /**
  *
@@ -37,7 +39,7 @@ import io.bsoa.rpc.common.BsoaConstants;
 public @interface Provider {
 
     /**
-     * 服务别名，必填，兼容saf1.x的格式为"group:version"
+     * 服务别名，必填
      *
      * @return the string
      */
@@ -55,19 +57,19 @@ public @interface Provider {
      *
      * @return the boolean
      */
-    boolean register() default true;
+    boolean register() default DEFAULT_REGISTER;
 
     /**
      * 是否动态发布服务
      *
      * @return the boolean
      */
-    boolean dynamic() default true;
+    boolean dynamic() default DEFAULT_SUBSCRIBE;
 
     /**
      * 服务端权重
      *
      * @return the int
      */
-    int weight() default BsoaConstants.DEFAULT_PROVIDER_WEIGHT;
+    int weight() default DEFAULT_INT_NULL;
 }

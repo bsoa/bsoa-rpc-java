@@ -48,7 +48,7 @@
         <module>common</module>
         <module>client</module>
         <module>codec</module>
-        <!--<module>config</module>-->
+        <module>config</module>
         <module>filter</module>
         <module>protocol</module>
         <module>proxy</module>

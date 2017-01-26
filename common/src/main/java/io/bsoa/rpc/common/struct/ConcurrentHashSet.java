@@ -8,12 +8,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Title: 线程安全的hashset<br>
+ * <p>
+ * Created by zhangg on 2017/1/20 14:07.
  *
- * Description: 就是ConcurrentHashMap的keyset<br>
- *
- * Company: <a href=www.jd.com>京东</a><br>
- *
- * @author <a href=mailto:zhanggeng@jd.com>章耿</a>
+ * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  * @see java.util.concurrent.ConcurrentHashMap
  */
 public class ConcurrentHashSet<E> extends AbstractSet<E> implements Set<E>, java.io.Serializable {

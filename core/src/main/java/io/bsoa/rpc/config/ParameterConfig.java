@@ -21,7 +21,7 @@ import io.bsoa.rpc.common.BsoaConstants;
 import io.bsoa.rpc.common.utils.ExceptionUtils;
 
 /**
- * Created by zhanggeng on 16-7-7.
+ * Created by zhangg on 16-7-7.
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
  *

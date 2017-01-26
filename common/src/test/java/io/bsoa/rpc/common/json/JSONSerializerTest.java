@@ -1,21 +1,19 @@
 package io.bsoa.rpc.common.json;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 /**
- * Title: <br>
- * <p>
- * Description: <br>
- * <p>
- * Company: <a href=www.jd.com>京东</a><br>
  *
- * @author <a href=mailto:zhanggeng@jd.com>章耿</a>
+ * <p>
+ * Created by zhangg on 2017/1/20 14:07.
+ *
+ * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
 public class JSONSerializerTest {
 

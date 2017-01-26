@@ -50,7 +50,7 @@ import static io.bsoa.rpc.config.ConfigValueHelper.checkNormalWithCommaColon;
 /**
  * 接口级的公共配置
  * <p>
- * Created by zhanggeng on 16-7-7.
+ * Created by zhangg on 16-7-7.
  *
  * @param <T> the type parameter
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>

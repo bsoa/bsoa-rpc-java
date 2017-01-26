@@ -22,11 +22,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import io.bsoa.rpc.common.BsoaConstants;
+import static io.bsoa.rpc.config.annotation.AnnotationConstants.DEFAULT_STRING_NULL;
 
 /**
- *
- *
  * Created by zhangg on 2016/7/14 22:06.
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
@@ -36,7 +34,7 @@ import io.bsoa.rpc.common.BsoaConstants;
 @Target({ElementType.FIELD})
 public @interface Consumer {
     /**
-     * 服务别名，必填，兼容saf1.x的格式为"group:version"
+     * 服务别名，必填
      *
      * @return the string
      */
@@ -47,49 +45,49 @@ public @interface Consumer {
      *
      * @return the string
      */
-    String protocol() default BsoaConstants.DEFAULT_PROTOCOL;
+    String protocol() default DEFAULT_STRING_NULL;
 
     /**
      * 集群策略，选填
      *
      * @return the string
      */
-    String cluster() default BsoaConstants.CLUSTER_FAILOVER;
+    String cluster() default DEFAULT_STRING_NULL;
 
     /**
      * 失败后重试次数，选填
      *
      * @return the int
      */
-    int retries() default BsoaConstants.DEFAULT_RETRIES_TIME;
+    int retries() default -1;
 
     /**
      * 调用超时，选填
      *
      * @return the int
      */
-    int timeout() default BsoaConstants.DEFAULT_CLIENT_INVOKE_TIMEOUT;
+    int timeout() default -1;
 
     /**
      * 直连地址，选填
      *
      * @return the string
      */
-    String url() default "";
+    String url() default DEFAULT_STRING_NULL;
 
     /**
      * 负载均衡算法，选填
      *
      * @return the string
      */
-    String loadbalance() default BsoaConstants.LOADBALANCE_RANDOM;
+    String loadBalancer() default DEFAULT_STRING_NULL;
 
     /**
      * 序列化方式，选填
      *
      * @return the string
      */
-    String serialization() default BsoaConstants.DEFAULT_SERIALIZATION;
+    String serialization() default DEFAULT_STRING_NULL;
 
     /**
      * 是否延迟加载服务端连接，选填

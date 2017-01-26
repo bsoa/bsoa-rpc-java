@@ -21,7 +21,7 @@ import io.bsoa.rpc.config.ServerConfig;
 import io.bsoa.rpc.ext.Extensible;
 
 /**
- * Created by zhanggeng on 16-6-7.
+ * Created by zhangg on 16-6-7.
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
  */

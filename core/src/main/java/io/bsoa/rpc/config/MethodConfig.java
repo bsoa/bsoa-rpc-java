@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import io.bsoa.rpc.listener.ResponseListener;
 
 /**
- * Created by zhanggeng on 16-7-7.
+ * Created by zhangg on 16-7-7.
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
  */
@@ -65,7 +65,7 @@ public class MethodConfig implements Serializable{
     /**
      * 返回值之前的listener
      */
-    protected List<ResponseListener> onreturn;
+    protected List<ResponseListener> onReturn;
 
     /**
      * The concurrents. 最大并发执行（不管服务端还是客户端）
@@ -238,17 +238,17 @@ public class MethodConfig implements Serializable{
      *
      * @return the onReturn
      */
-    public List<ResponseListener> getOnreturn() {
-        return onreturn;
+    public List<ResponseListener> getOnReturn() {
+        return onReturn;
     }
 
     /**
      * Sets onReturn.
      *
-     * @param onreturn the onReturn
+     * @param onReturn the onReturn
      */
-    public void setOnreturn(List<ResponseListener> onreturn) {
-        this.onreturn = onreturn;
+    public void setOnReturn(List<ResponseListener> onReturn) {
+        this.onReturn = onReturn;
     }
 
     /**

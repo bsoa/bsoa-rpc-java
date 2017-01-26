@@ -136,7 +136,7 @@ public class BsoaServer implements Server {
         serverTransportConfig.setBizMaxThreads(serverConfig.getMaxThreads());
         serverTransportConfig.setBizPoolType(serverConfig.getThreadPoolType());
         serverTransportConfig.setIoThreads(serverConfig.getIoThreads());
-        serverTransportConfig.setChannelListeners(serverConfig.getOnconnect());
+        serverTransportConfig.setChannelListeners(serverConfig.getOnConnect());
         serverTransportConfig.setMaxConnection(serverConfig.getAccepts());
         serverTransportConfig.setPayload(serverConfig.getPayload());
         serverTransportConfig.setTelnet(serverConfig.isTelnet());

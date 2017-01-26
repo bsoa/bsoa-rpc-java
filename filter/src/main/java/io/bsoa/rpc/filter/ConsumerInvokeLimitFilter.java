@@ -34,7 +34,7 @@ import io.bsoa.rpc.message.RpcResponse;
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
 @Extension(value = "consumerInvokeLimit", order = -60)
-@AutoActive(consumerSide = true)
+//@AutoActive(consumerSide = true)
 public class ConsumerInvokeLimitFilter implements Filter {
 
     @Override

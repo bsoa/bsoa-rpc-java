@@ -22,7 +22,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import io.bsoa.rpc.common.BsoaConstants;
+import static io.bsoa.rpc.config.annotation.AnnotationConstants.DEFAULT_INT_NULL;
+import static io.bsoa.rpc.config.annotation.AnnotationConstants.DEFAULT_PROTOCOL;
+import static io.bsoa.rpc.config.annotation.AnnotationConstants.DEFAULT_STRING_NULL;
 
 /**
  *
@@ -41,33 +43,19 @@ public @interface Server {
      *
      * @return the string
      */
-    String protocol() default BsoaConstants.DEFAULT_PROTOCOL;
+    String protocol() default DEFAULT_PROTOCOL;
 
     /**
      * 主机地址，选填
      *
      * @return the string
      */
-    String host() default "";
+    String host() default DEFAULT_STRING_NULL;
 
     /**
      * 端口地址，选填
      *
      * @return the int
      */
-    int port() default BsoaConstants.DEFAULT_SERVER_PORT;
-
-    /**
-     * 业务线程池大小，选填
-     *
-     * @return the int
-     */
-    int threads() default BsoaConstants.DEFAULT_SERVER_BIZ_THREADS;
-
-    /**
-     * 线程池类型，选填
-     *
-     * @return the string
-     */
-    String threadpool() default BsoaConstants.THREADPOOL_TYPE_CACHED;
+    int port() default DEFAULT_INT_NULL;
 }

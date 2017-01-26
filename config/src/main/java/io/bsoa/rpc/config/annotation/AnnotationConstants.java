@@ -14,31 +14,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.bsoa.rpc.common.json;
+package io.bsoa.rpc.config.annotation;
 
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
+import io.bsoa.rpc.common.utils.StringUtils;
 
 /**
- *
+ * <p></p>
  * <p>
- * Created by zhangg on 2017/1/20 14:07.
+ * Created by zhangg on 2017/1/23 20:59. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public class TypeReference<T> {
-
-    private final Type type;
-
-    protected TypeReference() {
-        Type superClass = getClass().getGenericSuperclass();
-        type = ((ParameterizedType) superClass).getActualTypeArguments()[0];
-    }
-
-    public Type getType() {
-        return type;
-    }
-
-//    public final static Type LIST_STRING = new TypeReference<List<String>>() {
-//    }.getType();
+public class AnnotationConstants {
+    public final static String DEFAULT_PROTOCOL = "bsoa";
+    public static final String DEFAULT_SERIALIZATION = "hessian2";
+    public static final String CLUSTER_FAILOVER = "failover";
+    public static final int DEFAULT_RETRIES_TIME = 0;
+    public static final int DEFAULT_CLIENT_INVOKE_TIMEOUT = 5000;
+    public static final boolean DEFAULT_REGISTER = true;
+    public static final boolean DEFAULT_SUBSCRIBE = true;
+    public static final String DEFAULT_STRING_NULL = StringUtils.EMPTY;
+    public static final int DEFAULT_INT_NULL = -1;
 }

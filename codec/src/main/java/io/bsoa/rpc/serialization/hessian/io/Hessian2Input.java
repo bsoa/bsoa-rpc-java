@@ -2047,7 +2047,7 @@ public class Hessian2Input
     throws IOException
   {
     String type = readString();
-    // add by zhanggeng @2014-9-16
+    // add by zhangg @2014-9-16
     type = HessianConstants.checkMapping(type);
     int len = readInt();
 

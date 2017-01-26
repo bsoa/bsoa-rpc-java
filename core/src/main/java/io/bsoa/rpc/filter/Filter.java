@@ -22,7 +22,7 @@ import io.bsoa.rpc.message.RpcResponse;
 /**
  * <p>过滤器接口</p>
  * <p>
- * Created by zhanggeng on 16-6-7.
+ * Created by zhangg on 16-6-7.
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
  */

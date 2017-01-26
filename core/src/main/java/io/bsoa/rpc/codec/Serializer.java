@@ -20,7 +20,7 @@ import io.bsoa.rpc.ext.Extensible;
 /**
  * <p>序列化器接口</p>
  * <p>
- * Created by zhanggeng on 16-6-7.
+ * Created by zhangg on 16-6-7.
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
  */
