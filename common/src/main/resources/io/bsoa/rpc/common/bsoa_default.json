@@ -77,6 +77,7 @@ PS:大家也看到了，本JSON文档是支持注释的，而标准JSOB是不支
   "provider.concurrents" : 0, //接口下每方法的最大可并行执行请求数，配置-1关闭并发过滤器，等于0表示开启过滤但是不限制
 
   "consumer.cluster": "failover",
+  "consumer.connectionHolder" : "all", // 默认连接全部建立长连接
   "consumer.loadBalancer" : "random",
   "consumer.retries" : 0, //默认失败重试次数
   "consumer.concurrents": 0, //接口下每方法的最大可并行执行请求数，配置-1关闭并发过滤器，等于0表示开启过滤但是不限制

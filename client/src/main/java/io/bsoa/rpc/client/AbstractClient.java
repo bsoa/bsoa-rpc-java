@@ -17,6 +17,7 @@ package io.bsoa.rpc.client;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -104,7 +105,6 @@ public abstract class AbstractClient implements Client {
      */
     private volatile LoadBalancer loadBalancer;
 
-
     @Override
     public void init(ConsumerConfig<?> consumerConfig) {
         this.consumerConfig = consumerConfig;
@@ -119,7 +119,7 @@ public abstract class AbstractClient implements Client {
             routers = initRouterByRule();
         }
         // 连接管理器
-        connectionHolder = new ConnectionHolder(consumerConfig);
+        connectionHolder = ConnectionHolderFactory.getConnectionHolder(consumerConfig.getConnectionHolder());
         if (consumerConfig.isLazy()) { // 延迟连接
             LOGGER.info("Connect will lazy init when first invoke.");
         } else { // 建立连接
@@ -158,6 +158,10 @@ public abstract class AbstractClient implements Client {
             if (inited) {
                 return;
             }
+
+            // 启动重连线程
+            connectionHolder.init();
+
             try {
                 // 得到服务端列表
                 List<Provider> tmpProviderList = buildProviderList();
@@ -169,14 +173,11 @@ public abstract class AbstractClient implements Client {
             }
 
             // 如果check=true表示强依赖
-            if (consumerConfig.isCheck() && connectionHolder.isAliveEmpty()) {
+            if (consumerConfig.isCheck() && connectionHolder.isAvailableEmpty()) {
                 throw new BsoaRuntimeException(22222, "[JSF-22003]The consumer is depend on alive provider " +
                         "and there is no alive provider, you can ignore it " +
                         "by <jsf:consumer check=\"false\"> (default is false)");
             }
-
-            // 启动重连线程
-            connectionHolder.startReconnectThread();
             // 启动成功
             inited = true;
         }
@@ -467,9 +468,9 @@ public abstract class AbstractClient implements Client {
     public boolean isAvailable() {
         if (destroyed || !inited)
             return false;
-        if (connectionHolder.isAliveEmpty())
+        if (connectionHolder.isAvailableEmpty())
             return false;
-        for (Map.Entry<Provider, ClientTransport> entry : connectionHolder.getAliveConnections().entrySet()) {
+        for (Map.Entry<Provider, ClientTransport> entry : connectionHolder.getAvailableConnections().entrySet()) {
             Provider provider = entry.getKey();
             ClientTransport transport = entry.getValue();
             if (transport.isAvailable()) {
@@ -597,8 +598,8 @@ public abstract class AbstractClient implements Client {
 
             return response;
         } catch (BsoaRpcException e) {
-            if (e.getCode() == 11111) { // 连接断开异常
-                connectionHolder.aliveToRetryIfExist(provider, transport);
+            if (e.getCode() == 11111) { // 连接断开异常 FIXME
+                connectionHolder.setUnavailable(provider, transport);
             }
             throw e;
         } catch (Exception e) {
@@ -656,7 +657,7 @@ public abstract class AbstractClient implements Client {
         if (consumerConfig.isSticky()) {
             if (lastProvider != null) {
                 Provider provider = lastProvider;
-                ClientTransport lastTransport = connectionHolder.getAliveClientTransport(provider);
+                ClientTransport lastTransport = connectionHolder.getAvailableClientTransport(provider);
                 if (lastTransport != null && lastTransport.isAvailable()) {
                     checkAlias(provider, message);
                     return lastTransport;
@@ -664,7 +665,7 @@ public abstract class AbstractClient implements Client {
             }
         }
         // 原始服务列表数据
-        List<Provider> providers = connectionHolder.getAliveProviders();
+        List<Provider> providers = connectionHolder.getAvailableProviders();
         // 先进行路由规则匹配， 根据invocation + consumer信息
         if (providers.size() > 0 && CommonUtils.isNotEmpty(routers)) {
             for (Router router : routers) {
@@ -684,11 +685,11 @@ public abstract class AbstractClient implements Client {
             if (transport != null) {
                 return transport;
             }
-        } while (!connectionHolder.isAliveEmpty());
+        } while (!connectionHolder.isAvailableEmpty());
         throw noAliveProviderException(consumerConfig.buildKey(), connectionHolder.currentProviderList());
     }
 
-    private BsoaRpcException noAliveProviderException(String s, Set<Provider> providers) {
+    private BsoaRpcException noAliveProviderException(String s, Collection<Provider> providers) {
         return new BsoaRpcException(22222, "No Alive Provider");
     }
 
@@ -700,14 +701,14 @@ public abstract class AbstractClient implements Client {
      * @return 一个可用的transport或者null
      */
     protected ClientTransport selectByProvider(RpcRequest message, Provider provider) {
-        ClientTransport transport = connectionHolder.getAliveClientTransport(provider);
+        ClientTransport transport = connectionHolder.getAvailableClientTransport(provider);
         if (transport != null) {
             if (transport.isAvailable()) {
                 lastProvider = provider;
                 checkAlias(provider, message); //检查分组
                 return transport;
             } else {
-                connectionHolder.aliveToRetryIfExist(provider, transport);
+                connectionHolder.setUnavailable(provider, transport);
             }
         }
         return null;
@@ -740,8 +741,7 @@ public abstract class AbstractClient implements Client {
         if (destroyed) {
             return;
         }
-        // 销毁重连client线程
-        connectionHolder.shutdownReconnectThread();
+        closeTransports();
         destroyed = true;
         // 关闭已有连接
         closeTransports();
@@ -750,7 +750,7 @@ public abstract class AbstractClient implements Client {
 
     /**
      * 关闭连接<br/>
-     * 注意：关闭有风险，可能有正在调用的请求，建议判断下isAlivable()
+     * 注意：关闭有风险，可能有正在调用的请求，建议判断下isAvailable()
      */
     protected void closeTransports() {
         // 清空列表先
@@ -816,17 +816,8 @@ public abstract class AbstractClient implements Client {
      *
      * @return 当前的Provider列表
      */
-    public Set<Provider> currentProviderList() {
+    public Collection<Provider> currentProviderList() {
         return connectionHolder.currentProviderList();
-    }
-
-    /**
-     * 获取当前的Provider列表（每种状态已分开）
-     *
-     * @return 当前的Provider列表
-     */
-    public Map<String, Set<Provider>> currentProviderMap() {
-        return connectionHolder.currentProviderMap();
     }
 
     /**

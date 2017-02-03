@@ -51,23 +51,7 @@ import io.bsoa.rpc.registry.Registry;
 import io.bsoa.rpc.registry.RegistryFactory;
 import io.bsoa.rpc.server.InvokerHolder;
 
-import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_ASYNC;
-import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_CHECK;
-import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_CONCURRENTS;
-import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_CONNECTION;
-import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_CONNECT_TIMEOUT;
-import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_HEARTBEAT_PERIOD;
-import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_INJVM;
-import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_INVOKE_TIMEOUT;
-import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_LAZY;
-import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_ONEWAY;
-import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_RECONNECT_PERIOD;
-import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_STICKY;
-import static io.bsoa.rpc.common.BsoaConfigs.DEFAULT_PROTOCOL;
-import static io.bsoa.rpc.common.BsoaConfigs.DEFAULT_SERIALIZATION;
-import static io.bsoa.rpc.common.BsoaConfigs.getBooleanValue;
-import static io.bsoa.rpc.common.BsoaConfigs.getIntValue;
-import static io.bsoa.rpc.common.BsoaConfigs.getStringValue;
+import static io.bsoa.rpc.common.BsoaConfigs.*;
 
 /**
  * Created by zhangg on 16-7-7.
@@ -133,9 +117,14 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Ser
     protected int retries = getIntValue(BsoaConfigs.CONSUMER_RETRIES);
 
     /**
+     * The ConnectionHolder 连接管理器
+     */
+    protected String connectionHolder = getStringValue(CONSUMER_CONNECTION_HOLDER);
+
+    /**
      * The LoadBalancer. 负载均衡
      */
-    protected String loadBalancer = getStringValue(BsoaConfigs.CONSUMER_LOADBALANCER);
+    protected String loadBalancer = getStringValue(CONSUMER_LOAD_BALANCER);
 
     /**
      * 是否延迟建立长连接,
@@ -641,6 +630,24 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Ser
      */
     public void setRetries(int retries) {
         this.retries = retries;
+    }
+
+    /**
+     * Gets connectionHolder.
+     *
+     * @return the connectionHolder
+     */
+    public String getConnectionHolder() {
+        return connectionHolder;
+    }
+
+    /**
+     * Sets connectionHolder.
+     *
+     * @param connectionHolder the connectionHolder
+     */
+    public void setConnectionHolder(String connectionHolder) {
+        this.connectionHolder = connectionHolder;
     }
 
     /**

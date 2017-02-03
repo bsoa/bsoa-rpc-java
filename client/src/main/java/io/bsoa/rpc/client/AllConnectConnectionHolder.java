@@ -37,6 +37,7 @@ import io.bsoa.rpc.common.struct.ConcurrentHashSet;
 import io.bsoa.rpc.common.struct.ScheduledService;
 import io.bsoa.rpc.common.utils.StringUtils;
 import io.bsoa.rpc.config.ConsumerConfig;
+import io.bsoa.rpc.ext.Extension;
 import io.bsoa.rpc.listener.ConsumerStateListener;
 import io.bsoa.rpc.transport.ClientTransport;
 
@@ -47,12 +48,13 @@ import io.bsoa.rpc.transport.ClientTransport;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public class ConnectionHolder {
+@Extension("all")
+public class AllConnectConnectionHolder implements ConnectionHolder {
 
     /**
      * slf4j Logger for this class
      */
-    private final static Logger LOGGER = LoggerFactory.getLogger(ConnectionHolder.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(AllConnectConnectionHolder.class);
 
     /**
      * 存活的客户端列表
@@ -87,7 +89,7 @@ public class ConnectionHolder {
      * @param consumerConfig
      *         ConsumerConfig
      */
-    public ConnectionHolder(ConsumerConfig<?> consumerConfig) {
+    public AllConnectConnectionHolder(ConsumerConfig<?> consumerConfig) {
         this.consumerConfig = consumerConfig;
     }
 
@@ -96,6 +98,7 @@ public class ConnectionHolder {
      *
      * @return the alive connections
      */
+    @Deprecated
     public ConcurrentHashMap<Provider, ClientTransport> getAliveConnections() {
         return aliveConnections.isEmpty() ? subHealthConnections : aliveConnections;
     }
@@ -105,6 +108,7 @@ public class ConnectionHolder {
      *
      * @return all alive providers
      */
+    @Deprecated
     public List<Provider> getAliveProviders() {
         ConcurrentHashMap<Provider, ClientTransport> map =
                 aliveConnections.isEmpty() ? subHealthConnections : aliveConnections;
@@ -118,6 +122,7 @@ public class ConnectionHolder {
      *         the provider
      * @return the client transport
      */
+    @Deprecated
     public ClientTransport getAliveClientTransport(Provider provider) {
         ClientTransport transport = aliveConnections.get(provider);
         return transport != null ? transport : subHealthConnections.get(provider);
@@ -128,6 +133,7 @@ public class ConnectionHolder {
      *
      * @return all alive providers
      */
+    @Deprecated
     public boolean isAliveEmpty() {
         return aliveConnections.isEmpty() && subHealthConnections.isEmpty();
     }
@@ -180,6 +186,7 @@ public class ConnectionHolder {
      * @param transport
      *         连接
      */
+    @Deprecated
     protected void aliveToRetryIfExist(Provider provider, ClientTransport transport) {
         providerLock.lock();
         try {
@@ -376,6 +383,26 @@ public class ConnectionHolder {
         }
     }
 
+    @Override
+    public ConcurrentHashMap<Provider, ClientTransport> getAvailableConnections() {
+        return getAliveConnections();
+    }
+
+    @Override
+    public List<Provider> getAvailableProviders() {
+        return getAliveProviders();
+    }
+
+    @Override
+    public ClientTransport getAvailableClientTransport(Provider provider) {
+        return getAliveClientTransport(provider);
+    }
+
+    @Override
+    public boolean isAvailableEmpty() {
+        return isAliveEmpty();
+    }
+
     /**
      * 获取当前的Provider列表（包括连上和没连上的）
      *
@@ -392,6 +419,22 @@ public class ConnectionHolder {
         } finally {
             providerLock.unlock();
         }
+    }
+
+    @Override
+    public void setUnavailable(Provider provider, ClientTransport transport) {
+        aliveToRetryIfExist(provider, transport);
+    }
+
+    @Override
+    public void preDestroy() {
+        shutdownReconnectThread();
+    }
+
+    @Override
+    public void destroy() {
+        // 清空列表先
+        HashMap<Provider, ClientTransport> all = clear();
     }
 
     /**

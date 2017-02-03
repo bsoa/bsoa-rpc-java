@@ -418,7 +418,11 @@ public class BsoaConfigs {
     /**
      * 默认负载均衡算法
      */
-    public final static String CONSUMER_LOADBALANCER = "consumer.loadBalancer";
+    public final static String CONSUMER_CONNECTION_HOLDER = "consumer.connectionHolder";
+    /**
+     * 默认负载均衡算法
+     */
+    public final static String CONSUMER_LOAD_BALANCER = "consumer.loadBalancer";
     /**
      * 默认失败重试次数
      */
