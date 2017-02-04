@@ -121,7 +121,7 @@ public class PinpointFailoverClient extends FailoverClient {
         Provider p = providerMap.get(serverIP);
         if (p == null) {
             Provider p1 = Provider.valueOf(serverIP);
-            for (Provider provider : connectionHolder.getAliveConnections().keySet()) {
+            for (Provider provider : connectionHolder.getAvailableConnections().keySet()) {
                 if (provider.getIp().equals(p1.getIp())
                         && provider.getProtocolType() == p1.getProtocolType()
                         && provider.getPort() == p1.getPort()) {

@@ -64,79 +64,89 @@ public class ClientTransportConfig {
         return provider;
     }
 
-    public void setProvider(Provider provider) {
+    public ClientTransportConfig setProvider(Provider provider) {
         this.provider = provider;
+        return this;
     }
 
     public String getContainer() {
         return container;
     }
 
-    public void setContainer(String container) {
+    public ClientTransportConfig setContainer(String container) {
         this.container = container;
+        return this;
     }
 
     public int getConnectTimeout() {
         return connectTimeout;
     }
 
-    public void setConnectTimeout(int connectTimeout) {
+    public ClientTransportConfig setConnectTimeout(int connectTimeout) {
         this.connectTimeout = connectTimeout;
+        return this;
     }
 
     public int getDisconnectTimeout() {
         return disconnectTimeout;
     }
 
-    public void setDisconnectTimeout(int disconnectTimeout) {
+    public ClientTransportConfig setDisconnectTimeout(int disconnectTimeout) {
         this.disconnectTimeout = disconnectTimeout;
+        return this;
     }
 
     public int getInvokeTimeout() {
         return invokeTimeout;
     }
 
-    public void setInvokeTimeout(int invokeTimeout) {
+    public ClientTransportConfig setInvokeTimeout(int invokeTimeout) {
         this.invokeTimeout = invokeTimeout;
+        return this;
     }
 
     public int getConnectionNum() {
         return connectionNum;
     }
 
-    public void setConnectionNum(int connectionNum) {
+    public ClientTransportConfig setConnectionNum(int connectionNum) {
         this.connectionNum = connectionNum;
+        return this;
     }
 
     public int getPayload() {
         return payload;
     }
 
-    public void setPayload(int payload) {
+    public ClientTransportConfig setPayload(int payload) {
         this.payload = payload;
+        return this;
     }
 
     public boolean isUseEpoll() {
         return useEpoll;
     }
 
-    public void setUseEpoll(boolean useEpoll) {
+    public ClientTransportConfig setUseEpoll(boolean useEpoll) {
         this.useEpoll = useEpoll;
+        return this;
     }
 
     public List<ChannelListener> getChannelListeners() {
         return channelListeners;
     }
 
-    public void setChannelListeners(List<ChannelListener> channelListeners) {
+    public ClientTransportConfig setChannelListeners(List<ChannelListener> channelListeners) {
         this.channelListeners = channelListeners;
+        return this;
     }
 
     public NegotiatorListener getNegotiatorListener() {
         return negotiatorListener;
     }
 
-    public void setNegotiatorListener(NegotiatorListener negotiatorListener) {
+    public ClientTransportConfig setNegotiatorListener(NegotiatorListener negotiatorListener) {
         this.negotiatorListener = negotiatorListener;
+        return this;
     }
 }

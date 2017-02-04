@@ -942,6 +942,24 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Ser
     }
 
     /**
+     * Gets connection.
+     *
+     * @return the connection
+     */
+    public int getConnection() {
+        return connection;
+    }
+
+    /**
+     * Sets connection.
+     *
+     * @param connection the connection
+     */
+    public void setConnection(int connection) {
+        this.connection = connection;
+    }
+
+    /**
      * Gets heartbeat.
      *
      * @return the heartbeat

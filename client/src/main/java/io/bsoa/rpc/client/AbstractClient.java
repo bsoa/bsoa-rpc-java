@@ -18,14 +18,8 @@ package io.bsoa.rpc.client;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
@@ -35,17 +29,18 @@ import io.bsoa.rpc.codec.SerializerFactory;
 import io.bsoa.rpc.common.BsoaConstants;
 import io.bsoa.rpc.common.BsoaVersion;
 import io.bsoa.rpc.common.struct.ListDifference;
-import io.bsoa.rpc.common.struct.NamedThreadFactory;
 import io.bsoa.rpc.common.utils.CommonUtils;
 import io.bsoa.rpc.common.utils.ExceptionUtils;
 import io.bsoa.rpc.common.utils.StringUtils;
 import io.bsoa.rpc.config.ConsumerConfig;
 import io.bsoa.rpc.config.RegistryConfig;
 import io.bsoa.rpc.context.BsoaContext;
+import io.bsoa.rpc.context.CallbackContext;
 import io.bsoa.rpc.context.RpcContext;
 import io.bsoa.rpc.context.RpcStatus;
 import io.bsoa.rpc.exception.BsoaRpcException;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
+import io.bsoa.rpc.listener.ConsumerStateListener;
 import io.bsoa.rpc.listener.ResponseListener;
 import io.bsoa.rpc.message.HeadKey;
 import io.bsoa.rpc.message.MessageBuilder;
@@ -55,7 +50,6 @@ import io.bsoa.rpc.message.RpcResponse;
 import io.bsoa.rpc.registry.RegistryFactory;
 import io.bsoa.rpc.transport.ClientTransport;
 import io.bsoa.rpc.transport.ClientTransportConfig;
-import io.bsoa.rpc.transport.ClientTransportFactory;
 import io.bsoa.rpc.transport.ClientTransportUtils;
 
 /**
@@ -158,20 +152,17 @@ public abstract class AbstractClient implements Client {
             if (inited) {
                 return;
             }
-
             // 启动重连线程
-            connectionHolder.init();
-
+            connectionHolder.init(consumerConfig);
             try {
                 // 得到服务端列表
                 List<Provider> tmpProviderList = buildProviderList();
-                connectToProviders(tmpProviderList); // 初始化服务端连接（建立长连接)
+                connectionHolder.addProvider(tmpProviderList); // 初始化服务端连接（建立长连接)
             } catch (BsoaRuntimeException e) {
                 throw e;
             } catch (Exception e) {
                 throw new BsoaRuntimeException(22222, "[JSF-22002]Init provider's transport error!", e);
             }
-
             // 如果check=true表示强依赖
             if (consumerConfig.isCheck() && connectionHolder.isAvailableEmpty()) {
                 throw new BsoaRuntimeException(22222, "[JSF-22003]The consumer is depend on alive provider " +
@@ -253,42 +244,7 @@ public abstract class AbstractClient implements Client {
      * @param providers Provider列表
      */
     public void addProvider(List<Provider> providers) {
-        String interfaceId = consumerConfig.getInterfaceId();
-        LOGGER.info("{} add {} providers to list", interfaceId, providers.size());
-        for (Provider provider : providers) {
-            try {
-                if (connectionHolder.getRetryConnections().containsKey(provider)) {
-                    // 失败里有，立即重试
-                    ClientTransportConfig config = providerToClientConfig(provider);
-                    ClientTransport transport = ClientTransportFactory.getClientTransport(config);
-                    if (connectionHolder.doubleCheck(interfaceId, provider, transport)) {
-                        printSuccess(interfaceId, provider, transport);
-                        connectionHolder.retryToAlive(provider, transport);
-                    }
-                } else { // 失败/死亡里没有
-                    // 存活里也没有
-                    if (!connectionHolder.getAliveConnections().containsKey(provider)) {
-                        ClientTransportConfig config = providerToClientConfig(provider);
-                        ClientTransport transport = ClientTransportFactory.getClientTransport(config);
-                        try {
-                            transport.connect();
-                            if (connectionHolder.doubleCheck(interfaceId, provider, transport)) {
-                                printSuccess(interfaceId, provider, transport);
-                                connectionHolder.addAlive(provider, transport);
-                            } else {
-                                printFailure(interfaceId, provider, transport);
-                                connectionHolder.addRetry(provider, transport);
-                            }
-                        } catch (Exception e) {
-                            printDead(interfaceId, provider, e);
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                LOGGER.warn("add " + consumerConfig.getInterfaceId() + " provider " + provider
-                        + " to list error:", e);
-            }
-        }
+        connectionHolder.addProvider(providers);
     }
 
     /**
@@ -297,22 +253,7 @@ public abstract class AbstractClient implements Client {
      * @param providers Provider列表
      */
     public void removeProvider(List<Provider> providers) {
-        String interfaceId = consumerConfig.getInterfaceId();
-        LOGGER.info("{} remove {} providers from list", interfaceId, providers.size());
-        for (Provider provider : providers) {
-            try {
-                // 从存活和重试列表里都删除
-                //  判断一个删成功 就不走下一个
-                ClientTransport transport = connectionHolder.remove(provider);
-                LOGGER.info("Remove {} provider:{} from list success !", interfaceId, provider);
-                if (transport != null) {
-                    ClientTransportFactory.releaseTransport(transport, consumerConfig.getDisconnectTimeout());
-                }
-            } catch (Exception e) {
-                LOGGER.error("remove " + consumerConfig.getInterfaceId() + " provider " + provider
-                        + " from list error:", e);
-            }
-        }
+        connectionHolder.removeProvider(providers);
     }
 
     /**
@@ -328,7 +269,7 @@ public abstract class AbstractClient implements Client {
                     closeTransports();
                 }
             } else {
-                Set<Provider> nowall = currentProviderList();
+                Collection<Provider> nowall = connectionHolder.currentProviderList();
                 List<Provider> nowAllP = new ArrayList<Provider>(nowall);// 当前全部
 
                 // 比较当前的和最新的
@@ -364,103 +305,6 @@ public abstract class AbstractClient implements Client {
     }
 
     /**
-     * 连接服务端，建立Connection
-     *
-     * @param providerList 服务端列表
-     */
-    protected void connectToProviders(List<Provider> providerList) {
-        final String interfaceId = consumerConfig.getInterfaceId();
-        int providerSize = providerList.size();
-        LOGGER.info("Init provider of {}, size is : {}", interfaceId, providerSize);
-        if (providerSize > 0) {
-            // 多线程建立连接
-            int threads = Math.min(10, providerSize); // 最大10个
-            final CountDownLatch latch = new CountDownLatch(providerSize);
-            ThreadPoolExecutor initPool = new ThreadPoolExecutor(threads, threads,
-                    0L, TimeUnit.MILLISECONDS,
-                    new LinkedBlockingQueue<Runnable>(providerList.size()),
-                    new NamedThreadFactory("JSF-CLI-CONN-" + interfaceId, true));
-            int connectTimeout = consumerConfig.getConnectTimeout();
-            for (final Provider provider : providerList) {
-                final ClientTransportConfig config = providerToClientConfig(provider);
-                config.setConnectTimeout(connectTimeout);
-                initPool.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        ClientTransport transport = null;
-                        try {
-                            transport = ClientTransportFactory.getClientTransport(config);
-                            transport.connect();
-                            if (connectionHolder.doubleCheck(interfaceId, provider, transport)) {
-                                printSuccess(interfaceId, provider, transport);
-                                connectionHolder.addAlive(provider, transport);
-                            } else {
-                                printFailure(interfaceId, provider, transport);
-                                connectionHolder.addRetry(provider, transport);
-                            }
-                        } catch (Exception e) {
-                            if (LOGGER.isDebugEnabled()) {
-                                LOGGER.debug("Failed to connect " + provider, e);
-                            }
-                            printFailure(interfaceId, provider, transport);
-                            connectionHolder.addRetry(provider, transport);
-                        } finally {
-                            latch.countDown(); // 连上或者抛异常
-                        }
-                    }
-                });
-            }
-
-            try {
-                int totalTimeout = ((providerSize % threads == 0) ? (providerSize / threads) : ((providerSize /
-                        threads) + 1)) * connectTimeout + 500;
-                latch.await(totalTimeout, TimeUnit.MILLISECONDS); // 一直等到子线程都结束
-            } catch (InterruptedException e) {
-                LOGGER.error("Exception when init provider", e);
-            } finally {
-                initPool.shutdown(); // 关闭线程池
-            }
-        }
-    }
-
-    /**
-     * 打印连接成功日志
-     *
-     * @param interfaceId 接口名称
-     * @param provider    服务端
-     * @param transport   连接
-     */
-    private void printSuccess(String interfaceId, Provider provider, ClientTransport transport) {
-        LOGGER.info("Connect to {} provider:{} success ! The connection is "
-//                        + NetUtils.connectToString(transport.getRemoteAddress(), transport.getLocalAddress())
-                , interfaceId, provider);
-    }
-
-    /**
-     * 打印连接失败日志
-     *
-     * @param interfaceId 接口名称
-     * @param provider    服务端
-     * @param transport   连接
-     */
-    private void printFailure(String interfaceId, Provider provider, ClientTransport transport) {
-        LOGGER.info("Connect to {} provider:{} failure !", interfaceId, provider);
-    }
-
-    /**
-     * 打印连不上日志
-     *
-     * @param interfaceId 接口名称
-     * @param provider    服务端
-     */
-    private void printDead(String interfaceId, Provider provider, Exception e) {
-        Throwable cause = e.getCause();
-        LOGGER.warn("Connect to {} provider:{} failure !! The exception is " + ExceptionUtils.toShortString(e, 1)
-                        + (cause != null ? ", cause by " + cause.getMessage() + "." : "."),
-                interfaceId, provider);
-    }
-
-    /**
      * 是否可用（即有可用的服务端）
      *
      * @return 是/否
@@ -476,7 +320,7 @@ public abstract class AbstractClient implements Client {
             if (transport.isAvailable()) {
                 return true;
             } else {
-                connectionHolder.aliveToRetryIfExist(provider, transport);
+                connectionHolder.setUnavailable(provider, transport);
             }
         }
         return false;
@@ -490,14 +334,64 @@ public abstract class AbstractClient implements Client {
     public void checkStateChange(boolean originalState) {
         if (originalState) { // 原来可以
             if (!isAvailable()) { // 变不可以
-                connectionHolder.notifyStateChangeToUnavailable();
+                notifyStateChangeToUnavailable();
             }
         } else { // 原来不可用
             if (isAvailable()) { // 变成可用
-                connectionHolder.notifyStateChangeToAvailable();
+                notifyStateChangeToAvailable();
             }
         }
     }
+
+    /**
+     * 通知状态变成不可用,主要是：<br>
+     * 1.注册中心删除，更新节点后变成不可用时<br>
+     * 2.连接断线后（心跳+调用），如果是可用节点为空
+     */
+    public void notifyStateChangeToUnavailable() {
+        final List<ConsumerStateListener> onprepear = consumerConfig.getOnAvailable();
+        if (onprepear != null) {
+            CallbackContext.getCallbackThreadPool().execute(new Runnable() {
+                @Override
+                public void run() {
+                    // 状态变化通知监听器
+                    for (ConsumerStateListener listener : onprepear) {
+                        try {
+                            listener.onUnavailable(consumerConfig.getProxyIns());
+                        } catch (Exception e) {
+                            LOGGER.error("Failed to notify consumer state listener when state change to unavailable");
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    /**
+     * 通知状态变成可用,主要是：<br>
+     * 1.启动成功变成可用时<br>
+     * 2.注册中心增加，更新节点后变成可用时<br>
+     * 3.重连上从一个可用节点都没有-->有可用节点时
+     */
+    public void notifyStateChangeToAvailable() {
+        final List<ConsumerStateListener> onprepear = consumerConfig.getOnAvailable();
+        if (onprepear != null) {
+            CallbackContext.getCallbackThreadPool().execute(new Runnable() {
+                @Override
+                public void run() {
+                    // 状态变化通知监听器
+                    for (ConsumerStateListener listener : onprepear) {
+                        try {
+                            listener.onAvailable(consumerConfig.getProxyIns());
+                        } catch (Exception e) {
+                            LOGGER.error("Failed to notify consumer state listener when state change to available");
+                        }
+                    }
+                }
+            });
+        }
+    }
+
 
     /**
      * 调用
@@ -753,8 +647,8 @@ public abstract class AbstractClient implements Client {
      * 注意：关闭有风险，可能有正在调用的请求，建议判断下isAvailable()
      */
     protected void closeTransports() {
-        // 清空列表先
-        HashMap<Provider, ClientTransport> all = connectionHolder.clear();
+
+        connectionHolder.preDestroy();
 
         // 准备关闭连接
         int count = countOfInvoke.get();
@@ -769,41 +663,7 @@ public abstract class AbstractClient implements Client {
                 }
             }
         }
-        // 多线程销毁已经建立的连接
-        int providerSize = all.size();
-        if (providerSize > 0) {
-            int threads = Math.min(10, providerSize); // 最大10个
-            final CountDownLatch latch = new CountDownLatch(providerSize);
-            ThreadPoolExecutor closepool = new ThreadPoolExecutor(threads, threads,
-                    0L, TimeUnit.MILLISECONDS,
-                    new LinkedBlockingQueue<Runnable>(providerSize),
-                    new NamedThreadFactory("JSF-CLI-DISCONN-" + consumerConfig.getInterfaceId(), true));
-            for (Map.Entry<Provider, ClientTransport> entry : all.entrySet()) {
-                final Provider provider = entry.getKey();
-                final ClientTransport transport = entry.getValue();
-                closepool.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            ClientTransportFactory.releaseTransport(transport, 0);
-                        } catch (Exception e) {
-                            LOGGER.warn("catch exception but ignore it when close alive client : {}", provider);
-                        } finally {
-                            latch.countDown();
-                        }
-                    }
-                });
-            }
-            try {
-                int totalTimeout = ((providerSize % threads == 0) ? (providerSize / threads) : ((providerSize /
-                        threads) + 1)) * timeout + 500;
-                latch.await(totalTimeout, TimeUnit.MILLISECONDS); // 一直等到
-            } catch (InterruptedException e) {
-                LOGGER.error("Exception when close transport", e);
-            } finally {
-                closepool.shutdown();
-            }
-        }
+        connectionHolder.destroy();
     }
 
     protected BsoaRpcException noAliveProvider(String key, String IP) {

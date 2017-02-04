@@ -56,7 +56,7 @@ public class TransportResettableClient extends FailoverClient {
         lock.lock();
         try {
             super.closeTransports(); // 关闭旧的
-            super.connectToProviders(providers); // 连接新的
+            super.addProvider(providers); // 连接新的
         } finally {
             lock.unlock();
         }
