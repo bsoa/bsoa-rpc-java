@@ -56,6 +56,9 @@
         <module>transport</module>
         <module>all</module>
         <module>example</module>
+        <!--- TODO 移动到单独的工程 -->
+        <module>ext-JSF</module>
+        <module>ext-dubbo</module>
     </modules>
 
     <properties>

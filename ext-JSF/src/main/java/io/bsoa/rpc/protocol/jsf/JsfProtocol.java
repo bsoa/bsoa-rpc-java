@@ -31,7 +31,7 @@ import io.bsoa.rpc.protocol.ProtocolEncoder;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-@Extension(value = "jsf",code = 1)
+@Extension(value = "jsf", code = 1)
 public class JsfProtocol implements Protocol {
 
     private JsfProtocolInfo protocolInfo = new JsfProtocolInfo();

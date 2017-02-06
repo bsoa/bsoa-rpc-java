@@ -1,3 +1,1 @@
 bsoa=io.bsoa.rpc.protocol.bsoa.BsoaProtocol
-dubbo=io.bsoa.rpc.protocol.dubbo.DubboProtocol
-jsf=io.bsoa.rpc.protocol.jsf.JsfProtocol
