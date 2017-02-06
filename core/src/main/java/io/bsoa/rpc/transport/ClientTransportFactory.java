@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 
 import io.bsoa.rpc.client.Provider;
+import io.bsoa.rpc.common.utils.CommonUtils;
 import io.bsoa.rpc.common.utils.NetUtils;
 import io.bsoa.rpc.context.BsoaContext;
 import io.bsoa.rpc.ext.ExtensionLoader;
@@ -189,7 +190,10 @@ public class ClientTransportFactory {
      */
 
     public static void closeAll() {
-        LOGGER.info("Shutdown all bsoa client transport now...");
+        if (CommonUtils.isNotEmpty(CLIENT_TRANSPORT_MAP)
+                && LOGGER.isInfoEnabled()) {
+            LOGGER.info("Shutdown all bsoa client transport now!");
+        }
         try {
             for (Map.Entry<String, ClientTransport> entrySet : CLIENT_TRANSPORT_MAP.entrySet()) {
                 ClientTransport clientTransport = entrySet.getValue();

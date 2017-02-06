@@ -32,6 +32,7 @@ import io.bsoa.rpc.common.annotation.JustForTest;
 import io.bsoa.rpc.common.utils.ClassLoaderUtils;
 import io.bsoa.rpc.common.utils.ClassTypeUtils;
 import io.bsoa.rpc.common.utils.StringUtils;
+import io.bsoa.rpc.context.BsoaContext;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
 
 /**
@@ -104,6 +105,15 @@ public class ExtensionLoader<T> {
      */
     @JustForTest
     protected ExtensionLoader(Class<T> interfaceClass, boolean autoLoad, ExtensionLoaderListener<T> listener) {
+        if (BsoaContext.IS_SHUTTING_DOWN){
+            this.interfaceClass = null;
+            this.interfaceName  = null;
+            this.listener = null;
+            this.factory = null;
+            this.extensible = null;
+            this.all = null;
+            return;
+        }
         if (interfaceClass == null || !interfaceClass.isInterface()) {
             throw new IllegalArgumentException("Extensible class must be interface!");
         }
@@ -118,8 +128,8 @@ public class ExtensionLoader<T> {
             this.extensible = extensible;
         }
 
-        factory = extensible.singleton() ? new ConcurrentHashMap<>() : null;
-        all = new ConcurrentHashMap<>();
+        this.factory = extensible.singleton() ? new ConcurrentHashMap<>() : null;
+        this.all = new ConcurrentHashMap<>();
         if (autoLoad) {
             List<String> paths = BsoaConfigs.getListValue(BsoaConfigs.EXTENSION_LOAD_PATH);
             for (String path : paths) {
@@ -365,7 +375,7 @@ public class ExtensionLoader<T> {
     public static class OrderComparator implements Comparator<ExtensionClass> {
         public int compare(ExtensionClass o1, ExtensionClass o2) {
             // order一样的情况下，先加入的在前面
-            return o2.getOrder() > o1.getOrder() ? -1 : 1;
+            return o1.getOrder() - o2.getOrder();
         }
     }
 }

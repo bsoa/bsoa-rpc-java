@@ -24,7 +24,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.bsoa.rpc.common.json.TelnetChannelHandler;
 import io.bsoa.rpc.common.utils.NetUtils;
 import io.bsoa.rpc.protocol.Protocol;
 import io.bsoa.rpc.protocol.ProtocolFactory;
@@ -85,7 +84,7 @@ public class AdapterDecoder extends ByteToMessageDecoder {
         // 读取头几位
         byte[] magicHeadBytes = new byte[offset];
         in.readBytes(magicHeadBytes);
-        in.readerIndex(in.readerIndex() - 2);
+        in.readerIndex(in.readerIndex() - offset);
         // 自动判断协议
         Protocol protocol = ProtocolFactory.adaptiveProtocol(magicHeadBytes);
 

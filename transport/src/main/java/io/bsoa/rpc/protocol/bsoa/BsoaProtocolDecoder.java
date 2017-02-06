@@ -96,7 +96,7 @@ public class BsoaProtocolDecoder implements ProtocolDecoder {
                 .setProtocolType(protocolType)
                 .setSerializationType(serializationType)
                 .setCompressType(compressType);
-        if (headerLength > 10) { // 说明存在Map
+        if (headerLength > 16) { // 说明存在Map
             Map<Byte, Object> headKeys = new HashMap<>();
             bytes2Map(headKeys, in);
             message.setHeaders(headKeys);

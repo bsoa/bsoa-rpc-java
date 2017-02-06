@@ -60,17 +60,17 @@ import static io.bsoa.rpc.common.BsoaConfigs.COMPRESS_SIZE_BASELINE;
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
 @Extension("jsf")
-public class JSFProtocolEncoder implements ProtocolEncoder {
+public class JsfProtocolEncoder implements ProtocolEncoder {
 
     /**
      * slf4j Logger for this class
      */
-    private final static Logger LOGGER = LoggerFactory.getLogger(JSFProtocolEncoder.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(JsfProtocolEncoder.class);
 
     private boolean compressOpen = BsoaConfigs.getBooleanValue(COMPRESS_OPEN);
     private int compressSize = BsoaConfigs.getIntValue(COMPRESS_SIZE_BASELINE);
 
-    public JSFProtocolEncoder() {
+    public JsfProtocolEncoder() {
         BsoaConfigs.subscribe(COMPRESS_SIZE_BASELINE, (oldValue, newValue) -> compressSize = (int) newValue);
         BsoaConfigs.subscribe(COMPRESS_OPEN, (oldValue, newValue) -> compressOpen = (boolean) newValue);
     }
@@ -94,17 +94,17 @@ public class JSFProtocolEncoder implements ProtocolEncoder {
 
             // 0-1 魔术位(2位)
             out.writeBytes(protocolInfo.magicCode());
-            // 2-5 总长度(4位，包括魔术位和自己）
+            // 2-5 总长度(4位，包括魔术位）
             out.writeInt(0); // 总长度会变，这里先占位
-            // 6-7 2位头部长度(包括自己2位+后面的头）
+            // 6-7 2位头部长度(包括后面的头, 不包括魔术位+总长度+头部2位）
             int headLengthIndex = out.writerIndex();
             out.writeShort(headerLength);// 总长度可能会变，这里先占位
-            // 8 方向(2bit)+消息类型(6bit)组成（1位）
-            out.writeByte((msg.getDirectionType() << 6) + msg.getMessageType()); // CodecUtils#buildHigh4Low4Bytes();
-            // 9 协议类型（1位）
+            // 8 协议类型（1位）
             out.writeByte(msg.getProtocolType());
-            // 10 序列化类型（1位）
+            // 9 序列化类型（1位）
             out.writeByte(msg.getSerializationType());
+            // 10 消息类型（1位）
+            out.writeByte(msg.getMessageType());
             // 11 压缩类型（1位）
             out.writeByte(msg.getCompressType());
             // 12-15 消息Id（4位）
@@ -115,7 +115,7 @@ public class JSFProtocolEncoder implements ProtocolEncoder {
                 headerLength += map2bytes(msg.getHeaders(), out);
                 out.setBytes(headLengthIndex, CodecUtils.short2bytes(headerLength)); // 更新head长度的两位
             }
-            msg.setTotalLength(headerLength + 6); // 目前消息总长度=2位魔术+4位总长度+头长度
+            msg.setTotalLength(headerLength + 4); // 目前消息总长度=4位总长度+头长度
 
 //            byte[] bytes = new byte[out.readableBytes()];
 //            out.readBytes(bytes);
@@ -175,7 +175,7 @@ public class JSFProtocolEncoder implements ProtocolEncoder {
 
 //            byte[] bytes = new byte[out.readableBytes()];
 //            out.readBytes(bytes);
-            //LOGGER.debug(Arrays.toString(bytes));
+//            LOGGER.debug("length : {}, data: {}", bytes.length, Arrays.toString(bytes));
 //            out.readerIndex(0);
         } else {
             LOGGER.warn("Unsupported type :{}", object.getClass());
@@ -195,7 +195,7 @@ public class JSFProtocolEncoder implements ProtocolEncoder {
      * @param out    输出流
      * @param string 字符串
      * @return 写入的长度
-     * @see JSFProtocolDecoder#readString(ByteBuf)
+     * @see JsfProtocolDecoder#readString(ByteBuf)
      */
     private int writeString(ByteBuf out, String string) {
         if (string != null) {

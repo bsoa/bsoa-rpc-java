@@ -1,1 +1,1 @@
-jsf=io.bsoa.rpc.protocol.jsf.JSFProtocolDecoder
+jsf=io.bsoa.rpc.protocol.jsf.JsfProtocolDecoder

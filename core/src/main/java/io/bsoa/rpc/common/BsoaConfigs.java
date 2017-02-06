@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -74,10 +75,10 @@ public class BsoaConfigs {
 
             CFG.putAll(new HashMap(System.getProperties())); //读取system.properties
             if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Load config from file end!");
                 for (Map.Entry<String, Object> entry : CFG.entrySet()) {
                     LOGGER.debug("{}: {}", entry.getKey(), entry.getValue());
                 }
-                LOGGER.debug("Load config from file end!");
             }
         } catch (Exception e) {
             throw new BsoaRuntimeException(22222, "", e);
@@ -90,6 +91,7 @@ public class BsoaConfigs {
                 : ClassLoader.getSystemResources(fileName);
         // 可能存在多个文件。
         if (urls != null) {
+            List<CfgFile> allFile = new ArrayList<>();
             while (urls.hasMoreElements()) {
                 // 读取一个文件
                 URL url = urls.nextElement();
@@ -104,11 +106,34 @@ public class BsoaConfigs {
                         context.append(line).append("\n");
                     }
                     Map map = JSON.parseObject(context.toString(), Map.class);
-                    CFG.putAll(map);
-                } catch (IOException e) {
-                    throw e;
+                    Integer order = (Integer) map.get(BSOA_CFG_ORDER);
+                    allFile.add(new CfgFile(url, order == null ? 0 : order, map));
                 }
             }
+            Collections.sort(allFile, (o1, o2) -> o1.getOrder() - o2.getOrder());  // 排下序
+            for (CfgFile file : allFile) {
+                CFG.putAll(file.getMap());
+            }
+        }
+    }
+
+    private static class CfgFile {
+        private URL url;
+        private int order;
+        private Map map;
+        public CfgFile(URL url, int order, Map map) {
+            this.url = url;
+            this.order = order;
+            this.map = map;
+        }
+        public URL getUrl() {
+            return url;
+        }
+        public int getOrder() {
+            return order;
+        }
+        public Map getMap() {
+            return map;
         }
     }
 
@@ -218,13 +243,17 @@ public class BsoaConfigs {
     }
 
     /**
+     * 决定本配置文件的加载顺序，越大越往后加载
+     */
+    public static final String BSOA_CFG_ORDER = "bsoa.config.order";
+    /**
      * 应用Id
      */
     public static final String APP_ID = "app.id";
     /**
      * 应用名称
      */
-    public static final String APP_name = "app.name";
+    public static final String APP_NAME = "app.name";
     /**
      * 应用实例Id
      */

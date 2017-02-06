@@ -55,7 +55,7 @@ public class TelnetHandlerFactory {
             });
 
     public static TelnetHandler getHandler(String command) {
-        return extensionLoader.getExtension(command);
+        return supportedCmds.get(command);
     }
 
     public static Map<String, TelnetHandler> getAllHandlers() {

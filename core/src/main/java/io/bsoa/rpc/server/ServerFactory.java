@@ -24,6 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.bsoa.rpc.common.utils.CommonUtils;
 import io.bsoa.rpc.common.utils.ExceptionUtils;
 import io.bsoa.rpc.config.ServerConfig;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
@@ -93,7 +94,10 @@ public final class ServerFactory {
      * 关闭全部服务端
      */
     public static void destroyAll() {
-        LOGGER.info("Destroy all server");
+        if (CommonUtils.isNotEmpty(SERVER_MAP)
+                && LOGGER.isInfoEnabled()) {
+            LOGGER.info("Destroy all server now!");
+        }
         for (Map.Entry<String, Server> entry : SERVER_MAP.entrySet()) {
             String key = entry.getKey();
             Server server = entry.getValue();

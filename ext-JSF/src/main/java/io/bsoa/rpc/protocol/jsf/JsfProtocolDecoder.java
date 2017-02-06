@@ -55,12 +55,12 @@ import io.netty.buffer.ByteBuf;
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
 @Extension("jsf")
-public class JSFProtocolDecoder implements ProtocolDecoder {
+public class JsfProtocolDecoder implements ProtocolDecoder {
 
     /**
      * slf4j Logger for this class
      */
-    private final static Logger LOGGER = LoggerFactory.getLogger(JSFProtocolDecoder.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(JsfProtocolDecoder.class);
 
     private ProtocolInfo protocolInfo;
 
@@ -75,24 +75,20 @@ public class JSFProtocolDecoder implements ProtocolDecoder {
         ByteBuf in = nettyByteBuf.getByteBuf();
 
         // 前面2位magiccode 和 4位总长度 已经跳过
-        if (in.readerIndex() != 0) {
+         if (in.readerIndex() != 0) {
             throw new BsoaRpcException(22222, "readerIndex!=0");
         }
-        int totalLength = in.readInt();
+        int totalLength = in.readableBytes() + 6; //跳过了6位
         Short headerLength = in.readShort();
-
-        byte dtAndMt = in.readByte(); // CodecUtils.parseHigh4Low4Bytes();
-        byte directionType = (byte) (dtAndMt >> 6);
-        byte messageType = (byte) ((dtAndMt & 0x3f));
         byte protocolType = in.readByte();
         byte serializationType = in.readByte();
+        byte messageType = in.readByte();
         byte compressType = in.readByte();
         int messageId = in.readInt();
 
         BaseMessage message = MessageBuilder.buildMessage(messageType, messageId);
         message.setTotalLength(totalLength)
                 .setHeadLength(headerLength)
-                .setDirectionType(directionType)
                 .setProtocolType(protocolType)
                 .setSerializationType(serializationType)
                 .setCompressType(compressType);
@@ -192,7 +188,7 @@ public class JSFProtocolDecoder implements ProtocolDecoder {
      *
      * @param in 输入流
      * @return 字符串
-     * @see JSFProtocolEncoder#writeString(ByteBuf, String)
+     * @see JsfProtocolEncoder#writeString(ByteBuf, String)
      */
     private String readString(ByteBuf in) {
         int length = in.readInt();

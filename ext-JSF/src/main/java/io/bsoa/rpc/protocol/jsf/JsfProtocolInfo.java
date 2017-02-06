@@ -44,7 +44,7 @@ public class JsfProtocolInfo extends ProtocolInfo {
 
     private final int magicFieldOffset = 0; // 魔术位0-2位
 
-    private final byte[] magicCode = new byte[]{(byte) 0xAD, (byte) 0xAF};
+    private final byte[] magicCode = new byte[]{(byte) 0xAD, (byte) 0xCF};
 
     public JsfProtocolInfo() {
         super("jsf", (byte) 1, false, ProtocolInfo.NET_PROTOCOL_TCP); // 是一个变长协议

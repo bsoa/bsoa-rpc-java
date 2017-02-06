@@ -183,7 +183,7 @@ public class NettyServerChannelHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelActive(final ChannelHandlerContext ctx) throws Exception {
         Channel channel = ctx.channel();
-        //LOGGER.info("connected from {}", NetUtils.channelToString(channel.remoteAddress(), channel.localAddress()));
+        LOGGER.info("connected from {}", NetUtils.channelToString(channel.remoteAddress(), channel.localAddress()));
 //        BaseServerHandler.addChannel(channel);
 //        if (connectListeners != null) {
 //            serverHandler.getBizThreadPool().execute(new Runnable() {

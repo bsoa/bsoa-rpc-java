@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.bsoa.rpc.common.json;
+package io.bsoa.rpc.transport.netty;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,9 +22,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.bsoa.rpc.common.utils.NetUtils;
 import io.bsoa.rpc.protocol.TelnetHandler;
 import io.bsoa.rpc.protocol.TelnetHandlerFactory;
-import io.bsoa.rpc.transport.netty.NettyChannel;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -116,13 +116,13 @@ public class TelnetChannelHandler extends ChannelInboundHandlerAdapter {
 //     * 允许执行远程invoke命令的连接，前面进行过sudo操作
 //     */
 //    public final static Set<Channel> ALLOW_INVOKE_CHANNELS = new ConcurrentHashSet<Channel>();
-//
-//    @Override
-//    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-//        Channel channel = ctx.channel();
-//        LOGGER.info("Disconnected telnet from {}", NetUtils.channelToString(channel.remoteAddress(), channel.localAddress()));
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        Channel channel = ctx.channel();
+        LOGGER.info("Disconnected telnet from {}", NetUtils.channelToString(channel.remoteAddress(), channel.localAddress()));
 //        BaseServerHandler.removeChannel(channel);
 //        charsetMap.remove(channel);
 //        ALLOW_INVOKE_CHANNELS.remove(channel);
-//    }
+    }
 }

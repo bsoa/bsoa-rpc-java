@@ -80,6 +80,10 @@ public class BsoaContext {
     private final static ConcurrentHashSet<ConsumerConfig> REFERRED_CONSUMER_CONFIGS
             = new ConcurrentHashSet<ConsumerConfig>();
 
+    /**
+     * 是否正在关闭
+     */
+    public static boolean IS_SHUTTING_DOWN = false;
 
     static {
         LOGGER.info("Welcome! Loading Beyond SOA RPC Framework : {}", BsoaVersion.BUILD_VERSION);
@@ -122,6 +126,7 @@ public class BsoaContext {
      */
     private static void destroy(boolean active) {
         // TODO 检查是否有其它需要释放的资源
+        IS_SHUTTING_DOWN = true;
         // 关闭资源
       /*  ResourceScheduleChecker.close(); */
         // 关闭启动的服务端

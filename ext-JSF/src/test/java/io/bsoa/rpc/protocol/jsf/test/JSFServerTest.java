@@ -41,7 +41,7 @@ public class JSFServerTest {
         ServerConfig serverConfig = new ServerConfig();
 //        serverConfig.setHost("0.0.0.0");
 //        serverConfig.setPort(22222);
-        serverConfig.setProtocol("jsf");
+//        serverConfig.setProtocol("jsf");
         serverConfig.setDaemon(false);
         //serverConfig.start();
 

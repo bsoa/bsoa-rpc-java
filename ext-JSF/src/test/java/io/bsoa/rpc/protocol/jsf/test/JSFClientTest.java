@@ -41,32 +41,24 @@ public class JSFClientTest {
 
         ConsumerConfig<HelloService> consumerConfig = new ConsumerConfig<>();
         consumerConfig.setInterfaceId(HelloService.class.getName());
-        consumerConfig.setProtocol("jsf");
-        consumerConfig.setUrl("jsf://127.0.0.1:22000");
+//        consumerConfig.setProtocol("jsf");
+        consumerConfig.setUrl("127.0.0.1:22000");
+        consumerConfig.setTimeout(60000);
         consumerConfig.setRegister(false);
         HelloService helloService = consumerConfig.refer();
-        try {
-            String s = helloService.sayHello("xxx", 22);
-            LOGGER.warn("{}", s);
-        } catch (Exception e) {
-            LOGGER.error("", e);
+
+        for (int i = 0; i < 100; i++) {
+            try {
+                String s = helloService.sayHello("xxx", 22);
+                LOGGER.warn("{}", s);
+            } catch (Exception e) {
+                LOGGER.error("", e);
+            }
+            try {
+                Thread.sleep(2000);
+            } catch (Exception e) {
+            }
         }
-
-
-        ConsumerConfig<HelloService> consumerConfig2 = new ConsumerConfig<>();
-        consumerConfig2.setInterfaceId(HelloService.class.getName());
-        consumerConfig2.setUrl("bsoa://127.0.0.1:22000");
-        consumerConfig2.setRegister(false);
-        HelloService helloService2 = consumerConfig2.refer();
-        try {
-            String s = helloService2.sayHello("xxx", 22);
-            LOGGER.warn("{}", s);
-        } catch (Exception e) {
-            LOGGER.error("", e);
-        }
-
-        consumerConfig2.unrefer();
-
         consumerConfig.unrefer();
     }
 

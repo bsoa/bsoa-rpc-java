@@ -1,0 +1,2 @@
+jsfVersion=io.bsoa.rpc.protocol.telnet.JsfVersionTelnetHandler
+jsfList=io.bsoa.rpc.protocol.telnet.JsfListTelnetHandler
