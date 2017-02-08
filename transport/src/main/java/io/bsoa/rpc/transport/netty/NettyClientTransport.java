@@ -43,6 +43,7 @@ import io.bsoa.rpc.protocol.ProtocolFactory;
 import io.bsoa.rpc.transport.AbstractByteBuf;
 import io.bsoa.rpc.transport.AbstractChannel;
 import io.bsoa.rpc.transport.AbstractClientTransport;
+import io.bsoa.rpc.transport.ClientTransportConfig;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
@@ -82,6 +83,15 @@ public class NettyClientTransport extends AbstractClientTransport {
 
     private volatile boolean connected = false;
 
+    /**
+     * 客户端配置
+     *
+     * @param transportConfig 客户端配置
+     */
+    public NettyClientTransport(ClientTransportConfig transportConfig) {
+        super(transportConfig);
+    }
+
     @Override
     public void connect() {
         // 已经初始化，或者被复用
@@ -89,13 +99,13 @@ public class NettyClientTransport extends AbstractClientTransport {
             LOGGER.info("Has been call connect(), ignore this if connection reuse");
         }
 
-        String host = config.getProvider().getIp();
+        String host = transportConfig.getProvider().getIp();
         if (host.equals(SystemInfo.getLocalHost())) { //本机跨jvm服务，降级为127.0.0.1,不走网卡
             host = NetUtils.LOCALHOST;
         }
-        int port = config.getProvider().getPort();
-        int num = config.getConnectionNum(); // 建立几个长连接
-        int connectTimeout = config.getConnectTimeout();
+        int port = transportConfig.getProvider().getPort();
+        int num = transportConfig.getConnectionNum(); // 建立几个长连接
+        int connectTimeout = transportConfig.getConnectTimeout();
 
         num = Math.max(1, num);
         for (int i = 0; i < num; i++) {
@@ -103,7 +113,7 @@ public class NettyClientTransport extends AbstractClientTransport {
             try {
                 Bootstrap bootstrap = new Bootstrap();
                 bootstrap.group(NettyTransportHelper.getClientIOEventLoopGroup())
-                        .channel(config.isUseEpoll() ? EpollSocketChannel.class : NioSocketChannel.class)
+                        .channel(transportConfig.isUseEpoll() ? EpollSocketChannel.class : NioSocketChannel.class)
                         .option(ChannelOption.SO_KEEPALIVE, true)
                         .option(ChannelOption.ALLOCATOR, NettyTransportHelper.getByteBufAllocator())
                         .option(ChannelOption.WRITE_BUFFER_WATER_MARK, new WriteBufferWaterMark(8 * 1024, 32 * 1024))

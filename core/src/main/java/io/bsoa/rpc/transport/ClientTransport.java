@@ -26,57 +26,66 @@ import io.bsoa.rpc.message.BaseMessage;
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
 @Extensible(singleton = false)
-public interface ClientTransport {
+public abstract class ClientTransport {
 
     /**
-     * 设置配置
-     *
-     * @param config
+     * 客户端配置
      */
-    void setConfig(ClientTransportConfig config);
+    protected ClientTransportConfig transportConfig;
+
+    /**
+     * 客户端配置
+     *
+     * @param transportConfig 客户端配置
+     */
+    protected ClientTransport(ClientTransportConfig transportConfig) {
+        this.transportConfig = transportConfig;
+    }
 
     /**
      * 返回配置
      *
      * @return
      */
-    ClientTransportConfig getConfig();
+    public ClientTransportConfig getConfig() {
+        return transportConfig;
+    }
 
     /**
      * 建立长连接
      */
-    public void connect();
+    public abstract void connect();
 
     /**
      * 断开连接
      */
-    public void disconnect();
+    public abstract void disconnect();
 
     /**
      * 销毁
      */
-    public void destroy();
+    public abstract void destroy();
 
     /**
      * 是否可用（有可用的长连接）
      *
      * @return the boolean
      */
-    public boolean isAvailable();
+    public abstract boolean isAvailable();
 
     /**
      * 得到长连接
      *
      * @return
      */
-    public AbstractChannel getChannel();
+    public abstract AbstractChannel getChannel();
 
     /**
      * 当前请求数
      *
      * @return 当前请求数
      */
-    public default int currentRequests() {
+    public int currentRequests() {
         return 0;
     }
 
@@ -87,7 +96,7 @@ public interface ClientTransport {
      * @param timeout 超时时间
      * @return 异步Future
      */
-    public ResponseFuture asyncSend(BaseMessage message, int timeout);
+    public abstract ResponseFuture asyncSend(BaseMessage message, int timeout);
 
     /**
      * 同步调用
@@ -96,7 +105,7 @@ public interface ClientTransport {
      * @param timeout 超时时间
      * @return RpcResponse
      */
-    public BaseMessage syncSend(BaseMessage message, int timeout);
+    public abstract BaseMessage syncSend(BaseMessage message, int timeout);
 
     /**
      * 单向调用
@@ -104,6 +113,6 @@ public interface ClientTransport {
      * @param message 消息
      * @param timeout 超时时间
      */
-    public void oneWaySend(BaseMessage message, int timeout);
+    public abstract void oneWaySend(BaseMessage message, int timeout);
 
 }

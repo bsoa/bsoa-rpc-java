@@ -43,15 +43,16 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
 @Extension("netty4")
-public class NettyServerTransport implements ServerTransport {
+public class NettyServerTransport extends ServerTransport {
 
     /**
      * slf4j Logger for this class
      */
     private final static Logger LOGGER = LoggerFactory.getLogger(NettyServerTransport.class);
 
-    private ServerTransportConfig transportConfig;
-    private ServerBootstrap serverBootstrap;
+    public NettyServerTransport(ServerTransportConfig transportConfig) {
+        super(transportConfig);
+    }
 
     @Override
     public boolean start() {
@@ -60,7 +61,7 @@ public class NettyServerTransport implements ServerTransport {
         if (SystemInfo.isWindows()) {
             transportConfig.setReuseAddr(false);  //disable this on windows,
         }
-        serverBootstrap = new ServerBootstrap();
+        ServerBootstrap serverBootstrap = new ServerBootstrap();
         serverBootstrap.group(
                 NettyTransportHelper.getServerBossEventLoopGroup(transportConfig),
                 NettyTransportHelper.getServerIoEventLoopGroup(transportConfig))
@@ -116,10 +117,5 @@ public class NettyServerTransport implements ServerTransport {
         LOGGER.info("Shutdown the BSOA server transport now...");
         NettyTransportHelper.closeServerBossEventLoopGroup(transportConfig);
         NettyTransportHelper.closeServerIoEventLoopGroup(transportConfig);
-    }
-
-    @Override
-    public void init(ServerTransportConfig transportConfig) {
-        this.transportConfig = transportConfig;
     }
 }

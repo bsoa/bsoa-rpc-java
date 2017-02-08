@@ -27,7 +27,7 @@ import io.bsoa.rpc.ext.ExtensionLoaderFactory;
 
 /**
  * <p>服务端通讯层工厂类</p>
- *
+ * <p>
  * Created by zhangg on 2016/12/17 22:17. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
@@ -54,9 +54,11 @@ public class ServerTransportFactory {
      *
      */
     public static ServerTransport getServerTransport(ServerTransportConfig serverConfig) {
-        ServerTransport serverTransport = extensionLoader.getExtension(serverConfig.getContainer());
+        ServerTransport serverTransport = extensionLoader.getExtension(
+                serverConfig.getContainer(),
+                new Class[]{ServerTransportConfig.class},
+                new Object[]{serverConfig});
         if (serverTransport != null) {
-            serverTransport.init(serverConfig);
             String key = Integer.toString(serverConfig.getPort());
             SERVER_TRANSPORT_MAP.put(key, serverTransport);
         }

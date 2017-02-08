@@ -30,18 +30,15 @@ import io.bsoa.rpc.message.StreamResponse;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public abstract class AbstractClientTransport implements ClientTransport{
+public abstract class AbstractClientTransport extends ClientTransport{
 
-    protected ClientTransportConfig config;
-
-    @Override
-    public ClientTransportConfig getConfig() {
-        return config;
-    }
-
-    @Override
-    public void setConfig(ClientTransportConfig config) {
-        this.config = config;
+    /**
+     * 客户端配置
+     *
+     * @param transportConfig 客户端配置
+     */
+    public AbstractClientTransport(ClientTransportConfig transportConfig) {
+        super(transportConfig);
     }
 
     public abstract void receiveRpcResponse(RpcResponse response);

@@ -81,19 +81,29 @@ public class ExtensionClass<T> {
      * @return 扩展点对象实例
      */
     public T getExtInstance() {
+        return getExtInstance(null, null);
+    }
+
+
+    /**
+     * 得到服务端实例对象，如果是单例则返回单例对象，如果不是则返回新创建的实例对象
+     *
+     * @return 扩展点对象实例
+     */
+    public T getExtInstance(Class[] argTypes, Object[] args) {
         if (clazz != null) {
             try {
                 if (singleton) { // 如果是单例
                     if (instance == null) {
                         synchronized (this) {
                             if (instance == null) {
-                                instance = ClassUtils.newInstance(clazz);
+                                instance = ClassUtils.newInstanceWithArgs(clazz, argTypes, args);
                             }
                         }
                     }
                     return instance; // 保留单例
                 } else {
-                    return ClassUtils.newInstance(clazz);
+                    return ClassUtils.newInstanceWithArgs(clazz, argTypes, args);
                 }
             } catch (Exception e) {
                 logger.error("create " + clazz.getCanonicalName() + "instance error", e);

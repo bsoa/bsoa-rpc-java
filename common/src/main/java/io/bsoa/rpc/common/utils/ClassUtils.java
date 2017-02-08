@@ -16,17 +16,15 @@
  */
 package io.bsoa.rpc.common.utils;
 
-import io.bsoa.rpc.common.json.JSONIgnore;
-import io.bsoa.rpc.exception.BsoaRuntimeException;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+
+import io.bsoa.rpc.common.json.JSONIgnore;
+import io.bsoa.rpc.exception.BsoaRuntimeException;
 
 /**
  * Created by zhangg on 2016/7/14 21:06.
@@ -63,21 +61,6 @@ public final class ClassUtils {
         return all;
     }
 
-
-    private static Set<Class> primitiveSet = new HashSet<Class>();
-
-    static {
-        primitiveSet.add(Integer.class);
-        primitiveSet.add(Long.class);
-        primitiveSet.add(Float.class);
-        primitiveSet.add(Byte.class);
-        primitiveSet.add(Short.class);
-        primitiveSet.add(Double.class);
-        primitiveSet.add(Character.class);
-        primitiveSet.add(Boolean.class);
-    }
-
-
     /**
      * 实例化一个对象(只检测默认构造函数，其它不管）
      *
@@ -87,53 +70,147 @@ public final class ClassUtils {
      * @throws Exception 没有找到方法，或者无法处理，或者初始化方法异常等
      */
     public static <T> T newInstance(Class<T> clazz) throws BsoaRuntimeException {
-        if (primitiveSet.contains(clazz)) {
-            return null;
+        if (clazz == Short.class || clazz == short.class) {
+            return (T) Short.valueOf((short) 0);
+        } else if (clazz == Integer.class || clazz == int.class) {
+            return (T) Integer.valueOf(0);
+        } else if (clazz == Long.class || clazz == long.class) {
+            return (T) Long.valueOf(0L);
+        } else if (clazz == Double.class || clazz == double.class) {
+            return (T) Double.valueOf(0d);
+        } else if (clazz == Float.class || clazz == float.class) {
+            return (T) Float.valueOf(0f);
+        } else if (clazz == Byte.class || clazz == byte.class) {
+            return (T) Byte.valueOf((byte) 0);
+        } else if (clazz == Character.class || clazz == char.class) {
+            return (T) Character.valueOf((char) 0);
+        } else if (clazz == Boolean.class || clazz == boolean.class) {
+            return (T) Boolean.FALSE;
         }
+
         try {
-            if (clazz.isMemberClass() && !Modifier.isStatic(clazz.getModifiers())) {
-                Constructor constructorList[] = clazz.getDeclaredConstructors();
-                Constructor defaultConstructor = null;
-                for (Constructor con : constructorList) {
-                    if (con.getParameterTypes().length == 1) {
-                        defaultConstructor = con;
-                        break;
-                    }
-                }
-                if (defaultConstructor != null) {
-                    if (defaultConstructor.isAccessible()) {
-                        return (T) defaultConstructor.newInstance(new Object[]{null});
-                    } else {
-                        try {
-                            defaultConstructor.setAccessible(true);
-                            return (T) defaultConstructor.newInstance(new Object[]{null});
-                        } finally {
-                            defaultConstructor.setAccessible(false);
-                        }
-                    }
-                } else {
-                    throw new BsoaRuntimeException(22222, "The " + clazz.getCanonicalName() + " has no default constructor!");
+            // 普通类，如果是成员类（需要多传一个父类参数）
+            if (!(clazz.isMemberClass() && !Modifier.isStatic(clazz.getModifiers()))) {
+                try {
+                    // 先找一个空的构造函数
+                    Constructor<T> constructor = clazz.getDeclaredConstructor();
+                    constructor.setAccessible(true);
+                    return constructor.newInstance();
+                } catch (Exception e) {
                 }
             }
-            try {
-                return clazz.newInstance();
-            } catch (Exception e) {
-                Constructor<T> constructor = clazz.getDeclaredConstructor();
-                if (constructor.isAccessible()) {
-                    throw new RuntimeException("The " + clazz.getCanonicalName() + " has no default constructor!", e);
-                } else {
-                    try {
-                        constructor.setAccessible(true);
-                        return constructor.newInstance();
-                    } finally {
-                        constructor.setAccessible(false);
+            // 不行的话，找一个最少参数的构造函数
+            Constructor<T>[] constructors = (Constructor<T>[]) clazz.getDeclaredConstructors();
+            if (constructors == null || constructors.length == 0) {
+                throw new BsoaRuntimeException(22222, "The " + clazz.getCanonicalName()
+                        + " has no default constructor!");
+            }
+            Constructor<T> constructor = constructors[0];
+            if (constructor.getParameterTypes().length > 0) {
+                for (Constructor<T> c : constructors) {
+                    if (c.getParameterTypes().length <
+                            constructor.getParameterTypes().length) {
+                        constructor = c;
+                        if (constructor.getParameterTypes().length == 0) {
+                            break;
+                        }
                     }
+                }
+            }
+            constructor.setAccessible(true);
+            // 虚拟构造函数的参数值，基本类型使用默认值，其它类型使用null
+            Class<?>[] argTypes = constructor.getParameterTypes();
+            Object[] args = new Object[argTypes.length];
+            for (int i = 0; i < args.length; i++) {
+                args[i] = getParamArg(argTypes[i]);
+            }
+            return constructor.newInstance(args);
+        } catch (BsoaRuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BsoaRuntimeException(22222, e);
+        }
+    }
+
+    /**
+     * 实例化一个对象(根据参数自动检测构造方法）
+     *
+     * @param clazz 对象类
+     * @param args  构造函数需要的参数
+     * @param <T>   对象具体类
+     * @return 对象实例
+     * @throws Exception 没有找到方法，或者无法处理，或者初始化方法异常等
+     * @argTypes 构造函数需要的参数类型
+     */
+    public static <T> T newInstanceWithArgs(Class<T> clazz, Class<?>[] argTypes, Object[] args) throws BsoaRuntimeException {
+        if (CommonUtils.isEmpty(argTypes)) {
+            return newInstance(clazz);
+        }
+        try {
+            if (!(clazz.isMemberClass() && !Modifier.isStatic(clazz.getModifiers()))) {
+                Constructor<T> constructor = clazz.getDeclaredConstructor(argTypes);
+                constructor.setAccessible(true);
+                return constructor.newInstance(args);
+            } else {
+                Constructor<T>[] constructors = (Constructor<T>[]) clazz.getDeclaredConstructors();
+                if (constructors == null || constructors.length == 0) {
+                    throw new BsoaRuntimeException(22222, "The " + clazz.getCanonicalName()
+                            + " has no constructor with argTypes :" + argTypes);
+                }
+                Constructor<T> constructor = null;
+                for (Constructor<T> c : constructors) {
+                    Class[] ps = c.getParameterTypes();
+                    if (ps.length == argTypes.length + 1) { // 长度多一
+                        boolean allMath = true;
+                        for (int i = 1; i < ps.length; i++) { // 而且第二个开始的参数类型匹配
+                            if (ps[i] != argTypes[i-1]) {
+                                allMath = false;
+                                break;
+                            }
+                        }
+                        if (allMath) {
+                            constructor = c;
+                            break;
+                        }
+                    }
+                }
+                if (constructor == null) {
+                    throw new BsoaRuntimeException(22222, "The " + clazz.getCanonicalName()
+                            + " has no constructor with argTypes :" + argTypes);
+                } else {
+                    constructor.setAccessible(true);
+                    Object[] newargs = new Object[args.length+1];
+                    System.arraycopy(args, 0, newargs, 1, args.length);
+                    return constructor.newInstance(newargs);
                 }
             }
         } catch (BsoaRuntimeException e) {
             throw e;
         } catch (Exception e) {
             throw new BsoaRuntimeException(22222, e);
+        }
+    }
+
+
+    protected static Object getParamArg(Class clazz) {
+        if (clazz == Short.class || clazz == short.class) {
+            return (short) 0;
+        } else if (clazz == Integer.class || clazz == int.class) {
+            return 0;
+        } else if (clazz == Long.class || clazz == long.class) {
+            return 0L;
+        } else if (clazz == Double.class || clazz == double.class) {
+            return 0d;
+        } else if (clazz == Float.class || clazz == float.class) {
+            return 0f;
+        } else if (clazz == Byte.class || clazz == byte.class) {
+            return (byte) 0;
+        } else if (clazz == Character.class || clazz == char.class) {
+            return (char) 0;
+        } else if (clazz == Boolean.class || clazz == boolean.class) {
+            return Boolean.FALSE;
+        } else {
+            return null;
         }
     }
 }

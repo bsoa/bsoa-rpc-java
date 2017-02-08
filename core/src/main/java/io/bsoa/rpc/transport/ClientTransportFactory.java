@@ -81,8 +81,9 @@ public class ClientTransportFactory {
             String key = getAddr(config);
             ClientTransport transport = CLIENT_TRANSPORT_MAP.get(key);
             if (transport == null) {
-                transport = extensionLoader.getExtension(config.getContainer());
-                transport.setConfig(config);
+                transport = extensionLoader.getExtension(config.getContainer(),
+                        new Class[]{ClientTransportConfig.class},
+                        new Object[]{config});
                 ClientTransport oldTransport = CLIENT_TRANSPORT_MAP.putIfAbsent(key, transport); // 保存唯一长连接
                 if (oldTransport != null) {
                     LOGGER.warn("Multiple threads init ClientTransport with same key:" + key);
@@ -103,8 +104,9 @@ public class ClientTransportFactory {
         } else {
             ClientTransport transport = ALL_TRANSPORT_MAP.get(config);
             if (transport == null) {
-                transport = extensionLoader.getExtension(config.getContainer());
-                transport.setConfig(config);
+                transport = extensionLoader.getExtension(config.getContainer(),
+                        new Class[]{ClientTransportConfig.class},
+                        new Object[]{config});
                 ClientTransport old = ALL_TRANSPORT_MAP.putIfAbsent(config, transport); // 保存唯一长连接
                 if (old != null) {
                     LOGGER.warn("Multiple threads init ClientTransport with same ClientTransportConfig!");
