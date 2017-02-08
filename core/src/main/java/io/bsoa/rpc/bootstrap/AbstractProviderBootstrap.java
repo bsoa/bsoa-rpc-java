@@ -19,19 +19,25 @@ package io.bsoa.rpc.bootstrap;
 import io.bsoa.rpc.config.ProviderConfig;
 
 /**
- * <p></p>
+ * <p>发布服务的包装类，包括具体的启动后的对象</p>
  * <p>
- * Created by zhangg on 2017/2/8 23:03. <br/>
+ * Created by zhangg on 2017/2/8 22:54. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public class BsoaProviderBootstrap<T> extends AbstractProviderBootstrap<T> {
+public abstract class AbstractProviderBootstrap<T> {
+
+    /**
+     * 服务发布者配置
+     */
+    protected final ProviderConfig<T> providerConfig;
+
     /**
      * 构造函数
      *
      * @param providerConfig 服务发布者配置
      */
-    protected BsoaProviderBootstrap(ProviderConfig<T> providerConfig) {
-        super(providerConfig);
+    protected AbstractProviderBootstrap(ProviderConfig<T> providerConfig) {
+        this.providerConfig = providerConfig;
     }
 }

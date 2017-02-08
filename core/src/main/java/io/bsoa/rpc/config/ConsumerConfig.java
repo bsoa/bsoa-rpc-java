@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import io.bsoa.rpc.GenericService;
 import io.bsoa.rpc.base.Invoker;
+import io.bsoa.rpc.bootstrap.AbstractConsumerBootstrap;
 import io.bsoa.rpc.client.Client;
 import io.bsoa.rpc.client.ClientFactory;
 import io.bsoa.rpc.client.ClientProxyInvoker;
@@ -51,7 +52,25 @@ import io.bsoa.rpc.registry.Registry;
 import io.bsoa.rpc.registry.RegistryFactory;
 import io.bsoa.rpc.server.InvokerHolder;
 
-import static io.bsoa.rpc.common.BsoaConfigs.*;
+import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_ASYNC;
+import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_CHECK;
+import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_CONCURRENTS;
+import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_CONNECTION;
+import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_CONNECTION_HOLDER;
+import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_CONNECT_TIMEOUT;
+import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_HEARTBEAT_PERIOD;
+import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_INJVM;
+import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_INVOKE_TIMEOUT;
+import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_LAZY;
+import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_LOAD_BALANCER;
+import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_ONEWAY;
+import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_RECONNECT_PERIOD;
+import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_STICKY;
+import static io.bsoa.rpc.common.BsoaConfigs.DEFAULT_PROTOCOL;
+import static io.bsoa.rpc.common.BsoaConfigs.DEFAULT_SERIALIZATION;
+import static io.bsoa.rpc.common.BsoaConfigs.getBooleanValue;
+import static io.bsoa.rpc.common.BsoaConfigs.getIntValue;
+import static io.bsoa.rpc.common.BsoaConfigs.getStringValue;
 
 /**
  * Created by zhangg on 16-7-7.
@@ -202,6 +221,7 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Ser
 
 	/*---------- 参数配置项结束 ------------*/
 
+	protected transient AbstractConsumerBootstrap<T> consumerBootstrap;
     /**
      * 代理实现类
      */

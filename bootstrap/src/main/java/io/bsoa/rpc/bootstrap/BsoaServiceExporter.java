@@ -16,29 +16,21 @@
  */
 package io.bsoa.rpc.bootstrap;
 
-import io.bsoa.rpc.common.BsoaConfigs;
 import io.bsoa.rpc.config.ProviderConfig;
-import io.bsoa.rpc.ext.ExtensionLoader;
-import io.bsoa.rpc.ext.ExtensionLoaderFactory;
-
-import static io.bsoa.rpc.common.BsoaConfigs.DEFAULT_PROVIDER_BOOTSTRAP;
+import io.bsoa.rpc.ext.Extension;
 
 /**
  * <p></p>
  *
- * Created by zhangg on 2017/2/8 19:46. <br/>
+ * Created by zhangg on 2017/2/8 19:23. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public class Bootstrap {
+@Extension("bsoa")
+public class BsoaServiceExporter implements ServiceExporter {
 
-    private final static ExtensionLoader<ProviderBootstrap> PROVIDER_BOOTSTRAP_EXTENSION_LOADER
-            = ExtensionLoaderFactory.getExtensionLoader(ProviderBootstrap.class);
-
-    private final static ExtensionLoader<ConsumerBootstrap> CONSUMER_BOOTSTRAP_EXTENSION_LOADER
-            = ExtensionLoaderFactory.getExtensionLoader(ConsumerBootstrap.class);
-
-    public static void provide(ProviderConfig providerConfig){
-        PROVIDER_BOOTSTRAP_EXTENSION_LOADER.getExtension(BsoaConfigs.getStringValue(DEFAULT_PROVIDER_BOOTSTRAP));
+    @Override
+    public <T> BsoaProviderBootstrap<T> export(ProviderConfig<T> providerConfig) {
+        return null;
     }
 }

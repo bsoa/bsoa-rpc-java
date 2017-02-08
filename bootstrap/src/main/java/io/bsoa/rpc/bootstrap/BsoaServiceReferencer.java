@@ -16,22 +16,21 @@
  */
 package io.bsoa.rpc.bootstrap;
 
-import io.bsoa.rpc.config.ProviderConfig;
+import io.bsoa.rpc.config.ConsumerConfig;
+import io.bsoa.rpc.ext.Extension;
 
 /**
  * <p></p>
  * <p>
- * Created by zhangg on 2017/2/8 23:03. <br/>
+ * Created by zhangg on 2017/2/8 22:49. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public class BsoaProviderBootstrap<T> extends AbstractProviderBootstrap<T> {
-    /**
-     * 构造函数
-     *
-     * @param providerConfig 服务发布者配置
-     */
-    protected BsoaProviderBootstrap(ProviderConfig<T> providerConfig) {
-        super(providerConfig);
+@Extension("bsoa")
+public class BsoaServiceReferencer implements  ServiceReferencer {
+
+    @Override
+    public <T> BsoaConsumerBootstrap<T> refer(ConsumerConfig<T> consumerConfig) {
+        return null;
     }
 }

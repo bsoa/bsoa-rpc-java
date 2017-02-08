@@ -15,23 +15,6 @@
  * limitations under the License.
  */
 package io.bsoa.rpc.bootstrap;
-
-import io.bsoa.rpc.config.ProviderConfig;
-
 /**
- * <p></p>
- * <p>
- * Created by zhangg on 2017/2/8 23:03. <br/>
- *
- * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
+ * 启动相关的类，包括发布引用服务的启动类，扩展接口等
  */
-public class BsoaProviderBootstrap<T> extends AbstractProviderBootstrap<T> {
-    /**
-     * 构造函数
-     *
-     * @param providerConfig 服务发布者配置
-     */
-    protected BsoaProviderBootstrap(ProviderConfig<T> providerConfig) {
-        super(providerConfig);
-    }
-}

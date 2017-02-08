@@ -1,13 +1,13 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,20 +19,25 @@ package io.bsoa.rpc.bootstrap;
 import io.bsoa.rpc.config.ConsumerConfig;
 
 /**
- * <p></p>
+ * <p>引用服务的包装类，包括具体的启动后的对象</p>
  * <p>
- * Created by zhangg on 2017/2/8 19:18. <br/>
+ * Created by zhangg on 2017/2/8 22:45. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public interface ConsumerBootstrap {
+public abstract class AbstractConsumerBootstrap<T> {
 
     /**
-     * 调用一个服务
-     *
-     * @param consumerConfig 调用端配置
-     * @param <T>
-     * @return
+     * 服务消费者配置
      */
-    public <T> T refer(ConsumerConfig<T> consumerConfig);
+    protected final ConsumerConfig<T> consumerConfig;
+
+    /**
+     * 构造函数
+     *
+     * @param consumerConfig 服务消费者配置
+     */
+    protected AbstractConsumerBootstrap(ConsumerConfig<T> consumerConfig) {
+        this.consumerConfig = consumerConfig;
+    }
 }
