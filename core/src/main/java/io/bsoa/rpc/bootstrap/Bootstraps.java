@@ -37,13 +37,13 @@ public class Bootstraps {
     /**
      * ServiceExporter扩展加载器
      */
-    private final static ExtensionLoader<ServiceExporter> EXPORTER_EXTENSION_LOADER
-            = ExtensionLoaderFactory.getExtensionLoader(ServiceExporter.class);
+    private final static ExtensionLoader<ProviderBootstrap> PROVIDER_BOOTSTRAP_EXTENSION_LOADER
+            = ExtensionLoaderFactory.getExtensionLoader(ProviderBootstrap.class);
     /**
      * ServiceReferencer扩展加载器
      */
-    private final static ExtensionLoader<ServiceReferencer> REFERENCER_EXTENSION_LOADER
-            = ExtensionLoaderFactory.getExtensionLoader(ServiceReferencer.class);
+    private final static ExtensionLoader<ConsumerBootstrap> CONSUMER_BOOTSTRAP_EXTENSION_LOADER
+            = ExtensionLoaderFactory.getExtensionLoader(ConsumerBootstrap.class);
 
     /**
      * 发布一个服务
@@ -52,10 +52,12 @@ public class Bootstraps {
      * @param <T>            接口类型
      * @return 发布启动类
      */
-    public static <T> AbstractProviderBootstrap<T> export(ProviderConfig<T> providerConfig) {
-        ServiceExporter exporter = EXPORTER_EXTENSION_LOADER.getExtension(
-                getStringValue(DEFAULT_PROVIDER_BOOTSTRAP));
-        return exporter.export(providerConfig);
+    public static <T> ProviderBootstrap<T> wrap(ProviderConfig<T> providerConfig) {
+        ProviderBootstrap bootstrap = PROVIDER_BOOTSTRAP_EXTENSION_LOADER.getExtension(
+                getStringValue(DEFAULT_PROVIDER_BOOTSTRAP),
+                new Class[]{ProviderConfig.class},
+                new Object[]{providerConfig});
+        return (ProviderBootstrap<T>) bootstrap;
     }
 
     /**
@@ -65,9 +67,11 @@ public class Bootstraps {
      * @param <T>            接口类型
      * @return 引用启动类
      */
-    public static <T> AbstractConsumerBootstrap<T> reference(ConsumerConfig<T> consumerConfig) {
-        ServiceReferencer referencer = REFERENCER_EXTENSION_LOADER.getExtension(
-                getStringValue(DEFAULT_CONSUMER_BOOTSTRAP));
-        return referencer.refer(consumerConfig);
+    public static <T> ConsumerBootstrap<T> wrap(ConsumerConfig<T> consumerConfig) {
+        ConsumerBootstrap bootstrap = CONSUMER_BOOTSTRAP_EXTENSION_LOADER.getExtension(
+                getStringValue(DEFAULT_CONSUMER_BOOTSTRAP),
+                new Class[]{ConsumerConfig.class},
+                new Object[]{consumerConfig});
+        return (ConsumerBootstrap<T>) bootstrap;
     }
 }

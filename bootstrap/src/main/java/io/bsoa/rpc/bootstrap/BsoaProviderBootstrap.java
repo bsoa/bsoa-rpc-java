@@ -17,6 +17,7 @@
 package io.bsoa.rpc.bootstrap;
 
 import io.bsoa.rpc.config.ProviderConfig;
+import io.bsoa.rpc.ext.Extension;
 
 /**
  * <p></p>
@@ -25,7 +26,8 @@ import io.bsoa.rpc.config.ProviderConfig;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public class BsoaProviderBootstrap<T> extends AbstractProviderBootstrap<T> {
+@Extension("bsoa")
+public class BsoaProviderBootstrap<T> extends ProviderBootstrap<T> {
     /**
      * 构造函数
      *

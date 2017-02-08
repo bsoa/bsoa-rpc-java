@@ -16,28 +16,40 @@
  */
 package io.bsoa.rpc.bootstrap;
 
-import io.bsoa.rpc.config.ConsumerConfig;
+import io.bsoa.rpc.config.ProviderConfig;
+import io.bsoa.rpc.ext.Extensible;
 
 /**
- * <p>引用服务的包装类，包括具体的启动后的对象</p>
+ * <p>发布服务的包装类，包括具体的启动后的对象</p>
  * <p>
- * Created by zhangg on 2017/2/8 22:45. <br/>
+ * Created by zhangg on 2017/2/8 22:54. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public abstract class AbstractConsumerBootstrap<T> {
+@Extensible
+public abstract class ProviderBootstrap<T> {
 
     /**
-     * 服务消费者配置
+     * 服务发布者配置
      */
-    protected final ConsumerConfig<T> consumerConfig;
+    protected final ProviderConfig<T> providerConfig;
 
     /**
      * 构造函数
      *
-     * @param consumerConfig 服务消费者配置
+     * @param providerConfig 服务发布者配置
      */
-    protected AbstractConsumerBootstrap(ConsumerConfig<T> consumerConfig) {
-        this.consumerConfig = consumerConfig;
+    protected ProviderBootstrap(ProviderConfig<T> providerConfig) {
+        this.providerConfig = providerConfig;
     }
+
+    /**
+     * 发布一个服务
+     */
+    public abstract void export();
+
+    /**
+     * 发布一个服务
+     */
+    public abstract void unExport();
 }

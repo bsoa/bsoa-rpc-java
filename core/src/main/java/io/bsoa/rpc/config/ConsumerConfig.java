@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import io.bsoa.rpc.GenericService;
 import io.bsoa.rpc.base.Invoker;
-import io.bsoa.rpc.bootstrap.AbstractConsumerBootstrap;
+import io.bsoa.rpc.bootstrap.ConsumerBootstrap;
 import io.bsoa.rpc.client.Client;
 import io.bsoa.rpc.client.ClientFactory;
 import io.bsoa.rpc.client.ClientProxyInvoker;
@@ -221,7 +221,7 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Ser
 
 	/*---------- 参数配置项结束 ------------*/
 
-	protected transient AbstractConsumerBootstrap<T> consumerBootstrap;
+	protected transient ConsumerBootstrap<T> consumerBootstrap;
     /**
      * 代理实现类
      */

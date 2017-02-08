@@ -17,6 +17,7 @@
 package io.bsoa.rpc.bootstrap;
 
 import io.bsoa.rpc.config.ConsumerConfig;
+import io.bsoa.rpc.ext.Extension;
 
 /**
  * <p></p>
@@ -25,7 +26,8 @@ import io.bsoa.rpc.config.ConsumerConfig;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public class BsoaConsumerBootstrap<T> extends AbstractConsumerBootstrap<T> {
+@Extension("bsoa")
+public class BsoaConsumerBootstrap<T> extends ConsumerBootstrap<T> {
     /**
      * 构造函数
      *
