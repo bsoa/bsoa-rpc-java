@@ -59,6 +59,7 @@
         <!--- TODO 移动到单独的工程 -->
         <module>ext-JSF</module>
         <module>ext-dubbo</module>
+        <module>bootstrap</module>
     </modules>
 
     <properties>

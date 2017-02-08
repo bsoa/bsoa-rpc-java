@@ -277,7 +277,14 @@ public class BsoaConfigs {
      */
     public final static String TRANSPORT_CONNECTION_REUSE = "transport.connection.reuse";
 
-
+    /**
+     * 默认服务提供者启动器
+     */
+    public final static String DEFAULT_PROVIDER_BOOTSTRAP = "default.provider.bootstrap";
+    /**
+     * 默认服务端调用者启动器
+     */
+    public final static String DEFAULT_CONSUMER_BOOTSTRAP = "default.consumer.bootstrap";
     /**
      * 默认服务tag
      */

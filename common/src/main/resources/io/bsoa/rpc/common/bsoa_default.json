@@ -29,6 +29,8 @@ PS:大家也看到了，本JSON文档是支持注释的，而标准JSOB是不支
   "extension.load.path" : ["META-INF/services/bsoa/", "META-INF/services/"], // 扩展点加载的路径
   "consumer.share.reconnect.thread" : false, //是否所有客户端共享一个重连线程
 
+  "default.provider.bootstrap" : "bsoa",
+  "default.consumer.bootstrap" : "bsoa",
   "default.tags" : "bsoa",
   "default.protocol" : "bsoa",
   "default.serialization" : "hessian",
