@@ -27,6 +27,8 @@ import java.util.concurrent.ConcurrentMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.bsoa.rpc.bootstrap.ConsumerBootstrap;
+import io.bsoa.rpc.bootstrap.ProviderBootstrap;
 import io.bsoa.rpc.common.BsoaConfigs;
 import io.bsoa.rpc.common.BsoaConstants;
 import io.bsoa.rpc.common.BsoaVersion;
@@ -34,7 +36,6 @@ import io.bsoa.rpc.common.SystemInfo;
 import io.bsoa.rpc.common.struct.ConcurrentHashSet;
 import io.bsoa.rpc.common.utils.CommonUtils;
 import io.bsoa.rpc.config.ConsumerConfig;
-import io.bsoa.rpc.config.ProviderConfig;
 import io.bsoa.rpc.server.ServerFactory;
 import io.bsoa.rpc.transport.ClientTransportFactory;
 
@@ -71,14 +72,14 @@ public class BsoaContext {
     /**
      * 发布的服务配置
      */
-    private final static ConcurrentHashSet<ProviderConfig> EXPORTED_PROVIDER_CONFIGS
-            = new ConcurrentHashSet<ProviderConfig>();
+    private final static ConcurrentHashSet<ProviderBootstrap> EXPORTED_PROVIDER_CONFIGS
+            = new ConcurrentHashSet<>();
 
     /**
      * 发布的订阅配置
      */
-    private final static ConcurrentHashSet<ConsumerConfig> REFERRED_CONSUMER_CONFIGS
-            = new ConcurrentHashSet<ConsumerConfig>();
+    private final static ConcurrentHashSet<ConsumerBootstrap> REFERRED_CONSUMER_CONFIGS
+            = new ConcurrentHashSet<>();
 
     /**
      * 是否正在关闭
@@ -130,8 +131,8 @@ public class BsoaContext {
         // 关闭资源
       /*  ResourceScheduleChecker.close(); */
         // 关闭启动的服务端
-        for (ProviderConfig config : EXPORTED_PROVIDER_CONFIGS) {
-            config.unexport();
+        for (ProviderBootstrap bootstrap : EXPORTED_PROVIDER_CONFIGS) {
+            bootstrap.unExport();
         }
         // 关闭启动的端口
         ServerFactory.destroyAll();
@@ -144,9 +145,10 @@ public class BsoaContext {
             }
         }*/
         // 关闭启动的调用端
-        for (ConsumerConfig config : REFERRED_CONSUMER_CONFIGS) {
+        for (ConsumerBootstrap bootstrap : REFERRED_CONSUMER_CONFIGS) {
+            ConsumerConfig config = bootstrap.getConsumerConfig();
             if (!CommonUtils.isFalse(config.getParameter(BsoaConstants.HIDDEN_KEY_DESTROY))) { // 除非不让主动unrefer
-                config.unrefer();
+                bootstrap.unRefer();
             }
         }
 //        if (JSFLogicSwitch.REGISTRY_REGISTER_BATCH) { // 批量反注册
@@ -172,7 +174,7 @@ public class BsoaContext {
      * @param consumerConfig
      *         the consumer config
      */
-    public static void cacheConsumerConfig(ConsumerConfig consumerConfig) {
+    public static void cacheConsumerConfig(ConsumerBootstrap consumerConfig) {
         REFERRED_CONSUMER_CONFIGS.add(consumerConfig);
     }
 
@@ -182,7 +184,7 @@ public class BsoaContext {
      * @param consumerConfig
      *         the consumer config
      */
-    public static void invalidateConsumerConfig(ConsumerConfig consumerConfig) {
+    public static void invalidateConsumerConfig(ConsumerBootstrap consumerConfig) {
         REFERRED_CONSUMER_CONFIGS.remove(consumerConfig);
     }
 
@@ -192,7 +194,7 @@ public class BsoaContext {
      * @param providerConfig
      *         the provider config
      */
-    public static void cacheProviderConfig(ProviderConfig providerConfig) {
+    public static void cacheProviderConfig(ProviderBootstrap providerConfig) {
         EXPORTED_PROVIDER_CONFIGS.add(providerConfig);
     }
 
@@ -202,7 +204,7 @@ public class BsoaContext {
      * @param providerConfig
      *         the provider config
      */
-    public static void invalidateProviderConfig(ProviderConfig providerConfig) {
+    public static void invalidateProviderConfig(ProviderBootstrap providerConfig) {
         EXPORTED_PROVIDER_CONFIGS.remove(providerConfig);
     }
 
@@ -211,8 +213,8 @@ public class BsoaContext {
      *
      * @return the provider configs
      */
-    public static List<ProviderConfig> getProviderConfigs() {
-        return new ArrayList<ProviderConfig>(EXPORTED_PROVIDER_CONFIGS);
+    public static List<ProviderBootstrap> getProviderConfigs() {
+        return new ArrayList<ProviderBootstrap>(EXPORTED_PROVIDER_CONFIGS);
     }
 
     /**
@@ -220,8 +222,8 @@ public class BsoaContext {
      *
      * @return the consumer configs
      */
-    public static List<ConsumerConfig> getConsumerConfigs() {
-        return new ArrayList<ConsumerConfig>(REFERRED_CONSUMER_CONFIGS);
+    public static List<ConsumerBootstrap> getConsumerConfigs() {
+        return new ArrayList<ConsumerBootstrap>(REFERRED_CONSUMER_CONFIGS);
     }
 
     /**

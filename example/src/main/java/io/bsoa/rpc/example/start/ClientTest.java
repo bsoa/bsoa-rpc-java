@@ -21,6 +21,8 @@ package io.bsoa.rpc.example.start;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.bsoa.rpc.bootstrap.Bootstraps;
+import io.bsoa.rpc.bootstrap.ConsumerBootstrap;
 import io.bsoa.rpc.config.ConsumerConfig;
 import io.bsoa.test.HelloService;
 
@@ -44,7 +46,8 @@ public class ClientTest {
         consumerConfig.setInterfaceId(HelloService.class.getName());
         consumerConfig.setUrl("bsoa://127.0.0.1:22000");
         consumerConfig.setRegister(false);
-        HelloService helloService = consumerConfig.refer();
+        ConsumerBootstrap<HelloService> bootstrap = Bootstraps.from(consumerConfig);
+        HelloService helloService = bootstrap.refer();
         try {
             String s = helloService.sayHello("xxx", 22);
             LOGGER.warn("{}", s);
@@ -57,7 +60,8 @@ public class ClientTest {
         consumerConfig2.setInterfaceId(HelloService.class.getName());
         consumerConfig2.setUrl("bsoa://127.0.0.1:22000");
         consumerConfig2.setRegister(false);
-        HelloService helloService2 = consumerConfig2.refer();
+        ConsumerBootstrap<HelloService> bootstrap2 = Bootstraps.from(consumerConfig2);
+        HelloService helloService2 = bootstrap2.refer();
         try {
             String s = helloService2.sayHello("xxx", 22);
             LOGGER.warn("{}", s);
@@ -65,9 +69,9 @@ public class ClientTest {
             LOGGER.error("", e);
         }
 
-        consumerConfig2.unrefer();
+        bootstrap.unRefer();
 
-        consumerConfig.unrefer();
+        bootstrap2.unRefer();
     }
 
 }

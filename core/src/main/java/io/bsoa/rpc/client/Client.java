@@ -18,7 +18,7 @@ package io.bsoa.rpc.client;
 import java.util.List;
 import javax.annotation.concurrent.ThreadSafe;
 
-import io.bsoa.rpc.config.ConsumerConfig;
+import io.bsoa.rpc.bootstrap.ConsumerBootstrap;
 import io.bsoa.rpc.ext.Extensible;
 import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.message.RpcResponse;
@@ -30,21 +30,35 @@ import io.bsoa.rpc.message.RpcResponse;
  */
 @Extensible(singleton = false)
 @ThreadSafe
-public interface Client {
+public abstract class Client {
 
-    void init(ConsumerConfig<?> consumerConfig);
+    /**
+     * 服务端消费者启动器
+     */
+    protected final ConsumerBootstrap consumerBootstrap;
 
-    void destroy();
+    /**
+     * 构造函数
+     *
+     * @param consumerBootstrap 服务端消费者启动器
+     */
+    public Client(ConsumerBootstrap consumerBootstrap) {
+        this.consumerBootstrap = consumerBootstrap;
+    }
 
-    boolean isAvailable();
+    public abstract void init();
 
-    void addProvider(List<Provider> providers);
+    public abstract void destroy();
 
-    void checkStateChange(boolean originalState);
+    public abstract boolean isAvailable();
 
-    void removeProvider(List<Provider> providers);
+    public abstract void addProvider(List<Provider> providers);
 
-    void updateProvider(List<Provider> newProviders);
+    public abstract void checkStateChange(boolean originalState);
 
-    RpcResponse sendMsg(RpcRequest rpcRequest);
+    public abstract void removeProvider(List<Provider> providers);
+
+    public abstract void updateProvider(List<Provider> newProviders);
+
+    public abstract RpcResponse sendMsg(RpcRequest rpcRequest);
 }

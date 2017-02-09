@@ -24,6 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.bsoa.rpc.bootstrap.ConsumerBootstrap;
 import io.bsoa.rpc.common.BsoaConstants;
 import io.bsoa.rpc.common.utils.StringUtils;
 import io.bsoa.rpc.exception.BsoaRpcException;
@@ -48,6 +49,15 @@ public class PinpointFailoverClient extends FailoverClient {
      * slf4j Logger for this class
      */
     private final static Logger LOGGER = LoggerFactory.getLogger(PinpointFailoverClient.class);
+
+    /**
+     * 构造函数
+     *
+     * @param consumerBootstrap 服务端消费者启动器
+     */
+    public PinpointFailoverClient(ConsumerBootstrap consumerBootstrap) {
+        super(consumerBootstrap);
+    }
 
     @Override
     public RpcResponse doSendMsg(RpcRequest request) {

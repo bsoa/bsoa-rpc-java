@@ -24,6 +24,11 @@
 
         <dependency>
             <groupId>io.bsoa.rpc</groupId>
+            <artifactId>bootstrap</artifactId>
+            <version>${parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.bsoa.rpc</groupId>
             <artifactId>client</artifactId>
             <version>${parent.version}</version>
         </dependency>

@@ -709,7 +709,7 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
      * @param property 属性
      * @return oldValue 属性值
      */
-    protected String queryAttribute(String property) {
+    public String queryAttribute(String property) {
         try {
             Object oldValue = null;
             if (property.charAt(0) == BsoaConstants.HIDE_KEY_PREFIX) {
@@ -748,7 +748,7 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
      * @param overwrite   是否覆盖 true直接覆盖，false为检查
      * @return 是否有变更 boolean
      */
-    protected boolean updateAttribute(String property, String newValueStr, boolean overwrite) {
+    public boolean updateAttribute(String property, String newValueStr, boolean overwrite) {
         try {
             boolean changed = false;
             if (property.charAt(0) == BsoaConstants.HIDE_KEY_PREFIX) {

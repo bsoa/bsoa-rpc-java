@@ -44,6 +44,15 @@ public abstract class ProviderBootstrap<T> {
     }
 
     /**
+     * 得到服务发布者配置
+     *
+     * @return 服务发布者配置
+     */
+    public ProviderConfig<T> getProviderConfig() {
+        return providerConfig;
+    }
+
+    /**
      * 发布一个服务
      */
     public abstract void export();

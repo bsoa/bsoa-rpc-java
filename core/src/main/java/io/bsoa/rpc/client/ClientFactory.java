@@ -16,6 +16,7 @@
  */
 package io.bsoa.rpc.client;
 
+import io.bsoa.rpc.bootstrap.ConsumerBootstrap;
 import io.bsoa.rpc.common.utils.ExceptionUtils;
 import io.bsoa.rpc.config.ConsumerConfig;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
@@ -39,18 +40,19 @@ public class ClientFactory {
     /**
      * 构造Client对象
      *
-     * @param consumerConfig 客户端配置
+     * @param consumerBootstrap 客户端配置
      * @return Client对象
      */
-    public static Client getClient(ConsumerConfig consumerConfig) {
+    public static Client getClient(ConsumerBootstrap consumerBootstrap) {
         try {
+            ConsumerConfig consumerConfig = consumerBootstrap.getConsumerConfig();
             ExtensionClass<Client> ext = EXTENSION_LOADER.getExtensionClass(consumerConfig.getCluster());
             if (ext == null) {
-                throw ExceptionUtils.buildRuntime(22222, "consumer.cluster", consumerConfig.getCluster(),
-                        "Unsupported cluster of client!");
+                throw ExceptionUtils.buildRuntime(22222, "consumer.cluster",
+                        consumerConfig.getCluster(),"Unsupported cluster of client!");
             }
-            Client client = ext.getExtInstance();
-            client.init(consumerConfig);
+            Client client = ext.getExtInstance(new Class[]{ConsumerBootstrap.class},
+                    new Object[]{consumerBootstrap});
             return client;
         } catch (BsoaRuntimeException e) {
             throw e;

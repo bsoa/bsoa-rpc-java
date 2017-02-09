@@ -26,6 +26,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.bsoa.rpc.bootstrap.Bootstraps;
+import io.bsoa.rpc.bootstrap.ConsumerBootstrap;
 import io.bsoa.rpc.client.Client;
 import io.bsoa.rpc.config.ConsumerConfig;
 import io.bsoa.rpc.context.BsoaContext;
@@ -54,9 +56,9 @@ public class ClientMutisTest {
         consumerConfig.setInterfaceId(HelloService.class.getName());
         consumerConfig.setSerialization("hessian");
         consumerConfig.setUrl("bsoa://127.0.0.1:22000");
-        HelloService helloService = consumerConfig.refer();
-
-        final Client client = consumerConfig.getClient();
+        ConsumerBootstrap<HelloService> bootstrap = Bootstraps.from(consumerConfig);
+        HelloService helloService = bootstrap.refer();
+        final Client client = bootstrap.getClient();
 
         LOGGER.warn("started at pid {}", BsoaContext.PID);
         try {

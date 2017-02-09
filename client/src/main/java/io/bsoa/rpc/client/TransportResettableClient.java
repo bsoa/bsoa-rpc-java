@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
+import io.bsoa.rpc.bootstrap.ConsumerBootstrap;
 import io.bsoa.rpc.common.utils.ExceptionUtils;
 import io.bsoa.rpc.common.utils.StringUtils;
 import io.bsoa.rpc.exception.BsoaRpcException;
@@ -38,6 +39,15 @@ import io.bsoa.rpc.message.RpcResponse;
 public class TransportResettableClient extends FailoverClient {
 
     private volatile ReentrantLock lock = new ReentrantLock();
+
+    /**
+     * 构造函数
+     *
+     * @param consumerBootstrap 服务端消费者启动器
+     */
+    public TransportResettableClient(ConsumerBootstrap consumerBootstrap) {
+        super(consumerBootstrap);
+    }
 
     @Override
     public RpcResponse doSendMsg(RpcRequest msg) {

@@ -16,9 +16,7 @@
 package io.bsoa.rpc.config;
 
 import java.io.Serializable;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -26,24 +24,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.bsoa.rpc.base.Invoker;
-import io.bsoa.rpc.common.BsoaConstants;
-import io.bsoa.rpc.common.BsoaVersion;
-import io.bsoa.rpc.common.struct.ConcurrentHashSet;
 import io.bsoa.rpc.common.utils.ClassLoaderUtils;
 import io.bsoa.rpc.common.utils.CommonUtils;
 import io.bsoa.rpc.common.utils.ExceptionUtils;
-import io.bsoa.rpc.common.utils.ReflectUtils;
 import io.bsoa.rpc.common.utils.StringUtils;
-import io.bsoa.rpc.context.BsoaContext;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
-import io.bsoa.rpc.listener.ConfigListener;
-import io.bsoa.rpc.registry.Registry;
-import io.bsoa.rpc.registry.RegistryFactory;
-import io.bsoa.rpc.server.InvokerHolder;
-import io.bsoa.rpc.server.ProviderProxyInvoker;
-import io.bsoa.rpc.server.Server;
-import io.bsoa.rpc.server.ServerFactory;
 
 import static io.bsoa.rpc.common.BsoaConfigs.PROVIDER_CONCURRENTS;
 import static io.bsoa.rpc.common.BsoaConfigs.PROVIDER_DELAY;
@@ -134,198 +119,9 @@ public class ProviderConfig<T> extends AbstractInterfaceConfig<T> implements Ser
     /*---------- 参数配置项结束 ------------*/
 
     /**
-     * 是否已发布
-     */
-    protected transient volatile boolean exported;
-
-    /**
      * 方法名称：是否可调用
      */
     protected transient volatile ConcurrentHashMap<String, Boolean> methodsLimit;
-
-    /**
-     * 服务端Invoker对象
-     */
-    protected transient Invoker providerProxyInvoker;
-
-    /**
-     * 发布的服务配置
-     */
-    private final static ConcurrentHashSet<String> EXPORTED_KEYS
-            = new ConcurrentHashSet<String>();
-
-    /**
-     * 发布服务，有延迟加载
-     *
-     * @throws BsoaRuntimeException the init error exception
-     */
-    public synchronized void export() throws BsoaRuntimeException {
-        if (delay > 0) { // 延迟加载,单位毫秒
-            Thread thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        Thread.sleep(delay);
-                    } catch (Throwable e) {
-                    }
-                    doExport();
-                }
-            });
-            thread.setDaemon(true);
-            thread.setName("DelayExportThread");
-            thread.start();
-        } else {
-            doExport();
-        }
-    }
-
-    /**
-     * 发布服务
-     *
-     * @throws BsoaRuntimeException the init error exception
-     */
-    private synchronized void doExport() throws BsoaRuntimeException {
-        if (exported) {
-            return;
-        }
-        String key = buildKey();
-
-        // 检查参数
-        // tag不能为空
-        if (StringUtils.isBlank(tags)) {
-            throw ExceptionUtils.buildRuntime(22222, "tags", "NULL", "[JSF-21200]Value of \"tags\" is not specified in provider" +
-                    " config with key " + key + " !");
-        }
-        // 检查注入的ref是否接口实现类
-        if (!getProxyClass().isInstance(ref)) {
-            throw ExceptionUtils.buildRuntime(22222, "provider.ref", ref.getClass().getName(),
-                    "This is not an instance of " + interfaceId
-                            + " in provider config with key " + key + " !");
-        }
-        // server 不能为空
-        List<ServerConfig> serverConfigs = getServer();
-        if (CommonUtils.isEmpty(serverConfigs)) {
-            throw ExceptionUtils.buildRuntime(22222, "server", "NULL", "[JSF-21202]Value of \"server\" is not specified in provider" +
-                    " config with key " + key + " !");
-        }
-
-        LOGGER.info("Export provider config : {} with bean id {}", key, getId());
-        if (EXPORTED_KEYS.contains(key)) {
-            // 注意同一interface，同一tag，不同server情况
-            throw new BsoaRuntimeException(21203, "Duplicate provider config with key " + key + " has been exported!");
-        }
-
-        // 检查多态（重载）方法
-        checkOverloadingMethod(getProxyClass());
-
-        // 检查是否有回调函数
-//        CallbackUtil.autoRegisterCallBack(getProxyClass());
-
-        // 构造请求调用器
-        providerProxyInvoker = new ProviderProxyInvoker(this);
-        // 记录到本地
-        InvokerHolder.setInvoker(InvokerHolder.buildKey(interfaceId, tags), providerProxyInvoker);
-
-        // 初始化注册中心
-        if (isRegister()) {
-            List<RegistryConfig> registryConfigs = super.getRegistry();
-            if (CommonUtils.isEmpty(registryConfigs)) { // registry为空
-                // 走默认的注册中心
-                LOGGER.debug("Registry is undefined, will use default registry config instead");
-                registryConfigs = new ArrayList<RegistryConfig>();
-                registryConfigs.add(RegistryFactory.defaultConfig());
-                setRegistry(registryConfigs); // 注入进去
-            }
-            for (RegistryConfig registryConfig : registryConfigs) {
-                RegistryFactory.getRegistry(registryConfig); // 提前初始化Registry
-            }
-        }
-
-        // 将处理器注册到server
-        for (ServerConfig serverConfig : serverConfigs) {
-            try {
-                serverConfig.start();
-                Server server = serverConfig.getServer();
-                // 注册序列化接口
-//                    CodecUtils.registryService(serverConfig.getSerialization(), getProxyClass());
-                server.registerProcessor(this, providerProxyInvoker);
-            } catch (BsoaRuntimeException e) {
-                throw e;
-            } catch (Exception e) {
-                LOGGER.error("[JSF-21204]Catch exception when register processor to server: "
-                        + serverConfig.getId(), e);
-            }
-        }
-
-        // 注册到注册中心
-        configListener = new ProviderAttributeListener();
-        register();
-
-        // 记录一些缓存数据
-        EXPORTED_KEYS.add(key);
-        BsoaContext.cacheProviderConfig(this);
-        exported = true;
-    }
-
-    private void checkOverloadingMethod(Class<?> itfClass) {
-        methodsLimit = new ConcurrentHashMap<String, Boolean>();
-        for (Method method : itfClass.getMethods()) {
-            String methodName = method.getName();
-            if (methodsLimit.containsKey(methodName)) {
-                // 重名的方法
-                //LOGGER.warn("Method with same name \"{}\" exists ! The usage of " +
-                //        "overloading method is deprecated.", methodName);
-                throw new BsoaRuntimeException(21205, "[JSF-21205]Method with same name \"" + itfClass.getName() + "."
-                        + methodName + "\" exists ! The usage of overloading method is deprecated.");
-            }
-            // 判断服务下方法的黑白名单
-            Boolean include = methodsLimit.get(methodName);
-            if (include == null) {
-                include = inList(getInclude(), getExclude(), methodName); // 检查是否在黑白名单中
-                methodsLimit.putIfAbsent(methodName, include);
-            }
-            ReflectUtils.cacheMethodArgsType(interfaceId, methodName, method.getParameterTypes());
-        }
-    }
-
-    /**
-     * 取消发布（从server里取消注册）
-     */
-    public synchronized void unexport() {
-        if (!exported) {
-            return;
-        }
-        String key = buildKey();
-        LOGGER.info("Unexport provider config : {} {}", key, getId() != null ? "with bean id " + getId() : "");
-
-        // 取消注册到本地
-        InvokerHolder.removeInvoker(InvokerHolder.buildKey(interfaceId, tags));
-        providerProxyInvoker = null;
-
-        // 取消将处理器注册到server
-        List<ServerConfig> serverConfigs = getServer();
-        if (serverConfigs != null) {
-            for (ServerConfig serverConfig : serverConfigs) {
-                Server server = ServerFactory.getServer(serverConfig);
-                try {
-                    server.unRegisterProcessor(this, true);
-                } catch (Exception e) {
-                    LOGGER.warn("Catch exception when unregister processor to server: " + serverConfig.getId()
-                            + ", but you can ignore if it's called by JVM shutdown hook", e);
-                }
-            }
-        }
-
-        // 取消注册到注册中心
-        unregister();
-        configListener = null;
-
-        // 清除缓存状态
-        EXPORTED_KEYS.remove(key);
-        BsoaContext.invalidateProviderConfig(this);
-//        RpcStatus.removeStatus(this); TODO
-        exported = false;
-    }
 
     /**
      * Gets proxy class.
@@ -353,108 +149,6 @@ public class ProviderConfig<T> extends AbstractInterfaceConfig<T> implements Ser
             throw new BsoaRuntimeException(22222, t.getMessage(), t);
         }
         return proxyClass;
-    }
-
-
-    /**
-     * 订阅服务列表
-     *
-     * @return 当前服务列表
-     */
-    protected void register() {
-        if (isRegister()) {
-            List<RegistryConfig> registryConfigs = super.getRegistry();
-            if (registryConfigs != null) {
-//                boolean crossLang = CodecUtils.isSupportCrossLang(getProxyClass());
-//                super.setParameter(BsoaConstants.CONFIG_KEY_CROSSLANG, crossLang + "");
-                for (RegistryConfig registryConfig : registryConfigs) {
-                    Registry registry = RegistryFactory.getRegistry(registryConfig);
-                    try {
-                        registry.register(this, configListener);
-                    } catch (BsoaRuntimeException e) {
-                        throw e;
-                    } catch (Exception e) {
-                        LOGGER.warn("Catch exception when register to registry: "
-                                + registryConfig.getId(), e);
-                    }
-                }
-                super.setParameter(BsoaConstants.CONFIG_KEY_CROSSLANG, null);
-            }
-        }
-    }
-
-    /**
-     * 取消订阅服务列表
-     */
-    protected void unregister() {
-        if (isRegister()) {
-            List<RegistryConfig> registryConfigs = super.getRegistry();
-            if (registryConfigs != null) {
-                for (RegistryConfig registryConfig : registryConfigs) {
-                    Registry registry = RegistryFactory.getRegistry(registryConfig);
-                    try {
-                        registry.unregister(this);
-                    } catch (Exception e) {
-                        LOGGER.warn("Catch exception when unregister from registry: " + registryConfig.getId()
-                                + ", but you can ignore if it's called by JVM shutdown hook", e);
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Provider配置发生变化监听器
-     */
-    private class ProviderAttributeListener implements ConfigListener {
-
-        public void configChanged(Map newValue) {
-        }
-
-        public synchronized void attrUpdated(Map newValueMap) {
-            // 可以改变的配置 例如tag concurrents等
-            Map<String, String> newValues = (Map<String, String>) newValueMap;
-            Map<String, String> oldValues = new HashMap<String, String>();
-            boolean reexport = false;
-
-            // TODO 一些ServerConfig的配置 怎么处理？
-            try { // 检查是否有变化
-                // 是否过滤map?
-                for (Map.Entry<String, String> entry : newValues.entrySet()) {
-                    String newValue = entry.getValue();
-                    String oldValue = queryAttribute(entry.getKey());
-                    boolean changed = oldValue == null ? newValue != null : !oldValue.equals(newValue);
-                    if (changed) {
-                        oldValues.put(entry.getKey(), oldValue);
-                    }
-                    reexport = reexport || changed;
-                }
-            } catch (Exception e) {
-                LOGGER.error("Catch exception when provider attribute compare", e);
-                return;
-            }
-
-            // 需要重新发布
-            if (reexport) {
-                try {
-                    LOGGER.info("Reexport service {}", buildKey());
-                    unexport();
-                    // change attrs
-                    for (Map.Entry<String, String> entry : newValues.entrySet()) {
-                        updateAttribute(entry.getKey(), entry.getValue(), true);
-                    }
-                    export();
-                } catch (Exception e) {
-                    LOGGER.error("Catch exception when provider attribute changed", e);
-                    //rollback old attrs
-                    for (Map.Entry<String, String> entry : oldValues.entrySet()) {
-                        updateAttribute(entry.getKey(), entry.getValue(), true);
-                    }
-                    export();
-                }
-            }
-
-        }
     }
 
     /**
@@ -696,53 +390,6 @@ public class ProviderConfig<T> extends AbstractInterfaceConfig<T> implements Ser
     }
 
     /**
-     * 得到已发布的全部list
-     *
-     * @return urls urls
-     */
-    public List<String> buildUrls() {
-        if (exported) {
-            List<ServerConfig> servers = getServer();
-            if (servers != null && !servers.isEmpty()) {
-                List<String> urls = new ArrayList<String>();
-                for (ServerConfig server : servers) {
-                    StringBuilder sb = new StringBuilder(200);
-                    sb.append(server.getProtocol()).append("://").append(server.getHost())
-                            .append(":").append(server.getPort()).append(server.getContextPath())
-                            .append(getInterfaceId()).append("?tags=").append(getTags())
-                            .append(getKeyPairs("delay", getDelay()))
-                            .append(getKeyPairs("weight", getWeight()))
-                            .append(getKeyPairs("register", isRegister()))
-                            .append(getKeyPairs("maxThreads", server.getMaxThreads()))
-                            .append(getKeyPairs("ioThreads", server.getIoThreads()))
-                            .append(getKeyPairs("threadPoolType", server.getThreadPoolType()))
-                            .append(getKeyPairs("accepts", server.getAccepts()))
-                            .append(getKeyPairs("dynamic", isDynamic()))
-                            .append(getKeyPairs(BsoaConstants.CONFIG_KEY_BSOAVERSION, BsoaVersion.BSOA_VERSION));
-                    urls.add(sb.toString());
-                }
-                return urls;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Gets key pairs.
-     *
-     * @param key   the key
-     * @param value the value
-     * @return the key pairs
-     */
-    private String getKeyPairs(String key, Object value) {
-        if (value != null) {
-            return "&" + key + "=" + value.toString();
-        } else {
-            return "";
-        }
-    }
-
-    /**
      * 得到可调用的方法名称列表
      *
      * @return 可调用的方法名称列表
@@ -751,30 +398,4 @@ public class ProviderConfig<T> extends AbstractInterfaceConfig<T> implements Ser
         return methodsLimit;
     }
 
-    /**
-     * 接口可以按方法发布
-     *
-     * @param includeMethods 包含的方法列表
-     * @param excludeMethods 不包含的方法列表
-     * @param methodName     方法名
-     * @return 方法
-     */
-    private boolean inList(String includeMethods, String excludeMethods, String methodName) {
-        //判断是否在白名单中
-        if (includeMethods != null && !"*".equals(includeMethods)) {
-            includeMethods = includeMethods + ",";
-            boolean inwhite = includeMethods.indexOf(methodName + ",") >= 0;
-            if (!inwhite) {
-                return false;
-            }
-        }
-        //判断是否在黑白单中
-        if (StringUtils.isBlank(excludeMethods)) {
-            return true;
-        } else {
-            excludeMethods = excludeMethods + ",";
-            boolean inblack = excludeMethods.indexOf(methodName + ",") >= 0;
-            return !inblack;
-        }
-    }
 }

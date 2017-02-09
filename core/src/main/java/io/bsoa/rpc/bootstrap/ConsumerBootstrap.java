@@ -16,6 +16,10 @@
  */
 package io.bsoa.rpc.bootstrap;
 
+import java.util.List;
+
+import io.bsoa.rpc.client.Client;
+import io.bsoa.rpc.client.Provider;
 import io.bsoa.rpc.config.ConsumerConfig;
 import io.bsoa.rpc.ext.Extensible;
 
@@ -44,19 +48,29 @@ public abstract class ConsumerBootstrap<T> {
     }
 
     /**
-     * 调用一个服务
+     * 得到服务消费者配置
      *
-     * @param <T>
-     * @param consumerConfig 调用端配置
-     * @return 代理类
+     * @return 服务消费者配置
      */
-    public abstract <T> T refer(ConsumerConfig<T> consumerConfig);
+    public ConsumerConfig<T> getConsumerConfig() {
+        return consumerConfig;
+    }
 
     /**
      * 调用一个服务
      *
-     * @param <T>
-     * @param consumerConfig 调用端配置
+     * @return 代理类
      */
-    public abstract <T> void unRefer(ConsumerConfig<T> consumerConfig);
+    public abstract T refer();
+
+    /**
+     * 取消调用一个服务
+     */
+    public abstract void unRefer();
+
+    public abstract Client getClient();
+
+    public abstract List<Provider> subscribe();
+
+    public abstract T getProxyIns();
 }

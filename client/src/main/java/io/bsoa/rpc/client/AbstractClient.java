@@ -25,6 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.bsoa.rpc.bootstrap.ConsumerBootstrap;
 import io.bsoa.rpc.codec.SerializerFactory;
 import io.bsoa.rpc.common.BsoaConstants;
 import io.bsoa.rpc.common.BsoaVersion;
@@ -57,12 +58,22 @@ import io.bsoa.rpc.transport.ClientTransportUtils;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
  */
-public abstract class AbstractClient implements Client {
+public abstract class AbstractClient extends Client {
 
     /**
      * slf4j Logger for this class
      */
     private final static Logger LOGGER = LoggerFactory.getLogger(AbstractClient.class);
+
+    /**
+     * 构造函数
+     *
+     * @param consumerBootstrap 服务端消费者启动器
+     */
+    public AbstractClient(ConsumerBootstrap consumerBootstrap) {
+        super(consumerBootstrap);
+        this.consumerConfig = consumerBootstrap.getConsumerConfig();
+    }
 
     /**
      * 连接管理器
@@ -100,7 +111,7 @@ public abstract class AbstractClient implements Client {
     private volatile LoadBalancer loadBalancer;
 
     @Override
-    public void init(ConsumerConfig<?> consumerConfig) {
+    public void init() {
         this.consumerConfig = consumerConfig;
 
         // 负载均衡策略 考虑是否可动态替换？
@@ -233,7 +244,7 @@ public abstract class AbstractClient implements Client {
                 consumerConfig.setRegistry(registryConfigs); // 注入进去
             }
             // 从多个注册中心订阅服务列表
-            tmpProviderList = consumerConfig.subscribe();
+            tmpProviderList = consumerBootstrap.subscribe();
         }
         return tmpProviderList;
     }
@@ -357,7 +368,7 @@ public abstract class AbstractClient implements Client {
                     // 状态变化通知监听器
                     for (ConsumerStateListener listener : onprepear) {
                         try {
-                            listener.onUnavailable(consumerConfig.getProxyIns());
+                            listener.onUnavailable(consumerBootstrap.getProxyIns());
                         } catch (Exception e) {
                             LOGGER.error("Failed to notify consumer state listener when state change to unavailable");
                         }
@@ -382,7 +393,7 @@ public abstract class AbstractClient implements Client {
                     // 状态变化通知监听器
                     for (ConsumerStateListener listener : onprepear) {
                         try {
-                            listener.onAvailable(consumerConfig.getProxyIns());
+                            listener.onAvailable(consumerBootstrap.getProxyIns());
                         } catch (Exception e) {
                             LOGGER.error("Failed to notify consumer state listener when state change to available");
                         }

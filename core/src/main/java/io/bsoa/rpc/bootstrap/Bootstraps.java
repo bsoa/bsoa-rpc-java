@@ -52,7 +52,7 @@ public class Bootstraps {
      * @param <T>            接口类型
      * @return 发布启动类
      */
-    public static <T> ProviderBootstrap<T> wrap(ProviderConfig<T> providerConfig) {
+    public static <T> ProviderBootstrap<T> from(ProviderConfig<T> providerConfig) {
         ProviderBootstrap bootstrap = PROVIDER_BOOTSTRAP_EXTENSION_LOADER.getExtension(
                 getStringValue(DEFAULT_PROVIDER_BOOTSTRAP),
                 new Class[]{ProviderConfig.class},
@@ -67,7 +67,7 @@ public class Bootstraps {
      * @param <T>            接口类型
      * @return 引用启动类
      */
-    public static <T> ConsumerBootstrap<T> wrap(ConsumerConfig<T> consumerConfig) {
+    public static <T> ConsumerBootstrap<T> from(ConsumerConfig<T> consumerConfig) {
         ConsumerBootstrap bootstrap = CONSUMER_BOOTSTRAP_EXTENSION_LOADER.getExtension(
                 getStringValue(DEFAULT_CONSUMER_BOOTSTRAP),
                 new Class[]{ConsumerConfig.class},

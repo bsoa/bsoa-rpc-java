@@ -19,6 +19,7 @@ package io.bsoa.rpc.client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.bsoa.rpc.bootstrap.ConsumerBootstrap;
 import io.bsoa.rpc.exception.BsoaRpcException;
 import io.bsoa.rpc.ext.Extension;
 import io.bsoa.rpc.message.RpcRequest;
@@ -39,6 +40,15 @@ public class FailFastClient extends AbstractClient {
      * slf4j Logger for this class
      */
     private final static Logger LOGGER = LoggerFactory.getLogger(FailFastClient.class);
+
+    /**
+     * 构造函数
+     *
+     * @param consumerBootstrap 服务端消费者启动器
+     */
+    public FailFastClient(ConsumerBootstrap consumerBootstrap) {
+        super(consumerBootstrap);
+    }
 
     @Override
     public RpcResponse doSendMsg(RpcRequest request) {

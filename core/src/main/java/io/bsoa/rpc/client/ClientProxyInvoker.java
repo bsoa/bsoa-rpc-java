@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.bsoa.rpc.base.Invoker;
+import io.bsoa.rpc.bootstrap.ConsumerBootstrap;
 import io.bsoa.rpc.codec.SerializerFactory;
 import io.bsoa.rpc.common.BsoaConstants;
 import io.bsoa.rpc.config.ConsumerConfig;
@@ -66,13 +67,13 @@ public class ClientProxyInvoker implements Invoker {
     /**
      * 构造执行链
      *
-     * @param consumerConfig
+     * @param bootstrap
      *         调用端配置
      */
-    public ClientProxyInvoker(ConsumerConfig consumerConfig) {
-        this.consumerConfig = consumerConfig;
+    public ClientProxyInvoker(ConsumerBootstrap bootstrap) {
+        this.consumerConfig = bootstrap.getConsumerConfig();
         // 构建客户端
-        this.client = consumerConfig.getClient();
+        this.client = bootstrap.getClient();
         // 构造执行链,最底层是调用过滤器
         this.filterChain = FilterChain.buildConsumerChain(this.consumerConfig,
                 new ConsumerInvoker(consumerConfig, client));

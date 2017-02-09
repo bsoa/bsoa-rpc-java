@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.bsoa.rpc.base.Invoker;
+import io.bsoa.rpc.config.AbstractInterfaceConfig;
 import io.bsoa.rpc.exception.BsoaRpcException;
 
 /**
@@ -80,5 +81,9 @@ public final class InvokerHolder {
      */
     public static String buildKey(String interfaceId, String tags) {
         return interfaceId + "#" + tags;
+    }
+
+    public static String buildKey(AbstractInterfaceConfig config) {
+        return config.getInterfaceId() + "#" + config.getTags();
     }
 }

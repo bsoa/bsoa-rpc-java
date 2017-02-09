@@ -22,6 +22,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.bsoa.rpc.bootstrap.ConsumerBootstrap;
 import io.bsoa.rpc.exception.BsoaRpcException;
 import io.bsoa.rpc.ext.Extension;
 import io.bsoa.rpc.message.RpcRequest;
@@ -44,7 +45,16 @@ public class FailoverClient extends AbstractClient {
 	private final static Logger LOGGER = LoggerFactory
 			.getLogger(FailoverClient.class);
 
-	@Override
+    /**
+     * 构造函数
+     *
+     * @param consumerBootstrap 服务端消费者启动器
+     */
+    public FailoverClient(ConsumerBootstrap consumerBootstrap) {
+        super(consumerBootstrap);
+    }
+
+    @Override
 	public RpcResponse doSendMsg(RpcRequest msg) {
         String methodName = msg.getMethodName();
 		int retries = consumerConfig.getMethodRetries(methodName);
