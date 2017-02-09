@@ -45,52 +45,52 @@ public interface ConnectionHolder {
     /**
      * 增加多个服务提供者
      *
-     * @param providers 多个服务提供者
+     * @param providerInfos 多个服务提供者
      */
-    public void addProvider(List<Provider> providers);
+    public void addProvider(List<ProviderInfo> providerInfos);
 
     /**
      * 刪除多个服务提供者
      *
-     * @param providers 多个服务提供者
+     * @param providerInfos 多个服务提供者
      */
-    public void removeProvider(List<Provider> providers);
+    public void removeProvider(List<ProviderInfo> providerInfos);
 
     /**
      * 覆盖多个服务提供者
      *
-     * @param providers 多个服务提供者
+     * @param providerInfos 多个服务提供者
      */
-    public void updateProviders(List<Provider> providers);
+    public void updateProviders(List<ProviderInfo> providerInfos);
 
     /**
      * 清空服务提供者
      *
      * @return 多个服务提供者
      */
-    public Map<Provider, ClientTransport> clearProviders();
+    public Map<ProviderInfo, ClientTransport> clearProviders();
 
     /**
      * 存活的连接
      *
      * @return the alive connections
      */
-    public ConcurrentHashMap<Provider, ClientTransport> getAvailableConnections();
+    public ConcurrentHashMap<ProviderInfo, ClientTransport> getAvailableConnections();
 
     /**
      * 存活的全部provider
      *
      * @return all alive providers
      */
-    public List<Provider> getAvailableProviders();
+    public List<ProviderInfo> getAvailableProviders();
 
     /**
      * 根据provider查找存活的ClientTransport
      *
-     * @param provider the provider
+     * @param providerInfo the provider
      * @return the client transport
      */
-    public ClientTransport getAvailableClientTransport(Provider provider);
+    public ClientTransport getAvailableClientTransport(ProviderInfo providerInfo);
 
     /**
      * 是否没有存活的的provider
@@ -104,15 +104,15 @@ public interface ConnectionHolder {
      *
      * @return 当前的Provider列表 set
      */
-    public Collection<Provider> currentProviderList();
+    public Collection<ProviderInfo> currentProviderList();
 
     /**
      * 设置为不可用
      *
-     * @param provider  Provider
+     * @param providerInfo  Provider
      * @param transport 连接
      */
-    public void setUnavailable(Provider provider, ClientTransport transport);
+    public void setUnavailable(ProviderInfo providerInfo, ClientTransport transport);
 
     /**
      * 销毁之前做的事情

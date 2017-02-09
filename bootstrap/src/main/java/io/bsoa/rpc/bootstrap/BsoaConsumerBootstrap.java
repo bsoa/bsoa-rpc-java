@@ -30,7 +30,7 @@ import io.bsoa.rpc.base.Invoker;
 import io.bsoa.rpc.client.Client;
 import io.bsoa.rpc.client.ClientFactory;
 import io.bsoa.rpc.client.ClientProxyInvoker;
-import io.bsoa.rpc.client.Provider;
+import io.bsoa.rpc.client.ProviderInfo;
 import io.bsoa.rpc.common.BsoaConstants;
 import io.bsoa.rpc.common.utils.CommonUtils;
 import io.bsoa.rpc.common.utils.StringUtils;
@@ -40,7 +40,7 @@ import io.bsoa.rpc.context.BsoaContext;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
 import io.bsoa.rpc.ext.Extension;
 import io.bsoa.rpc.listener.ConfigListener;
-import io.bsoa.rpc.listener.ProviderListener;
+import io.bsoa.rpc.listener.ProviderInfoListener;
 import io.bsoa.rpc.proxy.ProxyFactory;
 import io.bsoa.rpc.registry.Registry;
 import io.bsoa.rpc.registry.RegistryFactory;
@@ -79,7 +79,7 @@ public class BsoaConsumerBootstrap<T> extends ConsumerBootstrap<T> {
     /**
      * 服务配置的listener
      */
-    protected transient volatile ProviderListener providerListener;
+    protected transient volatile ProviderInfoListener providerInfoListener;
 
     /**
      * 发布的调用者配置（含计数器）
@@ -163,7 +163,7 @@ public class BsoaConsumerBootstrap<T> extends ConsumerBootstrap<T> {
 
         ConfigListener configListener = new ConsumerAttributeListener();
         consumerConfig.setConfigListener(configListener);
-        providerListener = new ClientProviderListener();
+        providerInfoListener = new ClientProviderInfoListener();
         try {
             // 生成客户端
             client = ClientFactory.getClient(this);
@@ -216,7 +216,7 @@ public class BsoaConsumerBootstrap<T> extends ConsumerBootstrap<T> {
             REFERRED_KEYS.remove(key);
         }
         consumerConfig.setConfigListener(null);
-        providerListener = null;
+        providerInfoListener = null;
         BsoaContext.invalidateConsumerConfig(this);
 //        RpcStatus.removeStatus(this); TODO
         proxyIns = null;
@@ -230,9 +230,9 @@ public class BsoaConsumerBootstrap<T> extends ConsumerBootstrap<T> {
      *
      * @return 当前服务列表 list
      */
-    public List<Provider> subscribe() {
-        List<Provider> tmpProviderList = new ArrayList<Provider>();
-        for (Provider provider : tmpProviderList) {
+    public List<ProviderInfo> subscribe() {
+        List<ProviderInfo> tmpProviderInfoList = new ArrayList<ProviderInfo>();
+        for (ProviderInfo providerInfo : tmpProviderInfoList) {
 
         }
         List<RegistryConfig> registryConfigs = consumerConfig.getRegistry();
@@ -241,10 +241,10 @@ public class BsoaConsumerBootstrap<T> extends ConsumerBootstrap<T> {
             Registry registry = RegistryFactory
                     .getRegistry(registryConfig);
             try {
-                List<Provider> providers = registry.subscribe(consumerConfig,
-                        providerListener, consumerConfig.getConfigListener());
-                if (CommonUtils.isNotEmpty(providers)) {
-                    tmpProviderList.addAll(providers);
+                List<ProviderInfo> providerInfos = registry.subscribe(consumerConfig,
+                        providerInfoListener, consumerConfig.getConfigListener());
+                if (CommonUtils.isNotEmpty(providerInfos)) {
+                    tmpProviderInfoList.addAll(providerInfos);
                 }
             } catch (BsoaRuntimeException e) {
                 throw e;
@@ -253,7 +253,7 @@ public class BsoaConsumerBootstrap<T> extends ConsumerBootstrap<T> {
                         + ", but you can ignore if it's called by JVM shutdown hook", e);
             }
         }
-        return tmpProviderList;
+        return tmpProviderInfoList;
     }
 
     /**
@@ -279,31 +279,31 @@ public class BsoaConsumerBootstrap<T> extends ConsumerBootstrap<T> {
     /**
      * 客户端节点变化监听器
      */
-    private class ClientProviderListener implements ProviderListener {
+    private class ClientProviderInfoListener implements ProviderInfoListener {
 
         @Override
-        public void addProvider(List<Provider> providers) {
+        public void addProvider(List<ProviderInfo> providerInfos) {
             if (client != null) {
                 boolean originalState = client.isAvailable();
-                client.addProvider(providers);
+                client.addProvider(providerInfos);
                 client.checkStateChange(originalState);
             }
         }
 
         @Override
-        public void removeProvider(List<Provider> providers) {
+        public void removeProvider(List<ProviderInfo> providerInfos) {
             if (client != null) {
                 boolean originalState = client.isAvailable();
-                client.removeProvider(providers);
+                client.removeProvider(providerInfos);
                 client.checkStateChange(originalState);
             }
         }
 
         @Override
-        public void updateProvider(List<Provider> newProviders) {
+        public void updateProvider(List<ProviderInfo> newProviderInfos) {
             if (client != null) {
                 boolean originalState = client.isAvailable();
-                client.updateProvider(newProviders);
+                client.updateProvider(newProviderInfos);
                 client.checkStateChange(originalState);
             }
         }

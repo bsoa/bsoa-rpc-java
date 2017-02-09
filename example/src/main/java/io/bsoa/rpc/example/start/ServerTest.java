@@ -41,17 +41,19 @@ public class ServerTest {
     private final static Logger LOGGER = LoggerFactory.getLogger(ServerTest.class);
 
     public static void main(String[] args) {
-        ServerConfig serverConfig = new ServerConfig();
-//        serverConfig.setHost("0.0.0.0");
-//        serverConfig.setPort(22222);
-        serverConfig.setDaemon(false);
+        ServerConfig serverConfig = new ServerConfig()
+//        .setHost("0.0.0.0")
+//        .setPort(22222)
+        .setDaemon(false);
         //serverConfig.start();
 
-        ProviderConfig<HelloService> providerConfig = new ProviderConfig<>();
-        providerConfig.setInterfaceId(HelloService.class.getName());
-        providerConfig.setRef(new HelloServiceImpl());
-        providerConfig.setServer(serverConfig);
-        providerConfig.setRegister(false);
+        ProviderConfig<HelloService> providerConfig = new ProviderConfig<HelloService>()
+                .setInterfaceId(HelloService.class.getName())
+                .setRegister(false)
+                .setRef(new HelloServiceImpl())
+                .setServer(serverConfig)
+                .setRegister(false);
+
         Bootstraps.from(providerConfig).export();
 
         LOGGER.warn("started at pid {}", BsoaContext.PID);

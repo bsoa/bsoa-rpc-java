@@ -42,22 +42,22 @@ public abstract class AbstractLoadBalancer implements LoadBalancer{
      *
      * @param request
      *         请求
-     * @param providers
+     * @param providerInfos
      *         可用连接
      * @return provider
      */
-    public Provider select(RpcRequest request, List<Provider> providers) {
-        if (providers.size() == 0) {
-            throw noAliveProvider(consumerConfig.buildKey(), providers);
+    public ProviderInfo select(RpcRequest request, List<ProviderInfo> providerInfos) {
+        if (providerInfos.size() == 0) {
+            throw noAliveProvider(consumerConfig.buildKey(), providerInfos);
         }
-        if (providers.size() == 1) {
-            return providers.get(0);
+        if (providerInfos.size() == 1) {
+            return providerInfos.get(0);
         } else {
-            return doSelect(request, providers);
+            return doSelect(request, providerInfos);
         }
     }
 
-    private BsoaRpcException noAliveProvider(String key, Collection<Provider> providers) {
+    private BsoaRpcException noAliveProvider(String key, Collection<ProviderInfo> providerInfos) {
         // TODO
         return new BsoaRpcException(22222, "No Alive Provider");
     }
@@ -68,12 +68,12 @@ public abstract class AbstractLoadBalancer implements LoadBalancer{
      *
      * @param invocation
      *         请求
-     * @param providers
+     * @param providerInfos
      *         全部服务端连接
      * @return 服务端连接 provider
      */
 
-    public abstract Provider doSelect(RpcRequest invocation, List<Provider> providers);
+    public abstract ProviderInfo doSelect(RpcRequest invocation, List<ProviderInfo> providerInfos);
 
     /**
      * Gets consumer config.
@@ -97,13 +97,13 @@ public abstract class AbstractLoadBalancer implements LoadBalancer{
     /**
      * Gets weight.
      *
-     * @param provider
+     * @param providerInfo
      *         the provider
      * @return the weight
      */
-    protected int getWeight(Provider provider) {
+    protected int getWeight(ProviderInfo providerInfo) {
         // 从provider中或得到相关权重,默认值100
-        return provider.getWeight() < 0 ? 0 : provider.getWeight();
+        return providerInfo.getWeight() < 0 ? 0 : providerInfo.getWeight();
     }
 
     @Override

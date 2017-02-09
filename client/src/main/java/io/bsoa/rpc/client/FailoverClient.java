@@ -60,9 +60,9 @@ public class FailoverClient extends AbstractClient {
 		int retries = consumerConfig.getMethodRetries(methodName);
 		int time = 0;
         Throwable throwable = null;// 异常日志
-        List<Provider> invokedProviders = new ArrayList<Provider>(retries + 1);
+        List<ProviderInfo> invokedProviderInfos = new ArrayList<ProviderInfo>(retries + 1);
         do {
-            ClientTransport connection = super.select(msg, invokedProviders);
+            ClientTransport connection = super.select(msg, invokedProviderInfos);
 			try {
                 RpcResponse result = super.sendMsg0(connection, msg);
                 if (result != null) {
@@ -72,27 +72,27 @@ public class FailoverClient extends AbstractClient {
                     return result;
                 } else {
                     throwable = new BsoaRpcException("[JSF-22101]Failed to call "+ msg.getInterfaceName() + "." + methodName
-                            + " on remote server " + connection.getConfig().getProvider() + ", return null");
+                            + " on remote server " + connection.getConfig().getProviderInfo() + ", return null");
                 }
             } catch (BsoaRpcException e) { // rpc异常重试
                 throwable = e;
                 time++;
 			} catch (Exception e) { // 其它异常不重试
                 throw new BsoaRpcException(22222, "Failed to call " + msg.getInterfaceName() + "." + methodName
-                        + " on remote server: " + connection.getConfig().getProvider() + ", cause by unknown exception: "
+                        + " on remote server: " + connection.getConfig().getProviderInfo() + ", cause by unknown exception: "
                         + e.getClass().getName() + ", message is: " + e.getMessage(), e);
             }
-            invokedProviders.add(connection.getConfig().getProvider());
+            invokedProviderInfos.add(connection.getConfig().getProviderInfo());
 		} while (time <= retries);
 
         if (retries == 0) {
             throw new BsoaRpcException(22222, "Failed to call " + msg.getInterfaceName() + "." + methodName
-                    + " on remote server: " + invokedProviders + ", cause by: "
+                    + " on remote server: " + invokedProviderInfos + ", cause by: "
                     + throwable.getClass().getName() + ", message is: " + throwable.getMessage(), throwable);
         } else {
             throw new BsoaRpcException(22222, "Failed to call " + msg.getInterfaceName() + "." + methodName
                     + " on remote server after retry "+ (retries + 1) + " times: "
-                    + invokedProviders + ", last exception is cause by:"
+                    + invokedProviderInfos + ", last exception is cause by:"
                     + throwable.getClass().getName() + ", message is: " + throwable.getMessage(), throwable);
         }
 	}

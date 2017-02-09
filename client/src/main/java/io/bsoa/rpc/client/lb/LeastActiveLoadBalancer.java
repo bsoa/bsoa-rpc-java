@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Random;
 
 import io.bsoa.rpc.client.AbstractLoadBalancer;
-import io.bsoa.rpc.client.Provider;
+import io.bsoa.rpc.client.ProviderInfo;
 import io.bsoa.rpc.context.RpcStatus;
 import io.bsoa.rpc.ext.Extension;
 import io.bsoa.rpc.message.RpcRequest;
@@ -39,12 +39,12 @@ public class LeastActiveLoadBalancer extends AbstractLoadBalancer {
 
     private final Random random = new Random();
 
-    public Provider doSelect(RpcRequest request, List<Provider> providers) {
+    public ProviderInfo doSelect(RpcRequest request, List<ProviderInfo> providerInfos) {
         String interfaceId = request.getInterfaceName();
         String methodName = request.getMethodName();
-        Provider selectedProvider = null;
+        ProviderInfo selectedProviderInfo = null;
 
-        int length = providers.size(); // 总个数
+        int length = providerInfos.size(); // 总个数
         int leastActive = -1; // 最小的活跃数
         int leastCount = 0; // 相同最小活跃数的个数
         int[] leastIndexs = new int[length]; // 相同最小活跃数的下标
@@ -52,9 +52,9 @@ public class LeastActiveLoadBalancer extends AbstractLoadBalancer {
         int firstWeight = 0; // 第一个权重，用于于计算是否相同
         boolean sameWeight = true; // 是否所有权重相同
         for (int i = 0; i < length; i++) {
-            Provider provider = providers.get(i);
-            int active = RpcStatus.getStatus(interfaceId, methodName, provider).randomActive(); // 活跃数(按照最近100次调用，概率返回虚假超大并发数）
-            int weight = getWeight(provider); // 权重
+            ProviderInfo providerInfo = providerInfos.get(i);
+            int active = RpcStatus.getStatus(interfaceId, methodName, providerInfo).randomActive(); // 活跃数(按照最近100次调用，概率返回虚假超大并发数）
+            int weight = getWeight(providerInfo); // 权重
             if (leastActive == -1 || active < leastActive) { // 发现更小的活跃数，重新开始
                 leastActive = active; // 记录最小活跃数
                 leastCount = 1; // 重新统计相同最小活跃数的个数
@@ -74,25 +74,25 @@ public class LeastActiveLoadBalancer extends AbstractLoadBalancer {
         }
         if (leastCount == 1) {
             // 如果只有一个最小则直接返回
-            selectedProvider = providers.get(leastIndexs[0]);
+            selectedProviderInfo = providerInfos.get(leastIndexs[0]);
         } else if (!sameWeight && totalWeight > 0) {
             // 如果权重不相同且权重大于0则按总权重数随机
             int offsetWeight = random.nextInt(totalWeight);
             // 并确定随机值落在哪个片断上
             for (int i = 0; i < leastCount; i++) {
                 int leastIndex = leastIndexs[i];
-                offsetWeight -= getWeight(providers.get(leastIndex));
+                offsetWeight -= getWeight(providerInfos.get(leastIndex));
                 if (offsetWeight <= 0) {
-                    selectedProvider = providers.get(leastIndex);
+                    selectedProviderInfo = providerInfos.get(leastIndex);
                     break;
                 }
             }
         } else {
             // 如果权重相同或权重为0则均等随机
-            selectedProvider = providers.get(leastIndexs[random.nextInt(leastCount)]);
+            selectedProviderInfo = providerInfos.get(leastIndexs[random.nextInt(leastCount)]);
         }
         // 如果权重相同或权重为0则均等随机
-        return selectedProvider;
+        return selectedProviderInfo;
     }
 
 }

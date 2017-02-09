@@ -43,7 +43,7 @@ public class NetUtils {
     /**
      * slf4j Logger for this class
      */
-    private final static Logger logger = LoggerFactory.getLogger(NetUtils.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(NetUtils.class);
 
     /**
      * 最小端口
@@ -97,15 +97,15 @@ public class NetUtils {
             try {
                 ss = new ServerSocket();
                 ss.bind(new InetSocketAddress(host, i));
-                logger.debug("ip:{} port:{} is available", host, i);
+                LOGGER.debug("ip:{} port:{} is available", host, i);
                 return i;
             } catch (IOException e) {
                 // continue
-                logger.warn("Can't bind to address [{}:{}], " +
+                LOGGER.warn("Can't bind to address [{}:{}], " +
                         "Maybe 1) The port has been bound. " +
                         "2) The network card of this host is not exists or disable. " +
                         "3) The host is wrong.", host, i);
-                logger.info("Begin try next port(auto +1):{}", i + 1);
+                LOGGER.info("Begin try next port(auto +1):{}", i + 1);
             } finally {
                 if (ss != null) {
                     try {
@@ -233,7 +233,7 @@ public class NetUtils {
                 return localAddress;
             }
         } catch (Throwable e) {
-            logger.warn("Error when retrieving ip address: " + e.getMessage(), e);
+            LOGGER.warn("Error when retrieving ip address: " + e.getMessage(), e);
         }
         try {
             Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
@@ -249,18 +249,18 @@ public class NetUtils {
                                     return address;
                                 }
                             } catch (Throwable e) {
-                                logger.warn("Error when retrieving ip address: " + e.getMessage(), e);
+                                LOGGER.warn("Error when retrieving ip address: " + e.getMessage(), e);
                             }
                         }
                     } catch (Throwable e) {
-                        logger.warn("Error when retrieving ip address: " + e.getMessage(), e);
+                        LOGGER.warn("Error when retrieving ip address: " + e.getMessage(), e);
                     }
                 }
             }
         } catch (Throwable e) {
-            logger.warn("Error when retrieving ip address: " + e.getMessage(), e);
+            LOGGER.warn("Error when retrieving ip address: " + e.getMessage(), e);
         }
-        logger.error("Can't get valid host, will use 127.0.0.1 instead.");
+        LOGGER.error("Can't get valid host, will use 127.0.0.1 instead.");
         return localAddress;
     }
 
@@ -342,7 +342,7 @@ public class NetUtils {
                 }
             }
         } catch (Exception e) {
-            logger.warn("Can not connect to host {}, cause by :{}",
+            LOGGER.warn("Can not connect to host {}, cause by :{}",
                     remoteAddress.toString(), e.getMessage());
         }
         return host;
@@ -421,7 +421,7 @@ public class NetUtils {
                         }
                     }
                 } catch (Exception e) {
-                    logger.warn("syntax of pattern {} is invalid", ips);
+                    LOGGER.warn("syntax of pattern {} is invalid", ips);
                 }
             }
         }

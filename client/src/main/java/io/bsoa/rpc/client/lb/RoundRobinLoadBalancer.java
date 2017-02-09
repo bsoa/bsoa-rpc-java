@@ -22,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import io.bsoa.rpc.client.AbstractLoadBalancer;
-import io.bsoa.rpc.client.Provider;
+import io.bsoa.rpc.client.ProviderInfo;
 import io.bsoa.rpc.common.struct.PositiveAtomicCounter;
 import io.bsoa.rpc.ext.Extension;
 import io.bsoa.rpc.message.RpcRequest;
@@ -41,13 +41,13 @@ public class RoundRobinLoadBalancer extends AbstractLoadBalancer {
 
     private final ConcurrentMap<String, PositiveAtomicCounter> weightSequences = new ConcurrentHashMap<String, PositiveAtomicCounter>();
 
-    public Provider doSelect(RpcRequest request, List<Provider> providers) {
+    public ProviderInfo doSelect(RpcRequest request, List<ProviderInfo> providerInfos) {
         String key = getServiceKey(request); // 每个方法级自己轮询，互不影响
-        int length = providers.size(); // 总个数
+        int length = providerInfos.size(); // 总个数
         int maxWeight = 0; // 最大权重
         int minWeight = Integer.MAX_VALUE; // 最小权重
         for (int i = 0; i < length; i++) {
-            int weight = getWeight(providers.get(i));
+            int weight = getWeight(providerInfos.get(i));
             maxWeight = Math.max(maxWeight, weight); // 累计最大权重
             minWeight = Math.min(minWeight, weight); // 累计最小权重
         }
@@ -58,8 +58,8 @@ public class RoundRobinLoadBalancer extends AbstractLoadBalancer {
                 weightSequence = weightSequences.get(key);
             }
             int currentWeight = weightSequence.getAndIncrement() % maxWeight;
-            List<Provider> weightInvokers = new ArrayList<Provider>();
-            for (Provider invoker : providers) { // 筛选权重大于当前权重基数的provider,保证权重大的服务哪怕是轮询，被调用的机会也是最多的
+            List<ProviderInfo> weightInvokers = new ArrayList<ProviderInfo>();
+            for (ProviderInfo invoker : providerInfos) { // 筛选权重大于当前权重基数的provider,保证权重大的服务哪怕是轮询，被调用的机会也是最多的
                 if (getWeight(invoker) > currentWeight) {
                     weightInvokers.add(invoker);
                 }
@@ -68,8 +68,8 @@ public class RoundRobinLoadBalancer extends AbstractLoadBalancer {
             if (weightLength == 1) {
                 return weightInvokers.get(0);
             } else if (weightLength > 1) {
-                providers = weightInvokers;
-                length = providers.size();
+                providerInfos = weightInvokers;
+                length = providerInfos.size();
             }
         }
         PositiveAtomicCounter sequence = sequences.get(key);
@@ -77,7 +77,7 @@ public class RoundRobinLoadBalancer extends AbstractLoadBalancer {
             sequences.putIfAbsent(key, new PositiveAtomicCounter());
             sequence = sequences.get(key);
         }
-        return providers.get(sequence.getAndIncrement() % length);
+        return providerInfos.get(sequence.getAndIncrement() % length);
     }
 
 

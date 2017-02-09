@@ -50,7 +50,7 @@ public class NettyClientChannelInitializer extends ChannelInitializer<SocketChan
     protected void initChannel(SocketChannel ch) throws Exception {
         ChannelPipeline pipeline = ch.pipeline();
         // 根据服务端协议，选择解码器
-        String type = transportConfig.getProvider().getProtocolType();
+        String type = transportConfig.getProviderInfo().getProtocolType();
         Protocol protocol = ProtocolFactory.getProtocol(type);
         ProtocolInfo protocolInfo = protocol.protocolInfo();
         pipeline.addLast("frame", protocolInfo.isLengthFixed() ?

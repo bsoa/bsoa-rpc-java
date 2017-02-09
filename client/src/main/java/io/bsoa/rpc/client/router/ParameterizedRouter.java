@@ -22,7 +22,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.bsoa.rpc.client.Provider;
+import io.bsoa.rpc.client.ProviderInfo;
 import io.bsoa.rpc.client.Router;
 import io.bsoa.rpc.common.utils.NetUtils;
 import io.bsoa.rpc.exception.BsoaRpcException;
@@ -74,18 +74,18 @@ public abstract class ParameterizedRouter implements Router {
     }
 
     @Override
-    public List<Provider> route(RpcRequest request, List<Provider> providers) {
+    public List<ProviderInfo> route(RpcRequest request, List<ProviderInfo> providerInfos) {
         if (matchRule(rule, request)) {
-            List<Provider> matchedProviders = new ArrayList<Provider>();
+            List<ProviderInfo> matchedProviderInfos = new ArrayList<ProviderInfo>();
             // 匹配规则，根据这个规则筛选Provider列表
-            for (Provider provider : providers) {
-                if (matchProvider(matchRule, provider)) {
-                    matchedProviders.add(provider);
+            for (ProviderInfo providerInfo : providerInfos) {
+                if (matchProvider(matchRule, providerInfo)) {
+                    matchedProviderInfos.add(providerInfo);
                 }
             }
-            return matchedProviders;
+            return matchedProviderInfos;
         }
-        return providers; //TODO 没有任何匹配，返回全部的??
+        return providerInfos; //TODO 没有任何匹配，返回全部的??
     }
 
     /**
@@ -205,12 +205,12 @@ public abstract class ParameterizedRouter implements Router {
      * 匹配服务提供者
      *
      * @param ruleDst  规则指向
-     * @param provider Provider对象
+     * @param providerInfo Provider对象
      * @return 是否匹配
      */
-    protected boolean matchProvider(String ruleDst, Provider provider) {
+    protected boolean matchProvider(String ruleDst, ProviderInfo providerInfo) {
         // 根据ip匹配
-        return NetUtils.isMatchIPByPattern(ruleDst, provider.getIp());
+        return NetUtils.isMatchIPByPattern(ruleDst, providerInfo.getIp());
     }
 
     /**

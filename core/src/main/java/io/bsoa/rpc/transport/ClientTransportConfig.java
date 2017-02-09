@@ -18,7 +18,7 @@ package io.bsoa.rpc.transport;
 
 import java.util.List;
 
-import io.bsoa.rpc.client.Provider;
+import io.bsoa.rpc.client.ProviderInfo;
 import io.bsoa.rpc.common.BsoaConfigs;
 import io.bsoa.rpc.listener.ChannelListener;
 import io.bsoa.rpc.listener.NegotiatorListener;
@@ -41,7 +41,7 @@ import static io.bsoa.rpc.common.BsoaConfigs.getStringValue;
  */
 public class ClientTransportConfig {
 
-    private Provider provider; // 对应的Provider信息
+    private ProviderInfo providerInfo; // 对应的Provider信息
 
     private String container = getStringValue(DEFAULT_TRANSPORT);
 
@@ -60,12 +60,12 @@ public class ClientTransportConfig {
     private List<ChannelListener> channelListeners; // 连接事件监听器
     private NegotiatorListener negotiatorListener;
 
-    public Provider getProvider() {
-        return provider;
+    public ProviderInfo getProviderInfo() {
+        return providerInfo;
     }
 
-    public ClientTransportConfig setProvider(Provider provider) {
-        this.provider = provider;
+    public ClientTransportConfig setProviderInfo(ProviderInfo providerInfo) {
+        this.providerInfo = providerInfo;
         return this;
     }
 

@@ -32,7 +32,6 @@ import io.bsoa.rpc.bootstrap.ProviderBootstrap;
 import io.bsoa.rpc.common.BsoaConfigs;
 import io.bsoa.rpc.common.BsoaConstants;
 import io.bsoa.rpc.common.BsoaVersion;
-import io.bsoa.rpc.common.SystemInfo;
 import io.bsoa.rpc.common.struct.ConcurrentHashSet;
 import io.bsoa.rpc.common.utils.CommonUtils;
 import io.bsoa.rpc.config.ConsumerConfig;
@@ -416,16 +415,6 @@ public class BsoaContext {
      */
     public static Map<String, String> getConfigMap(String interfaceId) {
         return interfaceConfigMap.get(interfaceId);
-    }
-
-    /**
-     * 得到本机IPv4地址，有缓存，且通过注册中心判断
-     *
-     * @return ip地址 local host
-     */
-    @Deprecated
-    public static String getLocalHost() {
-        return SystemInfo.getLocalHost();
     }
 
     /**

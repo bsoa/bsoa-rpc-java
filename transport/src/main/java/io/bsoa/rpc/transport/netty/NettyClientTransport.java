@@ -99,11 +99,11 @@ public class NettyClientTransport extends AbstractClientTransport {
             LOGGER.info("Has been call connect(), ignore this if connection reuse");
         }
 
-        String host = transportConfig.getProvider().getIp();
+        String host = transportConfig.getProviderInfo().getIp();
         if (host.equals(SystemInfo.getLocalHost())) { //本机跨jvm服务，降级为127.0.0.1,不走网卡
             host = NetUtils.LOCALHOST;
         }
-        int port = transportConfig.getProvider().getPort();
+        int port = transportConfig.getProviderInfo().getPort();
         int num = transportConfig.getConnectionNum(); // 建立几个长连接
         int connectTimeout = transportConfig.getConnectTimeout();
 

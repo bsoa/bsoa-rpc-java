@@ -42,10 +42,10 @@ public class ClientTest {
 
     public static void main(String[] args) throws InterruptedException {
 
-        ConsumerConfig<HelloService> consumerConfig = new ConsumerConfig<>();
-        consumerConfig.setInterfaceId(HelloService.class.getName());
-        consumerConfig.setUrl("bsoa://127.0.0.1:22000");
-        consumerConfig.setRegister(false);
+        ConsumerConfig<HelloService> consumerConfig = new ConsumerConfig<HelloService>()
+                .setInterfaceId(HelloService.class.getName())
+                .setUrl("bsoa://127.0.0.1:22000")
+                .setRegister(false);
         ConsumerBootstrap<HelloService> bootstrap = Bootstraps.from(consumerConfig);
         HelloService helloService = bootstrap.refer();
         try {
@@ -56,10 +56,10 @@ public class ClientTest {
         }
 
 
-        ConsumerConfig<HelloService> consumerConfig2 = new ConsumerConfig<>();
-        consumerConfig2.setInterfaceId(HelloService.class.getName());
-        consumerConfig2.setUrl("bsoa://127.0.0.1:22000");
-        consumerConfig2.setRegister(false);
+        ConsumerConfig<HelloService> consumerConfig2 = new ConsumerConfig<HelloService>()
+                .setInterfaceId(HelloService.class.getName())
+                .setUrl("bsoa://127.0.0.1:22000")
+                .setRegister(false);
         ConsumerBootstrap<HelloService> bootstrap2 = Bootstraps.from(consumerConfig2);
         HelloService helloService2 = bootstrap2.refer();
         try {

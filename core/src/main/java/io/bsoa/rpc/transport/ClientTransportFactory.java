@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 
-import io.bsoa.rpc.client.Provider;
+import io.bsoa.rpc.client.ProviderInfo;
 import io.bsoa.rpc.common.utils.CommonUtils;
 import io.bsoa.rpc.common.utils.NetUtils;
 import io.bsoa.rpc.context.BsoaContext;
@@ -119,8 +119,8 @@ public class ClientTransportFactory {
     }
 
     private static String getAddr(ClientTransportConfig config) {
-        Provider provider = config.getProvider();
-        return provider.getProtocolType() + "://" + provider.getIp() + ":" + provider.getPort();
+        ProviderInfo providerInfo = config.getProviderInfo();
+        return providerInfo.getProtocolType() + "://" + providerInfo.getIp() + ":" + providerInfo.getPort();
     }
 
     public static void releaseTransport(ClientTransport clientTransport, int disconnectTimeout) {

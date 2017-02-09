@@ -24,7 +24,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-import io.bsoa.rpc.client.Provider;
+import io.bsoa.rpc.client.ProviderInfo;
 import io.bsoa.rpc.config.AbstractInterfaceConfig;
 
 /**
@@ -122,11 +122,11 @@ public class RpcStatus {
      *
      * @param interfaceId 接口
      * @param methodName  方法
-     * @param provider    连接
+     * @param providerInfo    连接
      * @return RpcStatus对象
      */
-    public static RpcStatus getStatus(String interfaceId, String methodName, Provider provider) {
-        String key = getIdentityString(interfaceId, methodName, provider);
+    public static RpcStatus getStatus(String interfaceId, String methodName, ProviderInfo providerInfo) {
+        String key = getIdentityString(interfaceId, methodName, providerInfo);
         RpcStatus status = METHOD_PROVIDER_STATISTICS.get(key);
         if (status == null) {
             METHOD_PROVIDER_STATISTICS.putIfAbsent(key, new RpcStatus());
@@ -140,10 +140,10 @@ public class RpcStatus {
      *
      * @param interfaceId 接口
      * @param methodName  方法
-     * @param provider    连接
+     * @param providerInfo    连接
      */
-    public static void removeStatus(String interfaceId, String methodName, Provider provider) {
-        String key = getIdentityString(interfaceId, methodName, provider);
+    public static void removeStatus(String interfaceId, String methodName, ProviderInfo providerInfo) {
+        String key = getIdentityString(interfaceId, methodName, providerInfo);
         METHOD_PROVIDER_STATISTICS.remove(key);
     }
 
@@ -152,12 +152,12 @@ public class RpcStatus {
      *
      * @param interfaceId 接口
      * @param methodName  方法
-     * @param provider    连接
+     * @param providerInfo    连接
      * @return 关键字
      */
-    private static String getIdentityString(String interfaceId, String methodName, Provider provider) {
+    private static String getIdentityString(String interfaceId, String methodName, ProviderInfo providerInfo) {
         // 完成唯一字符串的拼接
-        return interfaceId + ":" + methodName + ":" + provider.getIp() + ":" + provider.getPort();
+        return interfaceId + ":" + methodName + ":" + providerInfo.getIp() + ":" + providerInfo.getPort();
     }
 
     /**
@@ -177,11 +177,11 @@ public class RpcStatus {
      *
      * @param interfaceId 接口
      * @param methodName  方法
-     * @param provider    连接
+     * @param providerInfo    连接
      * @return 关键字
      */
-    public static void beginCount(String interfaceId, String methodName, Provider provider) {
-        beginCount(getStatus(interfaceId, methodName, provider));
+    public static void beginCount(String interfaceId, String methodName, ProviderInfo providerInfo) {
+        beginCount(getStatus(interfaceId, methodName, providerInfo));
     }
 
     /**
@@ -211,12 +211,12 @@ public class RpcStatus {
      *
      * @param interfaceId 接口
      * @param methodName  方法
-     * @param provider    the provider
+     * @param providerInfo    the provider
      * @param elapsed     the elapsed
      * @param succeeded   the succeeded
      */
-    public static void endCount(String interfaceId, String methodName, Provider provider, long elapsed, boolean succeeded) {
-        endCount(getStatus(interfaceId, methodName, provider), elapsed, succeeded);
+    public static void endCount(String interfaceId, String methodName, ProviderInfo providerInfo, long elapsed, boolean succeeded) {
+        endCount(getStatus(interfaceId, methodName, providerInfo), elapsed, succeeded);
     }
 
     /**

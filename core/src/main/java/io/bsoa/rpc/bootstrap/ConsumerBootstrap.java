@@ -19,7 +19,7 @@ package io.bsoa.rpc.bootstrap;
 import java.util.List;
 
 import io.bsoa.rpc.client.Client;
-import io.bsoa.rpc.client.Provider;
+import io.bsoa.rpc.client.ProviderInfo;
 import io.bsoa.rpc.config.ConsumerConfig;
 import io.bsoa.rpc.ext.Extensible;
 
@@ -70,7 +70,7 @@ public abstract class ConsumerBootstrap<T> {
 
     public abstract Client getClient();
 
-    public abstract List<Provider> subscribe();
+    public abstract List<ProviderInfo> subscribe();
 
     public abstract T getProxyIns();
 }

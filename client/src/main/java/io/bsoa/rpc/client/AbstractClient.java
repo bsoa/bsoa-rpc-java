@@ -167,8 +167,8 @@ public abstract class AbstractClient extends Client {
             connectionHolder.init(consumerConfig);
             try {
                 // 得到服务端列表
-                List<Provider> tmpProviderList = buildProviderList();
-                connectionHolder.addProvider(tmpProviderList); // 初始化服务端连接（建立长连接)
+                List<ProviderInfo> tmpProviderInfoList = buildProviderList();
+                connectionHolder.addProvider(tmpProviderInfoList); // 初始化服务端连接（建立长连接)
             } catch (BsoaRuntimeException e) {
                 throw e;
             } catch (Exception e) {
@@ -190,24 +190,24 @@ public abstract class AbstractClient extends Client {
      *
      * @return 服务端列表 provider list
      */
-    protected List<Provider> buildProviderList() {
-        List<Provider> tmpProviderList;
+    protected List<ProviderInfo> buildProviderList() {
+        List<ProviderInfo> tmpProviderInfoList;
         String url = consumerConfig.getUrl();
         if (StringUtils.isNotEmpty(url)) { // 如果走直连
-            tmpProviderList = new ArrayList<Provider>();
+            tmpProviderInfoList = new ArrayList<ProviderInfo>();
             String cInterfaceId = consumerConfig.getInterfaceId();
             String cTags = consumerConfig.getTags();
             String cProtocol = consumerConfig.getProtocol();
             String[] providerStrs = StringUtils.splitWithCommaOrSemicolon(url);
             for (String providerStr : providerStrs) {
-                Provider provider = Provider.valueOf(providerStr);
+                ProviderInfo providerInfo = ProviderInfo.valueOf(providerStr);
                 if (!CommonUtils.isFalse(consumerConfig.getParameter(BsoaConstants.HIDDEN_KEY_WARNNING))) {
-                    if (!provider.getProtocolType().equals(cProtocol)) {
+                    if (!providerInfo.getProtocolType().equals(cProtocol)) {
                         throw ExceptionUtils.buildRuntime(21308, "consumer.url", url,
-                                "there is a mismatch protocol between url[" + provider.getProtocolType()
+                                "there is a mismatch protocol between url[" + providerInfo.getProtocolType()
                                         + "] and consumer[" + cProtocol + "]");
                     }
-                    String pInterfaceId = provider.getInterfaceId();
+                    String pInterfaceId = providerInfo.getInterfaceId();
                     if (pInterfaceId != null) {
                         if (!pInterfaceId.equals(cInterfaceId)) {
                             throw ExceptionUtils.buildRuntime(21308, "consumer.url", url,
@@ -215,9 +215,9 @@ public abstract class AbstractClient extends Client {
                                             + "] and consumer[" + cInterfaceId + "]");
                         }
                     } else {
-                        provider.setInterfaceId(cInterfaceId);
+                        providerInfo.setInterfaceId(cInterfaceId);
                     }
-                    String pTags = provider.getTags();
+                    String pTags = providerInfo.getTags();
                     if (pTags != null) {
                         if (!pTags.equals(cTags)) {
                             try {
@@ -229,10 +229,10 @@ public abstract class AbstractClient extends Client {
                             }
                         }
                     } else {
-                        provider.setTags(cTags);// 强制
+                        providerInfo.setTags(cTags);// 强制
                     }
                 }
-                tmpProviderList.add(provider);
+                tmpProviderInfoList.add(providerInfo);
             }
         } else { // 没有配置url直连
             List<RegistryConfig> registryConfigs = consumerConfig.getRegistry();
@@ -244,49 +244,49 @@ public abstract class AbstractClient extends Client {
                 consumerConfig.setRegistry(registryConfigs); // 注入进去
             }
             // 从多个注册中心订阅服务列表
-            tmpProviderList = consumerBootstrap.subscribe();
+            tmpProviderInfoList = consumerBootstrap.subscribe();
         }
-        return tmpProviderList;
+        return tmpProviderInfoList;
     }
 
     /**
      * 增加Provider
      *
-     * @param providers Provider列表
+     * @param providerInfos Provider列表
      */
-    public void addProvider(List<Provider> providers) {
-        connectionHolder.addProvider(providers);
+    public void addProvider(List<ProviderInfo> providerInfos) {
+        connectionHolder.addProvider(providerInfos);
     }
 
     /**
      * 删除Provider
      *
-     * @param providers Provider列表
+     * @param providerInfos Provider列表
      */
-    public void removeProvider(List<Provider> providers) {
-        connectionHolder.removeProvider(providers);
+    public void removeProvider(List<ProviderInfo> providerInfos) {
+        connectionHolder.removeProvider(providerInfos);
     }
 
     /**
      * 更新Provider
      *
-     * @param newProviders Provider列表
+     * @param newProviderInfos Provider列表
      */
-    public void updateProvider(List<Provider> newProviders) {
+    public void updateProvider(List<ProviderInfo> newProviderInfos) {
         try {
-            if (CommonUtils.isEmpty(newProviders)) {
+            if (CommonUtils.isEmpty(newProviderInfos)) {
                 if (CommonUtils.isNotEmpty(connectionHolder.currentProviderList())) {
                     LOGGER.info("Clear all providers, may be this consumer has been add to blacklist");
                     closeTransports();
                 }
             } else {
-                Collection<Provider> nowall = connectionHolder.currentProviderList();
-                List<Provider> nowAllP = new ArrayList<Provider>(nowall);// 当前全部
+                Collection<ProviderInfo> nowall = connectionHolder.currentProviderList();
+                List<ProviderInfo> nowAllP = new ArrayList<ProviderInfo>(nowall);// 当前全部
 
                 // 比较当前的和最新的
-                ListDifference<Provider> diff = new ListDifference<Provider>(newProviders, nowAllP);
-                List<Provider> needAdd = diff.getOnlyOnLeft(); // 需要新建
-                List<Provider> needDelete = diff.getOnlyOnRight(); // 需要删掉
+                ListDifference<ProviderInfo> diff = new ListDifference<ProviderInfo>(newProviderInfos, nowAllP);
+                List<ProviderInfo> needAdd = diff.getOnlyOnLeft(); // 需要新建
+                List<ProviderInfo> needDelete = diff.getOnlyOnRight(); // 需要删掉
                 if (!needAdd.isEmpty()) {
                     addProvider(needAdd);
                 }
@@ -295,7 +295,7 @@ public abstract class AbstractClient extends Client {
                 }
             }
         } catch (Exception e) {
-            LOGGER.error("update " + consumerConfig.getInterfaceId() + " provider (" + newProviders.size()
+            LOGGER.error("update " + consumerConfig.getInterfaceId() + " provider (" + newProviderInfos.size()
                     + ") from list error:", e);
         }
     }
@@ -303,12 +303,12 @@ public abstract class AbstractClient extends Client {
     /**
      * Provider对象得到 ClientTransportConfig
      *
-     * @param provider Provider
+     * @param providerInfo Provider
      * @return ClientTransportConfig
      */
-    private ClientTransportConfig providerToClientConfig(Provider provider) {
+    private ClientTransportConfig providerToClientConfig(ProviderInfo providerInfo) {
         ClientTransportConfig config = new ClientTransportConfig();
-        config.setProvider(provider);
+        config.setProviderInfo(providerInfo);
         config.setConnectTimeout(config.getConnectTimeout());
         config.setInvokeTimeout(consumerConfig.getTimeout());
         config.setChannelListeners(consumerConfig.getOnConnect());
@@ -325,13 +325,13 @@ public abstract class AbstractClient extends Client {
             return false;
         if (connectionHolder.isAvailableEmpty())
             return false;
-        for (Map.Entry<Provider, ClientTransport> entry : connectionHolder.getAvailableConnections().entrySet()) {
-            Provider provider = entry.getKey();
+        for (Map.Entry<ProviderInfo, ClientTransport> entry : connectionHolder.getAvailableConnections().entrySet()) {
+            ProviderInfo providerInfo = entry.getKey();
             ClientTransport transport = entry.getValue();
             if (transport.isAvailable()) {
                 return true;
             } else {
-                connectionHolder.setUnavailable(provider, transport);
+                connectionHolder.setUnavailable(providerInfo, transport);
             }
         }
         return false;
@@ -437,7 +437,7 @@ public abstract class AbstractClient extends Client {
      * @return 调用结果
      */
     protected RpcResponse sendMsg0(ClientTransport transport, RpcRequest msg) {
-        Provider provider = transport.getConfig().getProvider();
+        ProviderInfo providerInfo = transport.getConfig().getProviderInfo();
         try {
 //            checkProviderVersion(provider, msg); // 根据服务端版本特殊处理
             String interfaceId = msg.getInterfaceName();
@@ -485,13 +485,13 @@ public abstract class AbstractClient extends Client {
                 long start = BsoaContext.now();
                 try {
                     // 记录活跃数
-                    RpcStatus.beginCount(interfaceId, methodName, provider);
+                    RpcStatus.beginCount(interfaceId, methodName, providerInfo);
                     response = (RpcResponse) transport.syncSend(msg, timeout);
                 } finally {
                     long elapsed = BsoaContext.now() - start;
                     msg.addAttachment(BsoaConstants.INTERNAL_KEY_ELAPSED, (int) elapsed);
                     // 去掉活跃数
-                    RpcStatus.endCount(interfaceId, methodName, provider, elapsed,
+                    RpcStatus.endCount(interfaceId, methodName, providerInfo, elapsed,
                             response != null && !response.hasError());
                 }
             }
@@ -504,7 +504,7 @@ public abstract class AbstractClient extends Client {
             return response;
         } catch (BsoaRpcException e) {
             if (e.getCode() == 11111) { // 连接断开异常 FIXME
-                connectionHolder.setUnavailable(provider, transport);
+                connectionHolder.setUnavailable(providerInfo, transport);
             }
             throw e;
         } catch (Exception e) {
@@ -515,18 +515,18 @@ public abstract class AbstractClient extends Client {
     /**
      * 检查服务端版本，特殊处理
      *
-     * @param provider 服务端
+     * @param providerInfo 服务端
      * @param request  请求对象
      */
-    private void checkProviderVersion(Provider provider, RpcRequest request) {
-        int version = provider.getBsoaVersion();
+    private void checkProviderVersion(ProviderInfo providerInfo, RpcRequest request) {
+        int version = providerInfo.getBsoaVersion();
         if (version >= 1500) {
             // 服务端版本号供本地序列化使用
             RpcContext.getContext().setAttachment(BsoaConstants.HIDDEN_KEY_DST_JSF_VERSION, (short) version);
             // head增加客户端版本号供服务端用
             request.addHeadKey(HeadKey.BSOA_VERSION, (short) BsoaVersion.BSOA_VERSION);
             if (!CommonUtils.isTrue((Boolean) request.getAttachment(BsoaConstants.CONFIG_KEY_GENERIC))
-                    && provider.openInvocationOptimizing()) { // 是否开启invocation优化
+                    && providerInfo.openInvocationOptimizing()) { // 是否开启invocation优化
 //                request.setIfaceId(BsoaContext.getIfaceIdByClassName(consumerConfig.getInterfaceId()));
             } else {
 //                request.set(null);
@@ -538,7 +538,7 @@ public abstract class AbstractClient extends Client {
     /**
      * 上一次连接，目前是记录整个接口的，是否需要方法级的？？
      */
-    private volatile Provider lastProvider;
+    private volatile ProviderInfo lastProviderInfo;
 
     /**
      * 根据规则进行负载均衡
@@ -554,39 +554,39 @@ public abstract class AbstractClient extends Client {
      * 根据规则进行负载均衡
      *
      * @param message          调用对象
-     * @param invokedProviders 已调用列表
+     * @param invokedProviderInfos 已调用列表
      * @return 一个可用的provider
      */
-    protected ClientTransport select(RpcRequest message, List<Provider> invokedProviders) {
+    protected ClientTransport select(RpcRequest message, List<ProviderInfo> invokedProviderInfos) {
         // 粘滞连接，当前连接可用
         if (consumerConfig.isSticky()) {
-            if (lastProvider != null) {
-                Provider provider = lastProvider;
-                ClientTransport lastTransport = connectionHolder.getAvailableClientTransport(provider);
+            if (lastProviderInfo != null) {
+                ProviderInfo providerInfo = lastProviderInfo;
+                ClientTransport lastTransport = connectionHolder.getAvailableClientTransport(providerInfo);
                 if (lastTransport != null && lastTransport.isAvailable()) {
-                    checkAlias(provider, message);
+                    checkAlias(providerInfo, message);
                     return lastTransport;
                 }
             }
         }
         // 原始服务列表数据
-        List<Provider> providers = connectionHolder.getAvailableProviders();
+        List<ProviderInfo> providerInfos = connectionHolder.getAvailableProviders();
         // 先进行路由规则匹配， 根据invocation + consumer信息
-        if (providers.size() > 0 && CommonUtils.isNotEmpty(routers)) {
+        if (providerInfos.size() > 0 && CommonUtils.isNotEmpty(routers)) {
             for (Router router : routers) {
-                providers = router.route(message, providers);
+                providerInfos = router.route(message, providerInfos);
             }
         }
-        if (CommonUtils.isNotEmpty(invokedProviders) && providers.size() > invokedProviders.size()) { // 总数大于已调用数
-            providers.removeAll(invokedProviders);// 已经调用异常的本次不再重试
+        if (CommonUtils.isNotEmpty(invokedProviderInfos) && providerInfos.size() > invokedProviderInfos.size()) { // 总数大于已调用数
+            providerInfos.removeAll(invokedProviderInfos);// 已经调用异常的本次不再重试
         }
-        if (providers.size() == 0) {
+        if (providerInfos.size() == 0) {
             throw noAliveProviderException(consumerConfig.buildKey(), connectionHolder.currentProviderList());
         }
         do {
             // 再进行负载均衡筛选
-            Provider provider = loadBalancer.select(message, providers);
-            ClientTransport transport = selectByProvider(message, provider);
+            ProviderInfo providerInfo = loadBalancer.select(message, providerInfos);
+            ClientTransport transport = selectByProvider(message, providerInfo);
             if (transport != null) {
                 return transport;
             }
@@ -594,7 +594,7 @@ public abstract class AbstractClient extends Client {
         throw noAliveProviderException(consumerConfig.buildKey(), connectionHolder.currentProviderList());
     }
 
-    private BsoaRpcException noAliveProviderException(String s, Collection<Provider> providers) {
+    private BsoaRpcException noAliveProviderException(String s, Collection<ProviderInfo> providerInfos) {
         return new BsoaRpcException(22222, "No Alive Provider");
     }
 
@@ -602,18 +602,18 @@ public abstract class AbstractClient extends Client {
      * 得到provider得到连接
      *
      * @param message  调用对象
-     * @param provider 指定Provider
+     * @param providerInfo 指定Provider
      * @return 一个可用的transport或者null
      */
-    protected ClientTransport selectByProvider(RpcRequest message, Provider provider) {
-        ClientTransport transport = connectionHolder.getAvailableClientTransport(provider);
+    protected ClientTransport selectByProvider(RpcRequest message, ProviderInfo providerInfo) {
+        ClientTransport transport = connectionHolder.getAvailableClientTransport(providerInfo);
         if (transport != null) {
             if (transport.isAvailable()) {
-                lastProvider = provider;
-                checkAlias(provider, message); //检查分组
+                lastProviderInfo = providerInfo;
+                checkAlias(providerInfo, message); //检查分组
                 return transport;
             } else {
-                connectionHolder.setUnavailable(provider, transport);
+                connectionHolder.setUnavailable(providerInfo, transport);
             }
         }
         return null;
@@ -622,18 +622,18 @@ public abstract class AbstractClient extends Client {
     /**
      * 检查分组映射
      *
-     * @param provider 服务端
+     * @param providerInfo 服务端
      * @param message  请求对象
      */
-    private void checkAlias(Provider provider, RpcRequest message) {
-        String pTags = provider.getTags();
+    private void checkAlias(ProviderInfo providerInfo, RpcRequest message) {
+        String pTags = providerInfo.getTags();
         // 如果配置的分组和服务端的分组不一致，说明存在分组映射
         if (pTags != null && !message.getTags().equals(pTags)) {
             // 分组映射，将调用里的分组改为服务端发布的
             message.setTags(pTags);
         }
         // 判断服务端codec兼容性，以服务端的为准
-        String pSt = provider.getSerializationType();
+        String pSt = providerInfo.getSerializationType();
         if (pSt != null) {
             message.setSerializationType(SerializerFactory.getCodeByAlias(pSt));
         }
@@ -687,7 +687,7 @@ public abstract class AbstractClient extends Client {
      *
      * @return 当前的Provider列表
      */
-    public Collection<Provider> currentProviderList() {
+    public Collection<ProviderInfo> currentProviderList() {
         return connectionHolder.currentProviderList();
     }
 

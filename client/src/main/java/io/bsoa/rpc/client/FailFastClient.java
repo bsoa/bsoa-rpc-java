@@ -59,11 +59,11 @@ public class FailFastClient extends AbstractClient {
                 return result;
             } else {
                 throw new BsoaRpcException(22222, "Failed to call " + request.getInterfaceName() + "." + request.getMethodName()
-                        + " on remote server " + connection.getConfig().getProvider() + ", return null");
+                        + " on remote server " + connection.getConfig().getProviderInfo() + ", return null");
             }
         } catch (Exception e) {
             throw new BsoaRpcException(22222, "[JSF-22103]Failed to call " + request.getInterfaceName() + "." + request.getMethodName()
-                    + " on remote server: " + connection.getConfig().getProvider() + ", cause by: "
+                    + " on remote server: " + connection.getConfig().getProviderInfo() + ", cause by: "
                     + e.getClass().getName() + ", message is: " + e.getMessage(), e);
         }
     }

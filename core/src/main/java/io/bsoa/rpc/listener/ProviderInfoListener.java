@@ -18,7 +18,7 @@ package io.bsoa.rpc.listener;
 
 import java.util.List;
 
-import io.bsoa.rpc.client.Provider;
+import io.bsoa.rpc.client.ProviderInfo;
 
 /**
  *
@@ -27,26 +27,26 @@ import io.bsoa.rpc.client.Provider;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public interface ProviderListener {
+public interface ProviderInfoListener {
 
     /**
      * 增加服务节点
      *
-     * @param providers 待新增的服务列表（部分）
+     * @param providerInfos 待新增的服务列表（部分）
      */
-    void addProvider(List<Provider> providers);
+    void addProvider(List<ProviderInfo> providerInfos);
 
     /**
      * 删除服务节点
      *
-     * @param providers 待删除的服务列表(部分)
+     * @param providerInfos 待删除的服务列表(部分)
      */
-    void removeProvider(List<Provider> providers);
+    void removeProvider(List<ProviderInfo> providerInfos);
 
     /**
      * 更新服务节点
      *
-     * @param providers 新的服务列表(全)
+     * @param providerInfos 新的服务列表(全)
      */
-    void updateProvider(List<Provider> providers);
+    void updateProvider(List<ProviderInfo> providerInfos);
 }

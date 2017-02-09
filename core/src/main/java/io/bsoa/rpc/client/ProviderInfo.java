@@ -29,7 +29,7 @@ import io.bsoa.rpc.common.utils.StringUtils;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public class Provider implements Serializable {
+public class ProviderInfo implements Serializable {
 
     private static final long serialVersionUID = -6438690329875954051L;
 
@@ -91,7 +91,7 @@ public class Provider implements Serializable {
     /**
      * Instantiates a new Provider.
      */
-    public Provider() {
+    public ProviderInfo() {
 
     }
 
@@ -101,7 +101,7 @@ public class Provider implements Serializable {
      * @param host the host
      * @param port the port
      */
-    private Provider(String host, int port) {
+    private ProviderInfo(String host, int port) {
         this.ip = host;
         this.port = port;
     }
@@ -113,8 +113,8 @@ public class Provider implements Serializable {
      * @param port the port
      * @return the provider
      */
-    public static Provider getProvider(String host, int port) {
-        return new Provider(host, port);
+    public static ProviderInfo getProvider(String host, int port) {
+        return new ProviderInfo(host, port);
     }
 
     /**
@@ -122,7 +122,7 @@ public class Provider implements Serializable {
      *
      * @param url the url
      */
-    private Provider(final String url) {
+    private ProviderInfo(final String url) {
         try {
             int protocolIndex = url.indexOf("://");
             String remainUrl;
@@ -200,8 +200,8 @@ public class Provider implements Serializable {
      * @param url url地址
      * @return Provider对象 provider
      */
-    public static Provider valueOf(String url) {
-        return new Provider(url);
+    public static ProviderInfo valueOf(String url) {
+        return new ProviderInfo(url);
     }
 
     /**
@@ -415,18 +415,18 @@ public class Provider implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Provider)) return false;
+        if (!(o instanceof ProviderInfo)) return false;
 
-        Provider provider = (Provider) o;
+        ProviderInfo providerInfo = (ProviderInfo) o;
 
-        if (port != provider.port) return false;
-        if (tags != null ? !tags.equals(provider.tags) : provider.tags != null) return false;
-        if (ip != null ? !ip.equals(provider.ip) : provider.ip != null) return false;
-        if (interfaceId != null ? !interfaceId.equals(provider.interfaceId) : provider.interfaceId != null)
+        if (port != providerInfo.port) return false;
+        if (tags != null ? !tags.equals(providerInfo.tags) : providerInfo.tags != null) return false;
+        if (ip != null ? !ip.equals(providerInfo.ip) : providerInfo.ip != null) return false;
+        if (interfaceId != null ? !interfaceId.equals(providerInfo.interfaceId) : providerInfo.interfaceId != null)
             return false;
-        if (path != null ? !path.equals(provider.path) : provider.path != null) return false;
-        if (protocolType != provider.protocolType) return false;
-        if (weight != provider.weight) return false;
+        if (path != null ? !path.equals(providerInfo.path) : providerInfo.path != null) return false;
+        if (protocolType != providerInfo.protocolType) return false;
+        if (weight != providerInfo.weight) return false;
 
         return true;
     }

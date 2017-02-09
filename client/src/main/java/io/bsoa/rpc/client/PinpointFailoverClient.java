@@ -65,22 +65,22 @@ public class PinpointFailoverClient extends FailoverClient {
         int retries = consumerConfig.getMethodRetries(methodName);
         int time = 0;
         Throwable throwable = null;// 异常日志
-        List<Provider> invokedProviders = new ArrayList<>(retries + 1);
+        List<ProviderInfo> invokedProviderInfos = new ArrayList<>(retries + 1);
         do {
             String targetIP = (String) request.getAttachment(BsoaConstants.HIDDEN_KEY_PINPOINT);
             ClientTransport connection;
             if (StringUtils.isNotBlank(targetIP)) { // 指定了调用地址
-                Provider provider = selectProvider(targetIP);
-                if (provider == null) { // 指定的不存在
+                ProviderInfo providerInfo = selectProvider(targetIP);
+                if (providerInfo == null) { // 指定的不存在
                     throw noAliveProvider(consumerConfig.buildKey(), targetIP);
                 }
-                connection = super.selectByProvider(request, provider);
+                connection = super.selectByProvider(request, providerInfo);
                 if (connection == null) { // 指定的不存在或已死
                     // 抛出异常
                     throw noAliveProvider(consumerConfig.buildKey(), targetIP);
                 }
             } else { //未指定调用地址
-                connection = super.select(request, invokedProviders);
+                connection = super.select(request, invokedProviderInfos);
             }
             try {
                 RpcResponse result = super.sendMsg0(connection, request);
@@ -91,27 +91,27 @@ public class PinpointFailoverClient extends FailoverClient {
                     return result;
                 } else {
                     throwable = new BsoaRpcException(22222, "[JSF-22101]Failed to call " + request.getInterfaceName() + "." + request.getMethodName()
-                            + " on remote server " + connection.getConfig().getProvider() + ", return null");
+                            + " on remote server " + connection.getConfig().getProviderInfo() + ", return null");
                 }
             } catch (BsoaRpcException e) { // rpc异常重试
                 throwable = e;
                 time++;
             } catch (Exception e) { // 其它异常不重试
                 throw new BsoaRpcException(22222, "[JSF-22102]Failed to call " + request.getInterfaceName() + "." + request.getMethodName()
-                        + " on remote server: " + connection.getConfig().getProvider() + ", cause by unknown exception: "
+                        + " on remote server: " + connection.getConfig().getProviderInfo() + ", cause by unknown exception: "
                         + e.getClass().getName() + ", message is: " + e.getMessage(), e);
             }
-            invokedProviders.add(connection.getConfig().getProvider());
+            invokedProviderInfos.add(connection.getConfig().getProviderInfo());
         } while (time <= retries);
 
         if (retries == 0) {
             throw new BsoaRpcException(22222, "[JSF-22103]Failed to call " + request.getInterfaceName() + "." + request.getMethodName()
-                    + " on remote server: " + invokedProviders + ", cause by: "
+                    + " on remote server: " + invokedProviderInfos + ", cause by: "
                     + throwable.getClass().getName() + ", message is :" + throwable.getMessage(), throwable);
         } else {
             throw new BsoaRpcException(22222, "[JSF-22104]Failed to call " + request.getInterfaceName() + "." + request.getMethodName()
                     + " on remote server after retry " + (retries + 1) + " times: "
-                    + invokedProviders + ", last exception is cause by: "
+                    + invokedProviderInfos + ", last exception is cause by: "
                     + throwable.getClass().getName() + ", message is: " + throwable.getMessage(), throwable);
         }
     }
@@ -119,7 +119,7 @@ public class PinpointFailoverClient extends FailoverClient {
     /**
      * The Provider map.
      */
-    private Map<String, Provider> providerMap = new ConcurrentHashMap<>();
+    private Map<String, ProviderInfo> providerMap = new ConcurrentHashMap<>();
 
     /**
      * Select provider.
@@ -127,16 +127,16 @@ public class PinpointFailoverClient extends FailoverClient {
      * @param serverIP the serverIP
      * @return the provider
      */
-    private Provider selectProvider(String serverIP) {
-        Provider p = providerMap.get(serverIP);
+    private ProviderInfo selectProvider(String serverIP) {
+        ProviderInfo p = providerMap.get(serverIP);
         if (p == null) {
-            Provider p1 = Provider.valueOf(serverIP);
-            for (Provider provider : connectionHolder.getAvailableConnections().keySet()) {
-                if (provider.getIp().equals(p1.getIp())
-                        && provider.getProtocolType() == p1.getProtocolType()
-                        && provider.getPort() == p1.getPort()) {
+            ProviderInfo p1 = ProviderInfo.valueOf(serverIP);
+            for (ProviderInfo providerInfo : connectionHolder.getAvailableConnections().keySet()) {
+                if (providerInfo.getIp().equals(p1.getIp())
+                        && providerInfo.getProtocolType() == p1.getProtocolType()
+                        && providerInfo.getPort() == p1.getPort()) {
                     // 相等，就是你了
-                    p = provider;
+                    p = providerInfo;
                     providerMap.put(serverIP, p);
                     return p;
                 }

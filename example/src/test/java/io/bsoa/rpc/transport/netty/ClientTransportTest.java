@@ -21,7 +21,7 @@ package io.bsoa.rpc.transport.netty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.bsoa.rpc.client.Provider;
+import io.bsoa.rpc.client.ProviderInfo;
 import io.bsoa.rpc.message.MessageConstants;
 import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.message.RpcResponse;
@@ -45,8 +45,8 @@ public class ClientTransportTest {
 
     public static void main(String[] args) throws InterruptedException {
         ClientTransportConfig config = new ClientTransportConfig();
-        Provider provider = Provider.getProvider("127.0.0.1", 22222);
-        config.setProvider(provider);
+        ProviderInfo providerInfo = ProviderInfo.getProvider("127.0.0.1", 22222);
+        config.setProviderInfo(providerInfo);
         config.setConnectionNum(2);
 
         ClientTransport transport = ClientTransportFactory.getClientTransport(config);

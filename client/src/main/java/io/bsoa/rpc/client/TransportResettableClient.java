@@ -60,13 +60,13 @@ public class TransportResettableClient extends FailoverClient {
     /**
      * 重置客户端连接
      *
-     * @param providers 新的客户端列表
+     * @param providerInfos 新的客户端列表
      */
-    public void resetTransport(List<Provider> providers) {
+    public void resetTransport(List<ProviderInfo> providerInfos) {
         lock.lock();
         try {
             super.closeTransports(); // 关闭旧的
-            super.addProvider(providers); // 连接新的
+            super.addProvider(providerInfos); // 连接新的
         } finally {
             lock.unlock();
         }
@@ -78,21 +78,21 @@ public class TransportResettableClient extends FailoverClient {
      * @param url 新的地址
      */
     public void resetTransport(String url) {
-        List<Provider> tmpProviderList = new ArrayList<Provider>();
+        List<ProviderInfo> tmpProviderInfoList = new ArrayList<ProviderInfo>();
         if (StringUtils.isNotEmpty(url)) {
             String originalProtocol = consumerConfig.getProtocol();
             String[] providers = StringUtils.splitWithCommaOrSemicolon(url);
             for (int i = 0; i < providers.length; i++) {
-                Provider provider = Provider.valueOf(providers[i]);
-                if (!provider.getProtocolType().equals(consumerConfig.getProtocol())) {
+                ProviderInfo providerInfo = ProviderInfo.valueOf(providers[i]);
+                if (!providerInfo.getProtocolType().equals(consumerConfig.getProtocol())) {
                     throw ExceptionUtils.buildRuntime(21308, "consumer.url", url,
-                            "there is a mismatch protocol between url[" + provider.getProtocolType()
+                            "there is a mismatch protocol between url[" + providerInfo.getProtocolType()
                                     + "] and consumer[" + originalProtocol + "]"
                     );
                 }
-                tmpProviderList.add(provider);
+                tmpProviderInfoList.add(providerInfo);
             }
         }
-        resetTransport(tmpProviderList);
+        resetTransport(tmpProviderInfoList);
     }
 }

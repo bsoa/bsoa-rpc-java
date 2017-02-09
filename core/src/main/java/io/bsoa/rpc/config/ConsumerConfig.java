@@ -17,11 +17,13 @@ package io.bsoa.rpc.config;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.bsoa.rpc.GenericService;
+import io.bsoa.rpc.base.Cache;
 import io.bsoa.rpc.client.Router;
 import io.bsoa.rpc.common.BsoaConfigs;
 import io.bsoa.rpc.common.BsoaConstants;
@@ -29,11 +31,13 @@ import io.bsoa.rpc.common.utils.ClassLoaderUtils;
 import io.bsoa.rpc.common.utils.CommonUtils;
 import io.bsoa.rpc.common.utils.ExceptionUtils;
 import io.bsoa.rpc.common.utils.StringUtils;
+import io.bsoa.rpc.filter.Filter;
 import io.bsoa.rpc.listener.ChannelListener;
 import io.bsoa.rpc.listener.ConsumerStateListener;
 import io.bsoa.rpc.listener.ResponseListener;
 
 import static io.bsoa.rpc.common.BsoaConfigs.*;
+import static io.bsoa.rpc.config.ConfigValueHelper.checkNormalWithCommaColon;
 
 /**
  * Created by zhangg on 16-7-7.
@@ -225,114 +229,6 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Ser
     }
 
     /**
-     * Gets url.
-     *
-     * @return the url
-     */
-    public String getUrl() {
-        return url;
-    }
-
-    /**
-     * Sets url.
-     *
-     * @param url the url
-     */
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    /**
-     * Gets cluster.
-     *
-     * @return the cluster
-     */
-    public String getCluster() {
-        return cluster;
-    }
-
-    /**
-     * Sets cluster.
-     *
-     * @param cluster the cluster
-     */
-    public void setCluster(String cluster) {
-        this.cluster = cluster;
-    }
-
-    /**
-     * Gets retries.
-     *
-     * @return the retries
-     */
-    public int getRetries() {
-        return retries;
-    }
-
-    /**
-     * Sets retries.
-     *
-     * @param retries the retries
-     */
-    public void setRetries(int retries) {
-        this.retries = retries;
-    }
-
-    /**
-     * Gets connectionHolder.
-     *
-     * @return the connectionHolder
-     */
-    public String getConnectionHolder() {
-        return connectionHolder;
-    }
-
-    /**
-     * Sets connectionHolder.
-     *
-     * @param connectionHolder the connectionHolder
-     */
-    public void setConnectionHolder(String connectionHolder) {
-        this.connectionHolder = connectionHolder;
-    }
-
-    /**
-     * Gets loadBalancer.
-     *
-     * @return the loadBalancer
-     */
-    public String getLoadBalancer() {
-        return loadBalancer;
-    }
-
-    /**
-     * Sets loadBalancer.
-     *
-     * @param loadBalancer the loadBalancer
-     */
-    public void setLoadBalancer(String loadBalancer) {
-        this.loadBalancer = loadBalancer;
-    }
-
-    /**
-     * Gets generic.
-     *
-     * @return the generic
-     */
-    public boolean isGeneric() {
-        return generic;
-    }
-
-    /**
-     * Sets generic.
-     *
-     * @param generic the generic
-     */
-    public void setGeneric(boolean generic) {
-        this.generic = generic;
-    }
-
-    /**
      * Gets protocol.
      *
      * @return the protocol
@@ -345,9 +241,91 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Ser
      * Sets protocol.
      *
      * @param protocol the protocol
+     * @return the protocol
      */
-    public void setProtocol(String protocol) {
+    public ConsumerConfig<T> setProtocol(String protocol) {
         this.protocol = protocol;
+        return this;
+    }
+
+    /**
+     * Gets serialization.
+     *
+     * @return the serialization
+     */
+    public String getSerialization() {
+        return serialization;
+    }
+
+    /**
+     * Sets serialization.
+     *
+     * @param serialization the serialization
+     * @return the serialization
+     */
+    public ConsumerConfig<T> setSerialization(String serialization) {
+        this.serialization = serialization;
+        return this;
+    }
+
+    /**
+     * Gets url.
+     *
+     * @return the url
+     */
+    public String getUrl() {
+        return url;
+    }
+
+    /**
+     * Sets url.
+     *
+     * @param url the url
+     * @return the url
+     */
+    public ConsumerConfig<T> setUrl(String url) {
+        this.url = url;
+        return this;
+    }
+
+    /**
+     * Is generic boolean.
+     *
+     * @return the boolean
+     */
+    public boolean isGeneric() {
+        return generic;
+    }
+
+    /**
+     * Sets generic.
+     *
+     * @param generic the generic
+     * @return the generic
+     */
+    public ConsumerConfig<T> setGeneric(boolean generic) {
+        this.generic = generic;
+        return this;
+    }
+
+    /**
+     * Is async boolean.
+     *
+     * @return the boolean
+     */
+    public boolean isAsync() {
+        return async;
+    }
+
+    /**
+     * Sets async.
+     *
+     * @param async the async
+     * @return the async
+     */
+    public ConsumerConfig<T> setAsync(boolean async) {
+        this.async = async;
+        return this;
     }
 
     /**
@@ -363,9 +341,11 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Ser
      * Sets connect timeout.
      *
      * @param connectTimeout the connect timeout
+     * @return the connect timeout
      */
-    public void setConnectTimeout(int connectTimeout) {
+    public ConsumerConfig<T> setConnectTimeout(int connectTimeout) {
         this.connectTimeout = connectTimeout;
+        return this;
     }
 
     /**
@@ -381,140 +361,95 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Ser
      * Sets disconnect timeout.
      *
      * @param disconnectTimeout the disconnect timeout
+     * @return the disconnect timeout
      */
-    public void setDisconnectTimeout(int disconnectTimeout) {
+    public ConsumerConfig<T> setDisconnectTimeout(int disconnectTimeout) {
         this.disconnectTimeout = disconnectTimeout;
+        return this;
     }
 
     /**
-     * Is check.
+     * Gets cluster.
      *
-     * @return the boolean
+     * @return the cluster
      */
-    public boolean isCheck() {
-        return check;
+    public String getCluster() {
+        return cluster;
     }
 
     /**
-     * Sets check.
+     * Sets cluster.
      *
-     * @param check the check
+     * @param cluster the cluster
+     * @return the cluster
      */
-    public void setCheck(boolean check) {
-        this.check = check;
+    public ConsumerConfig<T> setCluster(String cluster) {
+        this.cluster = cluster;
+        return this;
     }
 
-
     /**
-     * Gets serialization.
+     * Gets retries.
      *
-     * @return the serialization
+     * @return the retries
      */
-    public String getSerialization() {
-        return serialization;
+    public int getRetries() {
+        return retries;
     }
 
     /**
-     * Sets serialization.
+     * Sets retries.
      *
-     * @param serialization the serialization
+     * @param retries the retries
+     * @return the retries
      */
-    public void setSerialization(String serialization) {
-        this.serialization = serialization;
+    public ConsumerConfig<T> setRetries(int retries) {
+        this.retries = retries;
+        return this;
     }
 
     /**
-     * Gets onReturn.
+     * Gets connection holder.
      *
-     * @return the onReturn
+     * @return the connection holder
      */
-    public List<ResponseListener> getOnReturn() {
-        return onReturn;
+    public String getConnectionHolder() {
+        return connectionHolder;
     }
 
     /**
-     * Sets onReturn.
+     * Sets connection holder.
      *
-     * @param onReturn the onReturn
+     * @param connectionHolder the connection holder
+     * @return the connection holder
      */
-    public void setOnReturn(List<ResponseListener> onReturn) {
-        this.onReturn = onReturn;
+    public ConsumerConfig<T> setConnectionHolder(String connectionHolder) {
+        this.connectionHolder = connectionHolder;
+        return this;
     }
 
     /**
-     * Gets onConnect.
+     * Gets load balancer.
      *
-     * @return the onConnect
+     * @return the load balancer
      */
-    public List<ChannelListener> getOnConnect() {
-        return onConnect;
+    public String getLoadBalancer() {
+        return loadBalancer;
     }
 
     /**
-     * Sets onConnect.
+     * Sets load balancer.
      *
-     * @param onConnect the onConnect
+     * @param loadBalancer the load balancer
+     * @return the load balancer
      */
-    public void setOnConnect(List<ChannelListener> onConnect) {
-        this.onConnect = onConnect;
+    public ConsumerConfig<T> setLoadBalancer(String loadBalancer) {
+        this.loadBalancer = loadBalancer;
+        return this;
     }
 
     /**
-     * Gets onAvailable.
-     *
-     * @return the onAvailable
-     */
-    public List<ConsumerStateListener> getOnAvailable() {
-        return onAvailable;
-    }
-
-    /**
-     * Sets onAvailable.
-     *
-     * @param onAvailable the onAvailable
-     */
-    public void setOnAvailable(List<ConsumerStateListener> onAvailable) {
-        this.onAvailable = onAvailable;
-    }
-
-    /**
-     * Is async.
-     *
-     * @return the boolean
-     */
-    public boolean isAsync() {
-        return async;
-    }
-
-    /**
-     * Sets async.
-     *
-     * @param async the async
-     */
-    public void setAsync(boolean async) {
-        this.async = async;
-    }
-
-    /**
-     * Is inJVM.
-     *
-     * @return the boolean
-     */
-    public boolean isInJVM() {
-        return inJVM;
-    }
-
-    /**
-     * Sets inJVM.
-     *
-     * @param inJVM the inJVM
-     */
-    public void setInJVM(boolean inJVM) {
-        this.inJVM = inJVM;
-    }
-
-    /**
-     * Is lazy.
+     * Is lazy boolean.
      *
      * @return the boolean
      */
@@ -526,33 +461,15 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Ser
      * Sets lazy.
      *
      * @param lazy the lazy
+     * @return the lazy
      */
-    public void setLazy(boolean lazy) {
+    public ConsumerConfig<T> setLazy(boolean lazy) {
         this.lazy = lazy;
-    }
-
-    /**
-     * Is oneWay boolean.
-     *
-     * @return the boolean
-     */
-    public boolean isOneWay() {
-        return oneWay;
-    }
-
-    /**
-     * Sets oneWay.
-     *
-     * @param oneWay the oneWay
-     * @return the oneWay
-     */
-    public ConsumerConfig setOneWay(boolean oneWay) {
-        this.oneWay = oneWay;
         return this;
     }
 
     /**
-     * Is sticky.
+     * Is sticky boolean.
      *
      * @return the boolean
      */
@@ -564,27 +481,71 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Ser
      * Sets sticky.
      *
      * @param sticky the sticky
+     * @return the sticky
      */
-    public void setSticky(boolean sticky) {
+    public ConsumerConfig<T> setSticky(boolean sticky) {
         this.sticky = sticky;
+        return this;
     }
 
     /**
-     * Gets reconnect.
+     * Is in jvm boolean.
      *
-     * @return the reconnect
+     * @return the boolean
      */
-    public int getReconnect() {
-        return reconnect;
+    public boolean isInJVM() {
+        return inJVM;
     }
 
     /**
-     * Sets reconnect.
+     * Sets in jvm.
      *
-     * @param reconnect the reconnect
+     * @param inJVM the in jvm
+     * @return the in jvm
      */
-    public void setReconnect(int reconnect) {
-        this.reconnect = reconnect;
+    public ConsumerConfig<T> setInJVM(boolean inJVM) {
+        this.inJVM = inJVM;
+        return this;
+    }
+
+    /**
+     * Is check boolean.
+     *
+     * @return the boolean
+     */
+    public boolean isCheck() {
+        return check;
+    }
+
+    /**
+     * Sets check.
+     *
+     * @param check the check
+     * @return the check
+     */
+    public ConsumerConfig<T> setCheck(boolean check) {
+        this.check = check;
+        return this;
+    }
+
+    /**
+     * Is one way boolean.
+     *
+     * @return the boolean
+     */
+    public boolean isOneWay() {
+        return oneWay;
+    }
+
+    /**
+     * Sets one way.
+     *
+     * @param oneWay the one way
+     * @return the one way
+     */
+    public ConsumerConfig<T> setOneWay(boolean oneWay) {
+        this.oneWay = oneWay;
+        return this;
     }
 
     /**
@@ -600,9 +561,11 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Ser
      * Sets connection.
      *
      * @param connection the connection
+     * @return the connection
      */
-    public void setConnection(int connection) {
+    public ConsumerConfig<T> setConnection(int connection) {
         this.connection = connection;
+        return this;
     }
 
     /**
@@ -618,9 +581,31 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Ser
      * Sets heartbeat.
      *
      * @param heartbeat the heartbeat
+     * @return the heartbeat
      */
-    public void setHeartbeat(int heartbeat) {
+    public ConsumerConfig<T> setHeartbeat(int heartbeat) {
         this.heartbeat = heartbeat;
+        return this;
+    }
+
+    /**
+     * Gets reconnect.
+     *
+     * @return the reconnect
+     */
+    public int getReconnect() {
+        return reconnect;
+    }
+
+    /**
+     * Sets reconnect.
+     *
+     * @param reconnect the reconnect
+     * @return the reconnect
+     */
+    public ConsumerConfig<T> setReconnect(int reconnect) {
+        this.reconnect = reconnect;
+        return this;
     }
 
     /**
@@ -636,9 +621,71 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Ser
      * Sets router.
      *
      * @param router the router
+     * @return the router
      */
-    public void setRouter(List<Router> router) {
+    public ConsumerConfig<T> setRouter(List<Router> router) {
         this.router = router;
+        return this;
+    }
+
+    /**
+     * Gets on return.
+     *
+     * @return the on return
+     */
+    public List<ResponseListener> getOnReturn() {
+        return onReturn;
+    }
+
+    /**
+     * Sets on return.
+     *
+     * @param onReturn the on return
+     * @return the on return
+     */
+    public ConsumerConfig<T> setOnReturn(List<ResponseListener> onReturn) {
+        this.onReturn = onReturn;
+        return this;
+    }
+
+    /**
+     * Gets on connect.
+     *
+     * @return the on connect
+     */
+    public List<ChannelListener> getOnConnect() {
+        return onConnect;
+    }
+
+    /**
+     * Sets on connect.
+     *
+     * @param onConnect the on connect
+     * @return the on connect
+     */
+    public ConsumerConfig<T> setOnConnect(List<ChannelListener> onConnect) {
+        this.onConnect = onConnect;
+        return this;
+    }
+
+    /**
+     * Gets on available.
+     *
+     * @return the on available
+     */
+    public List<ConsumerStateListener> getOnAvailable() {
+        return onAvailable;
+    }
+
+    /**
+     * Sets on available.
+     *
+     * @param onAvailable the on available
+     * @return the on available
+     */
+    public ConsumerConfig<T> setOnAvailable(List<ConsumerStateListener> onAvailable) {
+        this.onAvailable = onAvailable;
+        return this;
     }
 
     /**
@@ -654,9 +701,11 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Ser
      * Sets timeout.
      *
      * @param timeout the timeout
+     * @return the timeout
      */
-    public void setTimeout(int timeout) {
+    public ConsumerConfig<T> setTimeout(int timeout) {
         this.timeout = timeout;
+        return this;
     }
 
     /**
@@ -672,9 +721,188 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Ser
      * Sets concurrents.
      *
      * @param concurrents the concurrents
+     * @return the concurrents
      */
-    public void setConcurrents(int concurrents) {
+    public ConsumerConfig<T> setConcurrents(int concurrents) {
         this.concurrents = concurrents;
+        return this;
+    }
+
+    /**
+     * Sets interface id.
+     *
+     * @param interfaceId the interface id
+     * @return the interface id
+     */
+    public ConsumerConfig<T> setInterfaceId(String interfaceId) {
+        this.interfaceId = interfaceId;
+        return this;
+    }
+
+    /**
+     * Sets tags.
+     *
+     * @param tags the tags
+     */
+    public ConsumerConfig<T> setTags(String tags) {
+        checkNormalWithCommaColon("tags", tags);
+        this.tags = tags;
+        return this;
+    }
+
+    /**
+     * Sets filter ref.
+     *
+     * @param filterRef the filter ref
+     * @return the filter ref
+     */
+    public ConsumerConfig<T> setFilterRef(List<Filter> filterRef) {
+        this.filterRef = filterRef;
+        return this;
+    }
+
+    /**
+     * Sets filter.
+     *
+     * @param filter the filter
+     * @return the filter
+     */
+    public ConsumerConfig<T> setFilters(List<String> filter) {
+        this.filter = filter;
+        return this;
+    }
+
+    /**
+     * Sets registry.
+     *
+     * @param registry the registry
+     * @return the registry
+     */
+    public ConsumerConfig<T> setRegistry(List<RegistryConfig> registry) {
+        this.registry = registry;
+        return this;
+    }
+
+    /**
+     * Sets methods.
+     *
+     * @param methods the methods
+     * @return the methods
+     */
+    public ConsumerConfig<T> setMethods(Map<String, MethodConfig> methods) {
+        this.methods = methods;
+        return this;
+    }
+
+    /**
+     * Sets register.
+     *
+     * @param register the register
+     * @return the register
+     */
+    public ConsumerConfig<T> setRegister(boolean register) {
+        this.register = register;
+        return this;
+    }
+
+    /**
+     * Sets subscribe.
+     *
+     * @param subscribe the subscribe
+     * @return the subscribe
+     */
+    public ConsumerConfig<T> setSubscribe(boolean subscribe) {
+        this.subscribe = subscribe;
+        return this;
+    }
+
+    /**
+     * Sets proxy.
+     *
+     * @param proxy the proxy
+     * @return the proxy
+     */
+    public ConsumerConfig<T> setProxy(String proxy) {
+        this.proxy = proxy;
+        return this;
+    }
+
+    /**
+     * Sets cache ref.
+     *
+     * @param cacheRef the cache ref
+     * @return the cache ref
+     */
+    public ConsumerConfig<T> setCacheRef(Cache cacheRef) {
+        this.cacheRef = cacheRef;
+        return this;
+    }
+
+    /**
+     * Sets mock ref.
+     *
+     * @param mockRef the mock ref
+     * @return the mock ref
+     */
+    public ConsumerConfig<T> setMockRef(T mockRef) {
+        this.mockRef = mockRef;
+        return this;
+    }
+
+    /**
+     * Sets parameters.
+     *
+     * @param parameters the parameters
+     * @return the parameters
+     */
+    public ConsumerConfig<T> setParameters(Map<String, String> parameters) {
+        this.parameters = parameters;
+        return this;
+    }
+
+    /**
+     * Sets mock.
+     *
+     * @param mock the mock
+     * @return the mock
+     */
+    public ConsumerConfig<T> setMock(boolean mock) {
+        this.mock = mock;
+        return this;
+    }
+
+
+    /**
+     * Sets validation.
+     *
+     * @param validation the validation
+     * @return the validation
+     */
+    public ConsumerConfig<T> setValidation(boolean validation) {
+        this.validation = validation;
+        return this;
+    }
+
+    /**
+     * Sets compress.
+     *
+     * @param compress the compress
+     * @return the compress
+     */
+    public ConsumerConfig<T> setCompress(String compress) {
+        this.compress = compress;
+        return this;
+    }
+
+    /**
+     * Sets cache.
+     *
+     * @param cache the cache
+     * @return the cache
+     */
+    public ConsumerConfig<T> setCache(boolean cache) {
+        this.cache = cache;
+        return this;
     }
 
     @Override

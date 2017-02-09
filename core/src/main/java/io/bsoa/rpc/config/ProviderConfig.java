@@ -24,11 +24,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.bsoa.rpc.base.Cache;
 import io.bsoa.rpc.common.utils.ClassLoaderUtils;
 import io.bsoa.rpc.common.utils.CommonUtils;
 import io.bsoa.rpc.common.utils.ExceptionUtils;
 import io.bsoa.rpc.common.utils.StringUtils;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
+import io.bsoa.rpc.filter.Filter;
 
 import static io.bsoa.rpc.common.BsoaConfigs.PROVIDER_CONCURRENTS;
 import static io.bsoa.rpc.common.BsoaConfigs.PROVIDER_DELAY;
@@ -41,10 +43,12 @@ import static io.bsoa.rpc.common.BsoaConfigs.PROVIDER_WEIGHT;
 import static io.bsoa.rpc.common.BsoaConfigs.getBooleanValue;
 import static io.bsoa.rpc.common.BsoaConfigs.getIntValue;
 import static io.bsoa.rpc.common.BsoaConfigs.getStringValue;
+import static io.bsoa.rpc.config.ConfigValueHelper.checkNormalWithCommaColon;
 
 /**
  * Created by zhangg on 16-7-7.
  *
+ * @param <T> the type parameter
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
  */
 public class ProviderConfig<T> extends AbstractInterfaceConfig<T> implements Serializable {
@@ -162,24 +166,6 @@ public class ProviderConfig<T> extends AbstractInterfaceConfig<T> implements Ser
     }
 
     /**
-     * Gets server.
-     *
-     * @return the server
-     */
-    public List<ServerConfig> getServer() {
-        return server;
-    }
-
-    /**
-     * Sets server.
-     *
-     * @param server the server
-     */
-    public void setServer(List<ServerConfig> server) {
-        this.server = server;
-    }
-
-    /**
      * Gets ref.
      *
      * @return the ref
@@ -192,63 +178,31 @@ public class ProviderConfig<T> extends AbstractInterfaceConfig<T> implements Ser
      * Sets ref.
      *
      * @param ref the ref
+     * @return the ref
      */
-    public void setRef(T ref) {
+    public ProviderConfig<T> setRef(T ref) {
         this.ref = ref;
+        return this;
     }
 
     /**
-     * Gets weight.
+     * Gets server.
      *
-     * @return the weight
+     * @return the server
      */
-    public int getWeight() {
-        return weight;
+    public List<ServerConfig> getServer() {
+        return server;
     }
 
     /**
-     * Sets weight.
+     * Sets server.
      *
-     * @param weight the weight
+     * @param server the server
+     * @return the server
      */
-    public void setWeight(int weight) {
-        this.weight = weight;
-    }
-
-    /**
-     * Gets include.
-     *
-     * @return the include
-     */
-    public String getInclude() {
-        return include;
-    }
-
-    /**
-     * Sets include.
-     *
-     * @param include the include
-     */
-    public void setInclude(String include) {
-        this.include = include;
-    }
-
-    /**
-     * Gets exclude.
-     *
-     * @return the exclude
-     */
-    public String getExclude() {
-        return exclude;
-    }
-
-    /**
-     * Sets exclude.
-     *
-     * @param exclude the exclude
-     */
-    public void setExclude(String exclude) {
-        this.exclude = exclude;
+    public ProviderConfig<T> setServer(List<ServerConfig> server) {
+        this.server = server;
+        return this;
     }
 
     /**
@@ -264,13 +218,75 @@ public class ProviderConfig<T> extends AbstractInterfaceConfig<T> implements Ser
      * Sets delay.
      *
      * @param delay the delay
+     * @return the delay
      */
-    public void setDelay(int delay) {
+    public ProviderConfig<T> setDelay(int delay) {
         this.delay = delay;
+        return this;
     }
 
     /**
-     * Is dynamic.
+     * Gets weight.
+     *
+     * @return the weight
+     */
+    public int getWeight() {
+        return weight;
+    }
+
+    /**
+     * Sets weight.
+     *
+     * @param weight the weight
+     * @return the weight
+     */
+    public ProviderConfig<T> setWeight(int weight) {
+        this.weight = weight;
+        return this;
+    }
+
+    /**
+     * Gets include.
+     *
+     * @return the include
+     */
+    public String getInclude() {
+        return include;
+    }
+
+    /**
+     * Sets include.
+     *
+     * @param include the include
+     * @return the include
+     */
+    public ProviderConfig<T> setInclude(String include) {
+        this.include = include;
+        return this;
+    }
+
+    /**
+     * Gets exclude.
+     *
+     * @return the exclude
+     */
+    public String getExclude() {
+        return exclude;
+    }
+
+    /**
+     * Sets exclude.
+     *
+     * @param exclude the exclude
+     * @return the exclude
+     */
+    public ProviderConfig<T> setExclude(String exclude) {
+        this.exclude = exclude;
+        return this;
+    }
+
+    /**
+     * Is dynamic boolean.
      *
      * @return the boolean
      */
@@ -282,9 +298,11 @@ public class ProviderConfig<T> extends AbstractInterfaceConfig<T> implements Ser
      * Sets dynamic.
      *
      * @param dynamic the dynamic
+     * @return the dynamic
      */
-    public void setDynamic(boolean dynamic) {
+    public ProviderConfig<T> setDynamic(boolean dynamic) {
         this.dynamic = dynamic;
+        return this;
     }
 
     /**
@@ -300,9 +318,11 @@ public class ProviderConfig<T> extends AbstractInterfaceConfig<T> implements Ser
      * Sets priority.
      *
      * @param priority the priority
+     * @return the priority
      */
-    public void setPriority(int priority) {
+    public ProviderConfig<T> setPriority(int priority) {
         this.priority = priority;
+        return this;
     }
 
     /**
@@ -318,9 +338,11 @@ public class ProviderConfig<T> extends AbstractInterfaceConfig<T> implements Ser
      * Sets timeout.
      *
      * @param timeout the timeout
+     * @return the timeout
      */
-    public void setTimeout(int timeout) {
+    public ProviderConfig<T> setTimeout(int timeout) {
         this.timeout = timeout;
+        return this;
     }
 
     /**
@@ -336,9 +358,188 @@ public class ProviderConfig<T> extends AbstractInterfaceConfig<T> implements Ser
      * Sets concurrents.
      *
      * @param concurrents the concurrents
+     * @return the concurrents
      */
-    public void setConcurrents(int concurrents) {
+    public ProviderConfig<T> setConcurrents(int concurrents) {
         this.concurrents = concurrents;
+        return this;
+    }
+
+    /**
+     * Sets interface id.
+     *
+     * @param interfaceId the interface id
+     * @return the interface id
+     */
+    public ProviderConfig<T> setInterfaceId(String interfaceId) {
+        this.interfaceId = interfaceId;
+        return this;
+    }
+
+    /**
+     * Sets tags.
+     *
+     * @param tags the tags
+     */
+    public ProviderConfig<T> setTags(String tags) {
+        checkNormalWithCommaColon("tags", tags);
+        this.tags = tags;
+        return this;
+    }
+
+    /**
+     * Sets filter ref.
+     *
+     * @param filterRef the filter ref
+     * @return the filter ref
+     */
+    public ProviderConfig<T> setFilterRef(List<Filter> filterRef) {
+        this.filterRef = filterRef;
+        return this;
+    }
+
+    /**
+     * Sets filter.
+     *
+     * @param filter the filter
+     * @return the filter
+     */
+    public ProviderConfig<T> setFilters(List<String> filter) {
+        this.filter = filter;
+        return this;
+    }
+
+    /**
+     * Sets registry.
+     *
+     * @param registry the registry
+     * @return the registry
+     */
+    public ProviderConfig<T> setRegistry(List<RegistryConfig> registry) {
+        this.registry = registry;
+        return this;
+    }
+
+    /**
+     * Sets methods.
+     *
+     * @param methods the methods
+     * @return the methods
+     */
+    public ProviderConfig<T> setMethods(Map<String, MethodConfig> methods) {
+        this.methods = methods;
+        return this;
+    }
+
+    /**
+     * Sets register.
+     *
+     * @param register the register
+     * @return the register
+     */
+    public ProviderConfig<T> setRegister(boolean register) {
+        this.register = register;
+        return this;
+    }
+
+    /**
+     * Sets subscribe.
+     *
+     * @param subscribe the subscribe
+     * @return the subscribe
+     */
+    public ProviderConfig<T> setSubscribe(boolean subscribe) {
+        this.subscribe = subscribe;
+        return this;
+    }
+
+    /**
+     * Sets proxy.
+     *
+     * @param proxy the proxy
+     * @return the proxy
+     */
+    public ProviderConfig<T> setProxy(String proxy) {
+        this.proxy = proxy;
+        return this;
+    }
+
+    /**
+     * Sets cache ref.
+     *
+     * @param cacheRef the cache ref
+     * @return the cache ref
+     */
+    public ProviderConfig<T> setCacheRef(Cache cacheRef) {
+        this.cacheRef = cacheRef;
+        return this;
+    }
+
+    /**
+     * Sets mock ref.
+     *
+     * @param mockRef the mock ref
+     * @return the mock ref
+     */
+    public ProviderConfig<T> setMockRef(T mockRef) {
+        this.mockRef = mockRef;
+        return this;
+    }
+
+    /**
+     * Sets parameters.
+     *
+     * @param parameters the parameters
+     * @return the parameters
+     */
+    public ProviderConfig<T> setParameters(Map<String, String> parameters) {
+        this.parameters = parameters;
+        return this;
+    }
+
+    /**
+     * Sets mock.
+     *
+     * @param mock the mock
+     * @return the mock
+     */
+    public ProviderConfig<T> setMock(boolean mock) {
+        this.mock = mock;
+        return this;
+    }
+
+
+    /**
+     * Sets validation.
+     *
+     * @param validation the validation
+     * @return the validation
+     */
+    public ProviderConfig<T> setValidation(boolean validation) {
+        this.validation = validation;
+        return this;
+    }
+
+    /**
+     * Sets compress.
+     *
+     * @param compress the compress
+     * @return the compress
+     */
+    public ProviderConfig<T> setCompress(String compress) {
+        this.compress = compress;
+        return this;
+    }
+
+    /**
+     * Sets cache.
+     *
+     * @param cache the cache
+     * @return the cache
+     */
+    public ProviderConfig<T> setCache(boolean cache) {
+        this.cache = cache;
+        return this;
     }
 
     @Override
@@ -382,17 +583,18 @@ public class ProviderConfig<T> extends AbstractInterfaceConfig<T> implements Ser
      *
      * @param server ServerConfig
      */
-    public void setServer(ServerConfig server) {
+    public ProviderConfig<T> setServer(ServerConfig server) {
         if (this.server == null) {
             this.server = new ArrayList<ServerConfig>();
         }
         this.server.add(server);
+        return this;
     }
 
     /**
      * 得到可调用的方法名称列表
      *
-     * @return 可调用的方法名称列表
+     * @return 可调用的方法名称列表 methods limit
      */
     public Map<String, Boolean> getMethodsLimit() {
         return methodsLimit;

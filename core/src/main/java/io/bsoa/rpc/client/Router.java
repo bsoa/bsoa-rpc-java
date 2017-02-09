@@ -44,9 +44,9 @@ public interface Router {
      * 筛选Provider
      *
      * @param request   本次调用（可以得到类名，方法名，方法参数，参数值等）
-     * @param providers providers（<b>当前可用</b>的服务Provider列表）
+     * @param providerInfos providers（<b>当前可用</b>的服务Provider列表）
      * @return 路由匹配的服务Provider列表
      */
-    public List<Provider> route(RpcRequest request, List<Provider> providers);
+    public List<ProviderInfo> route(RpcRequest request, List<ProviderInfo> providerInfos);
 
 }

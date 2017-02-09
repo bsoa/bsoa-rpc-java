@@ -18,12 +18,12 @@ package io.bsoa.rpc.registry;
 
 import java.util.List;
 
-import io.bsoa.rpc.client.Provider;
+import io.bsoa.rpc.client.ProviderInfo;
 import io.bsoa.rpc.config.ConsumerConfig;
 import io.bsoa.rpc.config.ProviderConfig;
 import io.bsoa.rpc.config.RegistryConfig;
 import io.bsoa.rpc.listener.ConfigListener;
-import io.bsoa.rpc.listener.ProviderListener;
+import io.bsoa.rpc.listener.ProviderInfoListener;
 
 /**
  * Created by zhangg on 2016/7/16 00:29.
@@ -70,12 +70,12 @@ public interface Registry {
      * 订阅服务列表
      *
      * @param config           Consumer配置
-     * @param providerListener 配置监听器
+     * @param providerInfoListener 配置监听器
      * @param configListener   配置监听器
      * @return 当前Provider列表 list
      */
-    public List<Provider> subscribe(ConsumerConfig config, ProviderListener providerListener,
-                                    ConfigListener configListener);
+    public List<ProviderInfo> subscribe(ConsumerConfig config, ProviderInfoListener providerInfoListener,
+                                        ConfigListener configListener);
 
     /**
      * 反订阅服务调用者相关配置

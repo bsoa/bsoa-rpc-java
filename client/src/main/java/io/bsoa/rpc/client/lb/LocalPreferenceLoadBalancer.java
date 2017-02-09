@@ -19,10 +19,10 @@ package io.bsoa.rpc.client.lb;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.bsoa.rpc.client.Provider;
+import io.bsoa.rpc.client.ProviderInfo;
+import io.bsoa.rpc.common.SystemInfo;
 import io.bsoa.rpc.common.utils.CommonUtils;
 import io.bsoa.rpc.common.utils.StringUtils;
-import io.bsoa.rpc.context.BsoaContext;
 import io.bsoa.rpc.ext.Extension;
 import io.bsoa.rpc.message.RpcRequest;
 
@@ -37,21 +37,21 @@ import io.bsoa.rpc.message.RpcRequest;
 public class LocalPreferenceLoadBalancer extends RandomLoadBalancer {
 
     @Override
-    public Provider doSelect(RpcRequest invocation, List<Provider> providers) {
-        String localhost = BsoaContext.getLocalHost();
+    public ProviderInfo doSelect(RpcRequest invocation, List<ProviderInfo> providerInfos) {
+        String localhost = SystemInfo.getLocalHost();
         if (StringUtils.isEmpty(localhost)) {
-            return super.doSelect(invocation, providers);
+            return super.doSelect(invocation, providerInfos);
         }
-        List<Provider> localProvider = new ArrayList<>();
-        for (Provider provider : providers) { // 解析IP，看是否和本地一致
-            if (localhost.equals(provider.getIp())) {
-                localProvider.add(provider);
+        List<ProviderInfo> localProviderInfo = new ArrayList<>();
+        for (ProviderInfo providerInfo : providerInfos) { // 解析IP，看是否和本地一致
+            if (localhost.equals(providerInfo.getIp())) {
+                localProviderInfo.add(providerInfo);
             }
         }
-        if (CommonUtils.isNotEmpty(localProvider)) { // 命中本机的服务端
-            return super.doSelect(invocation, localProvider);
+        if (CommonUtils.isNotEmpty(localProviderInfo)) { // 命中本机的服务端
+            return super.doSelect(invocation, localProviderInfo);
         } else { // 没有命中本机上的服务端
-            return super.doSelect(invocation, providers);
+            return super.doSelect(invocation, providerInfos);
         }
     }
 }

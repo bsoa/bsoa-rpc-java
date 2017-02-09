@@ -52,13 +52,13 @@ public abstract class Client {
 
     public abstract boolean isAvailable();
 
-    public abstract void addProvider(List<Provider> providers);
+    public abstract void addProvider(List<ProviderInfo> providerInfos);
 
     public abstract void checkStateChange(boolean originalState);
 
-    public abstract void removeProvider(List<Provider> providers);
+    public abstract void removeProvider(List<ProviderInfo> providerInfos);
 
-    public abstract void updateProvider(List<Provider> newProviders);
+    public abstract void updateProvider(List<ProviderInfo> newProviderInfos);
 
     public abstract RpcResponse sendMsg(RpcRequest rpcRequest);
 }

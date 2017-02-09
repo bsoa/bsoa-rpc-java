@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Random;
 
 import io.bsoa.rpc.client.AbstractLoadBalancer;
-import io.bsoa.rpc.client.Provider;
+import io.bsoa.rpc.client.ProviderInfo;
 import io.bsoa.rpc.config.ConsumerConfig;
 import io.bsoa.rpc.ext.Extension;
 import io.bsoa.rpc.message.RpcRequest;
@@ -41,16 +41,16 @@ public class RandomLoadBalancer extends AbstractLoadBalancer {
     private final Random random = new Random();
 
     @Override
-    public Provider doSelect(RpcRequest invocation, List<Provider> providers) {
-        Provider provider = null;
-        int length = providers.size(); // 总个数
+    public ProviderInfo doSelect(RpcRequest invocation, List<ProviderInfo> providerInfos) {
+        ProviderInfo providerInfo = null;
+        int length = providerInfos.size(); // 总个数
         int totalWeight = 0; // 总权重
         boolean sameWeight = true; // 权重是否都一样
         for (int i = 0; i < length; i++) {
-            int weight = getWeight(providers.get(i));
+            int weight = getWeight(providerInfos.get(i));
             totalWeight += weight; // 累计总权重
             if (sameWeight && i > 0
-                    && weight != getWeight(providers.get(i - 1))) {
+                    && weight != getWeight(providerInfos.get(i - 1))) {
                 sameWeight = false; // 计算所有权重是否一样
             }
         }
@@ -59,17 +59,17 @@ public class RandomLoadBalancer extends AbstractLoadBalancer {
             int offset = random.nextInt(totalWeight);
             // 并确定随机值落在哪个片断上
             for (int i = 0; i < length; i++) {
-                offset -= getWeight(providers.get(i));
+                offset -= getWeight(providerInfos.get(i));
                 if (offset < 0) {
-                    provider = providers.get(i);
+                    providerInfo = providerInfos.get(i);
                     break;
                 }
             }
         } else {
             // 如果权重相同或权重为0则均等随机
-            provider = providers.get(random.nextInt(length));
+            providerInfo = providerInfos.get(random.nextInt(length));
         }
-        return provider;
+        return providerInfo;
     }
 
     @Override

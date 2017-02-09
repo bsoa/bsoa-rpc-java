@@ -25,7 +25,7 @@ import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import io.bsoa.rpc.client.AbstractLoadBalancer;
-import io.bsoa.rpc.client.Provider;
+import io.bsoa.rpc.client.ProviderInfo;
 import io.bsoa.rpc.common.utils.CommonUtils;
 import io.bsoa.rpc.common.utils.StringUtils;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
@@ -47,15 +47,15 @@ public class ConsistentHashLoadBalancer extends AbstractLoadBalancer {
     private ConcurrentHashMap<String, Selector> selector_cache = new ConcurrentHashMap<String, Selector>();
 
     @Override
-    public Provider doSelect(RpcRequest request, List<Provider> providers) {
+    public ProviderInfo doSelect(RpcRequest request, List<ProviderInfo> providerInfos) {
         String interfaceId = request.getInterfaceName();
         String method = request.getMethodName();
         String key = interfaceId + "#" + method;
-        int hashcode = providers.hashCode(); // 判断是否同样的服务列表
+        int hashcode = providerInfos.hashCode(); // 判断是否同样的服务列表
         Selector selector = selector_cache.get(key);
         if (selector == null // 原来没有
                 || selector.getHashCode() != hashcode) { // 或者服务列表已经变化
-            selector = new Selector(interfaceId, method, providers, hashcode);
+            selector = new Selector(interfaceId, method, providerInfos, hashcode);
             selector_cache.put(key, selector);
         }
         return selector.select(request);
@@ -84,7 +84,7 @@ public class ConsistentHashLoadBalancer extends AbstractLoadBalancer {
         /**
          * 虚拟节点
          */
-        private final TreeMap<Long, Provider> virtualNodes;
+        private final TreeMap<Long, ProviderInfo> virtualNodes;
 
         /**
          * Instantiates a new Selector.
@@ -93,7 +93,7 @@ public class ConsistentHashLoadBalancer extends AbstractLoadBalancer {
          * @param method      the method
          * @param actualNodes the actual nodes
          */
-        public Selector(String interfaceId, String method, List<Provider> actualNodes) {
+        public Selector(String interfaceId, String method, List<ProviderInfo> actualNodes) {
             this(interfaceId, method, actualNodes, actualNodes.hashCode());
         }
 
@@ -105,19 +105,19 @@ public class ConsistentHashLoadBalancer extends AbstractLoadBalancer {
          * @param actualNodes the actual nodes
          * @param hashcode    the hashcode
          */
-        public Selector(String interfaceId, String method, List<Provider> actualNodes, int hashcode) {
+        public Selector(String interfaceId, String method, List<ProviderInfo> actualNodes, int hashcode) {
             this.interfaceId = interfaceId;
             this.method = method;
             this.hashcode = hashcode;
             // 创建虚拟节点环 （默认一个provider共创建128个虚拟节点，较多比较均匀）
-            this.virtualNodes = new TreeMap<Long, Provider>();
+            this.virtualNodes = new TreeMap<Long, ProviderInfo>();
             int num = 128;
-            for (Provider provider : actualNodes) {
+            for (ProviderInfo providerInfo : actualNodes) {
                 for (int i = 0; i < num / 4; i++) {
-                    byte[] digest = messageDigest(provider.getIp() + provider.getPort() + i);
+                    byte[] digest = messageDigest(providerInfo.getIp() + providerInfo.getPort() + i);
                     for (int h = 0; h < 4; h++) {
                         long m = hash(digest, h);
-                        virtualNodes.put(m, provider);
+                        virtualNodes.put(m, providerInfo);
                     }
                 }
             }
@@ -129,7 +129,7 @@ public class ConsistentHashLoadBalancer extends AbstractLoadBalancer {
          * @param request the request
          * @return the provider
          */
-        public Provider select(RpcRequest request) {
+        public ProviderInfo select(RpcRequest request) {
             String key = buildKeyOfHash(request.getArgs());
             byte[] digest = messageDigest(key);
             return sekectForKey(hash(digest, 0));
@@ -155,18 +155,18 @@ public class ConsistentHashLoadBalancer extends AbstractLoadBalancer {
          * @param hash the hash
          * @return the provider
          */
-        private Provider sekectForKey(long hash) {
-            Provider provider = virtualNodes.get(hash);
-            if (provider == null) {
-                SortedMap<Long, Provider> tailMap = virtualNodes.tailMap(hash);
+        private ProviderInfo sekectForKey(long hash) {
+            ProviderInfo providerInfo = virtualNodes.get(hash);
+            if (providerInfo == null) {
+                SortedMap<Long, ProviderInfo> tailMap = virtualNodes.tailMap(hash);
                 if (tailMap.isEmpty()) {
                     hash = virtualNodes.firstKey();
                 } else {
                     hash = tailMap.firstKey();
                 }
-                provider = virtualNodes.get(hash);
+                providerInfo = virtualNodes.get(hash);
             }
-            return provider;
+            return providerInfo;
         }
 
         /**

@@ -220,9 +220,10 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
      *
      * @param tags the tags
      */
-    public void setTags(String tags) {
+    public AbstractInterfaceConfig setTags(String tags) {
         checkNormalWithCommaColon("tags", tags);
         this.tags = tags;
+        return this;
     }
 
     /**
@@ -512,28 +513,6 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
      */
     public Map<String, Object> getConfigValueCache() {
         return configValueCache;
-    }
-
-    /**
-     * Sets config value cache.
-     *
-     * @param configValueCache the config value cache
-     * @return the config value cache
-     */
-    public AbstractInterfaceConfig setConfigValueCache(Map<String, Object> configValueCache) {
-        this.configValueCache = configValueCache;
-        return this;
-    }
-
-    /**
-     * Sets proxy class.
-     *
-     * @param proxyClass the proxy class
-     * @return the proxy class
-     */
-    public AbstractInterfaceConfig setProxyClass(Class proxyClass) {
-        this.proxyClass = proxyClass;
-        return this;
     }
 
     /**
