@@ -22,6 +22,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.bsoa.rpc.bootstrap.Bootstraps;
 import io.bsoa.rpc.common.BsoaConstants;
 import io.bsoa.rpc.common.utils.StringUtils;
 import io.bsoa.rpc.config.ConsumerConfig;
@@ -135,7 +136,7 @@ public class AnnotationStartService {
 			if(StringUtils.isNotBlank(url)){
 				consumer.setUrl(url);
 			}
-			ref = consumer.refer();
+			ref = Bootstraps.from(consumer).refer();
 		}
     	return ref;
     }

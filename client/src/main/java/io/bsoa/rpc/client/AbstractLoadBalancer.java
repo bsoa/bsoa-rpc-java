@@ -30,12 +30,16 @@ import io.bsoa.rpc.message.RpcRequest;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public abstract class AbstractLoadBalancer implements LoadBalancer{
+public abstract class AbstractLoadBalancer extends LoadBalancer{
 
     /**
-     * 一些客户端的配置
+     * 构造函数
+     *
+     * @param consumerConfig 服务消费者配置
      */
-    protected ConsumerConfig consumerConfig;
+    public AbstractLoadBalancer(ConsumerConfig consumerConfig) {
+        super(consumerConfig);
+    }
 
     /**
      * 筛选服务端连接
@@ -62,7 +66,6 @@ public abstract class AbstractLoadBalancer implements LoadBalancer{
         return new BsoaRpcException(22222, "No Alive Provider");
     }
 
-
     /**
      * 根据负载均衡筛选
      *
@@ -76,25 +79,6 @@ public abstract class AbstractLoadBalancer implements LoadBalancer{
     public abstract ProviderInfo doSelect(RpcRequest invocation, List<ProviderInfo> providerInfos);
 
     /**
-     * Gets consumer config.
-     *
-     * @return the consumer config
-     */
-    public ConsumerConfig getConsumerConfig() {
-        return consumerConfig;
-    }
-
-    /**
-     * Sets consumer config.
-     *
-     * @param consumerConfig
-     *         the consumer config
-     */
-    public void setConsumerConfig(ConsumerConfig consumerConfig) {
-        this.consumerConfig = consumerConfig;
-    }
-
-    /**
      * Gets weight.
      *
      * @param providerInfo
@@ -105,11 +89,5 @@ public abstract class AbstractLoadBalancer implements LoadBalancer{
         // 从provider中或得到相关权重,默认值100
         return providerInfo.getWeight() < 0 ? 0 : providerInfo.getWeight();
     }
-
-    @Override
-    public void init(ConsumerConfig consumerConfig) {
-        this.consumerConfig = consumerConfig;
-    }
-
 
 }

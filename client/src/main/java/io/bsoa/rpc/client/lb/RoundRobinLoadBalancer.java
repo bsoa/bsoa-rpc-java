@@ -24,6 +24,7 @@ import java.util.concurrent.ConcurrentMap;
 import io.bsoa.rpc.client.AbstractLoadBalancer;
 import io.bsoa.rpc.client.ProviderInfo;
 import io.bsoa.rpc.common.struct.PositiveAtomicCounter;
+import io.bsoa.rpc.config.ConsumerConfig;
 import io.bsoa.rpc.ext.Extension;
 import io.bsoa.rpc.message.RpcRequest;
 
@@ -40,6 +41,15 @@ public class RoundRobinLoadBalancer extends AbstractLoadBalancer {
     private final ConcurrentMap<String, PositiveAtomicCounter> sequences = new ConcurrentHashMap<String, PositiveAtomicCounter>();
 
     private final ConcurrentMap<String, PositiveAtomicCounter> weightSequences = new ConcurrentHashMap<String, PositiveAtomicCounter>();
+
+    /**
+     * 构造函数
+     *
+     * @param consumerConfig 服务消费者配置
+     */
+    public RoundRobinLoadBalancer(ConsumerConfig consumerConfig) {
+        super(consumerConfig);
+    }
 
     public ProviderInfo doSelect(RpcRequest request, List<ProviderInfo> providerInfos) {
         String key = getServiceKey(request); // 每个方法级自己轮询，互不影响

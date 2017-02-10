@@ -21,6 +21,7 @@ import java.util.Random;
 
 import io.bsoa.rpc.client.AbstractLoadBalancer;
 import io.bsoa.rpc.client.ProviderInfo;
+import io.bsoa.rpc.config.ConsumerConfig;
 import io.bsoa.rpc.context.RpcStatus;
 import io.bsoa.rpc.ext.Extension;
 import io.bsoa.rpc.message.RpcRequest;
@@ -36,6 +37,15 @@ import io.bsoa.rpc.message.RpcRequest;
  */
 @Extension("leastActive")
 public class LeastActiveLoadBalancer extends AbstractLoadBalancer {
+
+    /**
+     * 构造函数
+     *
+     * @param consumerConfig 服务消费者配置
+     */
+    public LeastActiveLoadBalancer(ConsumerConfig consumerConfig) {
+        super(consumerConfig);
+    }
 
     private final Random random = new Random();
 

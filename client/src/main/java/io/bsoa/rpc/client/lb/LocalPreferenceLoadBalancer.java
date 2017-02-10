@@ -23,6 +23,7 @@ import io.bsoa.rpc.client.ProviderInfo;
 import io.bsoa.rpc.common.SystemInfo;
 import io.bsoa.rpc.common.utils.CommonUtils;
 import io.bsoa.rpc.common.utils.StringUtils;
+import io.bsoa.rpc.config.ConsumerConfig;
 import io.bsoa.rpc.ext.Extension;
 import io.bsoa.rpc.message.RpcRequest;
 
@@ -35,6 +36,15 @@ import io.bsoa.rpc.message.RpcRequest;
  */
 @Extension("localPref")
 public class LocalPreferenceLoadBalancer extends RandomLoadBalancer {
+
+    /**
+     * 构造函数
+     *
+     * @param consumerConfig 服务消费者配置
+     */
+    public LocalPreferenceLoadBalancer(ConsumerConfig consumerConfig) {
+        super(consumerConfig);
+    }
 
     @Override
     public ProviderInfo doSelect(RpcRequest invocation, List<ProviderInfo> providerInfos) {

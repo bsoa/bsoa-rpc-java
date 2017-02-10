@@ -19,6 +19,7 @@ package io.bsoa.rpc.protocol.telnet;
 import java.lang.reflect.Method;
 import java.util.List;
 
+import io.bsoa.rpc.bootstrap.ProviderBootstrap;
 import io.bsoa.rpc.common.utils.ClassLoaderUtils;
 import io.bsoa.rpc.common.utils.StringUtils;
 import io.bsoa.rpc.config.ProviderConfig;
@@ -58,16 +59,18 @@ public class JsfListTelnetHandler implements TelnetHandler {
             //    String key = entry.getKey();
             //   sb.append(key).append(line);
             //}
-            List<ProviderConfig> providerConfigs = BsoaContext.getProviderConfigs();
-            for (ProviderConfig config : providerConfigs) {
+            List<ProviderBootstrap> bootstraps = BsoaContext.getProviderConfigs();
+            for (ProviderBootstrap bootstrap : bootstraps) {
+                ProviderConfig config = bootstrap.getProviderConfig();
                 sb.append(config.getInterfaceId()).append(line);
             }
         } else if ("?".equals(message) || "/?".equals(message)) { // 显示帮助
             return getDescription();
         } else if ("-l".equals(message)) { // 显示详细alias等其它参数？
-            List<ProviderConfig> providerConfigs = BsoaContext.getProviderConfigs();
-            for (ProviderConfig config : providerConfigs) {
-                List<String> urls = config.buildUrls();
+            List<ProviderBootstrap> bootstraps = BsoaContext.getProviderConfigs();
+            for (ProviderBootstrap bootstrap : bootstraps) {
+                ProviderConfig config = bootstrap.getProviderConfig();
+                List<String> urls = bootstrap.buildUrls();
                 if (urls != null) {
                     for (String url : urls) {
                         url = url.replace("tags=", "alias=");

@@ -211,6 +211,7 @@ public class BsoaProviderBootstrap<T> extends ProviderBootstrap<T> {
                 methodsLimit.putIfAbsent(methodName, include);
             }
             ReflectUtils.cacheMethodArgsType(providerConfig.getInterfaceId(), methodName, method.getParameterTypes());
+            providerConfig.setMethodsLimit(methodsLimit);
         }
     }
 

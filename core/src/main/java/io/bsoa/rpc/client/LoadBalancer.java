@@ -32,21 +32,37 @@ import io.bsoa.rpc.message.RpcRequest;
  */
 @Extensible(singleton = false)
 @ThreadSafe
-public interface LoadBalancer {
+public abstract class LoadBalancer {
 
     /**
-     * 初始化负载均衡器
-     *
-     * @param consumerConfig 客户端配置
+     * 服务消费者配置
      */
-    public void init(ConsumerConfig consumerConfig);
+    protected final ConsumerConfig consumerConfig;
+
+    /**
+     * 构造函数
+     *
+     * @param consumerConfig 服务消费者配置
+     */
+    public LoadBalancer(ConsumerConfig consumerConfig) {
+        this.consumerConfig = consumerConfig;
+    }
+
+    /**
+     * 得到服务消费者配置
+     *
+     * @return the consumer config
+     */
+    public ConsumerConfig getConsumerConfig() {
+        return consumerConfig;
+    }
 
     /**
      * 选择服务
      *
-     * @param request   本次调用（可以得到类名，方法名，方法参数，参数值等）
-     * @param providerInfos providers（<b>当前可用</b>的服务Provider列表）
+     * @param request       本次调用（可以得到类名，方法名，方法参数，参数值等）
+     * @param providerInfos <b>当前可用</b>的服务Provider列表
      * @return 选择其中一个Provider
      */
-    public ProviderInfo select(RpcRequest request, List<ProviderInfo> providerInfos);
+    public abstract ProviderInfo select(RpcRequest request, List<ProviderInfo> providerInfos);
 }

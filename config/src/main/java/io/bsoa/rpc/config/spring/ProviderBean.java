@@ -116,7 +116,7 @@ public class ProviderBean<T> extends ProviderConfig<T> implements
     @Override
     public void onApplicationEvent(ApplicationEvent event) {
         if (event instanceof ContextRefreshedEvent) { // spring加载完毕
-            if (isDelay() && !exported) {
+            if (isDelay()) {
                 LOGGER.info("JSF export provider with beanName {} after " +
                         "spring context refreshed.", beanName);
                 if (delay < -1) { // 小于-1表示延迟更长时间加载
@@ -201,7 +201,6 @@ public class ProviderBean<T> extends ProviderConfig<T> implements
     @Override
     public void destroy() throws Exception {
         LOGGER.info("JSF destroy provider with beanName {}", beanName);
-        unexport();
+        super.unExport();
     }
-
 }

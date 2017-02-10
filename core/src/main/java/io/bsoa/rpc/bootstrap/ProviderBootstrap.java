@@ -16,6 +16,8 @@
  */
 package io.bsoa.rpc.bootstrap;
 
+import java.util.List;
+
 import io.bsoa.rpc.config.ProviderConfig;
 import io.bsoa.rpc.ext.Extensible;
 
@@ -61,4 +63,10 @@ public abstract class ProviderBootstrap<T> {
      * 发布一个服务
      */
     public abstract void unExport();
+
+    /**
+     * 发布服务后的地址
+     * @return 服务后的地址
+     */
+    public abstract List<String> buildUrls();
 }

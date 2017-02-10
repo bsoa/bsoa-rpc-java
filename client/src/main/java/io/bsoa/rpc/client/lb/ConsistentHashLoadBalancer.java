@@ -28,6 +28,7 @@ import io.bsoa.rpc.client.AbstractLoadBalancer;
 import io.bsoa.rpc.client.ProviderInfo;
 import io.bsoa.rpc.common.utils.CommonUtils;
 import io.bsoa.rpc.common.utils.StringUtils;
+import io.bsoa.rpc.config.ConsumerConfig;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
 import io.bsoa.rpc.ext.Extension;
 import io.bsoa.rpc.message.RpcRequest;
@@ -45,6 +46,15 @@ public class ConsistentHashLoadBalancer extends AbstractLoadBalancer {
      * {interface#method : selector}
      */
     private ConcurrentHashMap<String, Selector> selector_cache = new ConcurrentHashMap<String, Selector>();
+
+    /**
+     * 构造函数
+     *
+     * @param consumerConfig 服务消费者配置
+     */
+    public ConsistentHashLoadBalancer(ConsumerConfig consumerConfig) {
+        super(consumerConfig);
+    }
 
     @Override
     public ProviderInfo doSelect(RpcRequest request, List<ProviderInfo> providerInfos) {

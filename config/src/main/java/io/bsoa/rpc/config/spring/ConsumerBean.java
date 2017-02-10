@@ -95,10 +95,9 @@ public class ConsumerBean<T> extends ConsumerConfig<T> implements InitializingBe
      */
     @Override
     public T getObject() throws Exception {
-        object = refer();
+        object = super.refer();
         return object;
     }
-
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -154,7 +153,7 @@ public class ConsumerBean<T> extends ConsumerConfig<T> implements InitializingBe
 
     @Override
     public void destroy() throws Exception {
-        super.unrefer();
+        super.unRefer();
     }
 
 }

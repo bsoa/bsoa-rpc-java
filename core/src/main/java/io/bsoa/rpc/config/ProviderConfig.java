@@ -600,4 +600,22 @@ public class ProviderConfig<T> extends AbstractInterfaceConfig<T> implements Ser
         return methodsLimit;
     }
 
+    /**
+     * Sets methodsLimit.
+     *
+     * @param methodsLimit the methodsLimit
+     * @return the ProviderConfig
+     */
+    public ProviderConfig setMethodsLimit(ConcurrentHashMap<String, Boolean> methodsLimit) {
+        this.methodsLimit = methodsLimit;
+        return this;
+    }
+
+    public void export() {
+
+    }
+
+    public void unExport() {
+
+    }
 }

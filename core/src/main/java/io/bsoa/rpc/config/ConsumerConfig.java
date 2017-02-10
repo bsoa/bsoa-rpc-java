@@ -1005,4 +1005,12 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Ser
         }
         return false;
     }
+
+    public T refer() {
+        return null;
+    }
+
+    public void unRefer() {
+
+    }
 }

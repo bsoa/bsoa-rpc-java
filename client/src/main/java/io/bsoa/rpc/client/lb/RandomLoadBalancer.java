@@ -40,6 +40,15 @@ public class RandomLoadBalancer extends AbstractLoadBalancer {
      */
     private final Random random = new Random();
 
+    /**
+     * 构造函数
+     *
+     * @param consumerConfig 服务消费者配置
+     */
+    public RandomLoadBalancer(ConsumerConfig consumerConfig) {
+        super(consumerConfig);
+    }
+
     @Override
     public ProviderInfo doSelect(RpcRequest invocation, List<ProviderInfo> providerInfos) {
         ProviderInfo providerInfo = null;
@@ -70,11 +79,6 @@ public class RandomLoadBalancer extends AbstractLoadBalancer {
             providerInfo = providerInfos.get(random.nextInt(length));
         }
         return providerInfo;
-    }
-
-    @Override
-    public void init(ConsumerConfig consumerConfig) {
-
     }
 }
 

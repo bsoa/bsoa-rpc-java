@@ -19,6 +19,8 @@ package io.bsoa.rpc.protocol.jsf.test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.bsoa.rpc.bootstrap.Bootstraps;
+import io.bsoa.rpc.bootstrap.ProviderBootstrap;
 import io.bsoa.rpc.config.ProviderConfig;
 import io.bsoa.rpc.config.ServerConfig;
 import io.bsoa.rpc.context.BsoaContext;
@@ -50,7 +52,8 @@ public class JSFServerTest {
         providerConfig.setRef(new HelloServiceImpl());
         providerConfig.setServer(serverConfig);
         providerConfig.setRegister(false);
-        providerConfig.export();
+        ProviderBootstrap bootstrap = Bootstraps.from(providerConfig);
+        bootstrap.export();
 
         LOGGER.warn("started at pid {}", BsoaContext.PID);
     }

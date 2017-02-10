@@ -116,8 +116,7 @@ public abstract class AbstractClient extends Client {
 
         // 负载均衡策略 考虑是否可动态替换？
         String lb = consumerConfig.getLoadBalancer();
-        loadBalancer = LoadBalancerFactory.getLoadBalancer(lb);
-        loadBalancer.init(consumerConfig);
+        loadBalancer = LoadBalancerFactory.getLoadBalancer(consumerConfig);
 
         routers = consumerConfig.getRouter();
         if (routers == null) { // 未手动配置，取注册中心的配置

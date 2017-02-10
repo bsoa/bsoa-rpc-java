@@ -16,7 +16,6 @@
  */
 package io.bsoa.rpc.client;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,7 +39,6 @@ import io.bsoa.rpc.common.struct.ConcurrentHashSet;
 import io.bsoa.rpc.common.struct.NamedThreadFactory;
 import io.bsoa.rpc.common.struct.ScheduledService;
 import io.bsoa.rpc.common.utils.ExceptionUtils;
-import io.bsoa.rpc.common.utils.StringUtils;
 import io.bsoa.rpc.config.ConsumerConfig;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
 import io.bsoa.rpc.ext.Extension;
@@ -90,19 +88,6 @@ public class AllConnectConnectionHolder implements ConnectionHolder {
     protected ConsumerConfig<?> consumerConfig;
 
     /**
-     * 根据provider查找存活的ClientTransport
-     *
-     * @param providerInfo
-     *         the provider
-     * @return the client transport
-     */
-    @Deprecated
-    public ClientTransport getAliveClientTransport(ProviderInfo providerInfo) {
-        ClientTransport transport = aliveConnections.get(providerInfo);
-        return transport != null ? transport : subHealthConnections.get(providerInfo);
-    }
-
-    /**
      * Gets retry connections.
      *
      * @return the retry connections
@@ -120,13 +105,10 @@ public class AllConnectConnectionHolder implements ConnectionHolder {
      *         the transport
      */
     protected void addAlive(ProviderInfo providerInfo, ClientTransport transport) {
-        ProviderCheckedInfo checkedInfo = checkProvider(providerInfo);
-        checkedInfo.setProviderExportedFully(true); // todo
-        if (reliveToRetry(checkedInfo.isProviderExportedFully(), providerInfo, transport)) {
-            return;
+        if (checkState(providerInfo, transport)) {
+            aliveConnections.put(providerInfo, transport);
+            heartbeat_failed_counter.put(providerInfo, new AtomicInteger(0));
         }
-        aliveConnections.put(providerInfo, transport);
-        heartbeat_failed_counter.put(providerInfo, new AtomicInteger(0));
     }
 
     /**
@@ -154,15 +136,17 @@ public class AllConnectConnectionHolder implements ConnectionHolder {
         providerLock.lock();
         try {
             if (retryConnections.remove(providerInfo) != null) {
-                ProviderCheckedInfo checkedInfo = checkProvider(providerInfo);
-                if (reliveToRetry(checkedInfo.isProviderExportedFully(), providerInfo,transport)){
-                    return;
+                if (checkState(providerInfo, transport)) {
+                    aliveConnections.put(providerInfo, transport);
                 }
-                aliveConnections.put(providerInfo, transport);
             }
         } finally {
             providerLock.unlock();
         }
+    }
+
+    public boolean checkState(ProviderInfo providerInfo, ClientTransport clientTransport) {
+        return true; // TODO
     }
 
     /**
@@ -196,11 +180,9 @@ public class AllConnectConnectionHolder implements ConnectionHolder {
         providerLock.lock();
         try {
             if (subHealthConnections.remove(providerInfo) != null) {
-                ProviderCheckedInfo checkedInfo = checkProvider(providerInfo);
-                if (reliveToRetry(checkedInfo.isProviderExportedFully(), providerInfo, transport)){
-                    return;
+                if (checkState(providerInfo, transport)) {
+                    aliveConnections.put(providerInfo, transport);
                 }
-                aliveConnections.put(providerInfo, transport);
             }
         } finally {
             providerLock.unlock();
@@ -515,7 +497,7 @@ public class AllConnectConnectionHolder implements ConnectionHolder {
 
     @Override
     public void preDestroy() {
-        // 关闭线程
+        // 关闭重连线程
         shutdownReconnectThread();
         // 清空可用列表，不让再调了
         providerLock.lock();
@@ -894,131 +876,5 @@ public class AllConnectConnectionHolder implements ConnectionHolder {
         }
     }
 
-    /**
-     * 通过telnet命令检查Provider是否支持调用优化 1.5.0+支持</br>
-     *
-     * 检查服务是否存在此节点上
-     *
-     * @param providerInfo
-     *         服务端
-     */
-    public ProviderCheckedInfo checkProvider(ProviderInfo providerInfo) {
-        ProviderCheckedInfo checkedInfo = new ProviderCheckedInfo();
-//        if (provider.getProtocolType() == ProtocolType.jsf) {
-//            for (int i = 0; i < 2; i++) { // 试2次
-//                TelnetClient client = new TelnetClient(provider.getIp(), provider.getPort(), 2000, 2000);
-//                try {
-//                    // 发送握手检查服务端版本
-//                    String versionStr = client.telnetJSF("version");
-//                    try {
-//                        Map map = JSON.parseObject(versionStr, Map.class);
-//                        int realVersion = CommonUtils.parseInt(StringUtils.toString(map.get("jsfVersion")),
-//                                provider.getBsoaVersion());
-//                        if (realVersion != provider.getBsoaVersion()) {
-//                            provider.setBsoaVersion(realVersion);
-//                        }
-//                    } catch (Exception e) {
-//                    }
-//                    // 检查服务端是否支持invocation简化
-//                    String ifaceId = consumerConfig.getIfaceId();
-//                    if (StringUtils.isNotEmpty(ifaceId)) {
-//                        if (provider.getBsoaVersion() >= 1500) {
-//                            String result = client.telnetJSF("check iface " + consumerConfig.getInterfaceId()
-//                                    + " " + ifaceId);
-//                            if (result != null) {
-//                                provider.setInvocationOptimizing("1".equals(result));
-//                            }
-//                        } else {
-//                            provider.setInvocationOptimizing(false);
-//                        }
-//                    }
-//                    //检查指定服务是否已经存在
-//                    checkedInfo.setProviderExportedFully(checkProviderExportedFully(client, provider));
-//
-//                    return checkedInfo; // 正常情况直接返回
-//                } catch (Exception e) {
-//                    LOGGER.warn(e.getMessage());
-//                } finally {
-//                    client.close();
-//                }
-//            }
-//        }
-        return checkedInfo;
-    }
 
-    /**
-     * 通过执行telnet ls -l 命令，查询指定节点上是否已经发布了相关条件的服务
-     *
-     * @param providerInfo
-     *
-     * @return
-     * @since 1.6.1
-     */
-    private boolean checkProviderExportedFully(TelnetClient client, ProviderInfo providerInfo) throws IOException {
-        String interfaceId = StringUtils.isEmpty(providerInfo.getInterfaceId()) ? consumerConfig.getInterfaceId() : providerInfo.getInterfaceId();
-        String alias = StringUtils.isEmpty(providerInfo.getTags()) ? consumerConfig.getTags() : providerInfo.getTags();
-        String serviceStr = String.format("%s?alias=%s&",interfaceId,alias);
-        // telnet 检查该节点上是否已经发布此服务
-        String exportedService = client.telnetJSF("ls -l");
-        if (exportedService != null && exportedService.indexOf(serviceStr) > -1){
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     *
-     * 存活节（通过重试检查后）点如果不包含指定的服务，则加入重试列表中
-     *
-     * @param providerInfo
-     * @param transport
-     * @return true 存活节点如果不包含指定的服务
-     */
-    private boolean reliveToRetry(boolean isProviderExportedFully, ProviderInfo providerInfo, ClientTransport transport) {
-        if (!isProviderExportedFully){
-            providerInfo.setReconnectPeriodCoefficient(5);
-            addRetry(providerInfo,transport);
-            LOGGER.warn("No {}/{} service in {}:{} at the moment.add this node to retry connection list.",new Object[]{
-                            providerInfo.getInterfaceId(),
-                            providerInfo.getTags(),
-                            providerInfo.getIp(),
-                            providerInfo.getPort()
-                    }
-            );
-            return true;
-        }
-        return false;
-    }
-
-
-    /**
-     * telnet check provider节点信息
-     */
-    private class ProviderCheckedInfo{
-
-        private boolean providerExportedFully;
-
-        //telnet是否成功
-        private boolean telnetOk;
-
-        public ProviderCheckedInfo() {
-        }
-
-        public boolean isProviderExportedFully() {
-            return providerExportedFully;
-        }
-
-        public void setProviderExportedFully(boolean providerExportedFully) {
-            this.providerExportedFully = providerExportedFully;
-        }
-
-        public boolean isTelnetOk() {
-            return telnetOk;
-        }
-
-        public void setTelnetOk(boolean telnetOk) {
-            this.telnetOk = telnetOk;
-        }
-    }
 }
