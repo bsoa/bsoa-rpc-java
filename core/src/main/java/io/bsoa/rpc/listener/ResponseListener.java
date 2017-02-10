@@ -17,7 +17,7 @@
 package io.bsoa.rpc.listener;
 
 /**
- * 暴露给客户端拿到结果的Listener
+ * <P>面向用户的Rpc请求结果监听器</P>
  * <p>
  * Created by zhangg on 2016/7/15 23:59.
  *
@@ -30,12 +30,12 @@ public interface ResponseListener {
      *
      * @param result the result 正常返回结果
      */
-    public void handleResult(Object result);
+    public void onResult(Object result);
 
     /**
      * 捕获到异常后
      *
-     * @param e the e 异常
+     * @param t the t 异常
      */
-    public void catchException(Throwable e);
+    public void onException(Throwable t);
 }

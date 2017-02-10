@@ -24,6 +24,8 @@ import org.slf4j.LoggerFactory;
 
 import io.bsoa.rpc.GenericService;
 import io.bsoa.rpc.base.Cache;
+import io.bsoa.rpc.bootstrap.Bootstraps;
+import io.bsoa.rpc.bootstrap.ConsumerBootstrap;
 import io.bsoa.rpc.client.Router;
 import io.bsoa.rpc.common.BsoaConfigs;
 import io.bsoa.rpc.common.BsoaConstants;
@@ -36,7 +38,25 @@ import io.bsoa.rpc.listener.ChannelListener;
 import io.bsoa.rpc.listener.ConsumerStateListener;
 import io.bsoa.rpc.listener.ResponseListener;
 
-import static io.bsoa.rpc.common.BsoaConfigs.*;
+import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_ASYNC;
+import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_CHECK;
+import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_CONCURRENTS;
+import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_CONNECTION;
+import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_CONNECTION_HOLDER;
+import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_CONNECT_TIMEOUT;
+import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_HEARTBEAT_PERIOD;
+import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_INJVM;
+import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_INVOKE_TIMEOUT;
+import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_LAZY;
+import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_LOAD_BALANCER;
+import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_ONEWAY;
+import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_RECONNECT_PERIOD;
+import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_STICKY;
+import static io.bsoa.rpc.common.BsoaConfigs.DEFAULT_PROTOCOL;
+import static io.bsoa.rpc.common.BsoaConfigs.DEFAULT_SERIALIZATION;
+import static io.bsoa.rpc.common.BsoaConfigs.getBooleanValue;
+import static io.bsoa.rpc.common.BsoaConfigs.getIntValue;
+import static io.bsoa.rpc.common.BsoaConfigs.getStringValue;
 import static io.bsoa.rpc.config.ConfigValueHelper.checkNormalWithCommaColon;
 
 /**
@@ -188,6 +208,10 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Ser
 
 	/*---------- 参数配置项结束 ------------*/
 
+    /**
+     * 服务消费者启动类
+     */
+	private transient ConsumerBootstrap<T> consumerBootstrap;
     /**
      * Build key.
      *
@@ -1006,11 +1030,33 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Ser
         return false;
     }
 
+    /**
+     * 引用服务
+     *
+     * @return 服务代理类
+     */
     public T refer() {
-        return null;
+        if (consumerBootstrap == null) {
+            consumerBootstrap = Bootstraps.from(this);
+        }
+        return consumerBootstrap.refer();
     }
 
+    /**
+     * 取消引用服务
+     */
     public void unRefer() {
+        if (consumerBootstrap != null) {
+            consumerBootstrap.unRefer();
+        }
+    }
 
+    /**
+     * 得到服务消费这启动器
+     *
+     * @return 服务消费这启动器
+     */
+    public ConsumerBootstrap<T> getBootstrap() {
+        return consumerBootstrap;
     }
 }

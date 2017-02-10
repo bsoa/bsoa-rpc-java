@@ -142,7 +142,7 @@ public class ClientProxyInvoker implements Invoker {
                 Throwable responseException = rpcResponse.getException();
                 for (ResponseListener responseListener : onreturn) {
                     try {
-                        responseListener.catchException(responseException);
+                        responseListener.onException(responseException);
                     } catch (Exception e) {
                         LOGGER.warn("notify response listener error", e);
                     }
@@ -151,7 +151,7 @@ public class ClientProxyInvoker implements Invoker {
                 Object result = rpcResponse.getReturnData();
                 for (ResponseListener responseListener : onreturn) {
                     try {
-                        responseListener.handleResult(result);
+                        responseListener.onResult(result);
                     } catch (Exception e) {
                         LOGGER.warn("notify response listener error", e);
                     }

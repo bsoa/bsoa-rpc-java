@@ -25,6 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.bsoa.rpc.base.Cache;
+import io.bsoa.rpc.bootstrap.Bootstraps;
+import io.bsoa.rpc.bootstrap.ProviderBootstrap;
 import io.bsoa.rpc.common.utils.ClassLoaderUtils;
 import io.bsoa.rpc.common.utils.CommonUtils;
 import io.bsoa.rpc.common.utils.ExceptionUtils;
@@ -126,6 +128,11 @@ public class ProviderConfig<T> extends AbstractInterfaceConfig<T> implements Ser
      * 方法名称：是否可调用
      */
     protected transient volatile ConcurrentHashMap<String, Boolean> methodsLimit;
+
+    /**
+     * 服务提供者启动类
+     */
+    protected transient ProviderBootstrap providerBootstrap;
 
     /**
      * Gets proxy class.
@@ -611,11 +618,30 @@ public class ProviderConfig<T> extends AbstractInterfaceConfig<T> implements Ser
         return this;
     }
 
-    public void export() {
-
+    /**
+     * 发布服务
+     */
+    public synchronized void export() {
+        if (providerBootstrap == null) {
+            providerBootstrap = Bootstraps.from(this);
+        }
+        providerBootstrap.export();
     }
 
-    public void unExport() {
+    /**
+     * 取消发布服务
+     */
+    public synchronized void unExport() {
+        if (providerBootstrap != null) {
+            providerBootstrap.unExport();
+        }
+    }
 
+    /**
+     * 得到服务提供者启动器
+     * @return
+     */
+    public ProviderBootstrap getBootstrap() {
+        return providerBootstrap;
     }
 }

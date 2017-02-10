@@ -21,8 +21,6 @@ package io.bsoa.rpc.protocol.jsf.test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.bsoa.rpc.bootstrap.Bootstraps;
-import io.bsoa.rpc.bootstrap.ConsumerBootstrap;
 import io.bsoa.rpc.config.ConsumerConfig;
 
 /**
@@ -48,8 +46,7 @@ public class JSFClientTest {
         consumerConfig.setTimeout(60000);
         consumerConfig.setRegister(false);
 
-        ConsumerBootstrap<HelloService> bootstrap = Bootstraps.from(consumerConfig);
-        HelloService helloService = bootstrap.refer();
+        HelloService helloService = consumerConfig.refer();
 
         for (int i = 0; i < 100; i++) {
             try {
@@ -63,7 +60,7 @@ public class JSFClientTest {
             } catch (Exception e) {
             }
         }
-        bootstrap.unRefer();
+        consumerConfig.unRefer();
     }
 
 }

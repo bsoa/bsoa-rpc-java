@@ -48,7 +48,6 @@ import org.springframework.core.type.classreading.MetadataReaderFactory;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.SystemPropertyUtils;
 
-import io.bsoa.rpc.bootstrap.Bootstraps;
 import io.bsoa.rpc.common.struct.ConcurrentHashSet;
 import io.bsoa.rpc.common.utils.ClassLoaderUtils;
 import io.bsoa.rpc.common.utils.ExceptionUtils;
@@ -399,7 +398,7 @@ public class AnnotationBean implements InitializingBean, DisposableBean,
                         + "and the service class unimplemented any interfaces.");
             }
             ProviderConfig providerConfig = parseAnnotationService(provider, interfaceClass, bean);
-            Bootstraps.from(providerConfig).export();// 发布服务
+            providerConfig.export(); // 发布服务
         }
         return bean;
     }
@@ -452,7 +451,7 @@ public class AnnotationBean implements InitializingBean, DisposableBean,
                                         + ", cause: The @Consumer need defined base on interfaces.");
                     }
                     ConsumerConfig consumerConfig = parseAnnotationCosumer(consumer, fieldClass);
-                    Object ref = Bootstraps.from(consumerConfig).refer(); // 引用服务
+                    Object ref = consumerConfig.refer(); // 引用服务
                     if (ref != null) {
                         try {
                             field.set(bean, ref); // 注入到字段中
