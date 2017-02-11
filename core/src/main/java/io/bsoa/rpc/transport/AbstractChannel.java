@@ -28,6 +28,13 @@ import java.net.InetSocketAddress;
 public interface AbstractChannel {
 
     /**
+     * 得到容器类型，例如是netty还是jetty等
+     *
+     * @return
+     */
+    String getContainer();
+
+    /**
      * 得到ByteBuf对象
      *
      * @return

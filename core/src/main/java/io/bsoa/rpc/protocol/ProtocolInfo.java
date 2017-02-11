@@ -28,15 +28,15 @@ public abstract class ProtocolInfo {
     /**
      * 底层通讯协议：TCP
      */
-    public final static byte NET_PROTOCOL_TCP = 0;
+    public static final byte NET_PROTOCOL_TCP = 0;
     /**
      * 底层通讯协议：UDP
      */
-    public final static byte NET_PROTOCOL_UDP = 1;
+    public static final byte NET_PROTOCOL_UDP = 1;
     /**
      * 底层通讯协议：HTTP
      */
-    public final static byte NET_PROTOCOL_HTTP = 2;
+    public static final byte NET_PROTOCOL_HTTP = 2;
 
     /**
      * 协议名称

@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ExtensionLoaderFactory {
 
-    public final static ConcurrentHashMap<Class, ExtensionLoader> LOADER_MAP
+    public static final ConcurrentHashMap<Class, ExtensionLoader> LOADER_MAP
             = new ConcurrentHashMap<Class, ExtensionLoader>();
 
     public static <T> ExtensionLoader<T> getExtensionLoader(Class<T> clazz, ExtensionLoaderListener<T> listener) {

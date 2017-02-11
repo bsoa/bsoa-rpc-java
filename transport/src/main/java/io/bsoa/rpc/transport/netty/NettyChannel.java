@@ -50,6 +50,11 @@ public class NettyChannel implements AbstractChannel {
     }
 
     @Override
+    public String getContainer() {
+        return "netty";
+    }
+
+    @Override
     public AbstractByteBuf getByteBuf() {
         return new NettyByteBuf(NettyTransportHelper.getBuffer());
     }

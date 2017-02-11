@@ -17,8 +17,8 @@
 package io.bsoa.rpc.transport;
 
 import io.bsoa.rpc.ext.Extensible;
-import io.bsoa.rpc.message.ResponseFuture;
 import io.bsoa.rpc.message.BaseMessage;
+import io.bsoa.rpc.message.ResponseFuture;
 
 /**
  * Created by zhangg on 2016/7/17 15:37.
@@ -62,7 +62,7 @@ public abstract class ClientTransport {
     public abstract void disconnect();
 
     /**
-     * 销毁
+     * 销毁（最好是通过工厂模式销毁，这样可以清理缓存）
      */
     public abstract void destroy();
 
@@ -72,6 +72,12 @@ public abstract class ClientTransport {
      * @return the boolean
      */
     public abstract boolean isAvailable();
+
+    /**
+     * 设置长连接
+     * @return
+     */
+    public abstract void setChannel(AbstractChannel channel);
 
     /**
      * 得到长连接

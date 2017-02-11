@@ -80,8 +80,12 @@ public enum HeadKey {
      * 方法参数类型：映射值
      */
     @Deprecated
-    METHOD_ARG_TYPES_REF(15, String.class);
-
+    METHOD_ARG_TYPES_REF(15, String.class),
+    /**
+     * 回调函数实例
+     */
+    STREAM_INS_KEY(16, String.class), // 回调函数对应的实例id
+    ;
 
     /**
      * 编码

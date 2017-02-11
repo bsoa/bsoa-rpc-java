@@ -60,13 +60,13 @@ public class BsoaContext {
     /**
      * 当前进程Id
      */
-    public final static String PID = ManagementFactory.getRuntimeMXBean()
+    public static final String PID = ManagementFactory.getRuntimeMXBean()
             .getName().split("@")[0];
 
     /**
      * 当前系统启动实际（用这个类加载实际为准）
      */
-    public final static long START_TIME = now();
+    public static final long START_TIME = now();
 
     /**
      * 发布的服务配置
@@ -277,56 +277,56 @@ public class BsoaContext {
     /**
      * junit测试时，不需要加载其它的
      */
-    public final static String KEY_UNIT_TEST = "unitTestMode";
+    public static final String KEY_UNIT_TEST = "unitTestMode";
 
     /**
      * 配置的第一个可用的注册中心地址
      */
-    public final static String KEY_REGISTRY_CONFIG = "configedRegistry";
+    public static final String KEY_REGISTRY_CONFIG = "configedRegistry";
 
     /**
      * 当前连接的注册中心地址
      */
-    public final static String KEY_CONNECTED_REGISTRY = "connectedRegistry";
+    public static final String KEY_CONNECTED_REGISTRY = "connectedRegistry";
 
     /**
      * 最后和注册中心一次心跳时间
      */
-    public final static String KEY_LAST_HEARTBEAT_TIME = "lastHeartbeatTime";
+    public static final String KEY_LAST_HEARTBEAT_TIME = "lastHeartbeatTime";
     /**
      * 当前所在文件夹地址
      */
-    public final static String KEY_APPAPTH = "appPath";
+    public static final String KEY_APPAPTH = "appPath";
 
     /**
      * 当前实例在注册中心的关键字
      */
-    public final static String KEY_INSTANCEKEY = "instanceKey";
+    public static final String KEY_INSTANCEKEY = "instanceKey";
 
     /**
      * debug模式开启后，会打印一些额外的调试日志，不过还是受slf4j的日志级别限制
      */
-    public final static String KEY_DEBUG_MODE = "debugMode";
+    public static final String KEY_DEBUG_MODE = "debugMode";
 
     /**
      * 自动部署的appId
      */
-    public final static String KEY_APPID = "appId";
+    public static final String KEY_APPID = "appId";
 
     /**
      * 自动部署的appName
      */
-    public final static String KEY_APPNAME = "appName";
+    public static final String KEY_APPNAME = "appName";
 
     /**
      * 自动部署的appInsId
      */
-    public final static String KEY_APPINSID = "appInsId";
+    public static final String KEY_APPINSID = "appInsId";
 
     /**
      * 接口配置map<接口名，<key,value>>
      */
-    public final static ConcurrentMap<String, Map<String, String>> interfaceConfigMap
+    public static final ConcurrentMap<String, Map<String, String>> interfaceConfigMap
             = new ConcurrentHashMap<String, Map<String, String>>();
 
     /**

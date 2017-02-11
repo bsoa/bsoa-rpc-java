@@ -30,9 +30,11 @@ import io.bsoa.rpc.base.Invoker;
 import io.bsoa.rpc.common.BsoaConstants;
 import io.bsoa.rpc.common.BsoaVersion;
 import io.bsoa.rpc.common.struct.ConcurrentHashSet;
+import io.bsoa.rpc.invoke.CallbackUtils;
 import io.bsoa.rpc.common.utils.CommonUtils;
 import io.bsoa.rpc.common.utils.ExceptionUtils;
 import io.bsoa.rpc.common.utils.ReflectUtils;
+import io.bsoa.rpc.invoke.StreamUtils;
 import io.bsoa.rpc.common.utils.StringUtils;
 import io.bsoa.rpc.config.ProviderConfig;
 import io.bsoa.rpc.config.RegistryConfig;
@@ -123,7 +125,8 @@ public class BsoaProviderBootstrap<T> extends ProviderBootstrap<T> {
         }
         // 检查注入的ref是否接口实现类
         T ref = providerConfig.getRef();
-        if (!providerConfig.getProxyClass().isInstance(ref)) {
+        Class proxyClass = providerConfig.getProxyClass();
+        if (!proxyClass.isInstance(ref)) {
             throw ExceptionUtils.buildRuntime(22222, "provider.ref", ref.getClass().getName(),
                     "This is not an instance of " + providerConfig.getInterfaceId()
                             + " in provider config with key " + key + " !");
@@ -142,10 +145,12 @@ public class BsoaProviderBootstrap<T> extends ProviderBootstrap<T> {
         }
 
         // 检查多态（重载）方法
-        checkOverloadingMethod(providerConfig.getProxyClass());
+        checkOverloadingMethod(proxyClass);
 
         // 检查是否有回调函数
-//        CallbackUtil.autoRegisterCallBack(getProxyClass());
+        CallbackUtils.scanAndRegisterCallBack(proxyClass);
+        // 检查是否有流式调用函数
+        StreamUtils.scanAndRegisterStream(proxyClass);
 
         // 构造请求调用器
         providerProxyInvoker = new ProviderProxyInvoker(providerConfig);

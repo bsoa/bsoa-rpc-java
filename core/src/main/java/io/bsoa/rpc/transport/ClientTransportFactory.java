@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 
 import io.bsoa.rpc.client.ProviderInfo;
+import io.bsoa.rpc.common.BsoaConfigs;
 import io.bsoa.rpc.common.utils.CommonUtils;
 import io.bsoa.rpc.common.utils.NetUtils;
 import io.bsoa.rpc.context.BsoaContext;
@@ -76,6 +77,12 @@ public class ClientTransportFactory {
     private final static Map<ClientTransport, AtomicInteger> TRANSPORT_REF_COUNTER
             = channelReuse ? new ConcurrentHashMap<>() : null;
 
+    /**
+     * 通过配置获取长连接
+     *
+     * @param config 长连接
+     * @return
+     */
     public static ClientTransport getClientTransport(ClientTransportConfig config) {
         if (channelReuse) {
             String key = getAddr(config);
@@ -123,6 +130,11 @@ public class ClientTransportFactory {
         return providerInfo.getProtocolType() + "://" + providerInfo.getIp() + ":" + providerInfo.getPort();
     }
 
+    /**
+     * 销毁长连接
+     * @param clientTransport
+     * @param disconnectTimeout
+     */
     public static void releaseTransport(ClientTransport clientTransport, int disconnectTimeout) {
         if (clientTransport == null) {
             return;
@@ -183,6 +195,10 @@ public class ClientTransportFactory {
                 LOGGER.warn("There are {} outstanding call in client transport," +
                         " and shutdown now", count);
             }
+            // 反向的也删一下
+            if (REVERSE_CLIENT_TRANSPORT_MAP != null) {
+                REVERSE_CLIENT_TRANSPORT_MAP.remove(clientTransport.getChannel());
+            }
             clientTransport.destroy();
         }
     }
@@ -190,22 +206,67 @@ public class ClientTransportFactory {
     /**
      * 关闭全部客户端连接
      */
-
     public static void closeAll() {
-        if (CommonUtils.isNotEmpty(CLIENT_TRANSPORT_MAP)
+        if (((channelReuse && CommonUtils.isNotEmpty(CLIENT_TRANSPORT_MAP))
+                || (!channelReuse && CommonUtils.isNotEmpty(ALL_TRANSPORT_MAP)))
                 && LOGGER.isInfoEnabled()) {
             LOGGER.info("Shutdown all bsoa client transport now!");
         }
         try {
-            for (Map.Entry<String, ClientTransport> entrySet : CLIENT_TRANSPORT_MAP.entrySet()) {
-                ClientTransport clientTransport = entrySet.getValue();
-                if (clientTransport.isAvailable()) {
-                    clientTransport.disconnect();
+            if (channelReuse) {
+                for (Map.Entry<String, ClientTransport> entrySet : CLIENT_TRANSPORT_MAP.entrySet()) {
+                    ClientTransport clientTransport = entrySet.getValue();
+                    if (clientTransport.isAvailable()) {
+                        clientTransport.destroy();
+                    }
                 }
+                CLIENT_TRANSPORT_MAP.clear();
+                TRANSPORT_REF_COUNTER.clear();
+            } else {
+                for (Map.Entry<ClientTransportConfig, ClientTransport> entrySet : ALL_TRANSPORT_MAP.entrySet()) {
+                    ClientTransport clientTransport = entrySet.getValue();
+                    if (clientTransport.isAvailable()) {
+                        clientTransport.destroy();
+                    }
+                }
+                ALL_TRANSPORT_MAP.clear();
             }
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
         }
+    }
+
+    /**
+     * 反向虚拟的长连接对象, 缓存一个长连接一个
+     */
+    private static ConcurrentHashMap<AbstractChannel, ClientTransport> REVERSE_CLIENT_TRANSPORT_MAP = null;
+
+    /**
+     * 构建反向的（服务端到客户端）虚拟长连接
+     *
+     * @param channel 已有长连接Channel
+     * @return 虚拟长连接
+     */
+    public static ClientTransport getReverseClientTransport(AbstractChannel channel) {
+        if (REVERSE_CLIENT_TRANSPORT_MAP == null) { // 初始化
+            synchronized (ClientTransportFactory.class) {
+                if (REVERSE_CLIENT_TRANSPORT_MAP == null) {
+                    REVERSE_CLIENT_TRANSPORT_MAP = new ConcurrentHashMap<>();
+                }
+            }
+        }
+        ClientTransport transport = REVERSE_CLIENT_TRANSPORT_MAP.get(channel);
+        if (transport == null) {
+            synchronized (ClientTransportFactory.class) {
+                transport = REVERSE_CLIENT_TRANSPORT_MAP.get(channel);
+                if (transport == null) {
+                    transport = extensionLoader.getExtension(BsoaConfigs.getStringValue(BsoaConfigs.DEFAULT_TRANSPORT));
+                    transport.setChannel(channel);
+                    REVERSE_CLIENT_TRANSPORT_MAP.putIfAbsent(channel, transport); // 保存唯一长连接
+                }
+            }
+        }
+        return transport;
     }
 
     /**

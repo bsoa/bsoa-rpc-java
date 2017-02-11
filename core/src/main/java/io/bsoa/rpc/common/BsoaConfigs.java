@@ -271,48 +271,48 @@ public class BsoaConfigs {
     /**
      * Consumer共享心跳重连线程？ FIXME
      */
-    public final static String CONSUMER_SHARE_RECONNECT_THREAD = "consumer.share.reconnect.thread";
+    public static final String CONSUMER_SHARE_RECONNECT_THREAD = "consumer.share.reconnect.thread";
     /**
      * 是否跨接口的长连接复用
      */
-    public final static String TRANSPORT_CONNECTION_REUSE = "transport.connection.reuse";
+    public static final String TRANSPORT_CONNECTION_REUSE = "transport.connection.reuse";
 
     /**
      * 默认服务提供者启动器
      */
-    public final static String DEFAULT_PROVIDER_BOOTSTRAP = "default.provider.bootstrap";
+    public static final String DEFAULT_PROVIDER_BOOTSTRAP = "default.provider.bootstrap";
     /**
      * 默认服务端调用者启动器
      */
-    public final static String DEFAULT_CONSUMER_BOOTSTRAP = "default.consumer.bootstrap";
+    public static final String DEFAULT_CONSUMER_BOOTSTRAP = "default.consumer.bootstrap";
     /**
      * 默认服务tag
      */
-    public final static String DEFAULT_TAGS = "default.tags";
+    public static final String DEFAULT_TAGS = "default.tags";
     /**
      * 默认协议
      */
-    public final static String DEFAULT_PROTOCOL = "default.protocol";
+    public static final String DEFAULT_PROTOCOL = "default.protocol";
     /**
      * 默认序列化
      */
-    public final static String DEFAULT_SERIALIZATION = "default.serialization";
+    public static final String DEFAULT_SERIALIZATION = "default.serialization";
     /**
      * 默认代理类型
      */
-    public final static String DEFAULT_PROXY = "default.proxy";
+    public static final String DEFAULT_PROXY = "default.proxy";
     /**
      * 默认字符集 utf-8
      */
-    public final static String DEFAULT_CHARSET = "default.charset";
+    public static final String DEFAULT_CHARSET = "default.charset";
     /**
      * 默认传输层
      */
-    public final static String DEFAULT_TRANSPORT = "default.transport";
+    public static final String DEFAULT_TRANSPORT = "default.transport";
     /**
      * 默认压缩算法
      */
-    public final static String DEFAULT_COMPRESS = "default.compress";
+    public static final String DEFAULT_COMPRESS = "default.compress";
 
 
     /**
@@ -330,11 +330,11 @@ public class BsoaConfigs {
     /**
      * 注册中心心跳发送间隔
      */
-    public final static String REGISTRY_HEARTBEAT_PERIOD = "registry.heartbeat.period";
+    public static final String REGISTRY_HEARTBEAT_PERIOD = "registry.heartbeat.period";
     /**
      * 注册中心重建连接的间隔
      */
-    public final static String REGISTRY_RECONNECT_PERIOD = "registry.reconnect.period";
+    public static final String REGISTRY_RECONNECT_PERIOD = "registry.reconnect.period";
     /**
      * 是否批量操作
      */
@@ -363,61 +363,61 @@ public class BsoaConfigs {
     /**
      * 默认io线程大小，推荐自动设置
      */
-    public final static String SERVER_IOTHREADS = "server.ioThreads";
+    public static final String SERVER_IOTHREADS = "server.ioThreads";
     /**
      * 默认服务端业务线程池类型
      */
-    public final static String SERVER_POOL_TYPE = "server.pool.type";
+    public static final String SERVER_POOL_TYPE = "server.pool.type";
     /**
      * 默认服务端业务线程池最小
      */
-    public final static String SERVER_POOL_CORE = "server.pool.core";
+    public static final String SERVER_POOL_CORE = "server.pool.core";
     /**
      * 默认服务端业务线程池最大
      */
-    public final static String SERVER_POOL_MAX = "server.pool.max";
+    public static final String SERVER_POOL_MAX = "server.pool.max";
     /**
      * 是否允许telnet，针对自定义协议
      */
-    public final static String SERVER_TELNET = "server.telnet";
+    public static final String SERVER_TELNET = "server.telnet";
     /**
      * 默认服务端业务线程池队列类型
      */
-    public final static String SERVER_POOL_QUEUE_TYPE = "server.pool.queue.type";
+    public static final String SERVER_POOL_QUEUE_TYPE = "server.pool.queue.type";
     /**
      * 默认服务端业务线程池队列
      */
-    public final static String SERVER_POOL_QUEUE = "server.pool.queue";
+    public static final String SERVER_POOL_QUEUE = "server.pool.queue";
     /**
      * 默认服务端业务线程池回收时间
      */
-    public final static String SERVER_POOL_ALIVETIME = "server.pool.aliveTime";
+    public static final String SERVER_POOL_ALIVETIME = "server.pool.aliveTime";
     /**
      * 最大支持长连接
      */
-    public final static String SERVER_ACCEPTS = "server.accepts";
+    public static final String SERVER_ACCEPTS = "server.accepts";
     /**
      * 是否启动epoll
      */
-    public final static String SERVER_EPOLL = "server.epoll";
+    public static final String SERVER_EPOLL = "server.epoll";
     /**
      * 是否hold住端口，true的话随主线程退出而退出，false的话则要主动退出
      */
-    public final static String SERVER_DAEMON = "server.daemon";
+    public static final String SERVER_DAEMON = "server.daemon";
 
 
     /**
      * 默认服务是否注册
      */
-    public final static String SERVICE_REGISTER = "service.register";
+    public static final String SERVICE_REGISTER = "service.register";
     /**
      * 默认服务是否订阅
      */
-    public final static String SERVICE_SUBSCRIBE = "service.subscribe";
+    public static final String SERVICE_SUBSCRIBE = "service.subscribe";
     /**
      * 默认权重
      */
-    public final static String PROVIDER_WEIGHT = "provider.weight";
+    public static final String PROVIDER_WEIGHT = "provider.weight";
     /**
      * 默认服务启动延迟
      */
@@ -425,7 +425,7 @@ public class BsoaConfigs {
     /**
      * 默认发布方法
      */
-    public final static String PROVIDER_INCLUDE = "provider.include";
+    public static final String PROVIDER_INCLUDE = "provider.include";
     /**
      * 默认不发布方法
      */
@@ -450,15 +450,15 @@ public class BsoaConfigs {
     /**
      * 默认集群策略
      */
-    public final static String CONSUMER_CLUSTER = "consumer.cluster";
+    public static final String CONSUMER_CLUSTER = "consumer.cluster";
     /**
      * 默认负载均衡算法
      */
-    public final static String CONSUMER_CONNECTION_HOLDER = "consumer.connectionHolder";
+    public static final String CONSUMER_CONNECTION_HOLDER = "consumer.connectionHolder";
     /**
      * 默认负载均衡算法
      */
-    public final static String CONSUMER_LOAD_BALANCER = "consumer.loadBalancer";
+    public static final String CONSUMER_LOAD_BALANCER = "consumer.loadBalancer";
     /**
      * 默认失败重试次数
      */
@@ -510,107 +510,107 @@ public class BsoaConfigs {
     /**
      * Consumer给Provider发心跳的间隔
      */
-    public final static String CONSUMER_HEARTBEAT_PERIOD = "consumer.heartbeat.period";
+    public static final String CONSUMER_HEARTBEAT_PERIOD = "consumer.heartbeat.period";
     /**
      * Consumer给Provider重连的间隔
      */
-    public final static String CONSUMER_RECONNECT_PERIOD = "consumer.reconnect.period";
+    public static final String CONSUMER_RECONNECT_PERIOD = "consumer.reconnect.period";
 
     /**
      * 默认回调线程池类型
      */
-    public final static String CALLBACK_POOL_TYPE = "callback.pool.type";
+    public static final String CALLBACK_POOL_TYPE = "callback.pool.type";
     /**
      * 默认回调线程池最小
      */
-    public final static String CALLBACK_POOL_CORE = "callback.pool.core";
+    public static final String CALLBACK_POOL_CORE = "callback.pool.core";
     /**
      * 默认回调线程池最大
      */
-    public final static String CALLBACK_POOL_MAX = "callback.pool.max";
+    public static final String CALLBACK_POOL_MAX = "callback.pool.max";
     /**
      * 默认回调线程池队列
      */
-    public final static String CALLBACK_POOL_QUEUE = "callback.pool.queue";
+    public static final String CALLBACK_POOL_QUEUE = "callback.pool.queue";
     /**
      * 默认回调线程池回收时间
      */
-    public final static String CALLBACK_POOL_TIME = "callback.pool.time";
+    public static final String CALLBACK_POOL_TIME = "callback.pool.time";
     /**
      * 默认开启epoll？
      */
-    public final static String TRANSPORT_USE_EPOLL = "transport.use.epoll";
+    public static final String TRANSPORT_USE_EPOLL = "transport.use.epoll";
     /**
      * 默认服务端 数据包限制
      */
-    public final static String TRANSPORT_PAYLOAD_MAX = "transport.payload.max";
+    public static final String TRANSPORT_PAYLOAD_MAX = "transport.payload.max";
     /**
      * 默认IO的buffer大小
      */
-    public final static String TRANSPORT_BUFFER_SIZE = "transport.buffer.size";
+    public static final String TRANSPORT_BUFFER_SIZE = "transport.buffer.size";
     /**
      * 最大IO的buffer大小
      */
-    public final static String TRANSPORT_BUFFER_MAX = "transport.buffer.max";
+    public static final String TRANSPORT_BUFFER_MAX = "transport.buffer.max";
     /**
      * 最小IO的buffer大小
      */
-    public final static String TRANSPORT_BUFFER_MIN = "transport.buffer.min";
+    public static final String TRANSPORT_BUFFER_MIN = "transport.buffer.min";
     /**
      * 客户端IO线程池
      */
-    public final static String TRANSPORT_CLIENT_IO_THREADS = "transport.client.io.threads";
+    public static final String TRANSPORT_CLIENT_IO_THREADS = "transport.client.io.threads";
     /**
      * 客户端IO 比例：用户在代码中使用到了Runnable和ScheduledFutureTask，请合理设置ioRatio的比例，
      * 通过NioEventLoop的setIoRatio(int ioRatio)方法可以设置该值，默认值为50，即I/O操作和用户自定义任务的执行时间比为1：1
      */
-    public final static String TRANSPORT_CLIENT_IO_RATIO = "transport.client.io.ratio";
+    public static final String TRANSPORT_CLIENT_IO_RATIO = "transport.client.io.ratio";
     /**
      * 客户端IO 比例：用户在代码中使用到了Runnable和ScheduledFutureTask，请合理设置ioRatio的比例，
      * 通过NioEventLoop的setIoRatio(int ioRatio)方法可以设置该值，默认值为50，即I/O操作和用户自定义任务的执行时间比为1：1
      */
-    public final static String TRANSPORT_SERVER_IO_RATIO = "transport.server.io.ratio";
+    public static final String TRANSPORT_SERVER_IO_RATIO = "transport.server.io.ratio";
     /**
      * 连接重用
      */
-    public final static String TRANSPORT_SERVER_BACKLOG = "transport.server.backlog";
+    public static final String TRANSPORT_SERVER_BACKLOG = "transport.server.backlog";
     /**
      * 连接重用
      */
-    public final static String TRANSPORT_SERVER_REUSE_ADDR = "transport.server.reuseAddr";
+    public static final String TRANSPORT_SERVER_REUSE_ADDR = "transport.server.reuseAddr";
     /**
      * 保存长连接
      */
-    public final static String TRANSPORT_SERVER_KEEPALIVE = "transport.server.keepAlive";
+    public static final String TRANSPORT_SERVER_KEEPALIVE = "transport.server.keepAlive";
     /**
      * 无延迟
      */
-    public final static String TRANSPORT_SERVER_TCPNODELAY = "transport.server.tcpNoDelay";
+    public static final String TRANSPORT_SERVER_TCPNODELAY = "transport.server.tcpNoDelay";
     /**
      * 服务端boss线程数
      */
-    public final static String TRANSPORT_SERVER_BOSS_THREADS = "transport.server.boss.threads";
+    public static final String TRANSPORT_SERVER_BOSS_THREADS = "transport.server.boss.threads";
     /**
      * 服务端IO线程数
      */
-    public final static String TRANSPORT_SERVER_IO_THREADS = "transport.server.io.threads";
+    public static final String TRANSPORT_SERVER_IO_THREADS = "transport.server.io.threads";
     /**
      * 线程方法模型
      */
-    public final static String TRANSPORT_SERVER_DISPATCHER = "transport.server.dispatcher";
+    public static final String TRANSPORT_SERVER_DISPATCHER = "transport.server.dispatcher";
     /**
      * 是否一个端口支持多协议
      */
-    public final static String TRANSPORT_SERVER_PROTOCOL_ADAPTIVE = "transport.server.protocol.adaptive";
+    public static final String TRANSPORT_SERVER_PROTOCOL_ADAPTIVE = "transport.server.protocol.adaptive";
 
     /**
      * 是否开启压缩
      */
-    public final static String COMPRESS_OPEN = "compress.open";
+    public static final String COMPRESS_OPEN = "compress.open";
     /**
      * 开启压缩的大小基线
      */
-    public final static String COMPRESS_SIZE_BASELINE = "compress.size.baseline";
+    public static final String COMPRESS_SIZE_BASELINE = "compress.size.baseline";
 
     public static synchronized void subscribe(String key, ConfigListener configListener) {
         List<ConfigListener> listeners = CFG_LISTENER.get(key);

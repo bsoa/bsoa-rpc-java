@@ -45,7 +45,7 @@ public class TelnetChannelHandler extends ChannelInboundHandlerAdapter {
     /**
      * 客户端字符集
      */
-    public final static Map<Channel, String> charsetMap = new ConcurrentHashMap<Channel, String>();
+    public static final Map<Channel, String> charsetMap = new ConcurrentHashMap<Channel, String>();
 
     /**
      * The constant HELP.
@@ -115,7 +115,7 @@ public class TelnetChannelHandler extends ChannelInboundHandlerAdapter {
 //    /**
 //     * 允许执行远程invoke命令的连接，前面进行过sudo操作
 //     */
-//    public final static Set<Channel> ALLOW_INVOKE_CHANNELS = new ConcurrentHashSet<Channel>();
+//    public static final Set<Channel> ALLOW_INVOKE_CHANNELS = new ConcurrentHashSet<Channel>();
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {

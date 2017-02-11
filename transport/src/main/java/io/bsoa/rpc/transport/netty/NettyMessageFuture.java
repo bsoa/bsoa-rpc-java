@@ -442,7 +442,7 @@ public class NettyMessageFuture<V> implements ResponseFuture<V> {
                     Throwable responseException = response.getException();
                     for (ResponseListener responseListener : listeners) {
                         try {
-                            responseListener.catchException(responseException);
+                            responseListener.onException(responseException);
                         } catch (Exception e) {
                             LOGGER.warn("notify response listener error", e);
                         }
@@ -451,7 +451,7 @@ public class NettyMessageFuture<V> implements ResponseFuture<V> {
                     Object result1 = response.getReturnData();
                     for (ResponseListener responseListener : listeners) {
                         try {
-                            responseListener.handleResult(result1);
+                            responseListener.onResult(result1);
                         } catch (Exception e) {
                             LOGGER.warn("notify response listener error", e);
                         }
@@ -472,14 +472,14 @@ public class NettyMessageFuture<V> implements ResponseFuture<V> {
             if (response.hasError()) {
                 Throwable responseException = response.getException();
                 try {
-                    responseListener.catchException(responseException);
+                    responseListener.onException(responseException);
                 } catch (Exception e) {
                     LOGGER.warn("notify response listener error", e);
                 }
             } else {
                 Object result1 = response.getReturnData();
                 try {
-                    responseListener.handleResult(result1);
+                    responseListener.onResult(result1);
                 } catch (Exception e) {
                     LOGGER.warn("notify response listener error", e);
                 }

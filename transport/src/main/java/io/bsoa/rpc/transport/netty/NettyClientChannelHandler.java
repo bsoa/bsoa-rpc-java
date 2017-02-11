@@ -21,16 +21,26 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.bsoa.rpc.common.utils.NetUtils;
+import io.bsoa.rpc.context.CallbackContext;
+import io.bsoa.rpc.context.StreamContext;
 import io.bsoa.rpc.exception.BsoaRpcException;
+import io.bsoa.rpc.invoke.StreamObserver;
+import io.bsoa.rpc.invoke.StreamUtils;
 import io.bsoa.rpc.listener.ChannelListener;
 import io.bsoa.rpc.listener.NegotiatorListener;
 import io.bsoa.rpc.message.BaseMessage;
+import io.bsoa.rpc.message.HeadKey;
 import io.bsoa.rpc.message.HeartbeatResponse;
+import io.bsoa.rpc.message.MessageBuilder;
+import io.bsoa.rpc.message.MessageConstants;
 import io.bsoa.rpc.message.NegotiatorRequest;
 import io.bsoa.rpc.message.NegotiatorResponse;
 import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.message.RpcResponse;
-import io.bsoa.rpc.message.StreamResponse;
+import io.bsoa.rpc.protocol.Protocol;
+import io.bsoa.rpc.protocol.ProtocolFactory;
+import io.bsoa.rpc.transport.AbstractByteBuf;
 import io.bsoa.rpc.transport.ClientTransportConfig;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -130,14 +140,20 @@ public class NettyClientChannelHandler extends ChannelInboundHandlerAdapter {
                 NegotiatorResponse response = (NegotiatorResponse) msg;
                 clientTransport.receiveNegotiatorResponse(response);
             }
-
-            // RPC响应：业务线程处理
-            else if (msg instanceof RpcResponse) {
-                RpcResponse response = (RpcResponse) msg;
-                clientTransport.receiveRpcResponse(response);
-            }
             // RPC请求：callback线程池处理
-            else if (msg instanceof RpcRequest) { // callback请求
+            else if (msg instanceof RpcRequest) {
+                RpcRequest request = (RpcRequest) msg;
+                String callbackInsKey = (String) request.getHeadKey(HeadKey.CALLBACK_INS_KEY);
+                if (callbackInsKey != null) {
+                    // callback请求
+                }
+                String streamInsKey = (String) request.getHeadKey(HeadKey.STREAM_INS_KEY);
+                if (streamInsKey != null) {
+                    // stream请求
+                    StreamTask task = new StreamTask(request, channel);
+                    CallbackContext.getCallbackThreadPool().execute(task); // 怎么保证流式的顺序？？ TODO
+                }
+                // callback请求
 //            //receive the callback RpcResponse
 //            RpcResponse responseMsg = (RpcResponse) msg;
 //            if (responseMsg.getMsgHeader().getMsgType() != Constants.CALLBACK_RESPONSE_MSG) {
@@ -153,12 +169,15 @@ public class NettyClientChannelHandler extends ChannelInboundHandlerAdapter {
 //                throw new RpcException(responseMsg.getMsgHeader(), "No such clientTransport");
 //            }
             }
-            // 流式请求：业务线程处理
-            else if (msg instanceof StreamResponse) {
-                StreamResponse response = (StreamResponse) msg;
-                clientTransport.handleStreamResponse(response);
-            }
-            else {
+            // RPC响应：业务线程处理
+            else if (msg instanceof RpcResponse) {
+                RpcResponse response = (RpcResponse) msg;
+                String streamInsKey = (String) response.getHeadKey(HeadKey.STREAM_INS_KEY);
+                if (streamInsKey != null) {  // StreamObserver返回值
+                    StreamUtils.preMsgReceive(response, clientTransport);
+                }
+                clientTransport.receiveRpcResponse(response);
+            } else {
                 LOGGER.warn("Receive unsupported message! {}", msg.getClass());
                 throw new BsoaRpcException(22222, "Only support base message");
             }
@@ -215,4 +234,55 @@ public class NettyClientChannelHandler extends ChannelInboundHandlerAdapter {
 //        }
     }
 
+
+    private static class StreamTask implements Runnable {
+
+        private static final String METHOD_ONVALUE = "onValue";
+        private static final String METHOD_ONERROR = "onError";
+        private static final String METHOD_ONCOMPLETED = "onCompleted";
+
+        private RpcRequest request;
+
+        private Channel channel;
+
+        public StreamTask(RpcRequest request, Channel channel) {
+            this.request = request;
+            this.channel = channel;
+        }
+
+        @Override
+        public void run() {
+            byte directionType = request.getDirectionType();
+            if (directionType != MessageConstants.DIRECTION_ONEWAY) {
+                LOGGER.warn("SteamEvent must be onWay!");
+            }
+            String streamInsKey = (String) request.getHeadKey(HeadKey.STREAM_INS_KEY);
+            StreamObserver observer = StreamContext.getStreamIns(streamInsKey);
+
+            AbstractByteBuf byteBuf = request.getByteBuf();
+            Protocol protocol = ProtocolFactory.getProtocol(request.getProtocolType());
+            final RpcResponse response = MessageBuilder.buildRpcResponse(request);
+            try {
+                protocol.decoder().decodeBody(byteBuf, request);
+                String methodName = request.getMethodName();
+                if (METHOD_ONVALUE.equals(methodName)) {
+                    observer.onValue(request.getArgs()[0]);
+                } else if (METHOD_ONERROR.equals(methodName)) {
+                    observer.onError((Throwable) request.getArgs()[0]);
+                } else if (METHOD_ONCOMPLETED.equals(methodName)) {
+                    observer.onCompleted();
+                }
+            } catch (Exception e) {
+                LOGGER.error("Stream handler catch exception in channel "
+                        + NetUtils.channelToString(channel.remoteAddress(), channel.localAddress())
+                        + ", error message is :" + e.getMessage(), e);
+                BsoaRpcException rpcException = new BsoaRpcException(22222, "22222");
+                response.setException(rpcException);
+            } finally {
+                if (byteBuf != null) {
+                    byteBuf.release();
+                }
+            }
+        }
+    }
 }

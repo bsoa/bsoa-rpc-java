@@ -39,6 +39,8 @@ import io.bsoa.rpc.config.RegistryConfig;
 import io.bsoa.rpc.context.BsoaContext;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
 import io.bsoa.rpc.ext.Extension;
+import io.bsoa.rpc.invoke.CallbackUtils;
+import io.bsoa.rpc.invoke.StreamUtils;
 import io.bsoa.rpc.listener.ConfigListener;
 import io.bsoa.rpc.listener.ProviderInfoListener;
 import io.bsoa.rpc.proxy.ProxyFactory;
@@ -115,7 +117,7 @@ public class BsoaConsumerBootstrap<T> extends ConsumerBootstrap<T> {
                     "not specified in consumer config with key " + key + " !");
         }
         // 提前检查接口类
-        consumerConfig.getProxyClass();
+        Class proxyClass = consumerConfig.getProxyClass();
 
         LOGGER.info("Refer consumer config : {} with bean id {}", key, consumerConfig.getId());
 
@@ -144,7 +146,9 @@ public class BsoaConsumerBootstrap<T> extends ConsumerBootstrap<T> {
         }
 
         // 检查是否有回调函数
-//        CallbackUtil.autoRegisterCallBack(getProxyClass());
+        CallbackUtils.scanAndRegisterCallBack(proxyClass);
+        // 检查是否有流式调用函数
+        StreamUtils.scanAndRegisterStream(proxyClass);
         // 注册接口类反序列化模板
 //        if(!isGeneric()){
 //            try {
@@ -173,8 +177,7 @@ public class BsoaConsumerBootstrap<T> extends ConsumerBootstrap<T> {
             // 提前检查协议+序列化方式 TODO
             //ProtocolFactory.check(ProtocolType.valueOf(getProtocol()), SerializationType.valueOf(getSerialization()));
             // 创建代理类
-            proxyIns = (T) ProxyFactory.buildProxy(consumerConfig.getProxy(),
-                    consumerConfig.getProxyClass(), proxyInvoker);
+            proxyIns = (T) ProxyFactory.buildProxy(consumerConfig.getProxy(), proxyClass, proxyInvoker);
         } catch (Exception e) {
             if (client != null) {
                 client.destroy();

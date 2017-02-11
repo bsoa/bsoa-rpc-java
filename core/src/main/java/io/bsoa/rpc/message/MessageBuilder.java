@@ -10,6 +10,7 @@ import io.bsoa.rpc.exception.BsoaRpcException;
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
  */
 public class MessageBuilder {
+
     /**
      * 构建请求，常用于代理类拦截
      *
@@ -100,12 +101,6 @@ public class MessageBuilder {
                 break;
             case 6:
                 baseMessage = new NegotiatorResponse();
-                break;
-            case 7:
-                baseMessage = new StreamRequest();
-                break;
-            case 8:
-                baseMessage = new StreamResponse();
                 break;
             default:
                 throw new BsoaRpcException(22222, "Value of attrs in message header must be byte/short/int/string");

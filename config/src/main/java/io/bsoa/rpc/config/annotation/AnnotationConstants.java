@@ -26,7 +26,7 @@ import io.bsoa.rpc.common.utils.StringUtils;
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
 public class AnnotationConstants {
-    public final static String DEFAULT_PROTOCOL = "bsoa";
+    public static final String DEFAULT_PROTOCOL = "bsoa";
     public static final String DEFAULT_SERIALIZATION = "hessian2";
     public static final String CLUSTER_FAILOVER = "failover";
     public static final int DEFAULT_RETRIES_TIME = 0;

@@ -17,7 +17,6 @@
 package io.bsoa.rpc.server.bsoa;
 
 import java.net.InetSocketAddress;
-import java.util.PriorityQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +26,7 @@ import io.bsoa.rpc.common.utils.NetUtils;
 import io.bsoa.rpc.context.BsoaContext;
 import io.bsoa.rpc.context.RpcContext;
 import io.bsoa.rpc.exception.BsoaRpcException;
+import io.bsoa.rpc.invoke.StreamUtils;
 import io.bsoa.rpc.message.HeadKey;
 import io.bsoa.rpc.message.MessageBuilder;
 import io.bsoa.rpc.message.RpcRequest;
@@ -54,13 +54,13 @@ public class BsoaTask extends AbstractTask {
 
     private final BsoaServerHandler serverHandler;
 
-    private final RpcRequest msg;
+    private final RpcRequest request;
 
     private final AbstractChannel channel;
 
     protected BsoaTask(BsoaServerHandler serverHandler, RpcRequest msg, AbstractChannel channel, int priority) {
         this.serverHandler = serverHandler;
-        this.msg = msg;
+        this.request = msg;
         this.channel = channel;
         this.priority = priority;
     }
@@ -68,7 +68,7 @@ public class BsoaTask extends AbstractTask {
     @Override
     public void run() {
 
-        AbstractByteBuf byteBuf = msg.getByteBuf();
+        AbstractByteBuf byteBuf = request.getByteBuf();
         String interfaceName = null;
         String methodName = null;
         String tags = null;
@@ -76,9 +76,9 @@ public class BsoaTask extends AbstractTask {
         InetSocketAddress localAddress = null;
         try {
             long now = BsoaContext.now();
-            Integer timeout = (Integer) msg.getHeader(HeadKey.TIMEOUT.getCode());
-            if (timeout != null && BsoaContext.now() - msg.getReceiveTime() > timeout) { // 客户端已经超时的请求直接丢弃
-                LOGGER.warn("[JSF-23008]Discard request cause by timeout after receive the msg: {}", msg.getMessageId());
+            Integer timeout = (Integer) request.getHeader(HeadKey.TIMEOUT.getCode());
+            if (timeout != null && BsoaContext.now() - request.getReceiveTime() > timeout) { // 客户端已经超时的请求直接丢弃
+                LOGGER.warn("[JSF-23008]Discard request cause by timeout after receive the request: {}", request.getMessageId());
                 return;
             }
 
@@ -86,23 +86,24 @@ public class BsoaTask extends AbstractTask {
             localAddress = channel.getLocalAddress();
 
             // decode body
-            Protocol protocol = ProtocolFactory.getProtocol(msg.getProtocolType());
-            protocol.decoder().decodeBody(byteBuf, msg);
+            Protocol protocol = ProtocolFactory.getProtocol(request.getProtocolType());
+            protocol.decoder().decodeBody(byteBuf, request);
 
-            interfaceName = msg.getInterfaceName();
-            methodName = msg.getMethodName();
-            tags = msg.getTags();
+            interfaceName = request.getInterfaceName();
+            methodName = request.getMethodName();
+            tags = request.getTags();
 
 //            //AUTH check for blacklist/whitelist
 //            if (!ServerAuthHelper.isValid(className, aliasName, NetUtils.toIpString(remoteAddress))) {
-//                throw new RpcException(msg.getMsgHeader(),
+//                throw new RpcException(request.getMsgHeader(),
 //                        "[JSF-23007]Fail to pass the server auth check in server: " + localAddress
 //                                + ", May be your host in blacklist of server");
 //            }
 
-//            if (CallbackUtil.isCallbackRegister(className, methodName)) {
-//                CallbackUtil.msgHandle(msg, channel);
-//            }
+            if (StreamUtils.hasStreamObserverParameter(interfaceName, methodName)) {
+                StreamUtils.preMsgHandle(request, channel);
+            }
+
             String key = InvokerHolder.buildKey(interfaceName, tags);
             Invoker invoker = serverHandler.getInvoker(key);
             if (invoker == null) {
@@ -113,10 +114,14 @@ public class BsoaTask extends AbstractTask {
             }
             RpcContext.getContext().setRemoteAddress(remoteAddress);
             RpcContext.getContext().setLocalAddress(localAddress);
-            RpcResponse response = invoker.invoke(msg); // 执行调用，包括过滤器链
+            RpcResponse response = invoker.invoke(request); // 执行调用，包括过滤器链
+
+            if (StreamUtils.hasStreamObserverReturn(interfaceName, methodName)) {
+                StreamUtils.postMsgHandle(request, response, channel);
+            }
 
             // 如果是
-            methodName = msg.getMethodName(); // generic的方法名为$invoke已经变成了真正方法名
+            methodName = request.getMethodName(); // generic的方法名为$invoke已经变成了真正方法名
 
             AbstractByteBuf responseByteBuf = channel.getByteBuf();
             protocol.encoder().encodeAll(response, responseByteBuf);
@@ -130,7 +135,7 @@ public class BsoaTask extends AbstractTask {
 //                        className, methodName, ip, port);
 //                if (monitor != null) { // 需要记录日志
 //                    boolean iserror = rpcResponse.isError();
-//                    invocation.addAttachment(BsoaConstants.INTERNAL_KEY_INPUT, msg.getMsgHeader().getLength());
+//                    invocation.addAttachment(BsoaConstants.INTERNAL_KEY_INPUT, request.getMsgHeader().getLength());
 //                    // 报文长度+magiccode(2) + totallength(4)
 //                    invocation.addAttachment(BsoaConstants.INTERNAL_KEY_OUTPUT, buf.readableBytes() + 6);
 //                    invocation.addAttachment(BsoaConstants.INTERNAL_KEY_RESULT, !iserror);
@@ -143,9 +148,9 @@ public class BsoaTask extends AbstractTask {
 //                }
 //            }
 
-            if (timeout != null && BsoaContext.now() - msg.getReceiveTime() > timeout) { // 客户端已经超时的响应直接丢弃
+            if (timeout != null && BsoaContext.now() - request.getReceiveTime() > timeout) { // 客户端已经超时的响应直接丢弃
                 LOGGER.warn("[JSF-23008]Discard send response cause by " +
-                        "timeout after receive the msg: {}", msg.getMessageId());
+                        "timeout after receive the request: {}", request.getMessageId());
                 responseByteBuf.release();
                 return;
             }
@@ -155,7 +160,7 @@ public class BsoaTask extends AbstractTask {
                     + "/" + methodName + "/" + tags + ", error: " + e.getMessage()
                     + (channel != null ? ", channel: "
                     + NetUtils.channelToString(remoteAddress, localAddress) : ""), e);
-            RpcResponse response = MessageBuilder.buildRpcResponse(msg);
+            RpcResponse response = MessageBuilder.buildRpcResponse(request);
             response.setException(e);
             channel.writeAndFlush(response);
         } finally {
@@ -168,23 +173,6 @@ public class BsoaTask extends AbstractTask {
 
     @Override
     public String toString() {
-        return "BsoaTask[m:" + msg + ",p:" + priority + "]";
-    }
-
-    public static void main(String[] args) {
-        PriorityQueue set = new PriorityQueue();
-        set.add(new BsoaTask(null, null, null, 10));
-        set.add(new BsoaTask(null, null, null, -99));
-        set.add(new BsoaTask(null, null, null, 99));
-        set.add(new BsoaTask(null, new RpcRequest(), null, 1));
-        set.add(new BsoaTask(null, null, null, -10));
-        set.add(new BsoaTask(null, null, null, 0));
-        set.add(new BsoaTask(null, null, null, 0));
-        set.add(new BsoaTask(null, null, null, -1));
-
-        Object o;
-        while ((o = set.poll()) != null) {
-            System.out.println(o);
-        }
+        return "BsoaTask[m:" + request + ",p:" + priority + "]";
     }
 }

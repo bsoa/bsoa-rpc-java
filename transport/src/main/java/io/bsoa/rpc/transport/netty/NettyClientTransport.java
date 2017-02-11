@@ -30,6 +30,7 @@ import io.bsoa.rpc.common.utils.NetUtils;
 import io.bsoa.rpc.context.BsoaContext;
 import io.bsoa.rpc.exception.BsoaRpcException;
 import io.bsoa.rpc.ext.Extension;
+import io.bsoa.rpc.invoke.StreamUtils;
 import io.bsoa.rpc.message.BaseMessage;
 import io.bsoa.rpc.message.HeartbeatResponse;
 import io.bsoa.rpc.message.MessageConstants;
@@ -37,7 +38,6 @@ import io.bsoa.rpc.message.NegotiatorResponse;
 import io.bsoa.rpc.message.ResponseFuture;
 import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.message.RpcResponse;
-import io.bsoa.rpc.message.StreamResponse;
 import io.bsoa.rpc.protocol.Protocol;
 import io.bsoa.rpc.protocol.ProtocolFactory;
 import io.bsoa.rpc.transport.AbstractByteBuf;
@@ -81,8 +81,6 @@ public class NettyClientTransport extends AbstractClientTransport {
 
     private NettyChannel channel;
 
-    private volatile boolean connected = false;
-
     /**
      * 客户端配置
      *
@@ -95,7 +93,7 @@ public class NettyClientTransport extends AbstractClientTransport {
     @Override
     public void connect() {
         // 已经初始化，或者被复用
-        if (connected) {
+        if (channel != null) {
             LOGGER.info("Has been call connect(), ignore this if connection reuse");
         }
 
@@ -138,7 +136,6 @@ public class NettyClientTransport extends AbstractClientTransport {
                             (cause != null ? ". Cause by: " + cause.getMessage() : "."), cause);
                 }
                 this.channel = new NettyChannel(tmp);
-                connected = true;
             } catch (RuntimeException e) {
                 throw e;
             } catch (Exception e) {
@@ -155,7 +152,6 @@ public class NettyClientTransport extends AbstractClientTransport {
         if (channel != null) {
             channel.close();
             channel = null;
-            connected = false;
         }
     }
 
@@ -171,6 +167,11 @@ public class NettyClientTransport extends AbstractClientTransport {
     @Override
     public boolean isAvailable() {
         return channel != null && channel.isAvailable();
+    }
+
+    @Override
+    public void setChannel(AbstractChannel channel) {
+        this.channel = (NettyChannel) channel;
     }
 
     @Override
@@ -278,8 +279,12 @@ public class NettyClientTransport extends AbstractClientTransport {
             RpcRequest request = (RpcRequest) message;
 
             Protocol protocol = ProtocolFactory.getProtocol(request.getProtocolType());
+
             // TODO 是否callback请求（需要特殊处理）
-            // request = callBackHandler(request);
+            // Callback Stream调用等特殊处理
+            if (StreamUtils.hasStreamObserverParameter(request.getInterfaceName(), request.getMethodName())) {
+                StreamUtils.preMsgSend(request, this.channel);
+            }
 
             ByteBuf byteBuf = NettyTransportHelper.getBuffer();
             AbstractByteBuf buf = new NettyByteBuf(byteBuf);
@@ -335,7 +340,7 @@ public class NettyClientTransport extends AbstractClientTransport {
      * Remove future when channel inactive.
      */
     public void removeFutureWhenChannelInactive() {
-
+        // TODO
     }
 
     @Override
@@ -363,11 +368,6 @@ public class NettyClientTransport extends AbstractClientTransport {
             future.setSuccess(response);
             futureMap.remove(messageId);
         }
-    }
-
-    @Override
-    public void handleStreamResponse(StreamResponse response) {
-        //TODO
     }
 
     @Override

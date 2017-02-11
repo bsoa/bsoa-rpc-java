@@ -24,7 +24,6 @@ import io.bsoa.rpc.base.Invoker;
 import io.bsoa.rpc.common.BsoaConstants;
 import io.bsoa.rpc.exception.BsoaRpcException;
 import io.bsoa.rpc.message.RpcRequest;
-import io.bsoa.rpc.message.StreamRequest;
 import io.bsoa.rpc.server.BusinessPool;
 import io.bsoa.rpc.server.ServerHandler;
 import io.bsoa.rpc.transport.AbstractChannel;
@@ -89,11 +88,6 @@ public class BsoaServerHandler implements ServerHandler {
         } catch (Exception e) {
             throw new BsoaRpcException(22222, e);
         }
-    }
-
-    @Override
-    public void handleStreamRequest(StreamRequest request, AbstractChannel channel) {
-
     }
 
     public int entrySize() {

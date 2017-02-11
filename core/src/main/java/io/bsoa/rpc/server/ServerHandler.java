@@ -17,7 +17,6 @@
 package io.bsoa.rpc.server;
 
 import io.bsoa.rpc.message.RpcRequest;
-import io.bsoa.rpc.message.StreamRequest;
 import io.bsoa.rpc.transport.AbstractChannel;
 
 /**
@@ -31,5 +30,4 @@ public interface ServerHandler {
 
     public void handleRpcRequest(RpcRequest request, AbstractChannel channel);
 
-    public void handleStreamRequest(StreamRequest request, AbstractChannel channel);
 }

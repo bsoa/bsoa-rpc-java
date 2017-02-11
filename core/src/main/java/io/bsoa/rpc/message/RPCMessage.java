@@ -19,8 +19,6 @@ package io.bsoa.rpc.message;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.bsoa.rpc.common.annotation.JustForTest;
-
 /**
  * Created by zhangg on 2016/7/17 01:49.
  *
@@ -41,10 +39,10 @@ public abstract class RPCMessage extends DecodableMessage {
         super(messageType);
     }
 
-    @JustForTest
-    private RPCMessage() {
-        super((byte) 0);
-    }
+//    @JustForTest
+//    private RPCMessage() {
+//        super((byte) 0);
+//    }
 
     /**
      * 加一个头部数据
@@ -77,7 +75,7 @@ public abstract class RPCMessage extends DecodableMessage {
      * @return
      */
     public Object getHeadKey(HeadKey key) {
-        return headers.get(key.getCode());
+        return headers == null ? null : headers.get(key.getCode());
     }
 
     /**

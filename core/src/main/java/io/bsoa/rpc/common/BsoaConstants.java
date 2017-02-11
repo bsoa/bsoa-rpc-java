@@ -52,52 +52,52 @@ public class BsoaConstants {
     /**
      * 线程池类型：固定线程池
      */
-    public final static String THREADPOOL_TYPE_FIXED = "fixed";
+    public static final String THREADPOOL_TYPE_FIXED = "fixed";
 
     /**
      * 线程池类型：伸缩线程池
      */
-    public final static String THREADPOOL_TYPE_CACHED = "cached";
+    public static final String THREADPOOL_TYPE_CACHED = "cached";
 
     /**
      * 事件分发类型：all 所有消息都派发到业务线程池，包括请求，响应，连接事件，断开事件，心跳等。
      */
-    public final static String DISPATCHER_ALL = "all";
+    public static final String DISPATCHER_ALL = "all";
 
     /**
      * 事件分发类型：direct 所有消息都不派发到线程池，全部在IO线程上直接执行。
      */
-    public final static String DISPATCHER_DIRECT = "direct";
+    public static final String DISPATCHER_DIRECT = "direct";
 
     /**
      * 事件分发类型：message 只有请求响应消息派发到线程池，其它连接断开事件，心跳等消息，直接在IO线程上执行。
      */
-    public final static String DISPATCHER_MESSAGE = "message";
+    public static final String DISPATCHER_MESSAGE = "message";
 
     /**
      * 事件分发类型：execution 只请求消息派发到线程池，不含响应，响应和其它连接断开事件，心跳等消息，直接在IO线程上执行。
      */
-    public final static String DISPATCHER_EXECUTION = "execution";
+    public static final String DISPATCHER_EXECUTION = "execution";
 
     /**
      * 事件分发类型：connection 在IO线程上，将连接断开事件放入队列，有序逐个执行，其它消息派发到线程池。
      */
-    public final static String DISPATCHER_CONNECTION = "connection";
+    public static final String DISPATCHER_CONNECTION = "connection";
 
     /**
      * 队列类型：普通队列
      */
-    public final static String QUEUE_TYPE_NORMAL = "normal";
+    public static final String QUEUE_TYPE_NORMAL = "normal";
 
     /**
      * 队列类型：优先级队列
      */
-    public final static String QUEUE_TYPE_PRIORITY = "priority";
+    public static final String QUEUE_TYPE_PRIORITY = "priority";
 
     /**
      * 默认字符集 utf-8
      */
-    public final static Charset DEFAULT_CHARSET = Charset.forName(getStringValue(BsoaConfigs.DEFAULT_CHARSET));
+    public static final Charset DEFAULT_CHARSET = Charset.forName(getStringValue(BsoaConfigs.DEFAULT_CHARSET));
 
     /**
      * 默认方法优先级为0
@@ -107,7 +107,7 @@ public class BsoaConstants {
     /**
      * 默认服务端 数据包限制
      */
-    public final static int DEFAULT_PAYLOAD = 8 * 1024 * 1024;
+    public static final int DEFAULT_PAYLOAD = 8 * 1024 * 1024;
 
     /**--------Config配置值相关结束---------*/
 

@@ -35,7 +35,6 @@ import io.bsoa.rpc.message.NegotiatorRequest;
 import io.bsoa.rpc.message.NegotiatorResponse;
 import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.message.RpcResponse;
-import io.bsoa.rpc.message.StreamRequest;
 import io.bsoa.rpc.server.ServerHandler;
 import io.bsoa.rpc.transport.ServerTransportConfig;
 import io.netty.channel.Channel;
@@ -91,6 +90,10 @@ public class NettyServerChannelHandler extends ChannelInboundHandlerAdapter {
                 channel.writeAndFlush(response);
             }
         }
+        // 协商响应：IO线程处理 TODO
+        else if (msg instanceof NegotiatorResponse) {
+            NegotiatorResponse response = (NegotiatorResponse) msg;
+        }
         // RPC请求：业务线程处理
         else if (msg instanceof RpcRequest) { // RPC请求
             RpcRequest request = (RpcRequest) msg;
@@ -117,20 +120,7 @@ public class NettyServerChannelHandler extends ChannelInboundHandlerAdapter {
 //                throw new RpcException(responseMsg.getMsgHeader(), "No such clientTransport");
 //            }
         }
-        // 协商响应：IO线程处理 TODO
-        else if (msg instanceof NegotiatorResponse) {
-            NegotiatorResponse response = (NegotiatorResponse) msg;
-        }
-        // 流式请求：业务线程处理
-        else if (msg instanceof StreamRequest) {
-            StreamRequest request = (StreamRequest) msg;
-            if (serverHandler == null) {
-                LOGGER.warn("Has no server handler in server transport");
-                throw new BsoaRpcException(22222, "Has no server handler in server transport");
-            } else {
-                serverHandler.handleStreamRequest(request, new NettyChannel(channel));
-            }
-        } else {
+        else {
             throw new BsoaRpcException(22222, "Only support base message");
         }
     }

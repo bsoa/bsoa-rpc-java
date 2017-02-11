@@ -21,7 +21,6 @@ package io.bsoa.rpc.transport;
 import io.bsoa.rpc.message.HeartbeatResponse;
 import io.bsoa.rpc.message.NegotiatorResponse;
 import io.bsoa.rpc.message.RpcResponse;
-import io.bsoa.rpc.message.StreamResponse;
 
 /**
  * <p></p>
@@ -44,8 +43,6 @@ public abstract class AbstractClientTransport extends ClientTransport{
     public abstract void receiveRpcResponse(RpcResponse response);
 
     public abstract void receiveHeartbeatResponse(HeartbeatResponse response);
-
-    public abstract void handleStreamResponse(StreamResponse response);
 
     public abstract void receiveNegotiatorResponse(NegotiatorResponse response);
 }

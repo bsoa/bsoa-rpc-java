@@ -48,7 +48,7 @@ public class ServerTransportFactory {
     /**
      * 保留了 端口 和 服务通讯层
      */
-    public final static Map<String, ServerTransport> SERVER_TRANSPORT_MAP = new ConcurrentHashMap<>();
+    public static final Map<String, ServerTransport> SERVER_TRANSPORT_MAP = new ConcurrentHashMap<>();
 
     /*
      *

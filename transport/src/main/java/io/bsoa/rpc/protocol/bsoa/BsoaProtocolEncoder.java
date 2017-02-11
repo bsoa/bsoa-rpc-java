@@ -41,8 +41,6 @@ import io.bsoa.rpc.message.NegotiatorRequest;
 import io.bsoa.rpc.message.NegotiatorResponse;
 import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.message.RpcResponse;
-import io.bsoa.rpc.message.StreamRequest;
-import io.bsoa.rpc.message.StreamResponse;
 import io.bsoa.rpc.protocol.ProtocolEncoder;
 import io.bsoa.rpc.protocol.ProtocolInfo;
 import io.bsoa.rpc.transport.AbstractByteBuf;
@@ -165,10 +163,6 @@ public class BsoaProtocolEncoder implements ProtocolEncoder {
             } else if (object instanceof NegotiatorResponse) {
                 NegotiatorResponse response = (NegotiatorResponse) object;
                 totalLength += writeString(out, response.getRes());
-            } else if (object instanceof StreamRequest
-                    || object instanceof StreamResponse) {
-
-
             }
             msg.setTotalLength(totalLength);
             out.setBytes(2, CodecUtils.intToBytes(totalLength)); // 更新字段

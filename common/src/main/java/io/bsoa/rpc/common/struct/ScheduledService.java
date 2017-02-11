@@ -43,11 +43,11 @@ public class ScheduledService {
     /**
      * 固定频率执行，按执行开始时间计算间隔
      */
-    public final static int MODE_FIXEDRATE = 0;
+    public static final int MODE_FIXEDRATE = 0;
     /**
      * 固定间隔执行，执行完成后才计算间隔
      */
-    public final static int MODE_FIXEDDELAY = 1;
+    public static final int MODE_FIXEDDELAY = 1;
 
     /**
      * The Scheduled executor service.
