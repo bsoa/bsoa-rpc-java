@@ -76,7 +76,6 @@ public final class CodecUtils {
         return result;
     }
 
-
     /**
      * byte array copy.
      *
@@ -141,13 +140,27 @@ public final class CodecUtils {
     /**
      * 把byte转为字符串的bit
      */
-//    public static String byteToBit(byte b) {
-//        return ""
-//                + (byte) ((b >> 7) & 0x01) + (byte) ((b >> 6) & 0x1)
-//                + (byte) ((b >> 5) & 0x01) + (byte) ((b >> 4) & 0x1)
-//                + (byte) ((b >> 3) & 0x01) + (byte) ((b >> 2) & 0x1)
-//                + (byte) ((b >> 1) & 0x01) + (byte) ((b >> 0) & 0x1);
-//    }
+    public static String byteToBits(byte b) {
+        return ""
+                + (byte) ((b >> 7) & 0x01) + (byte) ((b >> 6) & 0x1)
+                + (byte) ((b >> 5) & 0x01) + (byte) ((b >> 4) & 0x1)
+                + (byte) ((b >> 3) & 0x01) + (byte) ((b >> 2) & 0x1)
+                + (byte) ((b >> 1) & 0x01) + (byte) ((b >> 0) & 0x1);
+    }
+
+    /**
+     * 把byte转为字符串的bit
+     */
+    public static byte bitsToByte(String bits) {
+        byte b = 0;
+        for (int i = bits.length() - 1, j = 0; i >= 0; i--, j++) {
+            char c = bits.charAt(i);
+            if (c == '1') {
+                b += (1 << j);
+            }
+        }
+        return b;
+    }
 
     /**
      * byte数组比较，是否命中前面几位
@@ -168,4 +181,69 @@ public final class CodecUtils {
         return true;
     }
 
+    /**
+     * 将byte转换为一个长度为8的boolean数组（每bit代表一个boolean值）
+     *
+     * @param b byte
+     * @return boolean数组
+     */
+    public static boolean[] byte2Booleans(byte b) {
+        boolean[] array = new boolean[8];
+        for (int i = 7; i >= 0; i--) { //对于byte的每bit进行判定
+            array[i] = (b & 1) == 1;   //判定byte的最后一位是否为1，若为1，则是true；否则是false
+            b = (byte) (b >> 1);       //将byte右移一位
+        }
+        return array;
+    }
+
+    /**
+     * 将一个长度为8的boolean数组（每bit代表一个boolean值）转换为byte
+     *
+     * @param array boolean数组
+     * @return byte
+     */
+    public static byte booleansToByte(boolean[] array) {
+        if (array != null && array.length > 0) {
+            byte b = 0;
+            for (int i = 0; i <= 7; i++) {
+                if (array[i]) {
+                    int nn = (1 << (7 - i));
+                    b += nn;
+                }
+            }
+            return b;
+        }
+        return 0;
+    }
+
+    /**
+     * 一个byte可以存8个boolean，可以按位获取
+     *
+     * @param modifiers 描述符
+     * @param i         索引 0-7
+     * @return 该索引bit对应的boolean（0false1true）
+     */
+    public static boolean getBooleanFromByte(byte modifiers, int i) {
+        if (i > 7 || i < 0) {
+            throw new IllegalArgumentException("Index must between 0-7!");
+        }
+        return ((modifiers >> i) & 0x01) == 1;
+    }
+
+    /**
+     * 一个byte可以存8个boolean，可以按位设置
+     *
+     * @param modifiers 描述符
+     * @param i         索引 0-7
+     * @return 新的描述符
+     */
+    public static byte setBooleanToByte(byte modifiers, int i, boolean bool) {
+        boolean old = getBooleanFromByte(modifiers, i);
+        if (old && !bool) { // true-->false
+            return (byte) (modifiers - (1 << i));
+        } else if (!old && bool) { // false-->true
+            return (byte) (modifiers + (1 << i));
+        }
+        return modifiers;
+    }
 }

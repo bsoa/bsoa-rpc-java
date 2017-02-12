@@ -97,6 +97,7 @@ public class NettyServerChannelHandler extends ChannelInboundHandlerAdapter {
         // RPC请求：业务线程处理
         else if (msg instanceof RpcRequest) { // RPC请求
             RpcRequest request = (RpcRequest) msg;
+
             if (serverHandler == null) {
                 LOGGER.warn("Has no server handler in server transport");
                 throw new BsoaRpcException(22222, "Has no server handler in server transport");

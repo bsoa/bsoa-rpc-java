@@ -8,6 +8,63 @@ import org.junit.Test;
  */
 public class CodecUtilsTest {
     @Test
+    public void byteToBits() throws Exception {
+        byte b = 0x35; // 0011 0101
+        Assert.assertEquals(CodecUtils.byteToBits(b), "00110101");
+    }
+
+    @Test
+    public void bitsToByte() throws Exception {
+        String s = "00110101";
+        Assert.assertEquals(CodecUtils.bitsToByte(s), 0x35);
+        String s1 = "00111101";
+        Assert.assertEquals(CodecUtils.bitsToByte(s1), 0x3d);
+    }
+
+    @Test
+    public void getBooleanFromByte() throws Exception {
+        byte b = 0x35; // 0011 0101
+        Assert.assertTrue(CodecUtils.getBooleanFromByte(b, 0));
+        Assert.assertFalse(CodecUtils.getBooleanFromByte(b, 1));
+        Assert.assertTrue(CodecUtils.getBooleanFromByte(b, 2));
+        Assert.assertFalse(CodecUtils.getBooleanFromByte(b, 3));
+        Assert.assertTrue(CodecUtils.getBooleanFromByte(b, 4));
+        Assert.assertTrue(CodecUtils.getBooleanFromByte(b, 5));
+        Assert.assertFalse(CodecUtils.getBooleanFromByte(b, 6));
+        Assert.assertFalse(CodecUtils.getBooleanFromByte(b, 7));
+        boolean ok = true;
+        try {
+            Assert.assertFalse(CodecUtils.getBooleanFromByte(b, -1));
+        } catch (Exception e) {
+            ok = false;
+        }
+        Assert.assertFalse(ok);
+        ok = true;
+        try {
+            Assert.assertFalse(CodecUtils.getBooleanFromByte(b, 8));
+        } catch (Exception e) {
+            ok = false;
+        }
+        Assert.assertFalse(ok);
+    }
+
+    @Test
+    public void setBooleanToByte() throws Exception {
+        byte b = 0x35; // 0011 0101
+        byte b1 = CodecUtils.setBooleanToByte(b, 0, true);
+        Assert.assertEquals(b, b1);
+        byte b2 = CodecUtils.setBooleanToByte(b, 1, false);
+        Assert.assertEquals(b, b2);
+
+        byte b3 = CodecUtils.setBooleanToByte(b, 3, true);
+        Assert.assertFalse(b == b3);
+        Assert.assertTrue(CodecUtils.getBooleanFromByte(b3, 3));
+        byte b4 = CodecUtils.setBooleanToByte(b, 4, false);
+        Assert.assertFalse(b == b4);
+        Assert.assertFalse(CodecUtils.getBooleanFromByte(b4, 4));
+    }
+
+    @Test
     public void intToBytes() throws Exception {
         int s = 16777218; // =1*256*256*256+ 0*256*256 +  0*256 + 2
         byte[] bs = CodecUtils.intToBytes(s);

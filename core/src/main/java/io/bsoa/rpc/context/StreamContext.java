@@ -33,10 +33,10 @@ public class StreamContext {
      * 保留的streamId和 本地实例的对应关系
      */
     private static ConcurrentHashMap<String, StreamObserver> insMap = new ConcurrentHashMap<>();
-    /**
-     * 保留的streamId和 本地代理类的对应关系
-     */
-    private static ConcurrentHashMap<String, StreamObserver> proxyMap = new ConcurrentHashMap<>();
+//    /**
+//     * 保留的streamId和 本地代理类的对应关系
+//     */
+//    private static ConcurrentHashMap<String, StreamObserver> proxyMap = new ConcurrentHashMap<>();
     /**
      * 保留的请求参数带StreamObserver的方法和实际传递类的对应关系
      */
@@ -74,33 +74,33 @@ public class StreamContext {
         insMap.remove(key);
     }
 
-    /**
-     * 保存StreamObserver的代理实例
-     *
-     * @param key   StreamObserver的唯一标识
-     * @param proxy StreamObserver代理类
-     */
-    public static void putStreamProxy(String key, StreamObserver proxy) {
-        proxyMap.put(key, proxy);
-    }
-
-    /**
-     * 保存StreamObserver的代理实例
-     *
-     * @param key StreamObserver的唯一标识
-     */
-    public static StreamObserver getStreamProxy(String key) {
-        return proxyMap.get(key);
-    }
-
-    /**
-     * 删除StreamObserver的代理实例
-     *
-     * @param key StreamObserver的唯一标识
-     */
-    public static void removeStreamProxy(String key) {
-        proxyMap.remove(key);
-    }
+//    /**
+//     * 保存StreamObserver的代理实例
+//     *
+//     * @param key   StreamObserver的唯一标识
+//     * @param proxy StreamObserver代理类
+//     */
+//    public static void putStreamProxy(String key, StreamObserver proxy) {
+//        proxyMap.put(key, proxy);
+//    }
+//
+//    /**
+//     * 保存StreamObserver的代理实例
+//     *
+//     * @param key StreamObserver的唯一标识
+//     */
+//    public static StreamObserver getStreamProxy(String key) {
+//        return proxyMap.get(key);
+//    }
+//
+//    /**
+//     * 删除StreamObserver的代理实例
+//     *
+//     * @param key StreamObserver的唯一标识
+//     */
+//    public static void removeStreamProxy(String key) {
+//        proxyMap.remove(key);
+//    }
 
     /**
      * 保存StreamObserver的实际实例

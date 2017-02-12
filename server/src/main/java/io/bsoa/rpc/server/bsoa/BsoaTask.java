@@ -117,7 +117,7 @@ public class BsoaTask extends AbstractTask {
             RpcResponse response = invoker.invoke(request); // 执行调用，包括过滤器链
 
             if (StreamUtils.hasStreamObserverReturn(interfaceName, methodName)) {
-                StreamUtils.postMsgHandle(request, response, channel);
+                StreamUtils.preMessageReturn(request, response, channel);
             }
 
             // 如果是

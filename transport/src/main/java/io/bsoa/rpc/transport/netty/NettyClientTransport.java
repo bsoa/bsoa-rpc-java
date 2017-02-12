@@ -271,7 +271,7 @@ public class NettyClientTransport extends AbstractClientTransport {
         NettyMessageFuture<BaseMessage> nettyMessageFuture = null;
         Channel channel = this.channel.getChannel();
         if (!oneWay) {
-            nettyMessageFuture = new NettyMessageFuture<>(channel, message.getMessageId(), timeout);
+            nettyMessageFuture = new NettyMessageFuture<>(this, message.getMessageId(), timeout);
             this.addFuture(message, nettyMessageFuture);
         }
         Integer msgId = null;
@@ -290,6 +290,9 @@ public class NettyClientTransport extends AbstractClientTransport {
             AbstractByteBuf buf = new NettyByteBuf(byteBuf);
             protocol.encoder().encodeAll(request, buf);
 
+            if (!oneWay && StreamUtils.hasStreamObserverReturn(request.getInterfaceName(), request.getMethodName())) {
+                nettyMessageFuture.setStreamReturn(true);
+            }
             channel.writeAndFlush(buf, channel.voidPromise());
 //            // 序列话Request  主要是body
 //            ByteBuf byteBuf = NettyTransportHelper.getBuffer();

@@ -31,13 +31,14 @@ import io.bsoa.rpc.common.utils.NetUtils;
 import io.bsoa.rpc.context.BsoaContext;
 import io.bsoa.rpc.context.CallbackContext;
 import io.bsoa.rpc.exception.BsoaRpcException;
+import io.bsoa.rpc.invoke.StreamUtils;
 import io.bsoa.rpc.listener.ResponseListener;
 import io.bsoa.rpc.message.DecodableMessage;
 import io.bsoa.rpc.message.ResponseFuture;
 import io.bsoa.rpc.message.RpcResponse;
 import io.bsoa.rpc.protocol.Protocol;
 import io.bsoa.rpc.protocol.ProtocolFactory;
-import io.netty.channel.Channel;
+import io.bsoa.rpc.transport.ClientTransport;
 
 /**
  * <p></p>
@@ -68,7 +69,7 @@ public class NettyMessageFuture<V> implements ResponseFuture<V> {
 
     private final int msgId;
 
-    private final Channel channel;
+    private final ClientTransport clientTransport;
 
     /**
      * 用户设置的超时时间
@@ -90,9 +91,10 @@ public class NettyMessageFuture<V> implements ResponseFuture<V> {
      * 是否同步调用，默认是
      */
     private boolean asyncCall;
+    private boolean streamReturn;
 
-    public NettyMessageFuture(Channel channel, int msgId, int timeout) {
-        this.channel = channel;
+    public NettyMessageFuture(ClientTransport clientTransport, int msgId, int timeout) {
+        this.clientTransport = clientTransport;
         this.msgId = msgId;
         this.timeout = timeout;
     }
@@ -179,7 +181,8 @@ public class NettyMessageFuture<V> implements ResponseFuture<V> {
                 : ", Client elapsed: " + (now.getTime() - genTime))
                 + "ms, Timeout: " + timeout
                 + "ms, MsgId: " + this.msgId
-                + ", Channel: " + NetUtils.channelToString(channel.localAddress(), channel.remoteAddress()))
+                + ", Channel: " + NetUtils.channelToString(
+                        clientTransport.getChannel().getLocalAddress(), clientTransport.getChannel().getRemoteAddress()))
                 + (scan ? ", throws by scan thread" : ".");
         return new BsoaRpcException(22222, errorMsg);
     }
@@ -205,14 +208,14 @@ public class NettyMessageFuture<V> implements ResponseFuture<V> {
                 synchronized (this) {
                     if (msg.getByteBuf() != null) {
                         Protocol protocol = ProtocolFactory.getProtocol(msg.getProtocolType());
-//                        LOGGER.debug("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx{}", msg.getByteBuf());
-//                        LOGGER.debug("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx{}", msg);
                         protocol.decoder().decodeBody(msg.getByteBuf(), msg);
-//                        LOGGER.debug("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx{}", msg.getByteBuf());
                         msg.getByteBuf().release();
                         msg.setByteBuf(null);
                     }
                 }
+            }
+            if(isStreamReturn() && msg instanceof RpcResponse){
+                StreamUtils.preMsgReceive((RpcResponse) msg, clientTransport);
             }
         }
 //        } else if (result instanceof CauseHolder) { // 本地异常
@@ -239,6 +242,14 @@ public class NettyMessageFuture<V> implements ResponseFuture<V> {
 //                byteBuf.release();
 //            }
 //        }
+    }
+
+    public void setStreamReturn(boolean streamReturn) {
+        this.streamReturn = streamReturn;
+    }
+
+    public boolean isStreamReturn() {
+        return streamReturn;
     }
 
     private static final class CauseHolder {

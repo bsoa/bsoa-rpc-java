@@ -23,6 +23,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 import io.bsoa.rpc.base.Invoker;
 import io.bsoa.rpc.common.BsoaConstants;
 import io.bsoa.rpc.exception.BsoaRpcException;
+import io.bsoa.rpc.invoke.StreamTask;
+import io.bsoa.rpc.message.HeadKey;
 import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.server.BusinessPool;
 import io.bsoa.rpc.server.ServerHandler;
@@ -74,15 +76,22 @@ public class BsoaServerHandler implements ServerHandler {
     }
 
     @Override
-    public void handleRpcRequest(RpcRequest rpcRequest, AbstractChannel channel) {
+    public void handleRpcRequest(RpcRequest request, AbstractChannel channel) {
         try {
             // 丢到业务线程池去执行 TODO
 //            RpcResponse rpcResponse = MessageBuilder.buildRpcResponse(rpcRequest);
 //            rpcResponse.setReturnData("hello, this is response!");
 //            channel.writeAndFlush(rpcResponse);
-
-            BsoaTask task = new BsoaTask(this, rpcRequest, channel, BsoaConstants.DEFAULT_METHOD_PRIORITY);
-            bizThreadPool.submit(task);
+            String streamInsKey = (String) request.getHeadKey(HeadKey.STREAM_INS_KEY);
+            if (streamInsKey != null) {
+                // stream请求
+                StreamTask task = new StreamTask(request, channel);
+                bizThreadPool.submit(task); // 怎么保证流式的顺序？？ TODO
+            } else {
+                BsoaTask task = new BsoaTask(this, request, channel, BsoaConstants.DEFAULT_METHOD_PRIORITY);
+                bizThreadPool.submit(task);
+                // TODO 线程执行异常 是否在这里用Callable处理？
+            }
         } catch (BsoaRpcException e) {
             throw e;
         } catch (Exception e) {

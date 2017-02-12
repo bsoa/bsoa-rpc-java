@@ -45,35 +45,36 @@ public class StreamClientTest {
         ConsumerConfig<StreamHelloService> consumerConfig = new ConsumerConfig<StreamHelloService>()
                 .setInterfaceId(StreamHelloService.class.getName())
                 .setUrl("bsoa://127.0.0.1:22000")
+                .setTimeout(300000)
                 .setRegister(false);
         StreamHelloService helloService = consumerConfig.refer();
 
-        CountDownLatch latch = new CountDownLatch(1);
+        CountDownLatch latch = new CountDownLatch(2);
 
-//        try {
-//            String result = helloService.download("/User/zhanggeng/xxx", new StreamObserver<String>() {
-//                @Override
-//                public void onValue(String value) {
-//                    LOGGER.info("Client receive data: {}", value);
-//                }
-//
-//                @Override
-//                public void onCompleted() {
-//                    LOGGER.info("Client download over..");
-//                    latch.countDown();
-//                }
-//
-//                @Override
-//                public void onError(Throwable t) {
-//                    LOGGER.info("Client download exception", t);
-//                    latch.countDown();
-//                }
-//            });
-//            LOGGER.info(result);
-//        } catch (Exception e) {
-//            LOGGER.error("", e);
-//            latch.countDown();
-//        }
+        try {
+            String result = helloService.download("/User/zhanggeng/xxx", new StreamObserver<String>() {
+                @Override
+                public void onValue(String value) {
+                    LOGGER.info("Client receive data: {}", value);
+                }
+
+                @Override
+                public void onCompleted() {
+                    LOGGER.info("Client download over..");
+                    latch.countDown();
+                }
+
+                @Override
+                public void onError(Throwable t) {
+                    LOGGER.info("Client download exception", t);
+                    latch.countDown();
+                }
+            });
+            LOGGER.info(result);
+        } catch (Exception e) {
+            LOGGER.error("", e);
+            latch.countDown();
+        }
 
         try {
             StreamObserver<String> observer = helloService.upload("/User/zhanggeng/xxx");
@@ -81,12 +82,11 @@ public class StreamClientTest {
             observer.onValue("bbbbbbbbbbbbbbbbbbbbbb");
             observer.onValue("cccc");
             observer.onCompleted();
+            latch.countDown();
         } catch (Exception e) {
             LOGGER.error("", e);
             latch.countDown();
         }
-
-
 
         try {
             latch.await();

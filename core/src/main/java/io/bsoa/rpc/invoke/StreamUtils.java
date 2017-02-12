@@ -25,19 +25,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.bsoa.rpc.base.Invoker;
-import io.bsoa.rpc.common.BsoaConfigs;
 import io.bsoa.rpc.common.SystemInfo;
 import io.bsoa.rpc.common.annotation.JustForTest;
 import io.bsoa.rpc.context.BsoaContext;
 import io.bsoa.rpc.context.StreamContext;
-import io.bsoa.rpc.exception.BsoaRpcException;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
-import io.bsoa.rpc.message.HeadKey;
-import io.bsoa.rpc.message.RPCMessage;
 import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.message.RpcResponse;
-import io.bsoa.rpc.proxy.ProxyFactory;
 import io.bsoa.rpc.transport.AbstractChannel;
 import io.bsoa.rpc.transport.ClientTransport;
 import io.bsoa.rpc.transport.ClientTransportFactory;
@@ -280,7 +274,7 @@ public class StreamUtils {
     }
 
     /**
-     * 消息发送前预处理（客户端StreamObserver发送前，保存本地实例映射，设置头部）
+     * 消息发送前预处理（客户端StreamObserver发送前，保存本地实例映射）
      *
      * @param request 请求值
      */
@@ -298,10 +292,8 @@ public class StreamUtils {
                     // 生成streamInsKey
                     String streamInsKey = StreamUtils.clientRegisterStream(interfaceId,
                             methodName, streamIns, channel.getLocalAddress().getPort());
-                    // 在Header加上streamInsKey关键字，客户端特殊处理
-                    request.addHeadKey(HeadKey.STREAM_INS_KEY, streamInsKey);
-                    // 如果是StreamObserver本地实例 则置为null再发给服务端
-                    request.getArgs()[i] = null;
+                    // 如果是StreamObserver本地实例 则置为一个包装类
+                    request.getArgs()[i] = new StreamObserverStub<>(streamInsKey);
                     break;
                 }
             }
@@ -316,34 +308,29 @@ public class StreamUtils {
      * @param channel 长连接
      */
     public static void preMsgHandle(RpcRequest request, AbstractChannel channel) {
-        String streamInsKey = (String) request.getHeadKey(HeadKey.STREAM_INS_KEY);
-        if (streamInsKey == null) {
-            // 参数里有，但是客户端没传，忽略
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("{}.{} has StreamObserver param, but receive null!",
-                        request.getInterfaceName(), request.getMethodName());
-            }
-        } else {
-            Class[] types = request.getArgClasses();
-            int i = 0;
-            for (Class type : types) {
-                if (StreamObserver.class.isAssignableFrom(type)) {
-                    Object old = request.getArgs()[i];
-                    if (old != null) {
-                        throw new BsoaRpcException(22222, "stream observer in message must be null");
-                    }
-                    String key = getName(request.getInterfaceName(), request.getMethodName());
-                    streamFeatureUsed = true;
-                    //Class actualType = StreamContext.getParamTypeOfStreamMethod(key);
-                    // 使用一个已有的channel虚拟化一个反向长连接
-                    ClientTransport clientTransport = ClientTransportFactory.getReverseClientTransport(channel);
-                    StreamObserver proxy = buildStreamObserverProxy(clientTransport, streamInsKey, request);
-                    request.getArgs()[i] = proxy; // 重新设置回参数列表
-                    break;
-                }
-                i++;
+//        String streamInsKey = (String) request.getHeadKey(HeadKey.STREAM_INS_KEY);
+//        if (streamInsKey == null) {
+//            // 参数里有，但是客户端没传，忽略
+//            if (LOGGER.isDebugEnabled()) {
+//                LOGGER.debug("{}.{} has StreamObserver param, but receive null!",
+//                        request.getInterfaceName(), request.getMethodName());
+//            }
+//        } else {
+        Class[] types = request.getArgClasses();
+        for (int i = 0; i < types.length; i++) {
+            Class type = types[i];
+            if (StreamObserver.class.isAssignableFrom(type)) {
+                StreamObserverStub stub = (StreamObserverStub) request.getArgs()[i];
+                String streamInsKey = stub.getStreamInsKey();
+                streamFeatureUsed = true;
+                //Class actualType = StreamContext.getParamTypeOfStreamMethod(key);
+                // 使用一个已有的channel虚拟化一个反向长连接
+                ClientTransport clientTransport = ClientTransportFactory.getReverseClientTransport(channel);
+                stub.setClientTransport(clientTransport).initByMessage(request);
+                break;
             }
         }
+//        }
     }
 
     /**
@@ -354,22 +341,20 @@ public class StreamUtils {
      * @param channel  连接
      * @return RpcResponse返回值
      */
-    public static void postMsgHandle(RpcRequest request, RpcResponse response, AbstractChannel channel) {
+    public static void preMessageReturn(RpcRequest request, RpcResponse response, AbstractChannel channel) {
         if (response.hasError()) {
             return;
         }
         Object returnData = response.getReturnData();
         if (returnData instanceof StreamObserver) {
             StreamObserver streamIns = (StreamObserver) returnData;
-            String interfaceId = request.getInterfaceName();
-            String methodName = request.getMethodName();
             // 生成streamInsKey
-            String streamInsKey = StreamUtils.clientRegisterStream(interfaceId,
-                    methodName, streamIns, channel.getLocalAddress().getPort());
+            String streamInsKey = StreamUtils.clientRegisterStream( request.getInterfaceName(),
+                    request.getMethodName(), streamIns, channel.getLocalAddress().getPort());
             // 在Header加上streamInsKey关键字，服务端特殊处理
-            response.addHeadKey(HeadKey.STREAM_INS_KEY, streamInsKey);
-            // 如果是StreamObserver本地实例 则置为null再发给服务端
-            response.setReturnData(null);
+            // response.addHeadKey(HeadKey.STREAM_INS_KEY, streamInsKey);
+            // 如果是StreamObserver本地实例 则置为StreamObserverStub再发给服务端
+            response.setReturnData(new StreamObserverStub<>(streamInsKey));
         }
     }
 
@@ -383,41 +368,13 @@ public class StreamUtils {
         if (response.hasError()) {
             return;
         }
-        String streamInsKey = (String) response.getHeadKey(HeadKey.STREAM_INS_KEY);
-        if (response.getReturnData() != null) {
-            throw new BsoaRpcException(22222, "stream observer in message must be null");
-        }
-        streamFeatureUsed = true;
-        StreamObserver proxy = buildStreamObserverProxy(clientTransport, streamInsKey, response);
-        response.setReturnData(proxy); // 重新设置回参数列表
-    }
-
-    /**
-     * 构建StreamObserver代理类
-     *
-     * @param clientTransport 长连接
-     * @param streamInsKey    StreamObserver关键字
-     * @param actualType      实际的类型
-     * @param rpcMessage      当前请求
-     * @return StreamObserver
-     */
-    public static StreamObserver buildStreamObserverProxy(
-            ClientTransport clientTransport, String streamInsKey, RPCMessage rpcMessage) {
-        // 看看之前有没有本地代理类
-        StreamObserver observer = StreamContext.getStreamProxy(streamInsKey);
-        if (observer != null) { //if channel failed remember to remove the proxy instance from the proxyMap
-            return observer;
-        }
-        Invoker invoker = new StreamInvoker(clientTransport, streamInsKey, rpcMessage);
-        try {
-            // 生成一个本地代理类
-            StreamObserver proxy = ProxyFactory.buildProxy(BsoaConfigs.getStringValue(BsoaConfigs.DEFAULT_PROXY),
-                    StreamObserver.class, invoker);
-            StreamContext.putStreamProxy(streamInsKey, proxy);
-            return proxy;
-        } catch (Exception e) {
-            throw new BsoaRpcException(22222,
-                    "error when create the proxy of StreamObserver with streamInsKey: " + streamInsKey, e);
+        Object returnData = response.getReturnData();
+        if (returnData instanceof StreamObserverStub) {
+            StreamObserverStub stub = (StreamObserverStub) returnData;
+            streamFeatureUsed = true;
+            //Class actualType = StreamContext.getParamTypeOfStreamMethod(key);
+            // 使用一个已有的channel虚拟化一个反向长连接
+            stub.setClientTransport(clientTransport).initByMessage(response);
         }
     }
 }
