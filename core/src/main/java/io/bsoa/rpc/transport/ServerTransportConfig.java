@@ -20,6 +20,7 @@ package io.bsoa.rpc.transport;
 import java.util.List;
 import java.util.Map;
 
+import io.bsoa.rpc.common.BsoaOptions;
 import io.bsoa.rpc.listener.ChannelListener;
 import io.bsoa.rpc.listener.NegotiatorListener;
 import io.bsoa.rpc.server.ServerHandler;
@@ -35,38 +36,38 @@ import static io.bsoa.rpc.common.BsoaConfigs.*;
  */
 public class ServerTransportConfig {
 
-    private String host = getStringValue(SERVER_HOST);
-    private int port = getIntValue(SERVER_PORT_START);
+    private String host = getStringValue(BsoaOptions.SERVER_HOST);
+    private int port = getIntValue(BsoaOptions.SERVER_PORT_START);
 
-    private String contextPath = getStringValue(SERVER_CONTEXT_PATH);
-    private String container = getStringValue(DEFAULT_TRANSPORT);
-    private int backlog = getIntValue(TRANSPORT_SERVER_BACKLOG);
-    private String protocolType = getStringValue(DEFAULT_PROTOCOL);
-    private boolean reuseAddr = getBooleanValue(TRANSPORT_SERVER_REUSE_ADDR);
-    private boolean keepAlive = getBooleanValue(TRANSPORT_SERVER_KEEPALIVE);
-    private boolean tcpNoDelay = getBooleanValue(TRANSPORT_SERVER_TCPNODELAY);
+    private String contextPath = getStringValue(BsoaOptions.SERVER_CONTEXT_PATH);
+    private String container = getStringValue(BsoaOptions.DEFAULT_TRANSPORT);
+    private int backlog = getIntValue(BsoaOptions.TRANSPORT_SERVER_BACKLOG);
+    private String protocolType = getStringValue(BsoaOptions.DEFAULT_PROTOCOL);
+    private boolean reuseAddr = getBooleanValue(BsoaOptions.TRANSPORT_SERVER_REUSE_ADDR);
+    private boolean keepAlive = getBooleanValue(BsoaOptions.TRANSPORT_SERVER_KEEPALIVE);
+    private boolean tcpNoDelay = getBooleanValue(BsoaOptions.TRANSPORT_SERVER_TCPNODELAY);
     //    private int CONNECTTIMEOUT = 5000;
 //    private int TIMEOUT = 2000;//server side timeout config default ..
-    private int bizMaxThreads = getIntValue(SERVER_POOL_MAX); //default business pool set to 200
-    private String bizPoolType = getStringValue(SERVER_POOL_TYPE);
+    private int bizMaxThreads = getIntValue(BsoaOptions.SERVER_POOL_MAX); //default business pool set to 200
+    private String bizPoolType = getStringValue(BsoaOptions.SERVER_POOL_TYPE);
 
-    private boolean useEpoll = getBooleanValue(TRANSPORT_USE_EPOLL);
-    private String bizPoolQueueType = getStringValue(SERVER_POOL_QUEUE_TYPE);  // 队列类型
-    private int bizPoolQueues = getIntValue(SERVER_POOL_QUEUE); // 队列大小
+    private boolean useEpoll = getBooleanValue(BsoaOptions.TRANSPORT_USE_EPOLL);
+    private String bizPoolQueueType = getStringValue(BsoaOptions.SERVER_POOL_QUEUE_TYPE);  // 队列类型
+    private int bizPoolQueues = getIntValue(BsoaOptions.SERVER_POOL_QUEUE); // 队列大小
 
-    private int bossThreads = getIntValue(TRANSPORT_SERVER_BOSS_THREADS); // boss线程,一个端口绑定到一个线程
+    private int bossThreads = getIntValue(BsoaOptions.TRANSPORT_SERVER_BOSS_THREADS); // boss线程,一个端口绑定到一个线程
 
-    private int ioThreads = getIntValue(TRANSPORT_SERVER_IO_THREADS); // worker线程==IO线程，一个长连接绑定到一个线程
+    private int ioThreads = getIntValue(BsoaOptions.TRANSPORT_SERVER_IO_THREADS); // worker线程==IO线程，一个长连接绑定到一个线程
 
-    private int maxConnection = getIntValue(SERVER_ACCEPTS); // 最大连接数 default set to 100
-    private int payload = getIntValue(TRANSPORT_PAYLOAD_MAX); // 最大数据包 default set to 8M
-    private int buffer = getIntValue(TRANSPORT_BUFFER_SIZE); // 缓冲器大小
-    private boolean telnet = getBooleanValue(SERVER_TELNET); // 是否允许telnet
-    private String dispatcher = getStringValue(TRANSPORT_SERVER_DISPATCHER); // 线程方法模型
-    private boolean daemon = getBooleanValue(SERVER_DAEMON); // 是否守护线程，true随主线程退出而退出，false需要主动退出
+    private int maxConnection = getIntValue(BsoaOptions.SERVER_ACCEPTS); // 最大连接数 default set to 100
+    private int payload = getIntValue(BsoaOptions.TRANSPORT_PAYLOAD_MAX); // 最大数据包 default set to 8M
+    private int buffer = getIntValue(BsoaOptions.TRANSPORT_BUFFER_SIZE); // 缓冲器大小
+    private boolean telnet = getBooleanValue(BsoaOptions.SERVER_TELNET); // 是否允许telnet
+    private String dispatcher = getStringValue(BsoaOptions.TRANSPORT_SERVER_DISPATCHER); // 线程方法模型
+    private boolean daemon = getBooleanValue(BsoaOptions.SERVER_DAEMON); // 是否守护线程，true随主线程退出而退出，false需要主动退出
 
-    private int bufferMin = getIntValue(TRANSPORT_BUFFER_MIN);
-    private int bufferMax = getIntValue(TRANSPORT_BUFFER_MAX);
+    private int bufferMin = getIntValue(BsoaOptions.TRANSPORT_BUFFER_MIN);
+    private int bufferMax = getIntValue(BsoaOptions.TRANSPORT_BUFFER_MAX);
 
     private Map<String, String> parameters;//其他一些参数配置
 

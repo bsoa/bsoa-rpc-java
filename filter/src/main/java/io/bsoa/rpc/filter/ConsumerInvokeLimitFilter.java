@@ -17,6 +17,7 @@
 package io.bsoa.rpc.filter;
 
 import io.bsoa.rpc.common.BsoaConfigs;
+import io.bsoa.rpc.common.BsoaOptions;
 import io.bsoa.rpc.common.utils.StringUtils;
 import io.bsoa.rpc.exception.BsoaRpcException;
 import io.bsoa.rpc.ext.Extension;
@@ -39,7 +40,7 @@ public class ConsumerInvokeLimitFilter implements Filter {
 
     @Override
     public boolean needToLoad(FilterInvoker invoker) {
-        return StringUtils.isNotBlank(BsoaConfigs.getStringValue(BsoaConfigs.APP_ID));
+        return StringUtils.isNotBlank(BsoaConfigs.getStringValue(BsoaOptions.APP_ID));
     }
 
     @Override
@@ -48,7 +49,7 @@ public class ConsumerInvokeLimitFilter implements Filter {
             String interfaceId = request.getInterfaceName();
             String methodName = request.getMethodName();
             String tags = request.getTags();
-            String appId = BsoaConfigs.getStringValue(BsoaConfigs.APP_ID);
+            String appId = BsoaConfigs.getStringValue(BsoaOptions.APP_ID);
             if (LimiterFactory.isOverLimit(interfaceId, methodName, tags, appId)) {
                 RpcResponse rpcResponse = MessageBuilder.buildRpcResponse(request);
                 rpcResponse.setException(new BsoaRpcException(22222, "[JSF-22206]Invocation of "

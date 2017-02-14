@@ -83,7 +83,7 @@ public class SystemInfo {
 //        } catch (Exception e) {
 //        }
         // 找不到文件或者异常，则去物理机的核心数
-        int cpu = BsoaConfigs.getIntValue(BsoaConfigs.SYSTEM_CPU_CORES);
+        int cpu = BsoaConfigs.getIntValue(BsoaOptions.SYSTEM_CPU_CORES);
         return cpu > 0 ? cpu : Runtime.getRuntime().availableProcessors();
     }
 

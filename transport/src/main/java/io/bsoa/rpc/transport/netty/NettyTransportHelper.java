@@ -33,10 +33,10 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 
-import static io.bsoa.rpc.common.BsoaConfigs.TRANSPORT_CLIENT_IO_RATIO;
-import static io.bsoa.rpc.common.BsoaConfigs.TRANSPORT_CLIENT_IO_THREADS;
-import static io.bsoa.rpc.common.BsoaConfigs.TRANSPORT_SERVER_IO_RATIO;
-import static io.bsoa.rpc.common.BsoaConfigs.TRANSPORT_USE_EPOLL;
+import static io.bsoa.rpc.common.BsoaOptions.TRANSPORT_CLIENT_IO_RATIO;
+import static io.bsoa.rpc.common.BsoaOptions.TRANSPORT_CLIENT_IO_THREADS;
+import static io.bsoa.rpc.common.BsoaOptions.TRANSPORT_SERVER_IO_RATIO;
+import static io.bsoa.rpc.common.BsoaOptions.TRANSPORT_USE_EPOLL;
 import static io.bsoa.rpc.common.BsoaConfigs.getBooleanValue;
 import static io.bsoa.rpc.common.BsoaConfigs.getIntValue;
 

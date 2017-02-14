@@ -34,9 +34,9 @@ public class BsoaConfigsTest {
 
     @Test
     public void getStringValue() throws Exception {
-        String s = BsoaConfigs.CALLBACK_POOL_CORE;
-        Assert.assertEquals(BsoaConfigs.getStringValue(BsoaConfigs.SERVER_CONTEXT_PATH), "/");
-        System.out.println(BsoaConfigs.getListValue(BsoaConfigs.EXTENSION_LOAD_PATH));
+        String s = BsoaOptions.CALLBACK_POOL_CORE;
+        Assert.assertEquals(BsoaConfigs.getStringValue(BsoaOptions.SERVER_CONTEXT_PATH), "/");
+        System.out.println(BsoaConfigs.getListValue(BsoaOptions.EXTENSION_LOAD_PATH));
     }
 
 }

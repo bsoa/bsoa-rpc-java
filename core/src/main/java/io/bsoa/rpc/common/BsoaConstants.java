@@ -97,7 +97,7 @@ public class BsoaConstants {
     /**
      * 默认字符集 utf-8
      */
-    public static final Charset DEFAULT_CHARSET = Charset.forName(getStringValue(BsoaConfigs.DEFAULT_CHARSET));
+    public static final Charset DEFAULT_CHARSET = Charset.forName(getStringValue(BsoaOptions.DEFAULT_CHARSET));
 
     /**
      * 默认方法优先级为0

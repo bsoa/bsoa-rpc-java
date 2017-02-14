@@ -47,8 +47,8 @@ import io.bsoa.rpc.transport.AbstractByteBuf;
 import io.bsoa.rpc.transport.netty.NettyByteBuf;
 import io.netty.buffer.ByteBuf;
 
-import static io.bsoa.rpc.common.BsoaConfigs.COMPRESS_OPEN;
-import static io.bsoa.rpc.common.BsoaConfigs.COMPRESS_SIZE_BASELINE;
+import static io.bsoa.rpc.common.BsoaOptions.COMPRESS_OPEN;
+import static io.bsoa.rpc.common.BsoaOptions.COMPRESS_SIZE_BASELINE;
 
 /**
  * <p></p>

@@ -19,6 +19,7 @@
 package io.bsoa.rpc.transport.netty;
 
 import io.bsoa.rpc.common.BsoaConfigs;
+import io.bsoa.rpc.common.BsoaOptions;
 import io.bsoa.rpc.protocol.Protocol;
 import io.bsoa.rpc.protocol.ProtocolFactory;
 import io.bsoa.rpc.protocol.ProtocolInfo;
@@ -55,7 +56,7 @@ public class NettyServerChannelInitializer extends ChannelInitializer<SocketChan
 
     @Override
     protected void initChannel(SocketChannel ch) throws Exception {
-        boolean adaptive = BsoaConfigs.getBooleanValue(BsoaConfigs.TRANSPORT_SERVER_PROTOCOL_ADAPTIVE);
+        boolean adaptive = BsoaConfigs.getBooleanValue(BsoaOptions.TRANSPORT_SERVER_PROTOCOL_ADAPTIVE);
         if (adaptive) {
             // 支持一个端口多协议
             // 根据第一次请求识别协议，构建后面的ChannelHandler

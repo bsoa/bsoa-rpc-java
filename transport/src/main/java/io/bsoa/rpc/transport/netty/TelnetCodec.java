@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.bsoa.rpc.common.BsoaConfigs;
+import io.bsoa.rpc.common.BsoaOptions;
 import io.bsoa.rpc.common.utils.StringUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -130,7 +131,7 @@ public class TelnetCodec extends ByteToMessageCodec<Object> {
                 command = StringUtils.trimToEmpty(command);
                 paramByteBuf.writeBytes(command.getBytes(charset));
                 context.channel().writeAndFlush(
-                        sb.append(BsoaConfigs.getStringValue(BsoaConfigs.DEFAULT_PROTOCOL))
+                        sb.append(BsoaConfigs.getStringValue(BsoaOptions.DEFAULT_PROTOCOL))
                                 .append(">")
                                 .append(command).toString());
                 return;

@@ -20,6 +20,7 @@ import java.io.Serializable;
 
 import io.bsoa.rpc.common.BsoaConfigs;
 import io.bsoa.rpc.common.BsoaConstants;
+import io.bsoa.rpc.common.BsoaOptions;
 import io.bsoa.rpc.common.utils.StringUtils;
 
 /**
@@ -46,7 +47,7 @@ public class ProviderInfo implements Serializable {
     /**
      * The Protocol type.
      */
-    private String protocolType = BsoaConfigs.getStringValue(BsoaConfigs.DEFAULT_PROTOCOL);
+    private String protocolType = BsoaConfigs.getStringValue(BsoaOptions.DEFAULT_PROTOCOL);
 
     /**
      * 判断服务端codec兼容性，以服务端的为准
@@ -56,7 +57,7 @@ public class ProviderInfo implements Serializable {
     /**
      * The Weight.
      */
-    private int weight = BsoaConfigs.getIntValue(BsoaConfigs.PROVIDER_WEIGHT);
+    private int weight = BsoaConfigs.getIntValue(BsoaOptions.PROVIDER_WEIGHT);
 
     /**
      * The bsoa Version

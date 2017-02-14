@@ -39,10 +39,10 @@ import io.bsoa.rpc.exception.BsoaRuntimeException;
 import io.bsoa.rpc.filter.Filter;
 import io.bsoa.rpc.listener.ConfigListener;
 
-import static io.bsoa.rpc.common.BsoaConfigs.DEFAULT_PROXY;
-import static io.bsoa.rpc.common.BsoaConfigs.DEFAULT_TAGS;
-import static io.bsoa.rpc.common.BsoaConfigs.SERVICE_REGISTER;
-import static io.bsoa.rpc.common.BsoaConfigs.SERVICE_SUBSCRIBE;
+import static io.bsoa.rpc.common.BsoaOptions.DEFAULT_PROXY;
+import static io.bsoa.rpc.common.BsoaOptions.DEFAULT_TAGS;
+import static io.bsoa.rpc.common.BsoaOptions.SERVICE_REGISTER;
+import static io.bsoa.rpc.common.BsoaOptions.SERVICE_SUBSCRIBE;
 import static io.bsoa.rpc.common.BsoaConfigs.getBooleanValue;
 import static io.bsoa.rpc.common.BsoaConfigs.getStringValue;
 import static io.bsoa.rpc.config.ConfigValueHelper.checkNormalWithCommaColon;

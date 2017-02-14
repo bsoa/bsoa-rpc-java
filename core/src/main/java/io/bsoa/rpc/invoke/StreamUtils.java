@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.bsoa.rpc.common.BsoaConfigs;
+import io.bsoa.rpc.common.BsoaOptions;
 import io.bsoa.rpc.common.SystemInfo;
 import io.bsoa.rpc.common.annotation.JustForTest;
 import io.bsoa.rpc.context.BsoaContext;
@@ -56,7 +57,7 @@ public class StreamUtils {
     /**
      * 允许同时的最大的SteamObserver数
      */
-    private static final int maxSize = BsoaConfigs.getIntValue(BsoaConfigs.STREAM_OBSERVER_MAX_SIZE);
+    private static final int maxSize = BsoaConfigs.getIntValue(BsoaOptions.STREAM_OBSERVER_MAX_SIZE);
 
     /**
      * @param interfaceId 接口名

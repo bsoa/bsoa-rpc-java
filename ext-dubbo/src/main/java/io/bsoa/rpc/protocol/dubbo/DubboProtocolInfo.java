@@ -17,6 +17,7 @@
 package io.bsoa.rpc.protocol.dubbo;
 
 import io.bsoa.rpc.common.BsoaConfigs;
+import io.bsoa.rpc.common.BsoaOptions;
 import io.bsoa.rpc.common.utils.CodecUtils;
 import io.bsoa.rpc.protocol.ProtocolInfo;
 
@@ -30,7 +31,7 @@ import io.bsoa.rpc.protocol.ProtocolInfo;
 public class DubboProtocolInfo extends ProtocolInfo {
 
     private int maxFrameLength = BsoaConfigs.getOrDefaultValue(
-            BsoaConfigs.TRANSPORT_PAYLOAD_MAX, 20 * 1024 * 1024); //  最大值默认20M
+            BsoaOptions.TRANSPORT_PAYLOAD_MAX, 20 * 1024 * 1024); //  最大值默认20M
 
     private final int lengthFieldOffset = 12;  // 第12-15位是长度，所以偏移：12
 

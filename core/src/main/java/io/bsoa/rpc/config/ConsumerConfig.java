@@ -27,7 +27,6 @@ import io.bsoa.rpc.base.Cache;
 import io.bsoa.rpc.bootstrap.Bootstraps;
 import io.bsoa.rpc.bootstrap.ConsumerBootstrap;
 import io.bsoa.rpc.client.Router;
-import io.bsoa.rpc.common.BsoaConfigs;
 import io.bsoa.rpc.common.BsoaConstants;
 import io.bsoa.rpc.common.utils.ClassLoaderUtils;
 import io.bsoa.rpc.common.utils.CommonUtils;
@@ -38,25 +37,28 @@ import io.bsoa.rpc.listener.ChannelListener;
 import io.bsoa.rpc.listener.ConsumerStateListener;
 import io.bsoa.rpc.listener.ResponseListener;
 
-import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_ASYNC;
-import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_CHECK;
-import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_CONCURRENTS;
-import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_CONNECTION;
-import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_CONNECTION_HOLDER;
-import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_CONNECT_TIMEOUT;
-import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_HEARTBEAT_PERIOD;
-import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_INJVM;
-import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_INVOKE_TIMEOUT;
-import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_LAZY;
-import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_LOAD_BALANCER;
-import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_ONEWAY;
-import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_RECONNECT_PERIOD;
-import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_STICKY;
-import static io.bsoa.rpc.common.BsoaConfigs.DEFAULT_PROTOCOL;
-import static io.bsoa.rpc.common.BsoaConfigs.DEFAULT_SERIALIZATION;
 import static io.bsoa.rpc.common.BsoaConfigs.getBooleanValue;
 import static io.bsoa.rpc.common.BsoaConfigs.getIntValue;
 import static io.bsoa.rpc.common.BsoaConfigs.getStringValue;
+import static io.bsoa.rpc.common.BsoaOptions.CONSUMER_ASYNC;
+import static io.bsoa.rpc.common.BsoaOptions.CONSUMER_CHECK;
+import static io.bsoa.rpc.common.BsoaOptions.CONSUMER_CLUSTER;
+import static io.bsoa.rpc.common.BsoaOptions.CONSUMER_CONCURRENTS;
+import static io.bsoa.rpc.common.BsoaOptions.CONSUMER_CONNECTION;
+import static io.bsoa.rpc.common.BsoaOptions.CONSUMER_CONNECTION_HOLDER;
+import static io.bsoa.rpc.common.BsoaOptions.CONSUMER_CONNECT_TIMEOUT;
+import static io.bsoa.rpc.common.BsoaOptions.CONSUMER_DISCONNECT_TIMEOUT;
+import static io.bsoa.rpc.common.BsoaOptions.CONSUMER_HEARTBEAT_PERIOD;
+import static io.bsoa.rpc.common.BsoaOptions.CONSUMER_INJVM;
+import static io.bsoa.rpc.common.BsoaOptions.CONSUMER_INVOKE_TIMEOUT;
+import static io.bsoa.rpc.common.BsoaOptions.CONSUMER_LAZY;
+import static io.bsoa.rpc.common.BsoaOptions.CONSUMER_LOAD_BALANCER;
+import static io.bsoa.rpc.common.BsoaOptions.CONSUMER_ONEWAY;
+import static io.bsoa.rpc.common.BsoaOptions.CONSUMER_RECONNECT_PERIOD;
+import static io.bsoa.rpc.common.BsoaOptions.CONSUMER_RETRIES;
+import static io.bsoa.rpc.common.BsoaOptions.CONSUMER_STICKY;
+import static io.bsoa.rpc.common.BsoaOptions.DEFAULT_PROTOCOL;
+import static io.bsoa.rpc.common.BsoaOptions.DEFAULT_SERIALIZATION;
 import static io.bsoa.rpc.config.ConfigValueHelper.checkNormalWithCommaColon;
 
 /**
@@ -110,17 +112,17 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Ser
     /**
      * 关闭超时时间（如果还有请求，会等待请求结束或者超时）
      */
-    protected int disconnectTimeout = getIntValue(BsoaConfigs.CONSUMER_DISCONNECT_TIMEOUT);
+    protected int disconnectTimeout = getIntValue(CONSUMER_DISCONNECT_TIMEOUT);
 
     /**
      * 集群处理，默认是failover
      */
-    protected String cluster = getStringValue(BsoaConfigs.CONSUMER_CLUSTER);
+    protected String cluster = getStringValue(CONSUMER_CLUSTER);
 
     /**
      * The Retries. 失败后重试次数
      */
-    protected int retries = getIntValue(BsoaConfigs.CONSUMER_RETRIES);
+    protected int retries = getIntValue(CONSUMER_RETRIES);
 
     /**
      * The ConnectionHolder 连接管理器

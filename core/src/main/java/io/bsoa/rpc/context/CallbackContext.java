@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.bsoa.rpc.common.BsoaConfigs;
+import io.bsoa.rpc.common.BsoaOptions;
 import io.bsoa.rpc.common.struct.NamedThreadFactory;
 import io.bsoa.rpc.common.utils.ThreadPoolUtils;
 
@@ -67,9 +68,9 @@ public class CallbackContext {
             synchronized (CallbackContext.class) {
                 if (callbackThreadPool == null && build) {
                     // 一些系统参数，可以从配置或者注册中心获取。
-                    int coresize = BsoaConfigs.getIntValue(BsoaConfigs.CALLBACK_POOL_CORE);
-                    int maxsize = BsoaConfigs.getIntValue(BsoaConfigs.CALLBACK_POOL_MAX);
-                    int queuesize = BsoaConfigs.getIntValue(BsoaConfigs.CALLBACK_POOL_QUEUE);
+                    int coresize = BsoaConfigs.getIntValue(BsoaOptions.CALLBACK_POOL_CORE);
+                    int maxsize = BsoaConfigs.getIntValue(BsoaOptions.CALLBACK_POOL_MAX);
+                    int queuesize = BsoaConfigs.getIntValue(BsoaOptions.CALLBACK_POOL_QUEUE);
 
                     BlockingQueue<Runnable> queue = ThreadPoolUtils.buildQueue(queuesize);
                     NamedThreadFactory threadFactory = new NamedThreadFactory("BSOA-CB", true);

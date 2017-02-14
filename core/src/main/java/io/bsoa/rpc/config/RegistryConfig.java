@@ -21,14 +21,14 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import io.bsoa.rpc.common.BsoaConstants;
 
-import static io.bsoa.rpc.common.BsoaConfigs.REGISTRY_BATCH;
-import static io.bsoa.rpc.common.BsoaConfigs.REGISTRY_BATCH_SIZE;
-import static io.bsoa.rpc.common.BsoaConfigs.REGISTRY_CONNECT_TIMEOUT;
-import static io.bsoa.rpc.common.BsoaConfigs.REGISTRY_HEARTBEAT_PERIOD;
-import static io.bsoa.rpc.common.BsoaConfigs.REGISTRY_INVOKE_TIMEOUT;
-import static io.bsoa.rpc.common.BsoaConfigs.REGISTRY_RECONNECT_PERIOD;
-import static io.bsoa.rpc.common.BsoaConfigs.SERVICE_REGISTER;
-import static io.bsoa.rpc.common.BsoaConfigs.SERVICE_SUBSCRIBE;
+import static io.bsoa.rpc.common.BsoaOptions.REGISTRY_BATCH;
+import static io.bsoa.rpc.common.BsoaOptions.REGISTRY_BATCH_SIZE;
+import static io.bsoa.rpc.common.BsoaOptions.REGISTRY_CONNECT_TIMEOUT;
+import static io.bsoa.rpc.common.BsoaOptions.REGISTRY_HEARTBEAT_PERIOD;
+import static io.bsoa.rpc.common.BsoaOptions.REGISTRY_INVOKE_TIMEOUT;
+import static io.bsoa.rpc.common.BsoaOptions.REGISTRY_RECONNECT_PERIOD;
+import static io.bsoa.rpc.common.BsoaOptions.SERVICE_REGISTER;
+import static io.bsoa.rpc.common.BsoaOptions.SERVICE_SUBSCRIBE;
 import static io.bsoa.rpc.common.BsoaConfigs.getBooleanValue;
 import static io.bsoa.rpc.common.BsoaConfigs.getIntValue;
 

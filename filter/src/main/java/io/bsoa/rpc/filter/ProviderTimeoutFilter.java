@@ -27,7 +27,7 @@ import io.bsoa.rpc.ext.Extension;
 import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.message.RpcResponse;
 
-import static io.bsoa.rpc.common.BsoaConfigs.PROVIDER_INVOKE_TIMEOUT;
+import static io.bsoa.rpc.common.BsoaOptions.PROVIDER_INVOKE_TIMEOUT;
 import static io.bsoa.rpc.common.BsoaConfigs.getIntValue;
 
 /**

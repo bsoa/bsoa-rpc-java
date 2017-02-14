@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.bsoa.rpc.common.BsoaConfigs;
+import io.bsoa.rpc.common.BsoaOptions;
 import io.bsoa.rpc.common.annotation.JustForTest;
 import io.bsoa.rpc.common.utils.ClassLoaderUtils;
 import io.bsoa.rpc.common.utils.ClassTypeUtils;
@@ -134,7 +135,7 @@ public class ExtensionLoader<T> {
         this.factory = extensible.singleton() ? new ConcurrentHashMap<>() : null;
         this.all = new ConcurrentHashMap<>();
         if (autoLoad) {
-            List<String> paths = BsoaConfigs.getListValue(BsoaConfigs.EXTENSION_LOAD_PATH);
+            List<String> paths = BsoaConfigs.getListValue(BsoaOptions.EXTENSION_LOAD_PATH);
             for (String path : paths) {
                 loadFromFile(path);
             }

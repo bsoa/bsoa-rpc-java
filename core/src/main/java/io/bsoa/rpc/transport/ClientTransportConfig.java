@@ -19,18 +19,19 @@ package io.bsoa.rpc.transport;
 import java.util.List;
 
 import io.bsoa.rpc.client.ProviderInfo;
-import io.bsoa.rpc.common.BsoaConfigs;
 import io.bsoa.rpc.listener.ChannelListener;
 import io.bsoa.rpc.listener.NegotiatorListener;
 
-import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_CONNECTION;
-import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_CONNECT_TIMEOUT;
-import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_DISCONNECT_TIMEOUT;
-import static io.bsoa.rpc.common.BsoaConfigs.CONSUMER_INVOKE_TIMEOUT;
-import static io.bsoa.rpc.common.BsoaConfigs.DEFAULT_TRANSPORT;
-import static io.bsoa.rpc.common.BsoaConfigs.TRANSPORT_PAYLOAD_MAX;
+import static io.bsoa.rpc.common.BsoaConfigs.getBooleanValue;
 import static io.bsoa.rpc.common.BsoaConfigs.getIntValue;
 import static io.bsoa.rpc.common.BsoaConfigs.getStringValue;
+import static io.bsoa.rpc.common.BsoaOptions.CONSUMER_CONNECTION;
+import static io.bsoa.rpc.common.BsoaOptions.CONSUMER_CONNECT_TIMEOUT;
+import static io.bsoa.rpc.common.BsoaOptions.CONSUMER_DISCONNECT_TIMEOUT;
+import static io.bsoa.rpc.common.BsoaOptions.CONSUMER_INVOKE_TIMEOUT;
+import static io.bsoa.rpc.common.BsoaOptions.DEFAULT_TRANSPORT;
+import static io.bsoa.rpc.common.BsoaOptions.TRANSPORT_PAYLOAD_MAX;
+import static io.bsoa.rpc.common.BsoaOptions.TRANSPORT_USE_EPOLL;
 
 /**
  * <p></p>
@@ -55,7 +56,7 @@ public class ClientTransportConfig {
 
     private int payload = getIntValue(TRANSPORT_PAYLOAD_MAX); // 最大数据量
 
-    private boolean useEpoll = BsoaConfigs.getBooleanValue(BsoaConfigs.TRANSPORT_USE_EPOLL);
+    private boolean useEpoll = getBooleanValue(TRANSPORT_USE_EPOLL);
 
     private List<ChannelListener> channelListeners; // 连接事件监听器
     private NegotiatorListener negotiatorListener;

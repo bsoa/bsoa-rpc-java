@@ -21,8 +21,8 @@ import io.bsoa.rpc.config.ProviderConfig;
 import io.bsoa.rpc.ext.ExtensionLoader;
 import io.bsoa.rpc.ext.ExtensionLoaderFactory;
 
-import static io.bsoa.rpc.common.BsoaConfigs.DEFAULT_CONSUMER_BOOTSTRAP;
-import static io.bsoa.rpc.common.BsoaConfigs.DEFAULT_PROVIDER_BOOTSTRAP;
+import static io.bsoa.rpc.common.BsoaOptions.DEFAULT_CONSUMER_BOOTSTRAP;
+import static io.bsoa.rpc.common.BsoaOptions.DEFAULT_PROVIDER_BOOTSTRAP;
 import static io.bsoa.rpc.common.BsoaConfigs.getStringValue;
 
 /**

@@ -20,6 +20,7 @@ import java.io.Serializable;
 
 import io.bsoa.rpc.codec.CompressorFactory;
 import io.bsoa.rpc.common.BsoaConfigs;
+import io.bsoa.rpc.common.BsoaOptions;
 import io.bsoa.rpc.common.utils.CodecUtils;
 import io.bsoa.rpc.common.utils.NetUtils;
 import io.bsoa.rpc.exception.BsoaRpcException;
@@ -107,8 +108,8 @@ public class StreamObserverStub<V> implements StreamObserver<V>, Serializable{
         this.protocolType = request.getProtocolType();
         this.serializationType = request.getSerializationType();
         Integer timeout = (Integer) request.getHeadKey(HeadKey.TIMEOUT);
-        this.timeout = timeout == null ? BsoaConfigs.getIntValue(BsoaConfigs.CONSUMER_INVOKE_TIMEOUT) : timeout;
-        this.compressType = CompressorFactory.getCodeByAlias(BsoaConfigs.getStringValue(BsoaConfigs.DEFAULT_COMPRESS));
+        this.timeout = timeout == null ? BsoaConfigs.getIntValue(BsoaOptions.CONSUMER_INVOKE_TIMEOUT) : timeout;
+        this.compressType = CompressorFactory.getCodeByAlias(BsoaConfigs.getStringValue(BsoaOptions.DEFAULT_COMPRESS));
         return this;
     }
 

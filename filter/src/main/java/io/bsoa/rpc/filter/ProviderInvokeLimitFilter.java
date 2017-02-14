@@ -17,6 +17,7 @@
 package io.bsoa.rpc.filter;
 
 import io.bsoa.rpc.common.BsoaConfigs;
+import io.bsoa.rpc.common.BsoaOptions;
 import io.bsoa.rpc.common.utils.StringUtils;
 import io.bsoa.rpc.exception.BsoaRpcException;
 import io.bsoa.rpc.ext.Extension;
@@ -39,7 +40,7 @@ public class ProviderInvokeLimitFilter implements Filter {
 
     @Override
     public boolean needToLoad(FilterInvoker invoker) {
-        return StringUtils.isNotBlank(BsoaConfigs.getStringValue(BsoaConfigs.APP_ID));
+        return StringUtils.isNotBlank(BsoaConfigs.getStringValue(BsoaOptions.APP_ID));
     }
 
     @Override
@@ -50,7 +51,7 @@ public class ProviderInvokeLimitFilter implements Filter {
             String methodName = request.getMethodName();
             String tags = request.getTags();
             //获取调用方的appId
-            String appId = BsoaConfigs.getStringValue(BsoaConfigs.APP_ID);;
+            String appId = BsoaConfigs.getStringValue(BsoaOptions.APP_ID);;
             if (StringUtils.isEmpty(appId)) {
                 appId = "";
             }

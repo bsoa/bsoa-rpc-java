@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.bsoa.rpc.common.BsoaConfigs;
+import io.bsoa.rpc.common.BsoaOptions;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
 import io.bsoa.rpc.ext.ExtensionLoader;
 import io.bsoa.rpc.ext.ExtensionLoaderFactory;
@@ -59,7 +60,7 @@ public class ProtocolFactory {
         Protocol protocol = extensionClass.getExtInstance();
         TYPE_PROTOCOL_MAP.put(extensionClass.getCode(), protocol);
         TYPE_CODE_MAP.put(extensionClass.getAlias(), extensionClass.getCode());
-        if (BsoaConfigs.getBooleanValue(BsoaConfigs.TRANSPORT_SERVER_PROTOCOL_ADAPTIVE)) {
+        if (BsoaConfigs.getBooleanValue(BsoaOptions.TRANSPORT_SERVER_PROTOCOL_ADAPTIVE)) {
             maxMagicOffset = 2;
             registerAdaptiveProtocol(protocol.protocolInfo());
         }

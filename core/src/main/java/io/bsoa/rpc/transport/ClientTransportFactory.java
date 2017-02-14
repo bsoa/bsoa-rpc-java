@@ -25,13 +25,14 @@ import org.slf4j.Logger;
 
 import io.bsoa.rpc.client.ProviderInfo;
 import io.bsoa.rpc.common.BsoaConfigs;
+import io.bsoa.rpc.common.BsoaOptions;
 import io.bsoa.rpc.common.utils.CommonUtils;
 import io.bsoa.rpc.common.utils.NetUtils;
 import io.bsoa.rpc.context.BsoaContext;
 import io.bsoa.rpc.ext.ExtensionLoader;
 import io.bsoa.rpc.ext.ExtensionLoaderFactory;
 
-import static io.bsoa.rpc.common.BsoaConfigs.TRANSPORT_CONNECTION_REUSE;
+import static io.bsoa.rpc.common.BsoaOptions.TRANSPORT_CONNECTION_REUSE;
 import static io.bsoa.rpc.common.BsoaConfigs.getBooleanValue;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -260,7 +261,7 @@ public class ClientTransportFactory {
             synchronized (ClientTransportFactory.class) {
                 transport = REVERSE_CLIENT_TRANSPORT_MAP.get(channel);
                 if (transport == null) {
-                    transport = extensionLoader.getExtension(BsoaConfigs.getStringValue(BsoaConfigs.DEFAULT_TRANSPORT));
+                    transport = extensionLoader.getExtension(BsoaConfigs.getStringValue(BsoaOptions.DEFAULT_TRANSPORT));
                     transport.setChannel(channel);
                     REVERSE_CLIENT_TRANSPORT_MAP.putIfAbsent(channel, transport); // 保存唯一长连接
                 }
