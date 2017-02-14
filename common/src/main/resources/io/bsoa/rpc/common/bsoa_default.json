@@ -96,6 +96,9 @@ PS:大家也看到了，本JSON文档是支持注释的，而标准JSOB是不支
   "consumer.heartbeat.period" : 30000, //心跳发送间隔
   "consumer.reconnect.period" : 10000, //重建连接间隔
 
+  "stream.observer.max.size" : 10000, // 本地缓存的StreamObserver最大实例数
+
+  "callback.max.size" : 1000, // 本地缓存的Callback最大实例数
   "callback.pool.type": "cached", // 默认回调线程池类型
   "callback.pool.core" : 10, // 默认回调线程池最小
   "callback.pool.max" : 200, // 默认回调线程池最大

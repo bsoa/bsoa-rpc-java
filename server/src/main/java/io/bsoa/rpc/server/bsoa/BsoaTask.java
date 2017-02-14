@@ -100,7 +100,8 @@ public class BsoaTask extends AbstractTask {
 //                                + ", May be your host in blacklist of server");
 //            }
 
-            if (StreamUtils.hasStreamObserverParameter(interfaceName, methodName)) {
+            String methodKey = StreamUtils.getMethodKey(interfaceName, methodName);
+            if (StreamUtils.hasStreamObserverParameter(methodKey)) {
                 StreamUtils.preMsgHandle(request, channel);
             }
 
@@ -116,7 +117,7 @@ public class BsoaTask extends AbstractTask {
             RpcContext.getContext().setLocalAddress(localAddress);
             RpcResponse response = invoker.invoke(request); // 执行调用，包括过滤器链
 
-            if (StreamUtils.hasStreamObserverReturn(interfaceName, methodName)) {
+            if (StreamUtils.hasStreamObserverReturn(methodKey)) {
                 StreamUtils.preMessageReturn(request, response, channel);
             }
 

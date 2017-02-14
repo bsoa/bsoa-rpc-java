@@ -282,7 +282,8 @@ public class NettyClientTransport extends AbstractClientTransport {
 
             // TODO 是否callback请求（需要特殊处理）
             // Callback Stream调用等特殊处理
-            if (StreamUtils.hasStreamObserverParameter(request.getInterfaceName(), request.getMethodName())) {
+            String key = StreamUtils.getMethodKey(request.getInterfaceName(), request.getMethodName());
+            if (StreamUtils.hasStreamObserverParameter(key)) {
                 StreamUtils.preMsgSend(request, this.channel);
             }
 
@@ -290,7 +291,7 @@ public class NettyClientTransport extends AbstractClientTransport {
             AbstractByteBuf buf = new NettyByteBuf(byteBuf);
             protocol.encoder().encodeAll(request, buf);
 
-            if (!oneWay && StreamUtils.hasStreamObserverReturn(request.getInterfaceName(), request.getMethodName())) {
+            if (!oneWay && StreamUtils.hasStreamObserverReturn(key)) {
                 nettyMessageFuture.setStreamReturn(true);
             }
             channel.writeAndFlush(buf, channel.voidPromise());

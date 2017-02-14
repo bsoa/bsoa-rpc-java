@@ -17,11 +17,12 @@
 package io.bsoa.rpc.context;
 
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import io.bsoa.rpc.invoke.StreamObserver;
 
 /**
- * <p></p>
+ * <p>保存了开始StreamObserver功能后需要加载的上下文。例如缓存等，Id生成等。如果未开始则不加载此类</p>
  * <p>
  * Created by zhangg on 2017/2/11 11:43. <br/>
  *
@@ -29,19 +30,28 @@ import io.bsoa.rpc.invoke.StreamObserver;
  */
 public class StreamContext {
 
+    /**
+     * 方法名onValue
+     */
     public static final String METHOD_ONVALUE = "onValue";
+    /**
+     * 方法名onError
+     */
     public static final String METHOD_ONERROR = "onError";
+    /**
+     * 方法名onCompleted
+     */
     public static final String METHOD_ONCOMPLETED = "onCompleted";
 
+    /**
+     * 实例Id生成器
+     */
+    public static final AtomicInteger STREAM_ID_GEN = new AtomicInteger();
 
     /**
      * 保留的streamId和 本地实例的对应关系
      */
     private static ConcurrentHashMap<String, StreamObserver> insMap = new ConcurrentHashMap<>();
-//    /**
-//     * 保留的streamId和 本地代理类的对应关系
-//     */
-//    private static ConcurrentHashMap<String, StreamObserver> proxyMap = new ConcurrentHashMap<>();
     /**
      * 保留的请求参数带StreamObserver的方法和实际传递类的对应关系
      */
@@ -79,10 +89,20 @@ public class StreamContext {
         insMap.remove(key);
     }
 
-    public static ConcurrentHashMap<String, StreamObserver> getInsMap() {
-        return insMap;
+    /**
+     * 得到缓存的StreamObserver的数量
+     *
+     * @return 缓存的StreamObserver的数量
+     */
+    public static int getInsMapSize() {
+        return insMap.size();
     }
 
+//    TODO delete this
+//    /**
+//     * 保留的streamId和 本地代理类的对应关系
+//     */
+//    private static ConcurrentHashMap<String, StreamObserver> proxyMap = new ConcurrentHashMap<>();
 //    /**
 //     * 保存StreamObserver的代理实例
 //     *

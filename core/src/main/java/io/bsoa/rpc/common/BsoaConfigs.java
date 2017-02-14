@@ -517,6 +517,14 @@ public class BsoaConfigs {
     public static final String CONSUMER_RECONNECT_PERIOD = "consumer.reconnect.period";
 
     /**
+     * 本地缓存的StreamObserver最大实例数
+     */
+    public static final String STREAM_OBSERVER_MAX_SIZE = "stream.observer.max.size";
+    /**
+     * 本地缓存的Callback最大实例数
+     */
+    public static final String CALLBACK_MAX_SIZE = "callback.max.size";
+    /**
      * 默认回调线程池类型
      */
     public static final String CALLBACK_POOL_TYPE = "callback.pool.type";
