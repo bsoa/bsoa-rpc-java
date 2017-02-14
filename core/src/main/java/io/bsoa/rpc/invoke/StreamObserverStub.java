@@ -30,6 +30,10 @@ import io.bsoa.rpc.message.RPCMessage;
 import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.transport.ClientTransport;
 
+import static io.bsoa.rpc.context.StreamContext.METHOD_ONCOMPLETED;
+import static io.bsoa.rpc.context.StreamContext.METHOD_ONERROR;
+import static io.bsoa.rpc.context.StreamContext.METHOD_ONVALUE;
+
 /**
  * <p></p>
  *
@@ -48,23 +52,36 @@ public class StreamObserverStub<V> implements StreamObserver<V>, Serializable{
     private int timeout;
     private byte compressType;
 
+    private boolean complete = false;
+
     public StreamObserverStub(String streamInsKey) {
         this.streamInsKey = streamInsKey;
     }
 
     @Override
     public void onValue(V value) {
-        doSendMsg("onValue", new Class[]{value.getClass()}, new Object[]{value});
+        if(complete){
+            throw new BsoaRpcException(22222,"StreamObserver is completed!");
+        }
+        doSendMsg(METHOD_ONVALUE, new Class[]{value.getClass()}, new Object[]{value});
     }
 
     @Override
     public void onCompleted() {
-        doSendMsg("onCompleted", CodecUtils.EMPTY_CLASS_ARRAY, CodecUtils.EMPTY_OBJECT_ARRAY);
+        if(complete){
+            throw new BsoaRpcException(22222,"StreamObserver is completed!");
+        }
+        complete = true;
+        doSendMsg(METHOD_ONCOMPLETED, CodecUtils.EMPTY_CLASS_ARRAY, CodecUtils.EMPTY_OBJECT_ARRAY);
     }
 
     @Override
     public void onError(Throwable t) {
-        doSendMsg("onError", new Class[]{t.getClass()}, new Object[]{t});
+        if(complete){
+            throw new BsoaRpcException(22222,"StreamObserver is completed!");
+        }
+        complete = true;
+        doSendMsg(METHOD_ONERROR, new Class[]{t.getClass()}, new Object[]{t});
     }
 
     private void doSendMsg(String methodName, Class[] argTypes, Object[] args){

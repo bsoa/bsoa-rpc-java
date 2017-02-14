@@ -32,6 +32,10 @@ import io.bsoa.rpc.protocol.ProtocolFactory;
 import io.bsoa.rpc.transport.AbstractByteBuf;
 import io.bsoa.rpc.transport.AbstractChannel;
 
+import static io.bsoa.rpc.context.StreamContext.METHOD_ONCOMPLETED;
+import static io.bsoa.rpc.context.StreamContext.METHOD_ONERROR;
+import static io.bsoa.rpc.context.StreamContext.METHOD_ONVALUE;
+
 /**
  * <p></p>
  *
@@ -46,9 +50,7 @@ public class StreamTask implements Runnable {
      */
     private final static Logger LOGGER = LoggerFactory.getLogger(StreamTask.class);
 
-    private static final String METHOD_ONVALUE = "onValue";
-    private static final String METHOD_ONERROR = "onError";
-    private static final String METHOD_ONCOMPLETED = "onCompleted";
+
 
     private RpcRequest request;
 
@@ -83,8 +85,10 @@ public class StreamTask implements Runnable {
                 observer.onValue(request.getArgs()[0]);
             } else if (METHOD_ONERROR.equals(methodName)) {
                 observer.onError((Throwable) request.getArgs()[0]);
+                StreamContext.removeStreamIns(streamInsKey);
             } else if (METHOD_ONCOMPLETED.equals(methodName)) {
                 observer.onCompleted();
+                StreamContext.removeStreamIns(streamInsKey);
             }
         } catch (Exception e) {
             LOGGER.error("Stream handler catch exception in channel "

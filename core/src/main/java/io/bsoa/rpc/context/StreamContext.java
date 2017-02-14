@@ -29,6 +29,11 @@ import io.bsoa.rpc.invoke.StreamObserver;
  */
 public class StreamContext {
 
+    public static final String METHOD_ONVALUE = "onValue";
+    public static final String METHOD_ONERROR = "onError";
+    public static final String METHOD_ONCOMPLETED = "onCompleted";
+
+
     /**
      * 保留的streamId和 本地实例的对应关系
      */
@@ -72,6 +77,10 @@ public class StreamContext {
      */
     public static void removeStreamIns(String key) {
         insMap.remove(key);
+    }
+
+    public static ConcurrentHashMap<String, StreamObserver> getInsMap() {
+        return insMap;
     }
 
 //    /**

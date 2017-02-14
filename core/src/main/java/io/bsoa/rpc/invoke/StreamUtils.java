@@ -45,6 +45,7 @@ import io.bsoa.rpc.transport.ClientTransportFactory;
  */
 public class StreamUtils {
 
+
     /**
      * slf4j Logger for this class
      */
@@ -63,7 +64,8 @@ public class StreamUtils {
 
     private static ConcurrentHashMap<String, ClientTransport> clientTransportMap = new ConcurrentHashMap<String, ClientTransport>();
 
-    private static ConcurrentHashMap<StreamObserver, Integer> instancesNumMap = new ConcurrentHashMap<StreamObserver, Integer>();//instance number
+//    private static ConcurrentHashMap<StreamObserver, Integer> instancesNumMap = new ConcurrentHashMap<StreamObserver, Integer>();//instance number
+    private static AtomicInteger atomicInteger = new AtomicInteger();
 
     private static Integer getInstanceNumber(Object impl, String interfaceId, String method, int port) {
         Class clazz = impl.getClass();
@@ -102,23 +104,25 @@ public class StreamUtils {
         }
         String key = null;
 
-        Integer insNumber = instancesNumMap.get(impl);
-        if (insNumber == null) {
-            insNumber = getInstanceNumber(impl, interfaceId, method, port);
-            Integer num = instancesNumMap.putIfAbsent(impl, insNumber);
-            if (num != null) {
-                insNumber = num;
-            }
-        }
+//        Integer insNumber = instancesNumMap.get(impl);
+//        if (insNumber == null) {
+//            insNumber = getInstanceNumber(impl, interfaceId, method, port);
+//            Integer num = instancesNumMap.putIfAbsent(impl, insNumber);
+//            if (num != null) {
+//                insNumber = num;
+//            }
+//        }
+
+        int insNumber = atomicInteger.incrementAndGet();
 
         Class clazz = impl.getClass();
 
         String ip = SystemInfo.getLocalHost();
         String pid = BsoaContext.PID;
         if (clazz.getCanonicalName() != null) {
-            key = ip + "_" + port + "_" + pid + "_" + clazz.getCanonicalName() + "_" + insNumber;
+            key = ip + "_" + port + "_" + pid + "_" + clazz.getCanonicalName() + "_" + Integer.toHexString(insNumber);
         } else {
-            key = ip + "_" + port + "_" + pid + "_" + clazz.getName() + "_" + insNumber;
+            key = ip + "_" + port + "_" + pid + "_" + clazz.getName() + "_" + Integer.toHexString(insNumber);
         }
 
         StreamContext.putStreamIns(key, impl);
