@@ -22,7 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.bsoa.rpc.exception.BsoaRpcException;
-import io.bsoa.rpc.invoke.AsyncContext;
+import io.bsoa.rpc.context.AsyncContext;
 import io.bsoa.rpc.invoke.StreamTask;
 import io.bsoa.rpc.listener.ChannelListener;
 import io.bsoa.rpc.listener.NegotiatorListener;

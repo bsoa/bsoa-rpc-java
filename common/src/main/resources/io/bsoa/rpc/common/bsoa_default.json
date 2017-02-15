@@ -97,13 +97,13 @@ PS:大家也看到了，本JSON文档是支持注释的，而标准JSOB是不支
   "consumer.reconnect.period" : 10000, //重建连接间隔
 
   "stream.observer.max.size" : 10000, // 本地缓存的StreamObserver最大实例数
-
   "callback.max.size" : 1000, // 本地缓存的Callback最大实例数
-  "callback.pool.type": "cached", // 默认回调线程池类型
-  "callback.pool.core" : 10, // 默认回调线程池最小
-  "callback.pool.max" : 200, // 默认回调线程池最大
-  "callback.pool.queue" : 256, // 默认回调线程池队列
-  "callback.pool.time" : 60000, //  默认回调线程池回收时间
+
+  "async.pool.type": "cached", // 默认回调线程池类型
+  "async.pool.core" : 10, // 默认回调线程池最小
+  "async.pool.max" : 200, // 默认回调线程池最大
+  "async.pool.queue" : 256, // 默认回调线程池队列
+  "async.pool.time" : 60000, //  默认回调线程池回收时间
 
   "transport.use.epoll" : false,
   "transport.payload.max" : 8388608, //默认数据包大小 8*1024*1024

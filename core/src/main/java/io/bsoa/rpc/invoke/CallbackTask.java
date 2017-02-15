@@ -31,10 +31,6 @@ import io.bsoa.rpc.protocol.ProtocolFactory;
 import io.bsoa.rpc.transport.AbstractByteBuf;
 import io.bsoa.rpc.transport.AbstractChannel;
 
-import static io.bsoa.rpc.invoke.StreamContext.METHOD_ONCOMPLETED;
-import static io.bsoa.rpc.invoke.StreamContext.METHOD_ONERROR;
-import static io.bsoa.rpc.invoke.StreamContext.METHOD_ONVALUE;
-
 /**
  * <p></p>
  * <p>
@@ -42,15 +38,15 @@ import static io.bsoa.rpc.invoke.StreamContext.METHOD_ONVALUE;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public class StreamTask implements Runnable {
+public class CallbackTask implements Runnable {
 
     /**
      * slf4j Logger for this class
      */
-    private final static Logger LOGGER = LoggerFactory.getLogger(StreamTask.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(CallbackTask.class);
 
     /**
-     * RpcRequest of StreamObserver
+     * RpcRequest of Callback
      */
     private RpcRequest request;
 
@@ -62,10 +58,10 @@ public class StreamTask implements Runnable {
     /**
      * Construct method
      *
-     * @param request RpcRequest of StreamObserver
+     * @param request RpcRequest of Callback
      * @param channel Channel
      */
-    public StreamTask(RpcRequest request, AbstractChannel channel) {
+    public CallbackTask(RpcRequest request, AbstractChannel channel) {
         this.request = request;
         this.channel = channel;
     }
@@ -73,14 +69,14 @@ public class StreamTask implements Runnable {
     @Override
     public void run() {
         byte directionType = request.getDirectionType();
-        if (directionType != MessageConstants.DIRECTION_ONEWAY) {
-            LOGGER.warn("SteamEvent must be onWay!");
+        if (directionType != MessageConstants.DIRECTION_FORWARD) {
+            LOGGER.warn("CallbackEvent must be forward!");
         }
 
-        String streamInsKey = (String) request.getHeadKey(HeadKey.STREAM_INS_KEY);
-        StreamObserver observer = StreamContext.getStreamIns(streamInsKey);
-        if (observer == null) {
-            LOGGER.error("StreamObserver instance of {} is null!", streamInsKey);
+        String callbackInsKey = (String) request.getHeadKey(HeadKey.CALLBACK_INS_KEY);
+        Callback callback = CallbackContext.getCallbackIns(callbackInsKey);
+        if (callback == null) {
+            LOGGER.error("Callback instance of {} is null!", callbackInsKey);
             return;
         }
 
@@ -90,25 +86,25 @@ public class StreamTask implements Runnable {
         try {
             protocol.decoder().decodeBody(byteBuf, request);
             String methodName = request.getMethodName();
-            if (METHOD_ONVALUE.equals(methodName)) {
-                observer.onValue(request.getArgs()[0]);
-            } else if (METHOD_ONERROR.equals(methodName)) {
-                observer.onError((Throwable) request.getArgs()[0]);
-                StreamContext.removeStreamIns(streamInsKey);
-            } else if (METHOD_ONCOMPLETED.equals(methodName)) {
-                observer.onCompleted();
-                StreamContext.removeStreamIns(streamInsKey);
+            if (CallbackContext.METHOD_NOTIFY.equals(methodName)) {
+                Object ret = callback.notify(request.getArgs()[0]);
+                response.setReturnData(ret);
+            } else {
+                response.setException(new BsoaRpcException("Can not found method named \"" + methodName + "\""));
             }
         } catch (Exception e) {
-            LOGGER.error("Stream handler catch exception in channel "
+            LOGGER.error("Callback handler catch exception in channel "
                     + NetUtils.channelToString(channel.getRemoteAddress(), channel.getLocalAddress())
                     + ", error message is :" + e.getMessage(), e);
-            BsoaRpcException rpcException = new BsoaRpcException(22222, "22222");
-            response.setException(rpcException);
+            response.setException(new BsoaRpcException(22222, "22222"));
         } finally {
             if (byteBuf != null) {
                 byteBuf.release();
             }
         }
+
+        AbstractByteBuf responseByteBuf = channel.getByteBuf();
+        protocol.encoder().encodeAll(response, responseByteBuf);
+        channel.writeAndFlush(responseByteBuf);
     }
 }

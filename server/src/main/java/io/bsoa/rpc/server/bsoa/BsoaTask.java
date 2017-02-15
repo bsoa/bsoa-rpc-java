@@ -22,10 +22,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.bsoa.rpc.base.Invoker;
+import io.bsoa.rpc.common.utils.ClassUtils;
 import io.bsoa.rpc.common.utils.NetUtils;
 import io.bsoa.rpc.context.BsoaContext;
 import io.bsoa.rpc.context.RpcContext;
 import io.bsoa.rpc.exception.BsoaRpcException;
+import io.bsoa.rpc.invoke.CallbackUtils;
 import io.bsoa.rpc.invoke.StreamUtils;
 import io.bsoa.rpc.message.HeadKey;
 import io.bsoa.rpc.message.MessageBuilder;
@@ -100,7 +102,10 @@ public class BsoaTask extends AbstractTask {
 //                                + ", May be your host in blacklist of server");
 //            }
 
-            String methodKey = StreamUtils.getMethodKey(interfaceName, methodName);
+            String methodKey = ClassUtils.getMethodKey(interfaceName, methodName);
+            if (CallbackUtils.hasCallbackParameter(methodKey)) {
+                CallbackUtils.preMsgHandle(request, channel);
+            }
             if (StreamUtils.hasStreamObserverParameter(methodKey)) {
                 StreamUtils.preMsgHandle(request, channel);
             }

@@ -16,14 +16,13 @@
  */
 package io.bsoa.rpc.common.utils;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.bsoa.rpc.common.json.JSONIgnore;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
 
 /**
@@ -34,13 +33,36 @@ import io.bsoa.rpc.exception.BsoaRuntimeException;
 public final class ClassUtils {
 
     /**
+     * 迭代查询全部方法，包括本类和父类
+     *
+     * @param clazz 对象类
+     * @return 所有字段列表
+     */
+    public static List<Method> getAllMethods(Class clazz) {
+        List<Method> all = new ArrayList<>();
+        for (Class<?> c = clazz; c != Object.class && c != null; c = c.getSuperclass()) {
+            Method[] methods = c.getDeclaredMethods(); // 所有方法，不包含父类
+            for (Method method : methods) {
+                int mod = method.getModifiers();
+                // native的不要
+                if (Modifier.isNative(mod)) {
+                    continue;
+                }
+                method.setAccessible(true); // 不管private还是protect都可以
+                all.add(method);
+            }
+        }
+        return all;
+    }
+
+    /**
      * 迭代查询全部字段，包括本类和父类
      *
      * @param clazz 对象类
      * @return 所有字段列表
      */
     public static List<Field> getAllFields(Class clazz) {
-        List<Field> all = new ArrayList<Field>();
+        List<Field> all = new ArrayList<>();
         for (Class<?> c = clazz; c != Object.class && c != null; c = c.getSuperclass()) {
             Field[] fields = c.getDeclaredFields(); // 所有方法，不包含父类
             for (Field field : fields) {
@@ -49,11 +71,11 @@ public final class ClassUtils {
                 if (Modifier.isStatic(mod) || Modifier.isTransient(mod)) {
                     continue;
                 }
-                // 过滤ignore字段
-                Annotation as = field.getAnnotation(JSONIgnore.class);
-                if (as != null) {
-                    continue;
-                }
+//                // 过滤ignore字段
+//                Annotation as = field.getAnnotation(JSONIgnore.class);
+//                if (as != null) {
+//                    continue;
+//                }
                 field.setAccessible(true); // 不管private还是protect都可以
                 all.add(field);
             }
@@ -163,7 +185,7 @@ public final class ClassUtils {
                     if (ps.length == argTypes.length + 1) { // 长度多一
                         boolean allMath = true;
                         for (int i = 1; i < ps.length; i++) { // 而且第二个开始的参数类型匹配
-                            if (ps[i] != argTypes[i-1]) {
+                            if (ps[i] != argTypes[i - 1]) {
                                 allMath = false;
                                 break;
                             }
@@ -179,9 +201,9 @@ public final class ClassUtils {
                             + " has no constructor with argTypes :" + argTypes);
                 } else {
                     constructor.setAccessible(true);
-                    Object[] newargs = new Object[args.length+1];
-                    System.arraycopy(args, 0, newargs, 1, args.length);
-                    return constructor.newInstance(newargs);
+                    Object[] newArgs = new Object[args.length + 1];
+                    System.arraycopy(args, 0, newArgs, 1, args.length);
+                    return constructor.newInstance(newArgs);
                 }
             }
         } catch (BsoaRuntimeException e) {
@@ -190,7 +212,6 @@ public final class ClassUtils {
             throw new BsoaRuntimeException(22222, e);
         }
     }
-
 
     protected static Object getParamArg(Class clazz) {
         if (clazz == Short.class || clazz == short.class) {
@@ -212,5 +233,16 @@ public final class ClassUtils {
         } else {
             return null;
         }
+    }
+
+    /**
+     * 得到方法关键字
+     *
+     * @param interfaceName 接口名
+     * @param methodName    方法名
+     * @return 关键字
+     */
+    public static String getMethodKey(String interfaceName, String methodName) {
+        return interfaceName + "#" + methodName;
     }
 }

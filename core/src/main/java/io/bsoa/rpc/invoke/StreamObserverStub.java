@@ -31,15 +31,16 @@ import io.bsoa.rpc.message.RPCMessage;
 import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.transport.ClientTransport;
 
-import static io.bsoa.rpc.context.StreamContext.METHOD_ONCOMPLETED;
-import static io.bsoa.rpc.context.StreamContext.METHOD_ONERROR;
-import static io.bsoa.rpc.context.StreamContext.METHOD_ONVALUE;
+import static io.bsoa.rpc.invoke.StreamContext.METHOD_ONCOMPLETED;
+import static io.bsoa.rpc.invoke.StreamContext.METHOD_ONERROR;
+import static io.bsoa.rpc.invoke.StreamContext.METHOD_ONVALUE;
 
 /**
  * <p>收到StreamObserver的端，将生成一个本地代理类</p>
  * <p>
  * Created by zhangg on 2017/2/12 18:10. <br/>
  *
+ * @param <V> the type parameter
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
 public class StreamObserverStub<V> implements StreamObserver<V>, Serializable {
@@ -113,12 +114,12 @@ public class StreamObserverStub<V> implements StreamObserver<V>, Serializable {
 
     private void doSendMsg(String methodName, Class[] argTypes, Object[] args) {
         if (clientTransport == null || !clientTransport.isAvailable()) {
-            BsoaRpcException stubClosed = new BsoaRpcException(22222,
-                    "StreamObserver invalidate cause by channel closed, you can remove the stream proxy stub now, channel is"
+            throw new BsoaRpcException(22222,
+                    "StreamObserver invalidate cause by channel closed, " +
+                            "you can remove the stream proxy stub now, channel is"
                             + (clientTransport == null ? " null" : ": " +
                             NetUtils.connectToString(clientTransport.getChannel().getLocalAddress(),
                                     clientTransport.getChannel().getRemoteAddress())));
-            throw stubClosed;
         }
         RpcRequest request = MessageBuilder.buildRpcRequest(StreamObserver.class, methodName, argTypes, args);
         request.setCompressType(compressType); // 默认开启压缩
@@ -133,7 +134,7 @@ public class StreamObserverStub<V> implements StreamObserver<V>, Serializable {
      * Init field by old message.
      *
      * @param message Old message, may be request or response
-     * @return StreamObserverStub
+     * @return StreamObserverStub stream observer stub
      */
     public StreamObserverStub initByMessage(RPCMessage message) {
         this.protocolType = message.getProtocolType();
@@ -144,50 +145,110 @@ public class StreamObserverStub<V> implements StreamObserver<V>, Serializable {
         return this;
     }
 
+    /**
+     * Gets client transport.
+     *
+     * @return the client transport
+     */
     public ClientTransport getClientTransport() {
         return clientTransport;
     }
 
+    /**
+     * Sets client transport.
+     *
+     * @param clientTransport the client transport
+     * @return the client transport
+     */
     public StreamObserverStub setClientTransport(ClientTransport clientTransport) {
         this.clientTransport = clientTransport;
         return this;
     }
 
+    /**
+     * Gets stream ins key.
+     *
+     * @return the stream ins key
+     */
     public String getStreamInsKey() {
         return streamInsKey;
     }
 
+    /**
+     * Gets protocol type.
+     *
+     * @return the protocol type
+     */
     public byte getProtocolType() {
         return protocolType;
     }
 
+    /**
+     * Sets protocol type.
+     *
+     * @param protocolType the protocol type
+     * @return the protocol type
+     */
     public StreamObserverStub setProtocolType(byte protocolType) {
         this.protocolType = protocolType;
         return this;
     }
 
+    /**
+     * Gets serialization type.
+     *
+     * @return the serialization type
+     */
     public byte getSerializationType() {
         return serializationType;
     }
 
+    /**
+     * Sets serialization type.
+     *
+     * @param serializationType the serialization type
+     * @return the serialization type
+     */
     public StreamObserverStub setSerializationType(byte serializationType) {
         this.serializationType = serializationType;
         return this;
     }
 
+    /**
+     * Gets timeout.
+     *
+     * @return the timeout
+     */
     public int getTimeout() {
         return timeout;
     }
 
+    /**
+     * Sets timeout.
+     *
+     * @param timeout the timeout
+     * @return the timeout
+     */
     public StreamObserverStub setTimeout(int timeout) {
         this.timeout = timeout;
         return this;
     }
 
+    /**
+     * Gets compress type.
+     *
+     * @return the compress type
+     */
     public byte getCompressType() {
         return compressType;
     }
 
+    /**
+     * Sets compress type.
+     *
+     * @param compressType the compress type
+     * @return the compress type
+     */
     public StreamObserverStub setCompressType(byte compressType) {
         this.compressType = compressType;
         return this;

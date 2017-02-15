@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.bsoa.rpc.invoke;
+package io.bsoa.rpc.context;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
@@ -28,7 +28,7 @@ import io.bsoa.rpc.common.BsoaConfigs;
 import io.bsoa.rpc.common.BsoaOptions;
 import io.bsoa.rpc.common.struct.NamedThreadFactory;
 import io.bsoa.rpc.common.utils.ThreadPoolUtils;
-import io.bsoa.rpc.context.CallbackContext;
+import io.bsoa.rpc.invoke.CallbackContext;
 
 /**
  * <p></p>
@@ -70,9 +70,9 @@ public class AsyncContext {
             synchronized (CallbackContext.class) {
                 if (asyncThreadPool == null && build) {
                     // 一些系统参数，可以从配置或者注册中心获取。
-                    int coresize = BsoaConfigs.getIntValue(BsoaOptions.CALLBACK_POOL_CORE);
-                    int maxsize = BsoaConfigs.getIntValue(BsoaOptions.CALLBACK_POOL_MAX);
-                    int queuesize = BsoaConfigs.getIntValue(BsoaOptions.CALLBACK_POOL_QUEUE);
+                    int coresize = BsoaConfigs.getIntValue(BsoaOptions.ASYNC_POOL_CORE);
+                    int maxsize = BsoaConfigs.getIntValue(BsoaOptions.ASYNC_POOL_MAX);
+                    int queuesize = BsoaConfigs.getIntValue(BsoaOptions.ASYNC_POOL_QUEUE);
 
                     BlockingQueue<Runnable> queue = ThreadPoolUtils.buildQueue(queuesize);
                     NamedThreadFactory threadFactory = new NamedThreadFactory("BSOA-CB", true);

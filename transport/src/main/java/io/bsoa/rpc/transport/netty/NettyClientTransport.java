@@ -26,10 +26,12 @@ import org.slf4j.LoggerFactory;
 
 import io.bsoa.rpc.common.SystemInfo;
 import io.bsoa.rpc.common.struct.PositiveAtomicCounter;
+import io.bsoa.rpc.common.utils.ClassUtils;
 import io.bsoa.rpc.common.utils.NetUtils;
 import io.bsoa.rpc.context.BsoaContext;
 import io.bsoa.rpc.exception.BsoaRpcException;
 import io.bsoa.rpc.ext.Extension;
+import io.bsoa.rpc.invoke.CallbackUtils;
 import io.bsoa.rpc.invoke.StreamUtils;
 import io.bsoa.rpc.message.BaseMessage;
 import io.bsoa.rpc.message.HeartbeatResponse;
@@ -280,10 +282,11 @@ public class NettyClientTransport extends AbstractClientTransport {
 
             Protocol protocol = ProtocolFactory.getProtocol(request.getProtocolType());
 
-            // TODO 是否callback请求（需要特殊处理）
+            String key = ClassUtils.getMethodKey(request.getInterfaceName(), request.getMethodName());
             // Callback Stream调用等特殊处理
-            String key = StreamUtils.getMethodKey(request.getInterfaceName(), request.getMethodName());
-            if (StreamUtils.hasStreamObserverParameter(key)) {
+            if (CallbackUtils.hasCallbackParameter(key)) {
+                CallbackUtils.preMsgSend(request, this.channel);
+            } else if (StreamUtils.hasStreamObserverParameter(key)) {
                 StreamUtils.preMsgSend(request, this.channel);
             }
 

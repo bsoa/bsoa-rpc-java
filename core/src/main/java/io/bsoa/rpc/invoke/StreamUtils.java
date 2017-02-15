@@ -28,13 +28,14 @@ import io.bsoa.rpc.common.BsoaOptions;
 import io.bsoa.rpc.common.SystemInfo;
 import io.bsoa.rpc.common.annotation.JustForTest;
 import io.bsoa.rpc.context.BsoaContext;
-import io.bsoa.rpc.context.StreamContext;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
 import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.message.RpcResponse;
 import io.bsoa.rpc.transport.AbstractChannel;
 import io.bsoa.rpc.transport.ClientTransport;
 import io.bsoa.rpc.transport.ClientTransportFactory;
+
+import static io.bsoa.rpc.common.utils.ClassUtils.getMethodKey;
 
 /**
  * <p>Stream相关工具类。<br>
@@ -120,10 +121,7 @@ public class StreamUtils {
      * @return 是否Stream方法
      */
     public static boolean hasStreamObserverParameter(String key) {
-        if (streamFeatureUsed) {
-            return StreamContext.hasStreamObserverParameter(key);
-        }
-        return false;
+        return streamFeatureUsed && StreamContext.hasStreamObserverParameter(key);
     }
 
     /**
@@ -133,10 +131,7 @@ public class StreamUtils {
      * @return 是否Stream方法
      */
     public static boolean hasStreamObserverReturn(String key) {
-        if (streamFeatureUsed) {
-            return StreamContext.hasStreamObserverReturn(key);
-        }
-        return false;
+        return streamFeatureUsed && StreamContext.hasStreamObserverReturn(key);
     }
 
     /**
@@ -318,16 +313,5 @@ public class StreamUtils {
             // 使用一个已有的长连接
             stub.setClientTransport(clientTransport).initByMessage(response);
         }
-    }
-
-    /**
-     * 得到方法关键字
-     *
-     * @param interfaceName 接口名
-     * @param methodName    方法名
-     * @return 关键字
-     */
-    public static String getMethodKey(String interfaceName, String methodName) {
-        return interfaceName + "#" + methodName;
     }
 }

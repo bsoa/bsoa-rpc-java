@@ -18,7 +18,6 @@ package io.bsoa.rpc.invoke;
 
 import io.bsoa.rpc.codec.CompressorFactory;
 import io.bsoa.rpc.common.utils.NetUtils;
-import io.bsoa.rpc.context.CallbackContext;
 import io.bsoa.rpc.exception.BsoaRpcException;
 import io.bsoa.rpc.message.HeadKey;
 import io.bsoa.rpc.message.MessageBuilder;
@@ -37,6 +36,8 @@ import static io.bsoa.rpc.common.BsoaOptions.DEFAULT_COMPRESS;
  * <p>
  * Created by zhangg on 2017/2/11 00:16. <br/>
  *
+ * @param <Q> the request parameter
+ * @param <S> the response parameter
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
 public class CallbackStub<Q, S> implements Callback<Q, S> {
@@ -45,6 +46,10 @@ public class CallbackStub<Q, S> implements Callback<Q, S> {
      * Instance key of Callback
      */
     private final String callbackInsKey;
+    /**
+     * Parameter types of request message
+     */
+    private final Class[] argTypes;
     /**
      * Client transport of Callback
      */
@@ -66,39 +71,35 @@ public class CallbackStub<Q, S> implements Callback<Q, S> {
      * Compress type of request message(Copy from old message).
      */
     private byte compressType;
-    /**
-     * Parameter types of request message(Read from cache).
-     */
-    private Class[] argTypes;
 
     /**
      * Construct Method
      *
      * @param callbackInsKey Instance key of Callback
+     * @param paramType      the param type
      */
-    public CallbackStub(String callbackInsKey) {
+    public CallbackStub(String callbackInsKey, Class paramType) {
         this.callbackInsKey = callbackInsKey;
-        this.argTypes = CallbackContext.getParamTypeOfStreamMethod();
+        this.argTypes = new Class[]{paramType};
     }
 
     @Override
-    public S invoke(Q result)  {
+    public S notify(Q result) {
         if (clientTransport == null || !clientTransport.isAvailable()) {
-            BsoaRpcException stubClosed = new BsoaRpcException(22222,
-                    "StreamObserver invalidate cause by channel closed, you can remove the stream proxy stub now, channel is"
+            throw new BsoaRpcException(22222, "Callback invalidate cause by channel closed, " +
+                    "you can remove the callback stub now, channel is"
                             + (clientTransport == null ? " null" : ": " +
                             NetUtils.connectToString(clientTransport.getChannel().getLocalAddress(),
                                     clientTransport.getChannel().getRemoteAddress())));
-            throw stubClosed;
         }
         RpcRequest request = MessageBuilder.buildRpcRequest(
-                Callback.class, "invoke", argTypes, new Object[]{});
+                Callback.class, CallbackUtils.METHOD_INVOKE, argTypes, new Object[]{result});
         request.setCompressType(compressType); // 默认开启压缩
         request.setProtocolType(protocolType);
         request.setSerializationType(serializationType);
-        request.addHeadKey(HeadKey.STREAM_INS_KEY, this.callbackInsKey);  //最重要
+        request.addHeadKey(HeadKey.CALLBACK_INS_KEY, this.callbackInsKey);  //最重要
         RpcResponse response = (RpcResponse) clientTransport.syncSend(request, timeout);
-        if(response.hasError()){
+        if (response.hasError()) {
             Throwable e = response.getException();
             if (e instanceof RuntimeException) {
                 throw (RuntimeException) e;
@@ -114,7 +115,7 @@ public class CallbackStub<Q, S> implements Callback<Q, S> {
      * Init field by old message.
      *
      * @param message Old message, may be request or response
-     * @return StreamObserverStub
+     * @return CallbackStub callback stub
      */
     public CallbackStub<Q, S> initByMessage(RPCMessage message) {
         this.protocolType = message.getProtocolType();
@@ -123,5 +124,123 @@ public class CallbackStub<Q, S> implements Callback<Q, S> {
         this.timeout = timeout == null ? getIntValue(CONSUMER_INVOKE_TIMEOUT) : timeout;
         this.compressType = CompressorFactory.getCodeByAlias(getStringValue(DEFAULT_COMPRESS));
         return this;
+    }
+
+    /**
+     * Gets callback ins key.
+     *
+     * @return the callback ins key
+     */
+    public String getCallbackInsKey() {
+        return callbackInsKey;
+    }
+
+    /**
+     * Gets client transport.
+     *
+     * @return the client transport
+     */
+    public ClientTransport getClientTransport() {
+        return clientTransport;
+    }
+
+    /**
+     * Sets client transport.
+     *
+     * @param clientTransport the client transport
+     * @return the client transport
+     */
+    public CallbackStub setClientTransport(ClientTransport clientTransport) {
+        this.clientTransport = clientTransport;
+        return this;
+    }
+
+    /**
+     * Gets protocol type.
+     *
+     * @return the protocol type
+     */
+    public byte getProtocolType() {
+        return protocolType;
+    }
+
+    /**
+     * Sets protocol type.
+     *
+     * @param protocolType the protocol type
+     * @return the protocol type
+     */
+    public CallbackStub setProtocolType(byte protocolType) {
+        this.protocolType = protocolType;
+        return this;
+    }
+
+    /**
+     * Gets serialization type.
+     *
+     * @return the serialization type
+     */
+    public byte getSerializationType() {
+        return serializationType;
+    }
+
+    /**
+     * Sets serialization type.
+     *
+     * @param serializationType the serialization type
+     * @return the serialization type
+     */
+    public CallbackStub setSerializationType(byte serializationType) {
+        this.serializationType = serializationType;
+        return this;
+    }
+
+    /**
+     * Gets timeout.
+     *
+     * @return the timeout
+     */
+    public int getTimeout() {
+        return timeout;
+    }
+
+    /**
+     * Sets timeout.
+     *
+     * @param timeout the timeout
+     * @return the timeout
+     */
+    public CallbackStub setTimeout(int timeout) {
+        this.timeout = timeout;
+        return this;
+    }
+
+    /**
+     * Gets compress type.
+     *
+     * @return the compress type
+     */
+    public byte getCompressType() {
+        return compressType;
+    }
+
+    /**
+     * Sets compress type.
+     *
+     * @param compressType the compress type
+     * @return the compress type
+     */
+    public CallbackStub setCompressType(byte compressType) {
+        this.compressType = compressType;
+        return this;
+    }
+
+    /**
+     * Get arg types class [ ].
+     *
+     * @return the class [ ]
+     */
+    public Class[] getArgTypes() {
+        return argTypes;
     }
 }

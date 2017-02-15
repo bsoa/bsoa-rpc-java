@@ -40,7 +40,7 @@ import io.bsoa.rpc.context.RpcContext;
 import io.bsoa.rpc.context.RpcStatus;
 import io.bsoa.rpc.exception.BsoaRpcException;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
-import io.bsoa.rpc.invoke.AsyncContext;
+import io.bsoa.rpc.context.AsyncContext;
 import io.bsoa.rpc.listener.ConsumerStateListener;
 import io.bsoa.rpc.listener.ResponseListener;
 import io.bsoa.rpc.message.HeadKey;

@@ -21,6 +21,8 @@ package io.bsoa.rpc.invoke;
  * <p>
  * Created by zhangg on 2017/2/11 00:16. <br/>
  *
+ * @param <Q> the request parameter
+ * @param <S> the response parameter
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
 public interface Callback<Q, S> {
@@ -28,9 +30,8 @@ public interface Callback<Q, S> {
     /**
      * 回调通知
      *
-     * @param result
-     *         通知对象
-     * @return 返回值对象
+     * @param result 通知对象
+     * @return 返回值对象 s
      */
-    S invoke(Q result);
+    S notify(Q result);
 }

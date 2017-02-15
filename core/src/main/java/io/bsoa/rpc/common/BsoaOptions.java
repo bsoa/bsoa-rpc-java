@@ -299,23 +299,23 @@ public class BsoaOptions {
     /**
      * 默认回调线程池类型
      */
-    public static final String CALLBACK_POOL_TYPE = "callback.pool.type";
+    public static final String ASYNC_POOL_TYPE = "async.pool.type";
     /**
      * 默认回调线程池最小
      */
-    public static final String CALLBACK_POOL_CORE = "callback.pool.core";
+    public static final String ASYNC_POOL_CORE = "async.pool.core";
     /**
      * 默认回调线程池最大
      */
-    public static final String CALLBACK_POOL_MAX = "callback.pool.max";
+    public static final String ASYNC_POOL_MAX = "async.pool.max";
     /**
      * 默认回调线程池队列
      */
-    public static final String CALLBACK_POOL_QUEUE = "callback.pool.queue";
+    public static final String ASYNC_POOL_QUEUE = "async.pool.queue";
     /**
      * 默认回调线程池回收时间
      */
-    public static final String CALLBACK_POOL_TIME = "callback.pool.time";
+    public static final String ASYNC_POOL_TIME = "async.pool.time";
     /**
      * 默认开启epoll？
      */

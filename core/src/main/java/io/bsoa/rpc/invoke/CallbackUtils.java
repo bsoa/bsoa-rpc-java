@@ -27,17 +27,18 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.bsoa.rpc.base.Invoker;
+import io.bsoa.rpc.common.BsoaConfigs;
+import io.bsoa.rpc.common.BsoaOptions;
 import io.bsoa.rpc.common.SystemInfo;
+import io.bsoa.rpc.common.annotation.JustForTest;
+import io.bsoa.rpc.common.utils.ClassUtils;
 import io.bsoa.rpc.common.utils.NetUtils;
 import io.bsoa.rpc.context.BsoaContext;
-import io.bsoa.rpc.exception.BsoaRpcException;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
-import io.bsoa.rpc.message.HeadKey;
 import io.bsoa.rpc.message.RpcRequest;
-import io.bsoa.rpc.proxy.ProxyFactory;
 import io.bsoa.rpc.transport.AbstractChannel;
 import io.bsoa.rpc.transport.ClientTransport;
+import io.bsoa.rpc.transport.ClientTransportFactory;
 
 /**
  * <p></p>
@@ -48,7 +49,19 @@ import io.bsoa.rpc.transport.ClientTransport;
  */
 public class CallbackUtils {
 
-    private final static Logger logger = LoggerFactory.getLogger(CallbackUtils.class);
+    /**
+     * slf4j Logger for this class
+     */
+    private final static Logger LOGGER = LoggerFactory.getLogger(CallbackUtils.class);
+
+    /**
+     * 判断全局是否使用了streamObserver功能，如果没有，则减少StreamContext的加载。
+     */
+    private static volatile boolean callbackFeatureUsed = false;
+    /**
+     * 允许同时的最大的Callback数
+     */
+    private static final int maxSize = BsoaConfigs.getIntValue(BsoaOptions.CALLBACK_MAX_SIZE);
 
     private static ConcurrentHashMap<Class, AtomicInteger> callbackCountMap = new ConcurrentHashMap<Class, AtomicInteger>();
 
@@ -58,24 +71,9 @@ public class CallbackUtils {
 
     private static ConcurrentHashMap<Callback, Integer> instancesNumMap = new ConcurrentHashMap<Callback, Integer>();//instance number
 
-    private static boolean hasServerCallbackParam(Method method) {
-        Class[] clazzList = method.getParameterTypes();
-        int cnt = 0;
-        for (Class clazz : clazzList) {
-            logger.trace("clazz - {}", clazz);
-            if (Callback.class.isAssignableFrom(clazz)) {
-                cnt++;
-            }
-        }
-        if (cnt > 1) {
-            throw new BsoaRuntimeException(22222, "Illegal ServerCallback parameter at method " + method.getName()
-                    + ",just allow one ServerCallback parameter");
-        }
-        return cnt == 1;
-    }
 
     /**
-     * 服务端需要提前注册ServerCallback事件，ServerCallback<T>里的T一定要指定类型
+     * 检查时候有流式方法，如果有记录下来,Callback<Q,S>里的Q,S一定要指定类型
      *
      * @param clazz 接口类
      */
@@ -83,70 +81,113 @@ public class CallbackUtils {
         String interfaceId = clazz.getCanonicalName();
         Method[] methods = clazz.getDeclaredMethods();
         for (Method method : methods) {
-            if (hasServerCallbackParam(method)) {
-                // 需要解析出ServerCallback<T>里的T的实际类型
-                Class reqRealClass = null;
-                Class resRealClass = null;
-                Type[] tps = method.getGenericParameterTypes();
-                for (Type tp : tps) {
-                    if (tp instanceof Class) {
-                        Class cls = (Class) tp;
-                        if (cls.equals(Callback.class)) {
-                            throw new BsoaRuntimeException(22222, "[JSF-24300]Must set actual type of ServerCallback");
-                        } else {
-                            continue;
-                        }
-                    }
-                    if (tp instanceof ParameterizedType) {
-                        ParameterizedType pt = (ParameterizedType) tp;
-                        if (pt.getRawType().equals(Callback.class)) {
-                            Type[] actualTypes = pt.getActualTypeArguments();
-                            if (actualTypes.length == 2) {
-                                reqRealClass = checkClass(actualTypes[0]);
-                                resRealClass = checkClass(actualTypes[1]);
-                                break;
-                            }
-                        }
-                    }
-                }
-                if (reqRealClass == null) {
-                    throw new BsoaRuntimeException(22222, "[JSF-24300]Must set actual type of ServerCallback, Can not use <?>");
-                }
-
-                callbackRegister(interfaceId, method.getName(), reqRealClass);
-//                HashSet set = new HashSet<Class<?>>();
-//                CodecUtils.checkAndRegistryClass(reqRealClass, set);
-//                CodecUtils.checkAndRegistryClass(resRealClass, set);
-            }
+            scanMethod(interfaceId, method);
         }
     }
 
-    private static Class checkClass(Type actualType) {
-        Class realclass;
-        try {
-            if (actualType instanceof ParameterizedType) {
-                // 例如 ServerCallback<List<String>>
-                realclass = (Class) ((ParameterizedType) actualType).getRawType();
-            } else {
-                // 普通的 ServerCallback<String>
-                realclass = (Class) actualType;
+    @JustForTest
+    protected static void scanMethod(String interfaceId, Method method) {
+        Class[] paramClasses = method.getParameterTypes();
+        Type[] paramTypes = method.getGenericParameterTypes();
+        int cnt = 0;
+        String key = null;
+        for (int i = 0; i < paramClasses.length; i++) {
+            Class paramClazz = paramClasses[i];
+            if (Callback.class.isAssignableFrom(paramClazz)) {
+                if (++cnt > 1) { // 只能有一个Callback参数
+                    throw new BsoaRuntimeException(22222, "Illegal Callback parameter at method " + method.getName()
+                            + ", just allow one Callback parameter");
+                }
+                // 需要解析出Callback<Q,S>里的Q,S的实际类型
+                Type paramType = paramTypes[i];
+                Class[] reqAndResActualClass = getActualClass(paramClazz, paramType);
+                if (reqAndResActualClass == null || reqAndResActualClass.length != 2) {
+                    throw new BsoaRuntimeException(22222,
+                            "Must set actual type of Callback, Can not use <?>");
+                }
+                key = key == null ? ClassUtils.getMethodKey(interfaceId, method.getName()) : key;
+                registryParamOfCallbackMethod(key, reqAndResActualClass[0]);
             }
-            return realclass;
-        } catch (ClassCastException e) {
-            // 抛出转换异常 表示为"?"泛化类型， java.lang.ClassCastException:
-            // sun.reflect.generics.reflectiveObjects.WildcardTypeImpl cannot be cast to java.lang.Class
-            throw new BsoaRuntimeException(22222, "[JSF-24300]Must set actual type of ServerCallback, Can not use <?>");
         }
+//        callbackRegister(interfaceId, method.getName(), reqRealClass);
+//                HashSet set = new HashSet<Class<?>>();
+//                CodecUtils.checkAndRegistryClass(reqRealClass, set);
+//                CodecUtils.checkAndRegistryClass(resRealClass, set);
+    }
+
+    /**
+     * 得到泛型的实际类型（必须知道实际类型）
+     *
+     * @param clazz 参数类名
+     * @param type  参数泛化类型
+     * @return 实际类
+     */
+    private static Class[] getActualClass(Class<? extends Callback> clazz, Type type) {
+        if (type instanceof Class) {
+            // 例如直接 Callback 不行
+            throw new BsoaRuntimeException(22222, "[JSF-24300]Must set actual type of Callback");
+        } else if (type instanceof ParameterizedType) {
+            ParameterizedType pt = (ParameterizedType) type;
+            Type[] actualTypes = pt.getActualTypeArguments();
+            if (actualTypes.length == 2) {
+                Class[] cs = new Class[2];
+                for (int i = 0; i < 2; i++) {
+                    Type actualType = actualTypes[0];
+                    try {
+                        if (actualType instanceof ParameterizedType) {
+                            // 例如 Callback<List<String>,List<String>>
+                            cs[i] = (Class) ((ParameterizedType) actualType).getRawType();
+                        } else if (actualType instanceof Class) {
+                            // 普通的 Callback<String,String>
+                            cs[1] = (Class) actualType;
+                        }
+                    } catch (ClassCastException e) {
+                        // 抛出转换异常 表示为"?"泛化类型， java.lang.ClassCastException:
+                        // sun.reflect.generics.reflectiveObjects.WildcardTypeImpl cannot be cast to java.lang.Class
+                        throw new BsoaRuntimeException(22222,
+                                "[JSF-24300]Must set actual type of Callback, Can not use <?>");
+                    }
+                }
+                return cs;
+            } else {
+                throw new BsoaRuntimeException(22222,
+                        "[JSF-24300]Must set only one actual type of Callback!");
+            }
+        } else {
+            throw new BsoaRuntimeException(22222,
+                    "[JSF-24300]Must set actual type of Callback!");
+        }
+    }
+
+    /**
+     * 注册Callback方法参数
+     *
+     * @param key         接口名#方法名
+     * @param actualClass 实际类型
+     */
+    protected static void registryParamOfCallbackMethod(String key, Class actualClass) {
+        CallbackContext.registryParamOfCallbackMethod(key, actualClass);
+        callbackFeatureUsed = true;
+    }
+
+    /**
+     * 是否为Callback方法
+     *
+     * @param key 接口名#方法名
+     * @return 是否Callback方法
+     */
+    public static boolean hasCallbackParameter(String key) {
+        return callbackFeatureUsed && CallbackContext.hasCallbackParameter(key);
     }
 
     /*
      *max default is 1000;
      *
      */
-    public static String clientRegisterCallback(String interfaceId, String method, Object impl, int port) {
+    public static String cacheLocalCallback(String interfaceId, String method, Callback impl, int port) {
 
         if (impl == null) {
-            throw new RuntimeException("ServerCallback Ins cann't be null!");
+            throw new RuntimeException("Callback Ins can't be null!");
         }
         String key = null;
 
@@ -168,8 +209,15 @@ public class CallbackUtils {
         } else {
             key = ip + "_" + port + "_" + pid + "_" + clazz.getName() + "_" + insNumber;
         }
-
-        // FIXME ClientCallbackHandler.registerServerCallback(key, (ServerCallback) impl);
+        
+        int currentSize = CallbackContext.getInsMapSize();
+        if (currentSize > maxSize) {
+            // 同时存在的SteamObserver太多，可能是没有调用onCompleted或者onError
+            LOGGER.warn("There is to much Callback in local, " +
+                    "currentSize is {} > {}, Please check it!", currentSize, maxSize);
+        }
+        CallbackContext.putCallbackIns(key, impl);
+        callbackFeatureUsed = true;
         return key;
 
     }
@@ -202,98 +250,72 @@ public class CallbackUtils {
     }
 
     /**
-     * 服务端接收带有ServerCallback的请求
+     * 消息发送前预处理（客户端Callback发送前，保存本地实例映射）
      *
-     * @param msg     请求
-     * @param channel 连接
-     * @return
+     * @param request 请求值
      */
-    public static RpcRequest msgHandle(RpcRequest msg, ClientTransport channel) {
-        Class[] types = msg.getArgClasses();
-        Callback callback = null;
-        String callbackInsId = (String) msg.getHeadKey(HeadKey.CALLBACK_INS_KEY);
-        if (callbackInsId == null) {
-            throw new RuntimeException(" Server side handle RpcRequest ServerCallbackInsId can not be null! ");
-        }
+    public static void preMsgSend(RpcRequest request, AbstractChannel channel) {
+        Class[] classes = request.getArgClasses();
         int i = 0;
-        for (Class type : types) {
-            if (Callback.class.isAssignableFrom(type)) {
-                Class actualType = callbackNames.get(getName(msg.getInterfaceName(), msg.getMethodName()));
-                callback = buildCallbackProxy(channel, callbackInsId, actualType, msg.getSerializationType());
-                break;
+        for (Class clazz : classes) {
+            if (Callback.class.isAssignableFrom(clazz)) {
+                Callback streamIns = (Callback) request.getArgs()[i];
+                if (streamIns == null) {
+                    continue;
+                } else {
+                    String interfaceId = request.getInterfaceName();
+                    String methodName = request.getMethodName();
+                    // 生成callbackInsKey
+                    String callbackInsKey = CallbackUtils.cacheLocalCallback(interfaceId,
+                            methodName, streamIns, channel.getLocalAddress().getPort());
+                    Class reqClass = CallbackContext.getParamTypeOfCallbackMethod(
+                            ClassUtils.getMethodKey(interfaceId, methodName));
+                    // 如果是Callback本地实例 则置为一个包装类
+                    request.getArgs()[i] = new CallbackStub<>(callbackInsKey, reqClass);
+                    break;
+                }
             }
             i++;
         }
-        Object[] objArr = msg.getArgs();
-        objArr[i] = callback;
-        msg.setArgs(objArr);
-        return msg;
-    }
-
-    /*
-     *1.
-     */
-    public static Invoker callbackInvoker(ClientTransport clientTransport, String callbackInsId, Class actualType, int codecType) {
-//        ChannelWapperedInvoker callbackInvoker = new ChannelWapperedInvoker(clientTransport, callbackInsId, codecType);
-//        // 设置实际的参数类型 ActualType TODO
-//       callbackInvoker.setArgTypes(new String[]{ClassTypeUtils.getTypeStr(actualType)});
-//        return callbackInvoker;
-//
-        return null;
     }
 
     /**
-     * 服务端构建回调客户端的代理类
-     * need another param for ServerCallback instanceId
+     * 消息调用前预处理（服务端收到CallbackStub请求，例如生成本地CallbackStub代理类等）
+     *
+     * @param request 请求对象
+     * @param channel 长连接
      */
-    public static Callback buildCallbackProxy(ClientTransport clientTransport, String ServerCallbackInsId, Class actualType, int codecType) {
-
-        if (proxyMap.containsKey(ServerCallbackInsId)) {
-            //if channel failed remember to remove the proxy instance from the proxyMap
-            return proxyMap.get(ServerCallbackInsId);
+    public static void preMsgHandle(RpcRequest request, AbstractChannel channel) {
+        Class[] types = request.getArgClasses();
+        for (int i = 0; i < types.length; i++) {
+            Class type = types[i];
+            if (Callback.class.isAssignableFrom(type)) {
+                CallbackStub stub = (CallbackStub) request.getArgs()[i];
+                callbackFeatureUsed = true;
+                // 使用一个已有的channel虚拟化一个反向长连接
+                ClientTransport clientTransport = ClientTransportFactory.getReverseClientTransport(channel);
+                stub.setClientTransport(clientTransport).initByMessage(request);
+                break;
+            }
         }
-
-        Invoker invoker = callbackInvoker(clientTransport, ServerCallbackInsId, actualType, codecType);
-        Callback proxy = null;
-        try {
-            proxy = ProxyFactory.buildProxy("jdk", Callback.class, invoker);
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-            throw new BsoaRpcException(22222, "error when create the ServerCallbackProxy for ServerCallbackInsId.." + ServerCallbackInsId, e);
-        }
-        proxyMap.put(ServerCallbackInsId, proxy);
-        return proxy;
-
     }
 
-    public static void removeFromProxyMap(String ServerCallbackInsId) {
-        proxyMap.remove(ServerCallbackInsId);
-    }
+
+
+
+
+
+
+
+
+
+
+
+
 
     public static ClientTransport getTransportByKey(String transportKey) {
         return clientTransportMap.get(transportKey);
 
-    }
-
-
-    private static String getName(String interfaceId, String methodName) {
-
-        return interfaceId + "::" + methodName;
-
-    }
-
-    public static String callbackRegister(String interfaceId, String methodName, Class realClass) {
-        String ServerCallbackKey = getName(interfaceId, methodName);
-        logger.debug("register ServerCallback method key:{}", ServerCallbackKey);
-        callbackNames.put(ServerCallbackKey, realClass);
-        return ServerCallbackKey;
-    }
-
-
-    public static boolean isCallbackRegister(String interfaceId, String methodName) {
-        boolean flag = Boolean.FALSE;
-        if (callbackNames.containsKey(getName(interfaceId, methodName))) flag = Boolean.TRUE;
-        return flag;
     }
 
     public static void checkTransportFutureMap() {
@@ -303,7 +325,7 @@ public class CallbackUtils {
                 ClientTransport clientTransport = entrySet.getValue();
 //                clientTransport.checkFutureMap();
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
     }
@@ -323,39 +345,5 @@ public class CallbackUtils {
 
     public static String getTransportKey(String ip, int port) {
         return ip + "::" + port;
-    }
-
-
-
-    /**
-     * 处理 stream callback的情况
-     *
-     * @param request 请求值
-     * @return RpcRequest
-     */
-    public static void preMsgSend(RpcRequest request, AbstractChannel channel) {
-        Class[] classes = request.getArgClasses();
-        Object[] objs = request.getArgs();
-        //find and replace the callback
-        int port = channel.getLocalAddress().getPort();
-        int i = 0;
-        for (Class clazz : classes) {
-            if (Callback.class.isAssignableFrom(clazz)) {
-                Callback callbackIns = (Callback) objs[i];
-                if (callbackIns == null) {
-                    continue;
-                }
-                String interfaceId = request.getInterfaceName();
-                String methodName = request.getMethodName();
-                // 如果是callback本地实例 则置为null再发给服务端
-                objs[i] = null;
-                // 在Header加上callbackInsId关键字，服务端特殊处理
-                String callbackInsKey = CallbackUtils.clientRegisterCallback(interfaceId, methodName, callbackIns, port);
-                request.addHeadKey(HeadKey.CALLBACK_INS_KEY, callbackInsKey);
-                break;
-            }
-            i++;
-        }
-        request.setArgs(objs);
     }
 }

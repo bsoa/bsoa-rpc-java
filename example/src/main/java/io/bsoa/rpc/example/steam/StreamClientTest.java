@@ -22,7 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.bsoa.rpc.config.ConsumerConfig;
-import io.bsoa.rpc.context.StreamContext;
+import io.bsoa.rpc.invoke.StreamContext;
 import io.bsoa.rpc.invoke.StreamObserver;
 
 /**

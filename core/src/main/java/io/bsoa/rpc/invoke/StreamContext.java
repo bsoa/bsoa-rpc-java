@@ -14,12 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.bsoa.rpc.context;
+package io.bsoa.rpc.invoke;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import io.bsoa.rpc.invoke.StreamObserver;
 
 /**
  * <p>保存了开始StreamObserver功能后需要加载的上下文。例如缓存等，Id生成等。如果未开始则不加载此类</p>
