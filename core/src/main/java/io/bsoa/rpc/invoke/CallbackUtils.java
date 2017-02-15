@@ -52,11 +52,6 @@ public class CallbackUtils {
 
     private static ConcurrentHashMap<Class, AtomicInteger> callbackCountMap = new ConcurrentHashMap<Class, AtomicInteger>();
 
-    /**
-     * 接口+方法 ： 实际的ServerCallback数据类型
-     */
-    private static ConcurrentHashMap<String, Class> callbackNames = new ConcurrentHashMap<String, Class>();
-
     private static ConcurrentHashMap<String, ClientTransport> clientTransportMap = new ConcurrentHashMap<String, ClientTransport>();
 
     private static ConcurrentHashMap<String, Callback> proxyMap = new ConcurrentHashMap<String, Callback>();//cache the ServerCallback stub proxy instance in serverside.

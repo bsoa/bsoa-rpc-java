@@ -29,8 +29,8 @@ import io.bsoa.rpc.common.utils.CommonUtils;
 import io.bsoa.rpc.common.utils.DateUtils;
 import io.bsoa.rpc.common.utils.NetUtils;
 import io.bsoa.rpc.context.BsoaContext;
-import io.bsoa.rpc.context.CallbackContext;
 import io.bsoa.rpc.exception.BsoaRpcException;
+import io.bsoa.rpc.invoke.AsyncContext;
 import io.bsoa.rpc.invoke.StreamUtils;
 import io.bsoa.rpc.listener.ResponseListener;
 import io.bsoa.rpc.message.DecodableMessage;
@@ -448,7 +448,7 @@ public class NettyMessageFuture<V> implements ResponseFuture<V> {
             }
         } else {
             RpcResponse response = (RpcResponse) getNow();
-            CallbackContext.getCallbackThreadPool().execute(() -> {
+            AsyncContext.getAsyncThreadPool().execute(() -> {
                 if (response.hasError()) {
                     Throwable responseException = response.getException();
                     for (ResponseListener responseListener : listeners) {
@@ -479,7 +479,7 @@ public class NettyMessageFuture<V> implements ResponseFuture<V> {
      */
     private void notifyListener(final ResponseListener responseListener) {
         RpcResponse response = (RpcResponse) getNow();
-        CallbackContext.getCallbackThreadPool().execute(() -> {
+        AsyncContext.getAsyncThreadPool().execute(() -> {
             if (response.hasError()) {
                 Throwable responseException = response.getException();
                 try {

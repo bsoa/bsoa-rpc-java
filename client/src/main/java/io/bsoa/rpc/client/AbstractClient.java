@@ -36,11 +36,11 @@ import io.bsoa.rpc.common.utils.StringUtils;
 import io.bsoa.rpc.config.ConsumerConfig;
 import io.bsoa.rpc.config.RegistryConfig;
 import io.bsoa.rpc.context.BsoaContext;
-import io.bsoa.rpc.context.CallbackContext;
 import io.bsoa.rpc.context.RpcContext;
 import io.bsoa.rpc.context.RpcStatus;
 import io.bsoa.rpc.exception.BsoaRpcException;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
+import io.bsoa.rpc.invoke.AsyncContext;
 import io.bsoa.rpc.listener.ConsumerStateListener;
 import io.bsoa.rpc.listener.ResponseListener;
 import io.bsoa.rpc.message.HeadKey;
@@ -361,7 +361,7 @@ public abstract class AbstractClient extends Client {
     public void notifyStateChangeToUnavailable() {
         final List<ConsumerStateListener> onprepear = consumerConfig.getOnAvailable();
         if (onprepear != null) {
-            CallbackContext.getCallbackThreadPool().execute(new Runnable() {
+            AsyncContext.getAsyncThreadPool().execute(new Runnable() {
                 @Override
                 public void run() {
                     // 状态变化通知监听器
@@ -386,7 +386,7 @@ public abstract class AbstractClient extends Client {
     public void notifyStateChangeToAvailable() {
         final List<ConsumerStateListener> onprepear = consumerConfig.getOnAvailable();
         if (onprepear != null) {
-            CallbackContext.getCallbackThreadPool().execute(new Runnable() {
+            AsyncContext.getAsyncThreadPool().execute(new Runnable() {
                 @Override
                 public void run() {
                     // 状态变化通知监听器

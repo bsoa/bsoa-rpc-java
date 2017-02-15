@@ -241,7 +241,7 @@ public class AllConnectConnectionHolder implements ConnectionHolder {
         final List<ConsumerStateListener> onprepear = consumerConfig.getOnAvailable();
         if (onprepear != null) {
 //            TODO
-//            CallbackUtil.getCallbackThreadPool().execute(new Runnable() {
+//            CallbackUtil.getAsyncThreadPool().execute(new Runnable() {
 //                @Override
 //                public void run() {
 //                    // 状态变化通知监听器
@@ -267,7 +267,7 @@ public class AllConnectConnectionHolder implements ConnectionHolder {
         final List<ConsumerStateListener> onprepear = consumerConfig.getOnAvailable();
         if (onprepear != null) {
             //            TODO
-//            CallbackUtil.getCallbackThreadPool().execute(new Runnable() {
+//            CallbackUtil.getAsyncThreadPool().execute(new Runnable() {
 //                @Override
 //                public void run() {
 //                    // 状态变化通知监听器

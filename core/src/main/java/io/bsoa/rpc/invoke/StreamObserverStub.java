@@ -36,41 +36,67 @@ import static io.bsoa.rpc.context.StreamContext.METHOD_ONERROR;
 import static io.bsoa.rpc.context.StreamContext.METHOD_ONVALUE;
 
 /**
- * <p></p>
- *
+ * <p>收到StreamObserver的端，将生成一个本地代理类</p>
+ * <p>
  * Created by zhangg on 2017/2/12 18:10. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public class StreamObserverStub<V> implements StreamObserver<V>, Serializable{
+public class StreamObserverStub<V> implements StreamObserver<V>, Serializable {
 
+    /**
+     * Instance key of StreamObserver
+     */
     private final String streamInsKey;
 
+    /**
+     * Client transport of StreamObserver
+     */
     private ClientTransport clientTransport;
 
+    /**
+     * Protocol type of request message(Copy from old message).
+     */
     private byte protocolType;
+    /**
+     * Serialization type of request message(Copy from old message).
+     */
     private byte serializationType;
+    /**
+     * Timeout of request message(Copy from old message).
+     */
     private int timeout;
+    /**
+     * Compress type of request message(Copy from old message).
+     */
     private byte compressType;
 
+    /**
+     * Is this StreamObserver called method named "onCompleted" or "onError"
+     */
     private boolean complete = false;
 
+    /**
+     * Construct Method
+     *
+     * @param streamInsKey Instance key of StreamObserver
+     */
     public StreamObserverStub(String streamInsKey) {
         this.streamInsKey = streamInsKey;
     }
 
     @Override
     public void onValue(V value) {
-        if(complete){
-            throw new BsoaRpcException(22222,"StreamObserver is completed!");
+        if (complete) {
+            throw new BsoaRpcException(22222, "StreamObserver is completed!");
         }
         doSendMsg(METHOD_ONVALUE, new Class[]{value.getClass()}, new Object[]{value});
     }
 
     @Override
     public void onCompleted() {
-        if(complete){
-            throw new BsoaRpcException(22222,"StreamObserver is completed!");
+        if (complete) {
+            throw new BsoaRpcException(22222, "StreamObserver is completed!");
         }
         complete = true;
         doSendMsg(METHOD_ONCOMPLETED, CodecUtils.EMPTY_CLASS_ARRAY, CodecUtils.EMPTY_OBJECT_ARRAY);
@@ -78,14 +104,14 @@ public class StreamObserverStub<V> implements StreamObserver<V>, Serializable{
 
     @Override
     public void onError(Throwable t) {
-        if(complete){
-            throw new BsoaRpcException(22222,"StreamObserver is completed!");
+        if (complete) {
+            throw new BsoaRpcException(22222, "StreamObserver is completed!");
         }
         complete = true;
         doSendMsg(METHOD_ONERROR, new Class[]{t.getClass()}, new Object[]{t});
     }
 
-    private void doSendMsg(String methodName, Class[] argTypes, Object[] args){
+    private void doSendMsg(String methodName, Class[] argTypes, Object[] args) {
         if (clientTransport == null || !clientTransport.isAvailable()) {
             BsoaRpcException stubClosed = new BsoaRpcException(22222,
                     "StreamObserver invalidate cause by channel closed, you can remove the stream proxy stub now, channel is"
@@ -103,11 +129,16 @@ public class StreamObserverStub<V> implements StreamObserver<V>, Serializable{
         clientTransport.oneWaySend(request, timeout);
     }
 
-
-    public StreamObserverStub initByMessage(RPCMessage request) {
-        this.protocolType = request.getProtocolType();
-        this.serializationType = request.getSerializationType();
-        Integer timeout = (Integer) request.getHeadKey(HeadKey.TIMEOUT);
+    /**
+     * Init field by old message.
+     *
+     * @param message Old message, may be request or response
+     * @return StreamObserverStub
+     */
+    public StreamObserverStub initByMessage(RPCMessage message) {
+        this.protocolType = message.getProtocolType();
+        this.serializationType = message.getSerializationType();
+        Integer timeout = (Integer) message.getHeadKey(HeadKey.TIMEOUT);
         this.timeout = timeout == null ? BsoaConfigs.getIntValue(BsoaOptions.CONSUMER_INVOKE_TIMEOUT) : timeout;
         this.compressType = CompressorFactory.getCodeByAlias(BsoaConfigs.getStringValue(BsoaOptions.DEFAULT_COMPRESS));
         return this;

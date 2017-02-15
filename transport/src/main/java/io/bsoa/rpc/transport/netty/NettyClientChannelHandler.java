@@ -21,8 +21,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.bsoa.rpc.context.CallbackContext;
 import io.bsoa.rpc.exception.BsoaRpcException;
+import io.bsoa.rpc.invoke.AsyncContext;
 import io.bsoa.rpc.invoke.StreamTask;
 import io.bsoa.rpc.listener.ChannelListener;
 import io.bsoa.rpc.listener.NegotiatorListener;
@@ -62,7 +62,7 @@ public class NettyClientChannelHandler extends ChannelInboundHandlerAdapter {
 
     public void channelActive(final ChannelHandlerContext ctx) throws Exception {
         if (channelListeners != null) {
-//            CallbackUtil.getCallbackThreadPool().execute(new Runnable() {
+//            CallbackUtil.getAsyncThreadPool().execute(new Runnable() {
 //                @Override
 //                public void run() {
 //                    for (ConnectListener connectListener : channelListeners) {
@@ -84,7 +84,7 @@ public class NettyClientChannelHandler extends ChannelInboundHandlerAdapter {
         LOGGER.info("Channel inactive: {}", channel);
         clientTransport.removeFutureWhenChannelInactive(); // 结束已有请求
         if (channelListeners != null) {
-//            CallbackUtil.getCallbackThreadPool().execute(new Runnable() {
+//            CallbackUtil.getAsyncThreadPool().execute(new Runnable() {
 //                @Override
 //                public void run() {
 //                    for (ChannelListener connectListener : channelListeners) {
@@ -140,7 +140,7 @@ public class NettyClientChannelHandler extends ChannelInboundHandlerAdapter {
                 if (streamInsKey != null) {
                     // stream请求
                     StreamTask task = new StreamTask(request, clientTransport.getChannel());
-                    CallbackContext.getCallbackThreadPool().execute(task); // 怎么保证流式的顺序？？ TODO
+                    AsyncContext.getAsyncThreadPool().execute(task); // 怎么保证流式的顺序？？ TODO
                 }
                 // callback请求
 //            //receive the callback RpcResponse

@@ -38,24 +38,34 @@ import static io.bsoa.rpc.context.StreamContext.METHOD_ONVALUE;
 
 /**
  * <p></p>
- *
+ * <p>
  * Created by zhangg on 2017/2/12 22:31. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
 public class StreamTask implements Runnable {
-    
+
     /**
      * slf4j Logger for this class
      */
     private final static Logger LOGGER = LoggerFactory.getLogger(StreamTask.class);
 
-
-
+    /**
+     * RpcRequest of StreamObserver
+     */
     private RpcRequest request;
 
+    /**
+     * The Channel
+     */
     private AbstractChannel channel;
 
+    /**
+     * Construct method
+     *
+     * @param request RpcRequest of StreamObserver
+     * @param channel Channel
+     */
     public StreamTask(RpcRequest request, AbstractChannel channel) {
         this.request = request;
         this.channel = channel;

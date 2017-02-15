@@ -32,5 +32,5 @@ public interface Callback<Q, S> {
      *         通知对象
      * @return 返回值对象
      */
-    S callback(Q result);
+    S invoke(Q result);
 }

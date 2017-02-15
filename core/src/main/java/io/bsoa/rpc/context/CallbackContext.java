@@ -16,18 +16,10 @@
  */
 package io.bsoa.rpc.context;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.RejectedExecutionHandler;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import io.bsoa.rpc.common.BsoaConfigs;
-import io.bsoa.rpc.common.BsoaOptions;
-import io.bsoa.rpc.common.struct.NamedThreadFactory;
-import io.bsoa.rpc.common.utils.ThreadPoolUtils;
 
 /**
  * <p></p>
@@ -44,61 +36,40 @@ public class CallbackContext {
     private final static Logger LOGGER = LoggerFactory.getLogger(CallbackContext.class);
 
     /**
-     * callback业务线程池（callback+async）
+     * 接口+方法 ： 实际的ServerCallback数据类型
      */
-    private static volatile ThreadPoolExecutor callbackThreadPool;
+    private static ConcurrentHashMap<String, Class> callbackNames = new ConcurrentHashMap<String, Class>();
+
 
     /**
-     * 得到callback用的线程池 默认开始创建
+     * 保存StreamObserver的实际实例
      *
-     * @return callback用的线程池
+     * @param key   StreamObserver的唯一标识
+     * @param clazz StreamObserver实现类
      */
-    public static ThreadPoolExecutor getCallbackThreadPool() {
-        return getCallbackThreadPool(true);
+    public static void registryParamOfStreamMethod(String key, Class clazz) {
+        callbackNames.put(key, clazz);
     }
 
     /**
-     * 得到callback用的线程池
+     * 是否有StreamObserver参数
      *
-     * @param build 没有时是否构建
-     * @return callback用的线程池
+     * @param key 接口方法
+     * @return 是否有StreamObserver参数
      */
-    public static ThreadPoolExecutor getCallbackThreadPool(boolean build) {
-        if (callbackThreadPool == null && build) {
-            synchronized (CallbackContext.class) {
-                if (callbackThreadPool == null && build) {
-                    // 一些系统参数，可以从配置或者注册中心获取。
-                    int coresize = BsoaConfigs.getIntValue(BsoaOptions.CALLBACK_POOL_CORE);
-                    int maxsize = BsoaConfigs.getIntValue(BsoaOptions.CALLBACK_POOL_MAX);
-                    int queuesize = BsoaConfigs.getIntValue(BsoaOptions.CALLBACK_POOL_QUEUE);
-
-                    BlockingQueue<Runnable> queue = ThreadPoolUtils.buildQueue(queuesize);
-                    NamedThreadFactory threadFactory = new NamedThreadFactory("BSOA-CB", true);
-
-                    RejectedExecutionHandler handler = new RejectedExecutionHandler() {
-                        private int i = 1;
-
-                        @Override
-                        public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
-                            if (i++ % 7 == 0) {
-                                i = 1;
-                                LOGGER.warn("Task:{} has been reject for ThreadPool exhausted!" +
-                                                " pool:{}, active:{}, queue:{}, taskcnt: {}",
-                                        r,
-                                        executor.getPoolSize(),
-                                        executor.getActiveCount(),
-                                        executor.getQueue().size(),
-                                        executor.getTaskCount());
-                            }
-                            throw new RejectedExecutionException(
-                                    "Callback handler thread pool has bean exhausted");
-                        }
-                    };
-                    callbackThreadPool = ThreadPoolUtils.newCachedThreadPool(
-                            coresize, maxsize, queue, threadFactory, handler);
-                }
-            }
-        }
-        return callbackThreadPool;
+    public static boolean hasCallbackParameter(String key) {
+        return callbackNames.containsKey(key);
     }
+
+    /**
+     * 得到StreamObserver的实际类型
+     *
+     * @param key StreamObserver的唯一标识
+     */
+    public static Class getParamTypeOfStreamMethod(String key) {
+        return callbackNames.get(key);
+    }
+
+
+
 }

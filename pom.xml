@@ -45,6 +45,7 @@
 
     <modules>
         <module>core</module>
+        <module>bootstrap</module>
         <module>common</module>
         <module>client</module>
         <module>codec</module>
@@ -56,10 +57,6 @@
         <module>transport</module>
         <module>all</module>
         <module>example</module>
-        <!--- TODO 移动到单独的工程 -->
-        <module>ext-JSF</module>
-        <module>ext-dubbo</module>
-        <module>bootstrap</module>
     </modules>
 
     <properties>

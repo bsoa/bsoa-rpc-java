@@ -134,7 +134,7 @@ public class StreamContext {
     /**
      * 保存StreamObserver的实际实例
      *
-     * @param key   StreamObserver的唯一标识
+     * @param key   接口名#方法名
      * @param clazz StreamObserver实现类
      */
     public static void registryParamOfStreamMethod(String key, Class clazz) {
@@ -144,7 +144,7 @@ public class StreamContext {
     /**
      * 是否有StreamObserver参数
      *
-     * @param key StreamObserver的唯一标识
+     * @param key 接口名#方法名
      * @return 是否有StreamObserver参数
      */
     public static boolean hasStreamObserverParameter(String key) {
@@ -154,7 +154,8 @@ public class StreamContext {
     /**
      * 得到StreamObserver的实际类型
      *
-     * @param key StreamObserver的唯一标识
+     * @param key 接口名#方法名
+     * @return 实际类型
      */
     public static Class getParamTypeOfStreamMethod(String key) {
         return streamMethodReq.get(key);
@@ -163,7 +164,7 @@ public class StreamContext {
     /**
      * 保存StreamObserver的实际实例
      *
-     * @param key   StreamObserver的唯一标识
+     * @param key   接口名#方法名
      * @param clazz StreamObserver实现类
      */
     public static void registryReturnOfStreamMethod(String key, Class clazz) {
@@ -173,7 +174,7 @@ public class StreamContext {
     /**
      * 是否有StreamObserver参数
      *
-     * @param key StreamObserver的唯一标识
+     * @param key 接口名#方法名
      * @return 是否有StreamObserver参数
      */
     public static boolean hasStreamObserverReturn(String key) {
@@ -184,6 +185,7 @@ public class StreamContext {
      * 得到StreamObserver的实际类型
      *
      * @param key StreamObserver的唯一标识
+     *            @return 实际类型
      */
     public static Class getReturnTypeOfStreamMethod(String key) {
         return streamMethodRes.get(key);

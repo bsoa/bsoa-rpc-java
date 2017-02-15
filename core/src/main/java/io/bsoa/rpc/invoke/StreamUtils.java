@@ -269,9 +269,7 @@ public class StreamUtils {
             Class type = types[i];
             if (StreamObserver.class.isAssignableFrom(type)) {
                 StreamObserverStub stub = (StreamObserverStub) request.getArgs()[i];
-                String streamInsKey = stub.getStreamInsKey();
                 streamFeatureUsed = true;
-                //Class actualType = StreamContext.getParamTypeOfStreamMethod(key);
                 // 使用一个已有的channel虚拟化一个反向长连接
                 ClientTransport clientTransport = ClientTransportFactory.getReverseClientTransport(channel);
                 stub.setClientTransport(clientTransport).initByMessage(request);
@@ -298,8 +296,6 @@ public class StreamUtils {
             // 生成streamInsKey
             String streamInsKey = StreamUtils.cacheLocalStreamObserver(request.getInterfaceName(),
                     request.getMethodName(), streamIns, channel.getLocalAddress().getPort());
-            // 在Header加上streamInsKey关键字，服务端特殊处理
-            // response.addHeadKey(HeadKey.STREAM_INS_KEY, streamInsKey);
             // 如果是StreamObserver本地实例 则置为StreamObserverStub再发给服务端
             response.setReturnData(new StreamObserverStub<>(streamInsKey));
         }
@@ -319,8 +315,7 @@ public class StreamUtils {
         if (returnData instanceof StreamObserverStub) {
             StreamObserverStub stub = (StreamObserverStub) returnData;
             streamFeatureUsed = true;
-            //Class actualType = StreamContext.getParamTypeOfStreamMethod(key);
-            // 使用一个已有的channel虚拟化一个反向长连接
+            // 使用一个已有的长连接
             stub.setClientTransport(clientTransport).initByMessage(response);
         }
     }
