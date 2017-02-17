@@ -17,6 +17,7 @@
 package io.bsoa.rpc.invoke;
 
 import java.io.Serializable;
+import javax.annotation.concurrent.NotThreadSafe;
 
 import io.bsoa.rpc.codec.CompressorFactory;
 import io.bsoa.rpc.common.BsoaConfigs;
@@ -24,11 +25,13 @@ import io.bsoa.rpc.common.BsoaOptions;
 import io.bsoa.rpc.common.utils.CodecUtils;
 import io.bsoa.rpc.common.utils.NetUtils;
 import io.bsoa.rpc.exception.BsoaRpcException;
+import io.bsoa.rpc.exception.BsoaRuntimeException;
 import io.bsoa.rpc.message.HeadKey;
 import io.bsoa.rpc.message.MessageBuilder;
 import io.bsoa.rpc.message.MessageConstants;
 import io.bsoa.rpc.message.RPCMessage;
 import io.bsoa.rpc.message.RpcRequest;
+import io.bsoa.rpc.message.RpcResponse;
 import io.bsoa.rpc.transport.ClientTransport;
 
 import static io.bsoa.rpc.invoke.StreamContext.METHOD_ONCOMPLETED;
@@ -43,6 +46,7 @@ import static io.bsoa.rpc.invoke.StreamContext.METHOD_ONVALUE;
  * @param <V> the type parameter
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
+@NotThreadSafe
 public class StreamObserverStub<V> implements StreamObserver<V>, Serializable {
 
     /**
@@ -125,9 +129,18 @@ public class StreamObserverStub<V> implements StreamObserver<V>, Serializable {
         request.setCompressType(compressType); // 默认开启压缩
         request.setProtocolType(protocolType);
         request.setSerializationType(serializationType);
-        request.setDirectionType(MessageConstants.DIRECTION_ONEWAY); // 单向
+        request.setDirectionType(MessageConstants.DIRECTION_FORWARD); // 单向
         request.addHeadKey(HeadKey.STREAM_INS_KEY, this.streamInsKey);  //最重要
-        clientTransport.oneWaySend(request, timeout);
+        RpcResponse response = (RpcResponse) clientTransport.syncSend(request, timeout);
+        if (response.hasError()) {
+            Throwable e = response.getException();
+            if (e instanceof BsoaRuntimeException ||
+                    e instanceof BsoaRpcException) {
+                throw (RuntimeException) e;
+            } else {
+                throw new BsoaRpcException(22222, e);
+            }
+        }
     }
 
     /**

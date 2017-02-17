@@ -14,36 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.bsoa.rpc.invoke;
+package io.bsoa.rpc.example.callback;
 
-import javax.annotation.concurrent.NotThreadSafe;
+import java.util.List;
+
+import io.bsoa.rpc.invoke.Callback;
 
 /**
- * <p>面向用户的流式请求监听器</p>
+ * <p></p>
  * <p>
- * Created by zhangg on 2017/2/10 23:29. <br/>
+ * Created by zhangg on 2017/2/10 23:43. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-@NotThreadSafe
-public interface StreamObserver<V> {
+public interface CallbackHelloService {
 
-    /**
-     * 传输一断流对象
-     *
-     * @param value 值
-     */
-    public void onValue(V value);
+    boolean register(String name, Callback<String, List<String>> callback);
 
-    /**
-     * 传输完毕
-     */
-    public void onCompleted();
-
-    /**
-     * 传输出现异常，需要终止等
-     *
-     * @param t 异常
-     */
-    public void onError(Throwable t);
 }

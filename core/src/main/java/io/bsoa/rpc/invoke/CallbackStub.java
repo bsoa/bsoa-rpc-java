@@ -93,7 +93,7 @@ public class CallbackStub<Q, S> implements Callback<Q, S> {
                                     clientTransport.getChannel().getRemoteAddress())));
         }
         RpcRequest request = MessageBuilder.buildRpcRequest(
-                Callback.class, CallbackUtils.METHOD_INVOKE, argTypes, new Object[]{result});
+                Callback.class, CallbackContext.METHOD_NOTIFY, argTypes, new Object[]{result});
         request.setCompressType(compressType); // 默认开启压缩
         request.setProtocolType(protocolType);
         request.setSerializationType(serializationType);
