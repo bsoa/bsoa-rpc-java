@@ -159,16 +159,16 @@
                             <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
                             <artifactSet>
                                 <includes>
-                                    <include>io.bsoa.rpc:common</include>
-                                    <include>io.bsoa.rpc:core</include>
-                                    <include>io.bsoa.rpc:client</include>
-                                    <include>io.bsoa.rpc:codec</include>
-                                    <include>io.bsoa.rpc:config</include>
-                                    <include>io.bsoa.rpc:filter</include>
-                                    <include>io.bsoa.rpc:protocol</include>
-                                    <include>io.bsoa.rpc:proxy</include>
-                                    <include>io.bsoa.rpc:server</include>
-                                    <include>io.bsoa.rpc:transport</include>
+                                    <include>io.bsoa.rpc:bsoa-rpc-common</include>
+                                    <include>io.bsoa.rpc:bsoa-rpc-core</include>
+                                    <include>io.bsoa.rpc:bsoa-rpc-client</include>
+                                    <include>io.bsoa.rpc:bsoa-rpc-codec</include>
+                                    <include>io.bsoa.rpc:bsoa-rpc-config</include>
+                                    <include>io.bsoa.rpc:bsoa-rpc-filter</include>
+                                    <include>io.bsoa.rpc:bsoa-rpc-protocol</include>
+                                    <include>io.bsoa.rpc:bsoa-rpc-proxy</include>
+                                    <include>io.bsoa.rpc:bsoa-rpc-server</include>
+                                    <include>io.bsoa.rpc:bsoa-rpc-transport</include>
                                 </includes>
                             </artifactSet>
                             <transformers>

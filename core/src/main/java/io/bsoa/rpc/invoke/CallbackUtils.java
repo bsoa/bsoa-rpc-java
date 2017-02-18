@@ -19,8 +19,6 @@ package io.bsoa.rpc.invoke;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.net.InetSocketAddress;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -32,7 +30,6 @@ import io.bsoa.rpc.common.BsoaOptions;
 import io.bsoa.rpc.common.SystemInfo;
 import io.bsoa.rpc.common.annotation.JustForTest;
 import io.bsoa.rpc.common.utils.ClassUtils;
-import io.bsoa.rpc.common.utils.NetUtils;
 import io.bsoa.rpc.context.BsoaContext;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
 import io.bsoa.rpc.message.RpcRequest;
@@ -64,10 +61,6 @@ public class CallbackUtils {
     private static final int maxSize = BsoaConfigs.getIntValue(BsoaOptions.CALLBACK_MAX_SIZE);
 
     private static ConcurrentHashMap<Class, AtomicInteger> callbackCountMap = new ConcurrentHashMap<Class, AtomicInteger>();
-
-    private static ConcurrentHashMap<String, ClientTransport> clientTransportMap = new ConcurrentHashMap<String, ClientTransport>();
-
-    private static ConcurrentHashMap<String, Callback> proxyMap = new ConcurrentHashMap<String, Callback>();//cache the ServerCallback stub proxy instance in serverside.
 
     private static ConcurrentHashMap<Callback, Integer> instancesNumMap = new ConcurrentHashMap<Callback, Integer>();//instance number
 
@@ -259,15 +252,15 @@ public class CallbackUtils {
         int i = 0;
         for (Class clazz : classes) {
             if (Callback.class.isAssignableFrom(clazz)) {
-                Callback streamIns = (Callback) request.getArgs()[i];
-                if (streamIns == null) {
+                Callback callbackIns = (Callback) request.getArgs()[i];
+                if (callbackIns == null) {
                     continue;
                 } else {
                     String interfaceId = request.getInterfaceName();
                     String methodName = request.getMethodName();
                     // 生成callbackInsKey
                     String callbackInsKey = CallbackUtils.cacheLocalCallback(interfaceId,
-                            methodName, streamIns, channel.getLocalAddress().getPort());
+                            methodName, callbackIns, channel.getLocalAddress().getPort());
                     Class reqClass = CallbackContext.getParamTypeOfCallbackMethod(
                             ClassUtils.getMethodKey(interfaceId, methodName));
                     // 如果是Callback本地实例 则置为一个包装类
@@ -298,52 +291,5 @@ public class CallbackUtils {
                 break;
             }
         }
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    public static ClientTransport getTransportByKey(String transportKey) {
-        return clientTransportMap.get(transportKey);
-
-    }
-
-    public static void checkTransportFutureMap() {
-
-        for (Map.Entry<String, ClientTransport> entrySet : clientTransportMap.entrySet()) {
-            try {
-                ClientTransport clientTransport = entrySet.getValue();
-//                clientTransport.checkFutureMap();
-            } catch (Exception e) {
-                LOGGER.error(e.getMessage(), e);
-            }
-        }
-    }
-
-    public static void removeTransport(AbstractChannel channel) {
-        String key = getTransportKey(channel);
-        clientTransportMap.remove(key);
-    }
-
-
-    public static String getTransportKey(AbstractChannel channel) {
-        InetSocketAddress address = channel.getRemoteAddress();
-        String remoteIp = NetUtils.toIpString(address);
-        int port = address.getPort();
-        return getTransportKey(remoteIp, port);
-    }
-
-    public static String getTransportKey(String ip, int port) {
-        return ip + "::" + port;
     }
 }

@@ -120,14 +120,12 @@ public class NettyClientChannelHandler extends ChannelInboundHandlerAdapter {
             else if (msg instanceof RpcRequest) {
                 RpcRequest request = (RpcRequest) msg;
                 String callbackInsKey = (String) request.getHeadKey(HeadKey.CALLBACK_INS_KEY);
-                if (callbackInsKey != null) {
-                    // 服务端发来的callback请求
+                if (callbackInsKey != null) { // 服务端发来的callback请求
                     CallbackTask task = new CallbackTask(request, clientTransport.getChannel());
                     AsyncContext.getAsyncThreadPool().execute(task);
                 }
                 String streamInsKey = (String) request.getHeadKey(HeadKey.STREAM_INS_KEY);
-                if (streamInsKey != null) {
-                    // 服务端发来的stream请求
+                if (streamInsKey != null) {  // 服务端发来的stream请求
                     StreamTask task = new StreamTask(request, clientTransport.getChannel());
                     AsyncContext.getAsyncThreadPool().execute(task);
                 }
