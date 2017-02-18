@@ -18,7 +18,10 @@ package io.bsoa.rpc.transport;
 
 import io.bsoa.rpc.ext.Extensible;
 import io.bsoa.rpc.message.BaseMessage;
+import io.bsoa.rpc.message.HeartbeatResponse;
+import io.bsoa.rpc.message.NegotiatorResponse;
 import io.bsoa.rpc.message.ResponseFuture;
+import io.bsoa.rpc.message.RpcResponse;
 
 /**
  * Created by zhangg on 2016/7/17 15:37.
@@ -120,5 +123,17 @@ public abstract class ClientTransport {
      * @param timeout 超时时间
      */
     public abstract void oneWaySend(BaseMessage message, int timeout);
+
+    public void receiveRpcResponse(RpcResponse response) {
+
+    }
+
+    public void receiveHeartbeatResponse(HeartbeatResponse response) {
+
+    }
+
+    public void receiveNegotiatorResponse(NegotiatorResponse response) {
+
+    }
 
 }

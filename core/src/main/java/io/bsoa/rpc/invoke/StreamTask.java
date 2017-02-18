@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.bsoa.rpc.common.utils.NetUtils;
+import io.bsoa.rpc.context.BsoaContext;
 import io.bsoa.rpc.exception.BsoaRpcException;
 import io.bsoa.rpc.message.HeadKey;
 import io.bsoa.rpc.message.MessageBuilder;
@@ -72,43 +73,63 @@ public class StreamTask implements Runnable {
 
     @Override
     public void run() {
-        byte directionType = request.getDirectionType();
-        if (directionType != MessageConstants.DIRECTION_ONEWAY) {
-            LOGGER.warn("SteamEvent must be onWay!");
+        Integer timeout = (Integer) request.getHeadKey(HeadKey.TIMEOUT);
+        if (timeout != null && BsoaContext.now() - request.getReceiveTime() > timeout) { // 客户端已经超时的请求直接丢弃
+            LOGGER.warn("[JSF-23008]Discard request cause by timeout after receive the request: {}", request.getMessageId());
+            return;
         }
+
+        byte directionType = request.getDirectionType();
+        if (directionType != MessageConstants.DIRECTION_FORWARD) {
+            LOGGER.warn("SteamEvent must be forward!");
+        }
+
+        final RpcResponse response = MessageBuilder.buildRpcResponse(request);
+        Protocol protocol = ProtocolFactory.getProtocol(request.getProtocolType());
 
         String streamInsKey = (String) request.getHeadKey(HeadKey.STREAM_INS_KEY);
         StreamObserver observer = StreamContext.getStreamIns(streamInsKey);
         if (observer == null) {
             LOGGER.error("StreamObserver instance of {} is null!", streamInsKey);
-            return;
+            response.setException(new BsoaRpcException(22222,
+                    "StreamObserver instance of {} is null!"));
+        } else {
+            AbstractByteBuf byteBuf = request.getByteBuf();
+            try {
+                protocol.decoder().decodeBody(byteBuf, request);
+                String methodName = request.getMethodName();
+                if (METHOD_ONVALUE.equals(methodName)) {
+                    observer.onValue(request.getArgs()[0]);
+                } else if (METHOD_ONERROR.equals(methodName)) {
+                    observer.onError((Throwable) request.getArgs()[0]);
+                    StreamContext.removeStreamIns(streamInsKey);
+                } else if (METHOD_ONCOMPLETED.equals(methodName)) {
+                    observer.onCompleted();
+                    StreamContext.removeStreamIns(streamInsKey);
+                } else {
+                    response.setException(new BsoaRpcException(22222,
+                            "Can not found method named \"" + methodName + "\""));
+                }
+            } catch (Exception e) {
+                LOGGER.error("StreamObserver handler catch exception in channel "
+                        + NetUtils.channelToString(channel.getRemoteAddress(), channel.getLocalAddress())
+                        + ", error message is :" + e.getMessage(), e);
+                response.setException(new BsoaRpcException(22222, "22222"));
+            } finally {
+                if (byteBuf != null) {
+                    byteBuf.release();
+                }
+            }
         }
+        AbstractByteBuf responseByteBuf = channel.getByteBuf();
+        protocol.encoder().encodeAll(response, responseByteBuf);
 
-        AbstractByteBuf byteBuf = request.getByteBuf();
-        Protocol protocol = ProtocolFactory.getProtocol(request.getProtocolType());
-        final RpcResponse response = MessageBuilder.buildRpcResponse(request);
-        try {
-            protocol.decoder().decodeBody(byteBuf, request);
-            String methodName = request.getMethodName();
-            if (METHOD_ONVALUE.equals(methodName)) {
-                observer.onValue(request.getArgs()[0]);
-            } else if (METHOD_ONERROR.equals(methodName)) {
-                observer.onError((Throwable) request.getArgs()[0]);
-                StreamContext.removeStreamIns(streamInsKey);
-            } else if (METHOD_ONCOMPLETED.equals(methodName)) {
-                observer.onCompleted();
-                StreamContext.removeStreamIns(streamInsKey);
-            }
-        } catch (Exception e) {
-            LOGGER.error("Stream handler catch exception in channel "
-                    + NetUtils.channelToString(channel.getRemoteAddress(), channel.getLocalAddress())
-                    + ", error message is :" + e.getMessage(), e);
-            BsoaRpcException rpcException = new BsoaRpcException(22222, "22222");
-            response.setException(rpcException);
-        } finally {
-            if (byteBuf != null) {
-                byteBuf.release();
-            }
+        if (timeout != null && BsoaContext.now() - request.getReceiveTime() > timeout) { // 客户端已经超时的响应直接丢弃
+            LOGGER.warn("[JSF-23008]Discard send response cause by " +
+                    "timeout after receive the request: {}", request.getMessageId());
+            responseByteBuf.release();
+        } else {
+            channel.writeAndFlush(responseByteBuf);
         }
     }
 }

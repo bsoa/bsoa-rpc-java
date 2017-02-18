@@ -29,6 +29,6 @@ import io.bsoa.rpc.invoke.Callback;
  */
 public interface CallbackHelloService {
 
-    boolean register(String name, Callback<String, List<String>> callback);
+    boolean register(String name, Callback<List<String>, String> callback);
 
 }

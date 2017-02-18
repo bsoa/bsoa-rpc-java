@@ -32,8 +32,8 @@ import io.bsoa.rpc.context.BsoaContext;
 import io.bsoa.rpc.ext.ExtensionLoader;
 import io.bsoa.rpc.ext.ExtensionLoaderFactory;
 
-import static io.bsoa.rpc.common.BsoaOptions.TRANSPORT_CONNECTION_REUSE;
 import static io.bsoa.rpc.common.BsoaConfigs.getBooleanValue;
+import static io.bsoa.rpc.common.BsoaOptions.TRANSPORT_CONNECTION_REUSE;
 import static org.slf4j.LoggerFactory.getLogger;
 
 /**
@@ -133,6 +133,7 @@ public class ClientTransportFactory {
 
     /**
      * 销毁长连接
+     *
      * @param clientTransport
      * @param disconnectTimeout
      */
@@ -238,15 +239,16 @@ public class ClientTransportFactory {
     }
 
     /**
-     * 反向虚拟的长连接对象, 缓存一个长连接一个
+     * 反向虚拟的长连接对象, 缓存一个长连接一个<br>
+     * {"127.0.0.1:22000<->127.0.0.1:54321": ClientTransport}
      */
-    private static ConcurrentHashMap<AbstractChannel, ClientTransport> REVERSE_CLIENT_TRANSPORT_MAP = null;
+    private static ConcurrentHashMap<String, ClientTransport> REVERSE_CLIENT_TRANSPORT_MAP = null;
 
     /**
      * 构建反向的（服务端到客户端）虚拟长连接
      *
-     * @param channel 已有长连接Channel
-     * @return 虚拟长连接
+     * @param channel exists channel from client
+     * @return reverse client transport of exists channel
      */
     public static ClientTransport getReverseClientTransport(AbstractChannel channel) {
         if (REVERSE_CLIENT_TRANSPORT_MAP == null) { // 初始化
@@ -256,14 +258,15 @@ public class ClientTransportFactory {
                 }
             }
         }
-        ClientTransport transport = REVERSE_CLIENT_TRANSPORT_MAP.get(channel);
+        String key = NetUtils.channelToString(channel.getRemoteAddress(), channel.getLocalAddress());
+        ClientTransport transport = REVERSE_CLIENT_TRANSPORT_MAP.get(key);
         if (transport == null) {
             synchronized (ClientTransportFactory.class) {
-                transport = REVERSE_CLIENT_TRANSPORT_MAP.get(channel);
+                transport = REVERSE_CLIENT_TRANSPORT_MAP.get(key);
                 if (transport == null) {
                     transport = extensionLoader.getExtension(BsoaConfigs.getStringValue(BsoaOptions.DEFAULT_TRANSPORT));
                     transport.setChannel(channel);
-                    REVERSE_CLIENT_TRANSPORT_MAP.putIfAbsent(channel, transport); // 保存唯一长连接
+                    REVERSE_CLIENT_TRANSPORT_MAP.putIfAbsent(key, transport); // 保存唯一长连接
                 }
             }
         }
@@ -271,8 +274,32 @@ public class ClientTransportFactory {
     }
 
     /**
-     * 检查Future列表，删除超时请求
+     * Find reverse client transport by channel key
+     *
+     * @param channelKey channel key
+     * @return client transport
+     * @see ClientTransportFactory#getReverseClientTransport
+     * @see NetUtils#channelToString
      */
+    public static ClientTransport getReverseClientTransport(String channelKey) {
+        return REVERSE_CLIENT_TRANSPORT_MAP != null ?
+                REVERSE_CLIENT_TRANSPORT_MAP.get(channelKey) : null;
+    }
+
+    /**
+     * Remove client transport from reverse map by channel key
+     *
+     * @param channelKey channel key
+     */
+    public static void removeReverseClientTransport(String channelKey) {
+        if (REVERSE_CLIENT_TRANSPORT_MAP != null) {
+            REVERSE_CLIENT_TRANSPORT_MAP.remove(channelKey);
+        }
+    }
+
+//    /**
+//     * 检查Future列表，删除超时请求
+//     */
 //    public static void checkFuture() {
 //        for (Map.Entry<String, ClientTransport> entrySet : connectionPool.entrySet()) {
 //            try {
@@ -285,4 +312,5 @@ public class ClientTransportFactory {
 //                logger.error(e.getMessage(), e);
 //            }
 //        }
+//    }
 }

@@ -16,6 +16,8 @@
  */
 package io.bsoa.rpc.invoke;
 
+import java.io.Serializable;
+
 import io.bsoa.rpc.codec.CompressorFactory;
 import io.bsoa.rpc.common.utils.NetUtils;
 import io.bsoa.rpc.exception.BsoaRpcException;
@@ -40,8 +42,9 @@ import static io.bsoa.rpc.common.BsoaOptions.DEFAULT_COMPRESS;
  * @param <S> the response parameter
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public class CallbackStub<Q, S> implements Callback<Q, S> {
+public class CallbackStub<Q, S> implements Callback<Q, S>, Serializable {
 
+    private static final long serialVersionUID = -7284179050061730184L;
     /**
      * Instance key of Callback
      */

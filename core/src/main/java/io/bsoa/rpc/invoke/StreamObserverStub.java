@@ -49,6 +49,7 @@ import static io.bsoa.rpc.invoke.StreamContext.METHOD_ONVALUE;
 @NotThreadSafe
 public class StreamObserverStub<V> implements StreamObserver<V>, Serializable {
 
+    private static final long serialVersionUID = -5980709945482190984L;
     /**
      * Instance key of StreamObserver
      */

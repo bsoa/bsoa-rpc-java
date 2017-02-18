@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.bsoa.rpc.config.ConsumerConfig;
+import io.bsoa.rpc.invoke.StreamContext;
 import io.bsoa.rpc.invoke.StreamObserver;
 
 /**
@@ -31,12 +32,12 @@ import io.bsoa.rpc.invoke.StreamObserver;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public class StreamClientTest {
+public class StreamClientTest2 {
 
     /**
      * slf4j Logger for this class
      */
-    private final static Logger LOGGER = LoggerFactory.getLogger(StreamClientTest.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(StreamClientTest2.class);
 
     public static void main(String[] args) throws InterruptedException {
 
@@ -74,18 +75,20 @@ public class StreamClientTest {
             latch.countDown();
         }
 
-        try {
-            StreamObserver<String> observer = helloService.upload("/User/zhanggeng/xxx");
-            observer.onValue("aaaaaaaaaaaaaaaa");
-            observer.onValue("bbbbbbbbbbbbbbbbbbbbbb");
-            observer.onValue("cccc");
-            observer.onCompleted();
-            latch.countDown();
-        } catch (Exception e) {
-            LOGGER.error("", e);
-            latch.countDown();
+        for (int i = 0; i < 100; i++) {
+            try {
+                StreamObserver<String> observer = helloService.upload("/User/zhanggeng/xxx");
+                observer.onValue("aaaaaaaaaaaaaaaa");
+                observer.onValue("bbbbbbbbbbbbbbbbbbbbbb");
+                observer.onValue("cccc");
+//                Thread.sleep(200);
+//                observer.onCompleted();
+            } catch (Exception e) {
+                LOGGER.error("", e);
+                latch.countDown();
+            }
         }
-
+//
 //        try {
 //            StreamObserver<String> observer = helloService.upload("/User/zhanggeng/xxx");
 //            observer.onValue("aaaaaaaaaaaaaaaa");
@@ -97,7 +100,7 @@ public class StreamClientTest {
 //            LOGGER.error("", e);
 //            latch.countDown();
 //        }
-
+        System.out.println(StreamContext.getInsMapSize());
         try {
             latch.await();
         } catch (Exception e) {

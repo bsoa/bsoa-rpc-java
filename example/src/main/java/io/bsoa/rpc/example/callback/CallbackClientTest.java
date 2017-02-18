@@ -16,15 +16,13 @@
  */
 package io.bsoa.rpc.example.callback;
 
-import java.util.concurrent.CountDownLatch;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.bsoa.rpc.config.ConsumerConfig;
-import io.bsoa.rpc.example.steam.StreamHelloService;
-import io.bsoa.rpc.invoke.StreamContext;
-import io.bsoa.rpc.invoke.StreamObserver;
+import io.bsoa.rpc.invoke.Callback;
 
 /**
  * <p></p>
@@ -42,72 +40,34 @@ public class CallbackClientTest {
 
     public static void main(String[] args) throws InterruptedException {
 
-        ConsumerConfig<StreamHelloService> consumerConfig = new ConsumerConfig<StreamHelloService>()
-                .setInterfaceId(StreamHelloService.class.getName())
+        ConsumerConfig<CallbackHelloService> consumerConfig = new ConsumerConfig<CallbackHelloService>()
+                .setInterfaceId(CallbackHelloService.class.getName())
                 .setUrl("bsoa://127.0.0.1:22000")
                 .setTimeout(300000)
                 .setRegister(false);
-        StreamHelloService helloService = consumerConfig.refer();
+        CallbackHelloService helloService = consumerConfig.refer();
 
-        CountDownLatch latch = new CountDownLatch(100);
-
-//        try {
-//            String result = helloService.download("/User/zhanggeng/xxx", new StreamObserver<String>() {
-//                @Override
-//                public void onValue(String value) {
-//                    LOGGER.info("Client receive data: {}", value);
-//                }
-//
-//                @Override
-//                public void onCompleted() {
-//                    LOGGER.info("Client download over..");
-//                    latch.countDown();
-//                }
-//
-//                @Override
-//                public void onError(Throwable t) {
-//                    LOGGER.info("Client download exception", t);
-//                    latch.countDown();
-//                }
-//            });
-//            LOGGER.info(result);
-//        } catch (Exception e) {
-//            LOGGER.error("", e);
-//            latch.countDown();
-//        }
-
-        for (int i = 0; i < 100; i++) {
-            try {
-                StreamObserver<String> observer = helloService.upload("/User/zhanggeng/xxx");
-                observer.onValue("aaaaaaaaaaaaaaaa");
-                observer.onValue("bbbbbbbbbbbbbbbbbbbbbb");
-                observer.onValue("cccc");
-//                Thread.sleep(200);
-//                observer.onCompleted();
-            } catch (Exception e) {
-                LOGGER.error("", e);
-                latch.countDown();
-            }
-        }
-//
-//        try {
-//            StreamObserver<String> observer = helloService.upload("/User/zhanggeng/xxx");
-//            observer.onValue("aaaaaaaaaaaaaaaa");
-//            observer.onValue("bbbbbbbbbbbbbbbbbbbbbb");
-//            observer.onValue("cccc");
-//            observer.onCompleted();
-//            latch.countDown();
-//        } catch (Exception e) {
-//            LOGGER.error("", e);
-//            latch.countDown();
-//        }
-        System.out.println(StreamContext.getInsMapSize());
         try {
-            latch.await();
+            for (int i = 0; i < 2; i++) {
+                final String key = "callbackKey" + i;
+                helloService.register(key, new Callback<List<String>, String>() {
+                    @Override
+                    public String notify(List<String> result) {
+                        for (String s : result) {
+                            LOGGER.info("receive {} 's callback:{}", key, s);
+                        }
+                        return key + " ok!";
+                    }
+                });
+            }
         } catch (Exception e) {
-            // TODO handle exception
-        } finally {
+            LOGGER.error("", e);
+        }
 
+        try {
+            Thread.sleep(10000);
+        } catch (Exception e) {
+            LOGGER.error("", e);
         }
 
     }

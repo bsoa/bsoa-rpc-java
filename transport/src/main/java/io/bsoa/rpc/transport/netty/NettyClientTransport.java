@@ -17,6 +17,7 @@
 package io.bsoa.rpc.transport.netty;
 
 import java.net.InetSocketAddress;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -44,7 +45,7 @@ import io.bsoa.rpc.protocol.Protocol;
 import io.bsoa.rpc.protocol.ProtocolFactory;
 import io.bsoa.rpc.transport.AbstractByteBuf;
 import io.bsoa.rpc.transport.AbstractChannel;
-import io.bsoa.rpc.transport.AbstractClientTransport;
+import io.bsoa.rpc.transport.ClientTransport;
 import io.bsoa.rpc.transport.ClientTransportConfig;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
@@ -63,7 +64,7 @@ import io.netty.channel.socket.nio.NioSocketChannel;
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
 @Extension("netty4")
-public class NettyClientTransport extends AbstractClientTransport {
+public class NettyClientTransport extends ClientTransport {
 
     /**
      * slf4j Logger for this class
@@ -276,7 +277,7 @@ public class NettyClientTransport extends AbstractClientTransport {
             nettyMessageFuture = new NettyMessageFuture<>(this, message.getMessageId(), timeout);
             this.addFuture(message, nettyMessageFuture);
         }
-        Integer msgId = null;
+
         if (message instanceof RpcRequest) {
             RpcRequest request = (RpcRequest) message;
 
@@ -347,7 +348,16 @@ public class NettyClientTransport extends AbstractClientTransport {
      * Remove future when channel inactive.
      */
     public void removeFutureWhenChannelInactive() {
-        // TODO
+        LOGGER.debug("Interrupt wait of all futures : {} ", futureMap.size());
+        Exception e = new BsoaRpcException(22222, "[JSF-22112]Channel "
+                + NetUtils.channelToString(channel.getLocalAddress(), channel.getRemoteAddress())
+                + " has been closed, remove future when channel inactive");
+        for (Map.Entry<Integer, NettyMessageFuture<BaseMessage>> entry : futureMap.entrySet()) {
+            NettyMessageFuture future = entry.getValue();
+            if (!future.isDone()) {
+                future.setFailure(e);
+            }
+        }
     }
 
     @Override

@@ -39,6 +39,7 @@ import io.bsoa.rpc.common.struct.ConcurrentHashSet;
 import io.bsoa.rpc.common.struct.NamedThreadFactory;
 import io.bsoa.rpc.common.struct.ScheduledService;
 import io.bsoa.rpc.common.utils.ExceptionUtils;
+import io.bsoa.rpc.common.utils.NetUtils;
 import io.bsoa.rpc.config.ConsumerConfig;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
 import io.bsoa.rpc.ext.Extension;
@@ -562,7 +563,8 @@ public class AllConnectConnectionHolder implements ConnectionHolder {
      */
     private void printSuccess(String interfaceId, ProviderInfo providerInfo, ClientTransport transport) {
         LOGGER.info("Connect to {} provider:{} success ! The connection is "
-//                        + NetUtils.connectToString(transport.getRemoteAddress(), transport.getLocalAddress())
+                        + NetUtils.connectToString(transport.getChannel().getRemoteAddress(),
+                                transport.getChannel().getLocalAddress())
                 , interfaceId, providerInfo);
     }
 

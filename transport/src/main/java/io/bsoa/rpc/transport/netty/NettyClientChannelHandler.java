@@ -21,12 +21,12 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.bsoa.rpc.exception.BsoaRpcException;
 import io.bsoa.rpc.context.AsyncContext;
+import io.bsoa.rpc.exception.BsoaRpcException;
+import io.bsoa.rpc.invoke.CallbackTask;
 import io.bsoa.rpc.invoke.StreamTask;
 import io.bsoa.rpc.listener.ChannelListener;
 import io.bsoa.rpc.listener.NegotiatorListener;
-import io.bsoa.rpc.message.BaseMessage;
 import io.bsoa.rpc.message.HeadKey;
 import io.bsoa.rpc.message.HeartbeatResponse;
 import io.bsoa.rpc.message.NegotiatorRequest;
@@ -59,22 +59,17 @@ public class NettyClientChannelHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
-
     public void channelActive(final ChannelHandlerContext ctx) throws Exception {
         if (channelListeners != null) {
-//            CallbackUtil.getAsyncThreadPool().execute(new Runnable() {
-//                @Override
-//                public void run() {
-//                    for (ConnectListener connectListener : channelListeners) {
-//                        try {
-//                            connectListener.onConnected(ctx);
-//                        } catch (Exception e) {
-//                            LOGGER.warn("Failed to call connect listener when channel active", e);
-//                        }
-//                    }
-//                }
-//            });
-            //TODO
+            AsyncContext.getAsyncThreadPool().execute(() -> {
+                for (ChannelListener channelListener : channelListeners) {
+                    try {
+                        channelListener.onConnected(clientTransport.getChannel());
+                    } catch (Throwable e) {
+                        LOGGER.warn("Failed to call channel listener when channel active", e);
+                    }
+                }
+            });
         }
     }
 
@@ -84,26 +79,18 @@ public class NettyClientChannelHandler extends ChannelInboundHandlerAdapter {
         LOGGER.info("Channel inactive: {}", channel);
         clientTransport.removeFutureWhenChannelInactive(); // 结束已有请求
         if (channelListeners != null) {
-//            CallbackUtil.getAsyncThreadPool().execute(new Runnable() {
-//                @Override
-//                public void run() {
-//                    for (ChannelListener connectListener : channelListeners) {
-//                        try {
-//                            connectListener.onDisconnected(ctx);
-//                        } catch (Exception e) {
-//                            LOGGER.warn("Failed to call connect listener when channel inactive", e);
-//                        }
-//                    }
-//                }
-//            });
+            AsyncContext.getAsyncThreadPool().execute(() -> {
+                for (ChannelListener channelListener : channelListeners) {
+                    try {
+                        channelListener.onDisconnected(clientTransport.getChannel());
+                    } catch (Exception e) {
+                        LOGGER.warn("Failed to call channel listener when channel inactive", e);
+                    }
+                }
+            });
         }
     }
 
-    /**
-     * @param ctx
-     * @param msg
-     * @throws Exception
-     */
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         Channel channel = ctx.channel();
@@ -129,38 +116,26 @@ public class NettyClientChannelHandler extends ChannelInboundHandlerAdapter {
                 NegotiatorResponse response = (NegotiatorResponse) msg;
                 clientTransport.receiveNegotiatorResponse(response);
             }
-            // RPC请求：callback线程池处理
+            // RPC请求
             else if (msg instanceof RpcRequest) {
                 RpcRequest request = (RpcRequest) msg;
                 String callbackInsKey = (String) request.getHeadKey(HeadKey.CALLBACK_INS_KEY);
                 if (callbackInsKey != null) {
-                    // callback请求
+                    // 服务端发来的callback请求
+                    CallbackTask task = new CallbackTask(request, clientTransport.getChannel());
+                    AsyncContext.getAsyncThreadPool().execute(task);
                 }
                 String streamInsKey = (String) request.getHeadKey(HeadKey.STREAM_INS_KEY);
                 if (streamInsKey != null) {
-                    // stream请求
+                    // 服务端发来的stream请求
                     StreamTask task = new StreamTask(request, clientTransport.getChannel());
-                    AsyncContext.getAsyncThreadPool().execute(task); // 怎么保证流式的顺序？？ TODO
+                    AsyncContext.getAsyncThreadPool().execute(task);
                 }
-                // callback请求
-//            //receive the callback RpcResponse
-//            RpcResponse responseMsg = (RpcResponse) msg;
-//            if (responseMsg.getMsgHeader().getMsgType() != Constants.CALLBACK_RESPONSE_MSG) {
-//                throw new RpcException(responseMsg.getMsgHeader(), "Can not handle normal response message" +
-//                        " in server channel handler : " + responseMsg.toString());
-//            }
-//            //find the transport
-//            JSFClientTransport clientTransport = CallbackUtil.getClientTransport(channel);
-//            if (clientTransport != null) {
-//                clientTransport.receiveResponse(responseMsg);
-//            } else {
-//                LOGGER.error("no such clientTransport for channel:{}", channel);
-//                throw new RpcException(responseMsg.getMsgHeader(), "No such clientTransport");
-//            }
             }
             // RPC响应：业务线程处理
             else if (msg instanceof RpcResponse) {
                 RpcResponse response = (RpcResponse) msg;
+                // 不管是正常响应还是Callback还是Stream
                 clientTransport.receiveRpcResponse(response);
             } else {
                 LOGGER.warn("Receive unsupported message! {}", msg.getClass());
@@ -170,23 +145,19 @@ public class NettyClientChannelHandler extends ChannelInboundHandlerAdapter {
             throw e;
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
-            BaseMessage base = (BaseMessage) msg;
-            BsoaRpcException rpcException = new BsoaRpcException(22222, "打印连接信息和请求id信息");
-            throw rpcException;
+            throw new BsoaRpcException(22222, "打印连接信息和请求id信息");
         }
     }
-
 
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         LOGGER.info("event triggered:{}", evt);
     }
 
-
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, final Throwable cause) throws Exception {
         Channel channel = ctx.channel();
-        cause.printStackTrace();
+        cause.printStackTrace(); //TODO
 //        if (cause instanceof IOException) {
 //            LOGGER.warn("catch IOException at {} : {}",
 //                    NetUtils.channelToString(channel.localAddress(), channel.remoteAddress()),

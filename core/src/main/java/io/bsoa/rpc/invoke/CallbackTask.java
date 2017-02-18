@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.bsoa.rpc.common.utils.NetUtils;
+import io.bsoa.rpc.context.BsoaContext;
 import io.bsoa.rpc.exception.BsoaRpcException;
 import io.bsoa.rpc.message.HeadKey;
 import io.bsoa.rpc.message.MessageBuilder;
@@ -68,43 +69,59 @@ public class CallbackTask implements Runnable {
 
     @Override
     public void run() {
+        Integer timeout = (Integer) request.getHeadKey(HeadKey.TIMEOUT);
+        if (timeout != null && BsoaContext.now() - request.getReceiveTime() > timeout) { // 客户端已经超时的请求直接丢弃
+            LOGGER.warn("[JSF-23008]Discard request cause by timeout after receive the request: {}", request.getMessageId());
+            return;
+        }
+
         byte directionType = request.getDirectionType();
         if (directionType != MessageConstants.DIRECTION_FORWARD) {
             LOGGER.warn("CallbackEvent must be forward!");
         }
 
+        final RpcResponse response = MessageBuilder.buildRpcResponse(request);
+        Protocol protocol = ProtocolFactory.getProtocol(request.getProtocolType());
+
         String callbackInsKey = (String) request.getHeadKey(HeadKey.CALLBACK_INS_KEY);
         Callback callback = CallbackContext.getCallbackIns(callbackInsKey);
         if (callback == null) {
             LOGGER.error("Callback instance of {} is null!", callbackInsKey);
-            return;
-        }
-
-        AbstractByteBuf byteBuf = request.getByteBuf();
-        Protocol protocol = ProtocolFactory.getProtocol(request.getProtocolType());
-        final RpcResponse response = MessageBuilder.buildRpcResponse(request);
-        try {
-            protocol.decoder().decodeBody(byteBuf, request);
-            String methodName = request.getMethodName();
-            if (CallbackContext.METHOD_NOTIFY.equals(methodName)) {
-                Object ret = callback.notify(request.getArgs()[0]);
-                response.setReturnData(ret);
-            } else {
-                response.setException(new BsoaRpcException("Can not found method named \"" + methodName + "\""));
-            }
-        } catch (Exception e) {
-            LOGGER.error("Callback handler catch exception in channel "
-                    + NetUtils.channelToString(channel.getRemoteAddress(), channel.getLocalAddress())
-                    + ", error message is :" + e.getMessage(), e);
-            response.setException(new BsoaRpcException(22222, "22222"));
-        } finally {
-            if (byteBuf != null) {
-                byteBuf.release();
+            response.setException(new BsoaRpcException(22222,
+                    "Callback instance of {} is null!"));
+        } else {
+            AbstractByteBuf byteBuf = request.getByteBuf();
+            try {
+                protocol.decoder().decodeBody(byteBuf, request);
+                String methodName = request.getMethodName();
+                if (CallbackContext.METHOD_NOTIFY.equals(methodName)) {
+                    Object ret = callback.notify(request.getArgs()[0]);
+                    response.setReturnData(ret);
+                } else {
+                    response.setException(new BsoaRpcException(22222,
+                            "Can not found method named \"" + methodName + "\""));
+                }
+            } catch (Exception e) {
+                LOGGER.error("Callback handler catch exception in channel "
+                        + NetUtils.channelToString(channel.getRemoteAddress(), channel.getLocalAddress())
+                        + ", error message is :" + e.getMessage(), e);
+                response.setException(new BsoaRpcException(22222, "22222"));
+            } finally {
+                if (byteBuf != null) {
+                    byteBuf.release();
+                }
             }
         }
 
         AbstractByteBuf responseByteBuf = channel.getByteBuf();
         protocol.encoder().encodeAll(response, responseByteBuf);
-        channel.writeAndFlush(responseByteBuf);
+
+        if (timeout != null && BsoaContext.now() - request.getReceiveTime() > timeout) { // 客户端已经超时的响应直接丢弃
+            LOGGER.warn("[JSF-23008]Discard send response cause by " +
+                    "timeout after receive the request: {}", request.getMessageId());
+            responseByteBuf.release();
+        } else {
+            channel.writeAndFlush(responseByteBuf);
+        }
     }
 }

@@ -16,8 +16,10 @@
  */
 package io.bsoa.rpc.listener;
 
+import io.bsoa.rpc.transport.AbstractChannel;
+
 /**
- *
+ * Listener of channel event
  *
  * Created by zhangg on 2016/7/14 23:02.
  *
@@ -25,7 +27,17 @@ package io.bsoa.rpc.listener;
  */
 public interface ChannelListener {
 
-    public void onConnected();
+    /**
+     * Handle connect event on channel active
+     *
+     * @param channel Channel
+     */
+    public void onConnected(AbstractChannel channel);
 
-    public void onDisconnected();
+    /**
+     * Handle disconnect event on channel closed
+     *
+     * @param channel Channel
+     */
+    public void onDisconnected(AbstractChannel channel);
 }

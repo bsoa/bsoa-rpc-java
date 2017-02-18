@@ -16,11 +16,15 @@
  */
 package io.bsoa.rpc.example.callback;
 
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.bsoa.rpc.common.utils.CommonUtils;
 import io.bsoa.rpc.invoke.Callback;
@@ -34,24 +38,40 @@ import io.bsoa.rpc.invoke.Callback;
  */
 public class CallbackHelloServiceImpl implements CallbackHelloService {
 
-    static Map<String, Callback<String, List<String>>> callbacks = new HashMap<>();
+    /**
+     * slf4j Logger for this class
+     */
+    private final static Logger LOGGER = LoggerFactory.getLogger(CallbackHelloServiceImpl.class);
 
+
+    private static ConcurrentHashMap<String, Callback<List<String>, String>> callbacks = new ConcurrentHashMap<>();
 
     @Override
-    public boolean register(String name, Callback<String, List<String>> callback) {
+    public boolean register(String name, Callback<List<String>, String> callback) {
+        LOGGER.info("registry callback, key is {}", name);
         callbacks.put(name, callback);
         return true;
     }
 
     static {
-        Executors.newScheduledThreadPool(1).scheduleAtFixedRate((Runnable) () -> {
+        Executors.newScheduledThreadPool(1).scheduleAtFixedRate(() -> {
             try {
-                if(CommonUtils.isNotEmpty(callbacks)){
+                if (CommonUtils.isNotEmpty(callbacks)) {
+                    for (Map.Entry<String, Callback<List<String>, String>> entry : callbacks.entrySet()) {
+                        try {
+                            String callResult = entry.getValue().notify(Arrays.asList("111", "222"));
+                            LOGGER.info("callback client to {}, result is {}", entry.getKey(), callResult);
+                        } catch (Exception e) {
+                            LOGGER.error("Catch exception when callback, remove callback by key: "
+                                    + entry.getKey(), e);
+                            callbacks.remove(entry.getKey());
+                        }
+                    }
                 }
             } catch (Throwable e) {
-
+                LOGGER.error("",e);
             }
-        }, 1000,1000, TimeUnit.SECONDS);
+        }, 1, 1, TimeUnit.SECONDS);
 
     }
 

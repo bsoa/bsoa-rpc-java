@@ -44,11 +44,9 @@ public class ServerTest {
 //        .setHost("0.0.0.0")
 //        .setPort(22222)
         .setDaemon(false);
-        //serverConfig.start();
 
         ProviderConfig<HelloService> providerConfig = new ProviderConfig<HelloService>()
                 .setInterfaceId(HelloService.class.getName())
-                .setRegister(false)
                 .setRef(new HelloServiceImpl())
                 .setServer(serverConfig)
                 .setRegister(false);

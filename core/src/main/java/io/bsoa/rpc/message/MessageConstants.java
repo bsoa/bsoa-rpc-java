@@ -51,17 +51,13 @@ public class MessageConstants {
     public static final byte NEGOTIATOR_RESPONSE = 6;
 
     /**
-     * 调用方向：正向（默认），客户端到服务端
+     * 调用方向：双向，需要对方回应
      */
     public static final byte DIRECTION_FORWARD = 0;
     /**
      * 调用方向：单向，无需对方回应
      */
     public static final byte DIRECTION_ONEWAY = 1;
-    /**
-     * 调用方向：反向：服务端到客户端
-     */
-    public static final byte DIRECTION_CALLBACK = 2;
 
     /**
      * 默认无协议
