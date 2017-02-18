@@ -22,6 +22,7 @@ import io.bsoa.rpc.client.ProviderInfo;
 import io.bsoa.rpc.config.ConsumerConfig;
 import io.bsoa.rpc.config.ProviderConfig;
 import io.bsoa.rpc.config.RegistryConfig;
+import io.bsoa.rpc.ext.Extensible;
 import io.bsoa.rpc.listener.ConfigListener;
 import io.bsoa.rpc.listener.ProviderInfoListener;
 
@@ -30,6 +31,7 @@ import io.bsoa.rpc.listener.ProviderInfoListener;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
+@Extensible(singleton = false)
 public interface Registry {
 
     /**
@@ -82,7 +84,7 @@ public interface Registry {
      *
      * @param config Consumer配置
      */
-    public void unsubscribe(ConsumerConfig config);
+    public void unSubscribe(ConsumerConfig config);
 
     /**
      * 反订阅服务调用者相关配置

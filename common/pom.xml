@@ -11,7 +11,7 @@
     </parent>
 
     <groupId>io.bsoa.rpc</groupId>
-    <artifactId>common</artifactId>
+    <artifactId>bsoa-rpc-common</artifactId>
     <version>${parent.version}</version>
 
     <name>bsoa-rpc-common</name>

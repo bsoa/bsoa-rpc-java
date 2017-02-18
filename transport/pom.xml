@@ -11,7 +11,7 @@
     </parent>
 
     <groupId>io.bsoa.rpc</groupId>
-    <artifactId>transport</artifactId>
+    <artifactId>bsoa-rpc-transport</artifactId>
     <version>${parent.version}</version>
 
     <name>bsoa-rpc-transport</name>
@@ -19,7 +19,7 @@
     <dependencies>
         <dependency>
             <groupId>io.bsoa.rpc</groupId>
-            <artifactId>core</artifactId>
+            <artifactId>bsoa-rpc-core</artifactId>
             <version>${parent.version}</version>
         </dependency>
 

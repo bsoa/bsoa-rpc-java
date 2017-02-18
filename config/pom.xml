@@ -11,7 +11,7 @@
     </parent>
 
     <groupId>io.bsoa.rpc</groupId>
-    <artifactId>config</artifactId>
+    <artifactId>bsoa-rpc-config</artifactId>
     <version>${parent.version}</version>
 
     <name>bsoa-rpc-config</name>
@@ -20,7 +20,7 @@
 
         <dependency>
             <groupId>io.bsoa.rpc</groupId>
-            <artifactId>core</artifactId>
+            <artifactId>bsoa-rpc-core</artifactId>
             <version>${parent.version}</version>
         </dependency>
 

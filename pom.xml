@@ -55,6 +55,7 @@
         <module>proxy</module>
         <module>server</module>
         <module>transport</module>
+        <module>registry</module>
         <module>all</module>
         <module>example</module>
     </modules>
@@ -68,9 +69,10 @@
         <resteasy_version>3.0.19.Final</resteasy_version>
         <cxf_version>2.6.1</cxf_version>
         <jetty_version>7.5.4.v20111024</jetty_version>
+        <curator_version>2.9.1</curator_version>
         <!-- serialization -->
         <thrift_version>0.9.2</thrift_version>
-        <protobuf_version>3.0.0-beta-1</protobuf_version>
+        <protobuf_version>3.0.1</protobuf_version>
         <jackson_version>2.7.8</jackson_version>
         <!-- Log libs -->
         <log4j_version>2.4.1</log4j_version>
@@ -363,6 +365,12 @@
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
                 <version>${jackson_version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.curator</groupId>
+                <artifactId>curator-recipes</artifactId>
+                <version>${curator_version}</version>
             </dependency>
 
             <dependency>

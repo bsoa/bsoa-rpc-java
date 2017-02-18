@@ -9,7 +9,7 @@
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>filter</artifactId>
+    <artifactId>bsoa-rpc-filter</artifactId>
     <version>${parent.version}</version>
 
     <name>bsoa-rpc-filter</name>
@@ -17,7 +17,7 @@
     <dependencies>
         <dependency>
             <groupId>io.bsoa.rpc</groupId>
-            <artifactId>core</artifactId>
+            <artifactId>bsoa-rpc-core</artifactId>
             <version>${parent.version}</version>
         </dependency>
 

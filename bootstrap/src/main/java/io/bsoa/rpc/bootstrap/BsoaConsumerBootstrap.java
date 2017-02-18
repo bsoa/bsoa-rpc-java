@@ -269,7 +269,7 @@ public class BsoaConsumerBootstrap<T> extends ConsumerBootstrap<T> {
                 for (RegistryConfig registryConfig : registryConfigs) {
                     Registry registry = RegistryFactory.getRegistry(registryConfig);
                     try {
-                        registry.unsubscribe(consumerConfig);
+                        registry.unSubscribe(consumerConfig);
                     } catch (Exception e) {
                         LOGGER.warn("Catch exception when unsubscribe from registry: " + registryConfig.getId()
                                 + ", but you can ignore if it's called by JVM shutdown hook", e);

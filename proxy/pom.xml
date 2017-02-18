@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.bsoa.rpc</groupId>
-    <artifactId>proxy</artifactId>
+    <artifactId>bsoa-rpc-proxy</artifactId>
     <version>${parent.version}</version>
 
     <name>bsoa-rpc-proxy</name>
@@ -18,7 +18,7 @@
     <dependencies>
         <dependency>
             <groupId>io.bsoa.rpc</groupId>
-            <artifactId>core</artifactId>
+            <artifactId>bsoa-rpc-core</artifactId>
             <version>${parent.version}</version>
         </dependency>
 
