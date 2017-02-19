@@ -67,7 +67,7 @@ public class BsoaServerHandler implements ServerHandler {
             instanceMap.remove(instanceName);
 //            InvokerHolder.invalidateInvoker(instanceName);
         } else {
-//            throw new RuntimeException("[JSF-23005]No such invoker key when unregister processor:" + instanceName);
+//            throw new RuntimeException("[JSF-23005]No such invoker key when unRegister processor:" + instanceName);
         }
     }
 
@@ -83,10 +83,9 @@ public class BsoaServerHandler implements ServerHandler {
 //            rpcResponse.setReturnData("hello, this is response!");
 //            channel.writeAndFlush(rpcResponse);
             String streamInsKey = (String) request.getHeadKey(HeadKey.STREAM_INS_KEY);
-            if (streamInsKey != null) {
-                // stream请求
+            if (streamInsKey != null) { // 服务端发给客户的stream请求
                 StreamTask task = new StreamTask(request, channel);
-                bizThreadPool.submit(task); // 怎么保证流式的顺序？？ TODO
+                bizThreadPool.submit(task);
             } else {
                 BsoaTask task = new BsoaTask(this, request, channel, BsoaConstants.DEFAULT_METHOD_PRIORITY);
                 bizThreadPool.submit(task);

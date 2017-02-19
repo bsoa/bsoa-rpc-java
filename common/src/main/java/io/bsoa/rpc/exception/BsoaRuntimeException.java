@@ -33,10 +33,6 @@ public final class BsoaRuntimeException extends RuntimeException {
 
     }
 
-    private BsoaRuntimeException(String message) {
-        super(message);
-    }
-
     public BsoaRuntimeException(int code, String message) {
         super(message);
         this.code = code;

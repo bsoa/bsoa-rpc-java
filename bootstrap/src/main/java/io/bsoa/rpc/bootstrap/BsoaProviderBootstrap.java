@@ -244,7 +244,7 @@ public class BsoaProviderBootstrap<T> extends ProviderBootstrap<T> {
                 try {
                     server.unRegisterProcessor(providerConfig, true);
                 } catch (Exception e) {
-                    LOGGER.warn("Catch exception when unregister processor to server: " + serverConfig.getId()
+                    LOGGER.warn("Catch exception when unRegister processor to server: " + serverConfig.getId()
                             + ", but you can ignore if it's called by JVM shutdown hook", e);
                 }
             }
@@ -299,9 +299,9 @@ public class BsoaProviderBootstrap<T> extends ProviderBootstrap<T> {
                 for (RegistryConfig registryConfig : registryConfigs) {
                     Registry registry = RegistryFactory.getRegistry(registryConfig);
                     try {
-                        registry.unregister(providerConfig);
+                        registry.unRegister(providerConfig);
                     } catch (Exception e) {
-                        LOGGER.warn("Catch exception when unregister from registry: " + registryConfig.getId()
+                        LOGGER.warn("Catch exception when unRegister from registry: " + registryConfig.getId()
                                 + ", but you can ignore if it's called by JVM shutdown hook", e);
                     }
                 }

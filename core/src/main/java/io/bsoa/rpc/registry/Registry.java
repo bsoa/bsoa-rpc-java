@@ -59,7 +59,7 @@ public interface Registry {
      *
      * @param config Provider配置
      */
-    public void unregister(ProviderConfig config);
+    public void unRegister(ProviderConfig config);
 
     /**
      * 反注册服务提供者

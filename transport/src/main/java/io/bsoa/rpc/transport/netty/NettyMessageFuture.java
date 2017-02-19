@@ -91,6 +91,9 @@ public class NettyMessageFuture<V> implements ResponseFuture<V> {
      * 是否同步调用，默认是
      */
     private boolean asyncCall;
+    /**
+     * 返回值是否为流式
+     */
     private boolean streamReturn;
 
     public NettyMessageFuture(ClientTransport clientTransport, int msgId, int timeout) {
@@ -214,7 +217,7 @@ public class NettyMessageFuture<V> implements ResponseFuture<V> {
                     }
                 }
             }
-            if(isStreamReturn() && msg instanceof RpcResponse){
+            if (isStreamReturn() && msg instanceof RpcResponse) {
                 StreamUtils.preMsgReceive((RpcResponse) msg, clientTransport);
             }
         }

@@ -19,6 +19,8 @@ package io.bsoa.rpc.registry.zk;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.framework.recipes.cache.ChildData;
+import org.apache.curator.framework.recipes.cache.TreeCache;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 
 /**
@@ -37,11 +39,12 @@ public class CuratorFrameworkTest {
                 .connectionTimeoutMs(30000)
                 .canBeReadOnly(false)
                 .retryPolicy(retryPolicy)
-                //.namespace(namespace)
+                //.namespace(namespace)  // client操作的默认根路径
                 .defaultData(null)
                 .build();
         client.start();
 
+        String path = "/my/path";
 //        create()增
 //        delete(): 删
 //        checkExists(): 判断是否存在
@@ -60,9 +63,69 @@ public class CuratorFrameworkTest {
 //            System.out.println(result.getForPath() + " - " + result.getType());
 //        }
 
-        client.create().creatingParentContainersIfNeeded().forPath("/my/path", "xxx".getBytes());
-        byte[] bs =  client.getData().forPath("/my/path");
-        System.out.println(new String(bs));
+//        client.create().creatingParentContainersIfNeeded().withMode(CreateMode.EPHEMERAL)
+//                .forPath("/my/path", "xxx".getBytes());
+//        byte[] bs =  client.getData().forPath("/my/path");
+//        System.out.println(new String(bs));
+
+      /*  // 监听子节点的增加删除，子节点数据的变更
+        PathChildrenCache pathChildrenCache = new PathChildrenCache(client, path, true);
+        pathChildrenCache.getListenable().addListener((client1, event) -> {
+            ChildData data = event.getData();
+            if (data == null) {
+                System.out.println("Receive event: "
+                        + "type=[" + event.getType() + "]");
+            } else {
+                System.out.println("Receive event: "
+                        + "type=[" + event.getType() + "]"
+                        + ", path=[" + data.getPath() + "]"
+                        + ", data=[" + new String(data.getData()) + "]"
+                        + ", stat=[" + data.getStat() + "]");
+            }
+        });
+//        watcher.start(PathChildrenCache.StartMode.NORMAL);// 历史数据触发事件，CurrentData为空
+        pathChildrenCache.start(PathChildrenCache.StartMode.BUILD_INITIAL_CACHE);// 历史数据不触发事件，而是初始化到CurrentData
+//        watcher.start(PathChildrenCache.StartMode.POST_INITIALIZED_EVENT);// 历史数据触发事件，CurrentData为空，最后会收到一个加载完毕事件
+        System.out.println("Register zk watcher successfully!");
+
+        List<ChildData> datas = pathChildrenCache.getCurrentData();
+        System.out.println("datas.size:" + datas.size());
+        for (ChildData data : datas) {
+            System.out.println("current data:" + data);
+        }*/
+
+
+        // 监听当前节点的值变化
+        /*NodeCache nodeCache = new NodeCache(client, path);
+        nodeCache.getListenable().addListener(() -> {
+            System.out.println(nodeCache.getCurrentData());
+        });
+//        nodeCache.start(false); // 不初始化，走事件
+        nodeCache.start(true); // 走初始化，不走事件
+        ChildData nodeCacheData = nodeCache.getCurrentData();
+        System.out.println("current data:" + nodeCacheData);*/
+
+        // 监听当前节点的值变化，以及子节点，以及子节点的子节点
+        TreeCache treeCache = new TreeCache(client, path);
+        treeCache.getListenable().addListener((client1, event) -> {
+            ChildData data = event.getData();
+            if (data == null) {
+                System.out.println("Receive event: "
+                        + "type=[" + event.getType() + "]");
+            } else {
+                System.out.println("Receive event: "
+                        + "type=[" + event.getType() + "]"
+                        + ", path=[" + data.getPath() + "]"
+                        + ", data=[" + data.getData() + "]"
+                        + ", stat=[" + data.getStat() + "]");
+            }
+        });
+        treeCache.start();// 只有一种模式 PathChildrenCache.StartMode.POST_INITIALIZED_EVENT
+        // 历史数据触发事件，CurrentData为空，最后会收到一个加载完毕事件
+        ChildData treeCacheData = treeCache.getCurrentData(path);
+        System.out.println("current data:" + treeCacheData);
+
+        Thread.sleep(Integer.MAX_VALUE);
 
         client.close();
     }

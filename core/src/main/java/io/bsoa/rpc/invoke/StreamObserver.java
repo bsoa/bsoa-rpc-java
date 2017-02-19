@@ -29,19 +29,19 @@ import javax.annotation.concurrent.NotThreadSafe;
 public interface StreamObserver<V> {
 
     /**
-     * 传输一断流对象
+     * 传输一段流对象（可调用多次）
      *
      * @param value 值
      */
     public void onValue(V value);
 
     /**
-     * 传输完毕
+     * 传输完毕（和onError方法两者只可调一次）
      */
     public void onCompleted();
 
     /**
-     * 传输出现异常，需要终止等
+     * 传输出现异常，需要终止等（和onCompleted方法两者只可调一次）
      *
      * @param t 异常
      */

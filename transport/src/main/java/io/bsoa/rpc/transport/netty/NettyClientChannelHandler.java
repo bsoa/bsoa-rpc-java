@@ -125,7 +125,7 @@ public class NettyClientChannelHandler extends ChannelInboundHandlerAdapter {
                     AsyncContext.getAsyncThreadPool().execute(task);
                 }
                 String streamInsKey = (String) request.getHeadKey(HeadKey.STREAM_INS_KEY);
-                if (streamInsKey != null) {  // 服务端发来的stream请求
+                if (streamInsKey != null) {  // 服务端发给客户的stream请求
                     StreamTask task = new StreamTask(request, clientTransport.getChannel());
                     AsyncContext.getAsyncThreadPool().execute(task);
                 }
