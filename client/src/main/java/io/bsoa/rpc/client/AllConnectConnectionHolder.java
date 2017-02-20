@@ -41,6 +41,7 @@ import io.bsoa.rpc.common.struct.ScheduledService;
 import io.bsoa.rpc.common.utils.ExceptionUtils;
 import io.bsoa.rpc.common.utils.NetUtils;
 import io.bsoa.rpc.config.ConsumerConfig;
+import io.bsoa.rpc.context.AsyncContext;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
 import io.bsoa.rpc.ext.Extension;
 import io.bsoa.rpc.listener.ConsumerStateListener;
@@ -241,20 +242,19 @@ public class AllConnectConnectionHolder implements ConnectionHolder {
     public void notifyStateChangeToUnavailable() {
         final List<ConsumerStateListener> onprepear = consumerConfig.getOnAvailable();
         if (onprepear != null) {
-//            TODO
-//            CallbackUtil.getAsyncThreadPool().execute(new Runnable() {
-//                @Override
-//                public void run() {
-//                    // 状态变化通知监听器
-//                    for (ConsumerStateListener listener : onprepear) {
-//                        try {
-//                            listener.onUnavailable(consumerConfig.getProxyIns());
-//                        } catch (Exception e) {
-//                            LOGGER.error("Failed to notify consumer state listener when state change to unavailable");
-//                        }
-//                    }
-//                }
-//            });
+            AsyncContext.getAsyncThreadPool().execute(new Runnable() {
+                @Override
+                public void run() {
+                    // 状态变化通知监听器
+                    for (ConsumerStateListener listener : onprepear) {
+                        try {
+                            listener.onUnavailable(consumerConfig.getBootstrap().getProxyIns());
+                        } catch (Exception e) {
+                            LOGGER.error("Failed to notify consumer state listener when state change to unavailable");
+                        }
+                    }
+                }
+            });
         }
     }
 
@@ -267,20 +267,19 @@ public class AllConnectConnectionHolder implements ConnectionHolder {
     public void notifyStateChangeToAvailable() {
         final List<ConsumerStateListener> onprepear = consumerConfig.getOnAvailable();
         if (onprepear != null) {
-            //            TODO
-//            CallbackUtil.getAsyncThreadPool().execute(new Runnable() {
-//                @Override
-//                public void run() {
-//                    // 状态变化通知监听器
-//                    for (ConsumerStateListener listener : onprepear) {
-//                        try {
-//                            listener.onAvailable(consumerConfig.getProxyIns());
-//                        } catch (Exception e) {
-//                            LOGGER.error("Failed to notify consumer state listener when state change to available");
-//                        }
-//                    }
-//                }
-//            });
+            AsyncContext.getAsyncThreadPool().execute(new Runnable() {
+                @Override
+                public void run() {
+                    // 状态变化通知监听器
+                    for (ConsumerStateListener listener : onprepear) {
+                        try {
+                            listener.onAvailable(consumerConfig.getBootstrap().getProxyIns());
+                        } catch (Exception e) {
+                            LOGGER.error("Failed to notify consumer state listener when state change to available");
+                        }
+                    }
+                }
+            });
         }
     }
 
@@ -877,6 +876,4 @@ public class AllConnectConnectionHolder implements ConnectionHolder {
             hbThread = null;
         }
     }
-
-
 }

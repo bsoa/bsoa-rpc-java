@@ -18,6 +18,8 @@ package io.bsoa.rpc.protocol;
 import io.bsoa.rpc.ext.Extensible;
 
 /**
+ * 协议：包括基本信息，协商接口，编码器，解码器
+ *
  * Created by zhangg on 16-6-7.
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
@@ -25,9 +27,31 @@ import io.bsoa.rpc.ext.Extensible;
 @Extensible(coded = true)
 public interface Protocol {
 
+    /**
+     * 协议基本信息
+     *
+     * @return ProtocolInfo
+     */
     public ProtocolInfo protocolInfo();
 
+    /**
+     * 协议编码器
+     *
+     * @return ProtocolEncoder
+     */
     public ProtocolEncoder encoder();
 
+    /**
+     * 协议解码器
+     *
+     * @return ProtocolEncoder
+     */
     public ProtocolDecoder decoder();
+
+    /**
+     * 协议协商器
+     *
+     * @return ProtocolEncoder
+     */
+    public ProtocolNegotiator negotiator();
 }

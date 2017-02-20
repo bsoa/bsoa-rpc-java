@@ -49,7 +49,7 @@ public abstract class ProtocolInfo {
     protected final byte code;
 
     /**
-     *
+     * 协议底层通讯协议 是tcp还是udp还是http等
      */
     protected final byte netProtocol;
 
@@ -64,6 +64,7 @@ public abstract class ProtocolInfo {
      * @param name        the name
      * @param code        the code
      * @param lengthFixed the length fixed
+     * @param netProtocol the net protocol
      */
     public ProtocolInfo(String name, byte code, boolean lengthFixed, byte netProtocol) {
         this.name = name;

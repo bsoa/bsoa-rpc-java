@@ -44,7 +44,7 @@ public class ServerTransportTest {
         ServerTransportConfig config = new ServerTransportConfig();
         config.setPort(22222);
         config.setDaemon(false);
-        config.setNegotiatorListener(negotiatorRequest -> {
+        config.setNegotiationListener(negotiatorRequest -> {
             LOGGER.info(negotiatorRequest.getCmd());
             LOGGER.info(negotiatorRequest.getCmd());
 

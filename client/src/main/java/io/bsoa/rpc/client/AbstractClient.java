@@ -364,7 +364,7 @@ public abstract class AbstractClient extends Client {
             AsyncContext.getAsyncThreadPool().execute(new Runnable() {
                 @Override
                 public void run() {
-                    // 状态变化通知监听器
+                    // 状态变化通知监听器 TODO
                     for (ConsumerStateListener listener : onprepear) {
                         try {
                             listener.onUnavailable(consumerBootstrap.getProxyIns());
@@ -389,7 +389,7 @@ public abstract class AbstractClient extends Client {
             AsyncContext.getAsyncThreadPool().execute(new Runnable() {
                 @Override
                 public void run() {
-                    // 状态变化通知监听器
+                    // 状态变化通知监听器 TODO
                     for (ConsumerStateListener listener : onprepear) {
                         try {
                             listener.onAvailable(consumerBootstrap.getProxyIns());
@@ -596,6 +596,10 @@ public abstract class AbstractClient extends Client {
     private BsoaRpcException noAliveProviderException(String s, Collection<ProviderInfo> providerInfos) {
         return new BsoaRpcException(22222, "No Alive Provider");
     }
+    protected BsoaRpcException noAliveProvider(String key, String IP) {
+        // TODO
+        return new BsoaRpcException(22222, "No Alive Provider");
+    }
 
     /**
      * 得到provider得到连接
@@ -674,11 +678,6 @@ public abstract class AbstractClient extends Client {
             }
         }
         connectionHolder.destroy();
-    }
-
-    protected BsoaRpcException noAliveProvider(String key, String IP) {
-        // TODO
-        return new BsoaRpcException(22222, "No Alive Provider");
     }
 
     /**

@@ -124,4 +124,11 @@ public interface ConnectionHolder {
      */
     public void destroy();
 
+    /**
+     *
+     * @param providerInfo
+     * @param clientTransport
+     */
+    public default void handshake(ProviderInfo providerInfo, ClientTransport clientTransport) {};
+
 }

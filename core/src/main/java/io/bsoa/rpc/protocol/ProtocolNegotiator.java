@@ -14,25 +14,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.bsoa.rpc.listener;
+package io.bsoa.rpc.protocol;
 
-import io.bsoa.rpc.message.NegotiatorRequest;
-import io.bsoa.rpc.message.NegotiatorResponse;
+import io.bsoa.rpc.client.ProviderInfo;
+import io.bsoa.rpc.ext.Extensible;
+import io.bsoa.rpc.listener.NegotiationListener;
+import io.bsoa.rpc.transport.ClientTransport;
 
 /**
- * <p></p>
+ * <p>协议谈判</p>
  * <p>
- * Created by zhangg on 2016/12/22 22:43. <br/>
+ * Created by zhangg on 2017/2/20 20:56. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public interface NegotiatorListener {
+@Extensible
+public interface ProtocolNegotiator {
 
     /**
-     * 处理握手请求（服务端和客户端都可以互发）
+     * 握手操作
      *
-     * @param negotiatorRequest 协商请求
-     * @return 协商响应
+     * @param providerInfo
+     * @param clientTransport
+     * @return
      */
-    NegotiatorResponse handshake(NegotiatorRequest negotiatorRequest);
+    public boolean handshake(ProviderInfo providerInfo, ClientTransport clientTransport);
+
+    /**
+     * 监听器
+     *
+     * @param negotiationListener
+     * @return
+     */
+    public boolean addListener(NegotiationListener negotiationListener);
 }

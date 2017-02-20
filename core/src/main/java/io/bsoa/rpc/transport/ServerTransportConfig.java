@@ -22,7 +22,7 @@ import java.util.Map;
 
 import io.bsoa.rpc.common.BsoaOptions;
 import io.bsoa.rpc.listener.ChannelListener;
-import io.bsoa.rpc.listener.NegotiatorListener;
+import io.bsoa.rpc.listener.NegotiationListener;
 import io.bsoa.rpc.server.ServerHandler;
 
 import static io.bsoa.rpc.common.BsoaConfigs.*;
@@ -73,7 +73,7 @@ public class ServerTransportConfig {
 
     private List<ChannelListener> channelListeners;
     private ServerHandler serverHandler;
-    private NegotiatorListener negotiatorListener;
+    private NegotiationListener negotiationListener;
 
 //    private boolean printMessage = false; // 是否debug模式打印消息体
 
@@ -288,12 +288,12 @@ public class ServerTransportConfig {
         this.channelListeners = channelListeners;
     }
 
-    public NegotiatorListener getNegotiatorListener() {
-        return negotiatorListener;
+    public NegotiationListener getNegotiationListener() {
+        return negotiationListener;
     }
 
-    public void setNegotiatorListener(NegotiatorListener negotiatorListener) {
-        this.negotiatorListener = negotiatorListener;
+    public void setNegotiationListener(NegotiationListener negotiationListener) {
+        this.negotiationListener = negotiationListener;
     }
 
     public ServerHandler getServerHandler() {

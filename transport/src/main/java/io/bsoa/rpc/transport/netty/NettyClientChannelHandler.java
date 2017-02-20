@@ -26,7 +26,7 @@ import io.bsoa.rpc.exception.BsoaRpcException;
 import io.bsoa.rpc.invoke.CallbackTask;
 import io.bsoa.rpc.invoke.StreamTask;
 import io.bsoa.rpc.listener.ChannelListener;
-import io.bsoa.rpc.listener.NegotiatorListener;
+import io.bsoa.rpc.listener.NegotiationListener;
 import io.bsoa.rpc.message.HeadKey;
 import io.bsoa.rpc.message.HeartbeatResponse;
 import io.bsoa.rpc.message.NegotiatorRequest;
@@ -103,7 +103,7 @@ public class NettyClientChannelHandler extends ChannelInboundHandlerAdapter {
             // 协商请求：IO线程处理
             else if (msg instanceof NegotiatorRequest) {
                 NegotiatorRequest request = (NegotiatorRequest) msg;
-                NegotiatorListener listener = clientTransport.getConfig().getNegotiatorListener();
+                NegotiationListener listener = clientTransport.getConfig().getNegotiationListener();
                 if (listener == null) {
                     LOGGER.warn("Has no NegotiatorListener in client transport");
                 } else {
