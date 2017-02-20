@@ -34,17 +34,17 @@ public interface ProtocolNegotiator {
     /**
      * 握手操作
      *
-     * @param providerInfo
-     * @param clientTransport
-     * @return
+     * @param providerInfo    服务提供者信息
+     * @param clientTransport 和服务提供者的长连接
+     * @return 握手言和
      */
     public boolean handshake(ProviderInfo providerInfo, ClientTransport clientTransport);
 
     /**
-     * 监听器
+     * 设置监听器
      *
-     * @param negotiationListener
+     * @param negotiationListener 谈判内容监听器
      * @return
      */
-    public boolean addListener(NegotiationListener negotiationListener);
+    public void addListener(NegotiationListener negotiationListener);
 }

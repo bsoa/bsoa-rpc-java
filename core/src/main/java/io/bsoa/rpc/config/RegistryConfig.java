@@ -361,7 +361,7 @@ public class RegistryConfig extends AbstractIdConfig implements Serializable {
      * Sets parameters.
      *
      * @param parameters the parameters
-     * @return the parameters
+     * @return the RegistryConfig
      */
     public RegistryConfig setParameters(Map<String, String> parameters) {
         this.parameters = parameters;
@@ -373,12 +373,14 @@ public class RegistryConfig extends AbstractIdConfig implements Serializable {
      *
      * @param key   the key
      * @param value the value
+     * @return the RegistryConfig
      */
-    public void setParameter(String key, String value) {
+    public RegistryConfig setParameter(String key, String value) {
         if (parameters == null) {
             parameters = new ConcurrentHashMap<String, String>();
         }
         parameters.put(key, value);
+        return this;
     }
 
     /**

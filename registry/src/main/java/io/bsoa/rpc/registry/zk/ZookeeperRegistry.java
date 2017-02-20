@@ -17,11 +17,13 @@
 package io.bsoa.rpc.registry.zk;
 
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.imps.CuratorFrameworkState;
+import org.apache.curator.framework.recipes.cache.PathChildrenCache;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
 import org.slf4j.Logger;
@@ -40,7 +42,31 @@ import io.bsoa.rpc.listener.ProviderInfoListener;
 import io.bsoa.rpc.registry.Registry;
 
 /**
- * <p>简单的Zookeeper注册中心</p>
+ * <p>简单的Zookeeper注册中心,具有如下特性：<br>
+ * 1.可以设置优先读取远程，还是优先读取本地备份文件<br>
+ * 2.如果zk不可用，自动读取本地备份文件<br>
+ * 3.可以设置使用临时节点还是永久节点<br>
+ * 4.断线了会自动重连，并且自动recover数据<br><br>
+ * <pre>
+ *  在zookeeper上存放的数据结构为：
+ *  -$rootPath (根路径)
+ *         └--bsoa
+ *             |--io.bsoa.rpc.example.HelloService （服务）
+ *             |       |-providers （服务提供者列表）
+ *             |       |     |--bsoa://192.168.1.100:22000?xxx=yyy [1]
+ *             |       |     |--bsoa://192.168.1.110:22000?xxx=yyy [1]
+ *             |       |     └--bsoa://192.168.1.120?xxx=yyy [1]
+ *             |       |-consumers （服务调用者列表）
+ *             |       |     |--bsoa://192.168.3.100?xxx=yyy []
+ *             |       |     |--bsoa://192.168.3.110?xxx=yyy []
+ *             |       |     └--bsoa://192.168.3.120?xxx=yyy []
+ *             |       └-configs (接口级配置）
+ *             |            |--invoke.blacklist ["xxxx"]
+ *             |            └--monitor.open ["true"]
+ *             |--io.bsoa.rpc.example.EchoService （下一个服务）
+ *             | ......
+ *  </pre>
+ * </p>
  * <p>
  * Created by zhangg on 2017/2/18 17:32. <br/>
  *
@@ -99,6 +125,11 @@ public class ZookeeperRegistry implements Registry {
      */
     private boolean ephemeralNode;
 
+    /**
+     * 配置项观察者
+     */
+    private ZookeeperConfigObserver configObserver;
+
     @Override
     public void init(RegistryConfig registryConfig) {
         String address = registryConfig.getAddress(); // xxx:2181,yyy:2181/path1/paht2
@@ -106,17 +137,25 @@ public class ZookeeperRegistry implements Registry {
         if (idx > 0) {
             address = address.substring(idx);
             rootPath = address.substring(idx);
-            if (rootPath.endsWith("/")) {
+            if (!rootPath.endsWith("/")) {
                 rootPath += "/"; // 保证以"/"结尾
             }
         } else {
             rootPath = "/";
         }
+        configObserver = new ZookeeperConfigObserver();
         preferLocalFile = CommonUtils.isTrue(registryConfig.getParameter(PARAM_PREFER_LOCAL_FILE));
         ephemeralNode = CommonUtils.isTrue(registryConfig.getParameter(PARAM_CREATE_EPHEMERAL));
         LOGGER.info("Init ZookeeperRegistry with address {}, root path is {}.", address, rootPath);
         RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
-        client = CuratorFrameworkFactory.newClient(address, retryPolicy);
+        client = CuratorFrameworkFactory.builder()
+                .connectString(address)
+                .sessionTimeoutMs(registryConfig.getConnectTimeout() * 3)
+                .connectionTimeoutMs(registryConfig.getConnectTimeout())
+                .canBeReadOnly(false)
+                .retryPolicy(retryPolicy)
+                .defaultData(null)
+                .build();
     }
 
     @Override
@@ -128,6 +167,21 @@ public class ZookeeperRegistry implements Registry {
         }
         return client.getState() == CuratorFrameworkState.STARTED;
     }
+
+    @Override
+    public void destroy() {
+        if (client != null && client.getState() == CuratorFrameworkState.STARTED) {
+            client.close();
+        }
+    }
+
+    /**
+     * 接口配置{接口配置路径：PathChildrenCache} <br>
+     * 例如：{/bsoa/io.bsoa.rpc.example/configs ： PathChildrenCache }
+     *
+     */
+    private static final ConcurrentHashMap<String, PathChildrenCache> INTERFACE_CONFIG_CACHE
+            = new ConcurrentHashMap<>();
 
     @Override
     public void register(ProviderConfig config, ConfigListener listener) {
@@ -151,14 +205,35 @@ public class ZookeeperRegistry implements Registry {
         }
 
         // 订阅配置节点
-        if (config.isSubscribe() && listener != null) {
+        if (config.isSubscribe()) {
             try {
                 String configPath = buildConfigPath(config);
-                // 监听这个节点下 子节点增加、子节点删除、子节点Data修改事件
-                // TODO
+                // 监听配置节点下 子节点增加、子节点删除、子节点Data修改事件
+                PathChildrenCache pathChildrenCache = new PathChildrenCache(client, configPath, true);
+                pathChildrenCache.getListenable().addListener((client1, event) -> {
+                    System.out.println("Receive event: " + "type=[" + event.getType() + "]");
+                    switch (event.getType()) {
+                        case CHILD_ADDED: //加了一个配置
+                            configObserver.addConfig(config.getInterfaceId(), event.getData());
+                            break;
+                        case CHILD_REMOVED: //删了一个配置
+                            configObserver.removeConfig(config.getInterfaceId(), event.getData());
+                            break;
+                        case CHILD_UPDATED:
+                            configObserver.updateConfig(config.getInterfaceId(), event.getData());
+                            break;
+                    }
+                });
+//        watcher.start(PathChildrenCache.StartMode.NORMAL);// 历史数据触发事件，CurrentData为空
+                pathChildrenCache.start(PathChildrenCache.StartMode.BUILD_INITIAL_CACHE);// 历史数据不触发事件，而是初始化到CurrentData
+//        watcher.start(PathChildrenCache.StartMode.POST_INITIALIZED_EVENT);// 历史数据触发事件，CurrentData为空，最后会收到一个加载完毕事件
+                INTERFACE_CONFIG_CACHE.put(configPath, pathChildrenCache);
+                configObserver.updateConfigAll(config.getInterfaceId(), pathChildrenCache.getCurrentData());
+
+
             } catch (Exception e) {
                 throw new BsoaRuntimeException(22222,
-                        "Failed to register provider config to zookeeperRegistry!", e);
+                        "Failed to subscribe provider config to zookeeperRegistry!", e);
             }
         }
     }
@@ -225,7 +300,7 @@ public class ZookeeperRegistry implements Registry {
             throw new BsoaRuntimeException(22222, "Failed to register consumer config to zookeeperRegistry!");
         }
         // 订阅配置
-        return  null;
+        return null;
     }
 
     @Override
@@ -238,24 +313,17 @@ public class ZookeeperRegistry implements Registry {
 
     }
 
-    @Override
-    public void destroy() {
-        if (client != null && client.getState() == CuratorFrameworkState.STARTED) {
-            client.close();
-        }
-    }
-
 
     private String buildProviderPath(ProviderConfig config) {
-        return rootPath + config.getInterfaceId() + "/providers";
+        return "bsoa/" + config.getInterfaceId() + "/providers";
     }
 
     private String buildConsumerPath(ConsumerConfig config) {
-        return rootPath + config.getInterfaceId() + "/consumers";
+        return "bsoa/" + config.getInterfaceId() + "/consumers";
     }
 
     private String buildConfigPath(AbstractInterfaceConfig config) {
-        return rootPath + config.getInterfaceId() + "/configs";
+        return "bsoa/" + config.getInterfaceId() + "/configs";
     }
 
 }

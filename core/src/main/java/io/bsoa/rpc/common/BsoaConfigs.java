@@ -37,7 +37,7 @@ import io.bsoa.rpc.common.utils.FileUtils;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
 
 /**
- * <p></p>
+ * <p>配置加载器和操作入口</p>
  * <p>
  * Created by zhangg on 2016/12/10 22:22. <br/>
  *
@@ -53,12 +53,15 @@ public class BsoaConfigs {
      * 全部配置
      */
     private final static ConcurrentHashMap<String, Object> CFG = new ConcurrentHashMap<>();
-
+    /**
+     * 配置变化监听器
+     */
     private final static ConcurrentHashMap<String, List<ConfigListener>> CFG_LISTENER = new ConcurrentHashMap<>();
 
     static {
         init();
     }
+
     private static void init() {
         try {
             if (LOGGER.isDebugEnabled()) {
@@ -69,7 +72,7 @@ public class BsoaConfigs {
             Map map = JSON.parseObject(json, Map.class);
             CFG.putAll(map);
 
-            // loadCustom();
+            // loadCustom
             loadCustom("bsoa.json");
             loadCustom("META-INF/bsoa.json");
 
@@ -89,11 +92,10 @@ public class BsoaConfigs {
         ClassLoader classLoader = ClassLoaderUtils.getClassLoader(BsoaConfigs.class);
         Enumeration<URL> urls = classLoader != null ? classLoader.getResources(fileName)
                 : ClassLoader.getSystemResources(fileName);
-        // 可能存在多个文件。
-        if (urls != null) {
+        if (urls != null) { // 可能存在多个文件
             List<CfgFile> allFile = new ArrayList<>();
             while (urls.hasMoreElements()) {
-                // 读取一个文件
+                // 读取每一个文件
                 URL url = urls.nextElement();
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Loading custom config from file: {}", url);
@@ -118,20 +120,24 @@ public class BsoaConfigs {
     }
 
     private static class CfgFile {
-        private URL url;
-        private int order;
-        private Map map;
+        private final URL url;
+        private final int order;
+        private final Map map;
+
         public CfgFile(URL url, int order, Map map) {
             this.url = url;
             this.order = order;
             this.map = map;
         }
+
         public URL getUrl() {
             return url;
         }
+
         public int getOrder() {
             return order;
         }
+
         public Map getMap() {
             return map;
         }
@@ -139,9 +145,7 @@ public class BsoaConfigs {
 
     public static void putValue(String key, Object newValue) {
         Object oldValue = CFG.get(key);
-        if (oldValue != null && oldValue.equals(newValue)) {
-            // No onChange
-        } else {
+        if (changed(oldValue, newValue)) {
             CFG.put(key, newValue);
             List<ConfigListener> configListeners = CFG_LISTENER.get(key);
             for (ConfigListener configListener : configListeners) {
@@ -242,7 +246,13 @@ public class BsoaConfigs {
         }
     }
 
-
+    /**
+     * 订阅配置变化
+     *
+     * @param key            关键字
+     * @param configListener 配置监听器
+     * @see BsoaOptions
+     */
     public static synchronized void subscribe(String key, ConfigListener configListener) {
         List<ConfigListener> listeners = CFG_LISTENER.get(key);
         if (listeners == null) {
@@ -252,6 +262,13 @@ public class BsoaConfigs {
         listeners.add(configListener);
     }
 
+    /**
+     * 取消订阅配置变化
+     *
+     * @param key            关键字
+     * @param configListener 配置监听器
+     * @see BsoaOptions
+     */
     public static synchronized void unSubscribe(String key, ConfigListener configListener) {
         List<ConfigListener> listeners = CFG_LISTENER.get(key);
         if (listeners != null) {
@@ -263,7 +280,20 @@ public class BsoaConfigs {
     }
 
     /**
+     * 值是否发生变化
      *
+     * @param oldObj 旧值
+     * @param newObj 新值
+     * @return 是否变化
+     */
+    protected static boolean changed(Object oldObj, Object newObj) {
+        return oldObj == null ?
+                newObj != null :
+                !oldObj.equals(newObj);
+    }
+
+    /**
+     * 配置变更会拿到通知
      */
     public interface ConfigListener<T> {
         public void onChange(T oldValue, T newValue);

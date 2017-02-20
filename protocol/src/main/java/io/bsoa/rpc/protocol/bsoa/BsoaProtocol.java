@@ -16,6 +16,8 @@
  */
 package io.bsoa.rpc.protocol.bsoa;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import io.bsoa.rpc.ext.Extension;
 import io.bsoa.rpc.protocol.Protocol;
 import io.bsoa.rpc.protocol.ProtocolDecoder;
@@ -33,6 +35,7 @@ import static io.bsoa.rpc.ext.ExtensionLoaderFactory.getExtensionLoader;
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
 @Extension(value = "bsoa", code = 10)
+@ThreadSafe
 public class BsoaProtocol implements Protocol {
 
     private final BsoaProtocolInfo protocolInfo;

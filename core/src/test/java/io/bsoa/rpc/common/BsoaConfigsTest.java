@@ -26,17 +26,85 @@ import org.slf4j.LoggerFactory;
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
  */
 public class BsoaConfigsTest {
-
     /**
      * slf4j Logger for this class
      */
     private final static Logger LOGGER = LoggerFactory.getLogger(BsoaConfigsTest.class);
 
     @Test
+    public void putValue() throws Exception {
+
+    }
+
+    @Test
+    public void getBooleanValue() throws Exception {
+
+    }
+
+    @Test
+    public void getBooleanValue1() throws Exception {
+
+    }
+
+    @Test
+    public void getIntValue() throws Exception {
+
+    }
+
+    @Test
+    public void getOrDefaultValue() throws Exception {
+
+    }
+
+    @Test
+    public void getIntValue1() throws Exception {
+
+    }
+
+    @Test
+    public void getEnumValue() throws Exception {
+
+    }
+
+    @Test
     public void getStringValue() throws Exception {
         String s = BsoaOptions.ASYNC_POOL_CORE;
         Assert.assertEquals(BsoaConfigs.getStringValue(BsoaOptions.SERVER_CONTEXT_PATH), "/");
         System.out.println(BsoaConfigs.getListValue(BsoaOptions.EXTENSION_LOAD_PATH));
+    }
+
+    @Test
+    public void getStringValue1() throws Exception {
+
+    }
+
+    @Test
+    public void getStringValue2() throws Exception {
+
+    }
+
+    @Test
+    public void getListValue() throws Exception {
+
+    }
+
+    @Test
+    public void subscribe() throws Exception {
+
+    }
+
+    @Test
+    public void unSubscribe() throws Exception {
+
+    }
+
+    public void changed() throws Exception {
+        Assert.assertTrue(BsoaConfigs.changed(null, "aaa"));
+        Assert.assertTrue(BsoaConfigs.changed("aa", "aaa"));
+        Assert.assertTrue(BsoaConfigs.changed("aa", null));
+
+        Assert.assertFalse(BsoaConfigs.changed(null, null));
+        Assert.assertFalse(BsoaConfigs.changed("aaa", "aaa"));
     }
 
 }

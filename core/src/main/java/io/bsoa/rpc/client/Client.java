@@ -24,7 +24,9 @@ import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.message.RpcResponse;
 
 /**
- * Created by zhangg on 16-6-7.
+ * 客户端，封装了集群模式、长连接管理、服务路由、负载均衡等抽象类
+ * <p>
+ * Created by zhangg on 16-12-7.
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
  */

@@ -19,8 +19,6 @@ package io.bsoa.rpc.registry.zk;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
-import org.apache.curator.framework.recipes.cache.ChildData;
-import org.apache.curator.framework.recipes.cache.TreeCache;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 
 /**
@@ -39,12 +37,12 @@ public class CuratorFrameworkTest {
                 .connectionTimeoutMs(30000)
                 .canBeReadOnly(false)
                 .retryPolicy(retryPolicy)
-                //.namespace(namespace)  // client操作的默认根路径
+                .namespace("/my")  // client操作的默认根路径
                 .defaultData(null)
                 .build();
         client.start();
 
-        String path = "/my/path";
+        String path = "/path";
 //        create()增
 //        delete(): 删
 //        checkExists(): 判断是否存在
@@ -106,24 +104,24 @@ public class CuratorFrameworkTest {
         System.out.println("current data:" + nodeCacheData);*/
 
         // 监听当前节点的值变化，以及子节点，以及子节点的子节点
-        TreeCache treeCache = new TreeCache(client, path);
-        treeCache.getListenable().addListener((client1, event) -> {
-            ChildData data = event.getData();
-            if (data == null) {
-                System.out.println("Receive event: "
-                        + "type=[" + event.getType() + "]");
-            } else {
-                System.out.println("Receive event: "
-                        + "type=[" + event.getType() + "]"
-                        + ", path=[" + data.getPath() + "]"
-                        + ", data=[" + data.getData() + "]"
-                        + ", stat=[" + data.getStat() + "]");
-            }
-        });
-        treeCache.start();// 只有一种模式 PathChildrenCache.StartMode.POST_INITIALIZED_EVENT
-        // 历史数据触发事件，CurrentData为空，最后会收到一个加载完毕事件
-        ChildData treeCacheData = treeCache.getCurrentData(path);
-        System.out.println("current data:" + treeCacheData);
+//        TreeCache treeCache = new TreeCache(client, path);
+//        treeCache.getListenable().addListener((client1, event) -> {
+//            ChildData data = event.getData();
+//            if (data == null) {
+//                System.out.println("Receive event: "
+//                        + "type=[" + event.getType() + "]");
+//            } else {
+//                System.out.println("Receive event: "
+//                        + "type=[" + event.getType() + "]"
+//                        + ", path=[" + data.getPath() + "]"
+//                        + ", data=[" + data.getData() + "]"
+//                        + ", stat=[" + data.getStat() + "]");
+//            }
+//        });
+//        treeCache.start();// 只有一种模式 PathChildrenCache.StartMode.POST_INITIALIZED_EVENT
+//        // 历史数据触发事件，CurrentData为空，最后会收到一个加载完毕事件
+//        ChildData treeCacheData = treeCache.getCurrentData(path);
+//        System.out.println("current data:" + treeCacheData);
 
         Thread.sleep(Integer.MAX_VALUE);
 

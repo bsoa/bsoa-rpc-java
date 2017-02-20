@@ -23,7 +23,7 @@ import io.bsoa.rpc.protocol.ProtocolNegotiator;
 import io.bsoa.rpc.transport.ClientTransport;
 
 /**
- * <p></p>
+ * <p>bsoa协议的协商器</p>
  * <p>
  * Created by zhangg on 2017/2/20 21:44. <br/>
  *
@@ -37,7 +37,7 @@ public class BsoaProtocolNegotiator implements ProtocolNegotiator{
     }
 
     @Override
-    public boolean addListener(NegotiationListener negotiationListener) {
+    public void addListener(NegotiationListener negotiationListener) {
         return false;
     }
 }

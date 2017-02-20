@@ -47,6 +47,11 @@ public interface Registry {
     public boolean start();
 
     /**
+     * Destroy void.
+     */
+    public void destroy();
+
+    /**
      * 注册服务提供者
      *
      * @param config   Provider配置
@@ -93,8 +98,4 @@ public interface Registry {
      */
     public void batchUnSubscribe(List<ConsumerConfig> configs);
 
-    /**
-     * Destroy void.
-     */
-    public void destroy();
 }
