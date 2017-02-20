@@ -67,7 +67,7 @@ public class BsoaServerHandler implements ServerHandler {
             instanceMap.remove(instanceName);
 //            InvokerHolder.invalidateInvoker(instanceName);
         } else {
-//            throw new RuntimeException("[JSF-23005]No such invoker key when unRegister processor:" + instanceName);
+//            throw new RuntimeException("[23005]No such invoker key when unRegister processor:" + instanceName);
         }
     }
 

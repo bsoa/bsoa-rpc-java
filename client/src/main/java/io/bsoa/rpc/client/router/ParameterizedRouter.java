@@ -271,7 +271,7 @@ public abstract class ParameterizedRouter implements Router {
                 right = null;
                 relationalOperator = RelationalOperator.nil;
             } else {
-                throw new BsoaRpcException(22222, "[JSF-21600]Illegal route rule :" + rule);
+                throw new BsoaRpcException(22222, "[21600]Illegal route rule :" + rule);
             }
         }
 

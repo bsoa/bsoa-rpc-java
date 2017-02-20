@@ -94,7 +94,7 @@ public class AnnotationStartService {
 		if(StringUtils.isNotBlank(address)){
 			RegistryConfig config = new RegistryConfig();
 			config.setAddress(address);
-			config.setProtocol(BsoaConstants.REGISTRY_PROTOCOL_JSF);
+			config.setProtocol(BsoaConstants.REGISTRY_PROTOCOL_ZK);
 			
 			registryConfigs.add(config);
 		}

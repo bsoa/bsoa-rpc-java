@@ -26,10 +26,10 @@ import java.util.concurrent.ConcurrentHashMap;
  *     保证传递的时候值为可阅读格式，而不是jvm格式（[Lxxx;）：
  *         普通：java.lang.String、java.lang.String[]
  *         基本类型：int、int[]
- *         匿名类：com.jd.jsf.Xxx$1、com.jd.jsf.Xxx$1[]
- *         本地类：com.jd.jsf.Xxx$1Local、com.jd.jsf.Xxx$1Local[]
- *         成员类：com.jd.jsf.Xxx$Member、com.jd.jsf.Xxx$Member[]
- *         内部类：com.jd.jsf.Inner、com.jd.jsf.Inner[]
+ *         匿名类：io.bsoa.example.Xxx$1、io.bsoa.example.Xxx$1[]
+ *         本地类：io.bsoa.example.Xxx$1Local、io.bsoa.example.Xxx$1Local[]
+ *         成员类：io.bsoa.example.Xxx$Member、io.bsoa.example.Xxx$Member[]
+ *         内部类：io.bsoa.example.Inner、io.bsoa.example.Inner[]
  *     同时Class.forName的时候又会解析出Class。
  *     </pre>
  * <p>

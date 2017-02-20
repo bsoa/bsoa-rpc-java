@@ -21,6 +21,7 @@ import io.bsoa.rpc.protocol.Protocol;
 import io.bsoa.rpc.protocol.ProtocolDecoder;
 import io.bsoa.rpc.protocol.ProtocolEncoder;
 import io.bsoa.rpc.protocol.ProtocolInfo;
+import io.bsoa.rpc.protocol.ProtocolNegotiator;
 
 /**
  * <p></p>
@@ -47,5 +48,10 @@ public class HTTPProtocol implements Protocol {
     @Override
     public ProtocolDecoder decoder() {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public ProtocolNegotiator negotiator() {
+        return null; // 无需协商
     }
 }

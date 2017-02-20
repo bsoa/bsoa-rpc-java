@@ -51,7 +51,7 @@ public class TokenFilter implements Filter {
             // consumer在每次请求中
             String consumerToken = (String) request.getAttachment(BsoaConstants.HIDDEN_KEY_TOKEN);
             if (!providerToken.equals(consumerToken)) {
-                BsoaRpcException exception = new BsoaRpcException("[JSF-22205]Invalid token! Invocation of "
+                BsoaRpcException exception = new BsoaRpcException("[22205]Invalid token! Invocation of "
                         + request.getInterfaceName() + "." + request.getMethodName()
                         + " from consumer " + request.getAttachment(BsoaConstants.INTERNAL_KEY_REMOTE)
                         + " to provider " + request.getAttachment(BsoaConstants.INTERNAL_KEY_LOCAL)

@@ -194,7 +194,7 @@ public class StreamUtils {
         if (type instanceof Class) {
             // 例如直接 StreamObserver 不行
             throw new BsoaRuntimeException(22222,
-                    "[JSF-24300]Must set actual type of StreamObserver");
+                    "[24300]Must set actual type of StreamObserver");
         } else if (type instanceof ParameterizedType) {
             ParameterizedType pt = (ParameterizedType) type;
             Type[] actualTypes = pt.getActualTypeArguments();
@@ -212,15 +212,15 @@ public class StreamUtils {
                     // 抛出转换异常 表示为"?"泛化类型， java.lang.ClassCastException:
                     // sun.reflect.generics.reflectiveObjects.WildcardTypeImpl cannot be cast to java.lang.Class
                     throw new BsoaRuntimeException(22222,
-                            "[JSF-24300]Must set actual type of StreamObserver, Can not use <?>");
+                            "[24300]Must set actual type of StreamObserver, Can not use <?>");
                 }
             } else {
                 throw new BsoaRuntimeException(22222,
-                        "[JSF-24300]Must set only one actual type of StreamObserver!");
+                        "[24300]Must set only one actual type of StreamObserver!");
             }
         } else {
             throw new BsoaRuntimeException(22222,
-                    "[JSF-24300]Must set actual type of StreamObserver!");
+                    "[24300]Must set actual type of StreamObserver!");
         }
     }
 

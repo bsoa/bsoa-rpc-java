@@ -60,8 +60,8 @@ public class FileUtils {
             // 取不到再取lib
             String jarpath = ReflectUtils.getCodeBase(FileUtils.class);
             if (jarpath != null) {
-                int jsfidx = jarpath.lastIndexOf("jsf-");
-                if (jsfidx > -1) { // 如果有jsf-开头的jar包
+                int jsfidx = jarpath.lastIndexOf("");
+                if (jsfidx > -1) { // 如果有开头的jar包
                     fileName = jarpath.substring(0, jsfidx);
                 } else {
                     int sepidx = jarpath.lastIndexOf(File.separator);

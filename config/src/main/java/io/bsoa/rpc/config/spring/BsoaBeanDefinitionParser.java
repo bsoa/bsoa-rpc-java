@@ -80,12 +80,12 @@ public class BsoaBeanDefinitionParser implements BeanDefinitionParser {
         String id = element.getAttribute("id");
 
         if (StringUtils.isBlank(id) && requireId) {
-            throw new IllegalStateException("[JSF-21000]This bean do not set spring bean id " + id);
+            throw new IllegalStateException("[21000]This bean do not set spring bean id " + id);
         }
         //id 肯定是必须的所以此处去掉对id是否为空的判断
         if (requireId) {
             if (parserContext.getRegistry().containsBeanDefinition(id)) {
-                throw new IllegalStateException("[JSF-21001]Duplicate spring bean id " + id);
+                throw new IllegalStateException("[21001]Duplicate spring bean id " + id);
             }
             parserContext.getRegistry().registerBeanDefinition(id, beanDefinition);
         }
@@ -118,7 +118,7 @@ public class BsoaBeanDefinitionParser implements BeanDefinitionParser {
                     if (StringUtils.isNotBlank(value)) {
                         BeanDefinition refBean = parserContext.getRegistry().getBeanDefinition(value);
                         if (!refBean.isSingleton() && beanClass == ProviderBean.class) {
-                            throw new IllegalStateException("[JSF-21002]The exported service ref " + value + " must be singleton! Please set the " + value + " bean scope to singleton, eg: <bean id=\"" + value + "\" scope=\"singleton\" ...>");
+                            throw new IllegalStateException("[21002]The exported service ref " + value + " must be singleton! Please set the " + value + " bean scope to singleton, eg: <bean id=\"" + value + "\" scope=\"singleton\" ...>");
                         }
                         reference = new RuntimeBeanReference(value);
                     } else {

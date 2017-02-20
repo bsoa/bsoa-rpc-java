@@ -94,7 +94,7 @@ public class ProviderGenericFilter implements Filter {
                     }
                 }*/
             } catch (Exception e) {
-                LOGGER.error("[JSF-22202]Failed to realize generic invocation of " + request.getInterfaceName()
+                LOGGER.error("[22202]Failed to realize generic invocation of " + request.getInterfaceName()
                         + "." + request.getMethodName() + " from " + NetUtils.toAddressString((InetSocketAddress)
                         request.getAttachment(BsoaConstants.INTERNAL_KEY_REMOTE)) + ".", e);
                 RpcResponse response = MessageBuilder.buildRpcResponse(request);

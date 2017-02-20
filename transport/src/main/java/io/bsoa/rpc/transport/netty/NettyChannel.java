@@ -75,7 +75,7 @@ public class NettyChannel implements AbstractChannel {
         future.addListener((FutureListener) future1 -> {
             if (!future1.isSuccess()) {
                 Throwable throwable = future1.cause();
-                LOGGER.error("[JSF-23009]Failed to send to "
+                LOGGER.error("[23009]Failed to send to "
                         + NetUtils.channelToString(
                         RpcContext.getContext().getLocalAddress(),
                         RpcContext.getContext().getRemoteAddress())

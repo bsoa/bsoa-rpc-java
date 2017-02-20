@@ -110,7 +110,7 @@ public class TelnetClient {
             result = result.endsWith("jsf>") ? result.substring(0, result.length() - 4).trim() : result.trim();
             return result;
         } catch (IOException e) {
-            throw new RuntimeException("[JSF-22106]Failed to send command [" + cmd + "] to " + ip + ":" + port
+            throw new RuntimeException("[22106]Failed to send command [" + cmd + "] to " + ip + ":" + port
                     + ", timeout is " + connectTimeout + ", soTimeout is " + readTimeout + " !", e);
         } finally {
             closeQuietly(baout); //关闭流

@@ -171,11 +171,11 @@ public abstract class AbstractClient extends Client {
             } catch (BsoaRuntimeException e) {
                 throw e;
             } catch (Exception e) {
-                throw new BsoaRuntimeException(22222, "[JSF-22002]Init provider's transport error!", e);
+                throw new BsoaRuntimeException(22222, "[22002]Init provider's transport error!", e);
             }
             // 如果check=true表示强依赖
             if (consumerConfig.isCheck() && connectionHolder.isAvailableEmpty()) {
-                throw new BsoaRuntimeException(22222, "[JSF-22003]The consumer is depend on alive provider " +
+                throw new BsoaRuntimeException(22222, "[22003]The consumer is depend on alive provider " +
                         "and there is no alive provider, you can ignore it " +
                         "by <jsf:consumer check=\"false\"> (default is false)");
             }
@@ -475,7 +475,7 @@ public abstract class AbstractClient extends Client {
 
                 response = MessageBuilder.buildRpcResponse(msg);
                 // 记录异步调用标记，如果是异步不清除threadlocal缓存，否则清除
-                // @see com.jd.jsf.gd.filter.ConsumerContextFilter
+                // @see io.bsoa.example.filter.ConsumerContextFilter
                 // RpcContext.getContext().setAttachment(BsoaConstants.CONFIG_KEY_ASYNC, true);
             }
 

@@ -1,1 +1,1 @@
-Hello World!
+文档：https://github.com/bsoa/bsoa-doc/wiki

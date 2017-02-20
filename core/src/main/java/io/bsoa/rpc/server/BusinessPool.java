@@ -110,14 +110,14 @@ public class BusinessPool {
         boolean isPriority = BsoaConstants.QUEUE_TYPE_PRIORITY.equals(queueType);
         BlockingQueue<Runnable> configQueue = ThreadPoolUtils.buildQueue(queueSize, isPriority);
 
-        NamedThreadFactory threadFactory = new NamedThreadFactory("JSF-BZ-" + port, true);
+        NamedThreadFactory threadFactory = new NamedThreadFactory("BZ-" + port, true);
         RejectedExecutionHandler handler = new RejectedExecutionHandler() {
             private int i = 1;
             @Override
             public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
                 if (i++ % 7 == 0) {
                     i = 1;
-                    LOGGER.warn("[JSF-23002]Task:{} has been reject for ThreadPool exhausted!" +
+                    LOGGER.warn("[23002]Task:{} has been reject for ThreadPool exhausted!" +
                                     " pool:{}, active:{}, queue:{}, taskcnt: {}",
                             new Object[]{
                                     r,
@@ -127,7 +127,7 @@ public class BusinessPool {
                                     executor.getTaskCount()
                             });
                 }
-                throw new RejectedExecutionException("[JSF-23003]Biz thread pool of provider has bean exhausted");
+                throw new RejectedExecutionException("[23003]Biz thread pool of provider has bean exhausted");
             }
         };
         LOGGER.debug("Build " + poolType + " business pool for port " + port

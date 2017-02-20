@@ -86,18 +86,18 @@ public class PinpointFailoverClient extends FailoverClient {
                 RpcResponse result = super.sendMsg0(connection, request);
                 if (result != null) {
                     if (throwable != null) {
-                        LOGGER.warn("[JSF-22100]Although success by retry, last exception is: {}", throwable.getMessage());
+                        LOGGER.warn("[22100]Although success by retry, last exception is: {}", throwable.getMessage());
                     }
                     return result;
                 } else {
-                    throwable = new BsoaRpcException(22222, "[JSF-22101]Failed to call " + request.getInterfaceName() + "." + request.getMethodName()
+                    throwable = new BsoaRpcException(22222, "[22101]Failed to call " + request.getInterfaceName() + "." + request.getMethodName()
                             + " on remote server " + connection.getConfig().getProviderInfo() + ", return null");
                 }
             } catch (BsoaRpcException e) { // rpc异常重试
                 throwable = e;
                 time++;
             } catch (Exception e) { // 其它异常不重试
-                throw new BsoaRpcException(22222, "[JSF-22102]Failed to call " + request.getInterfaceName() + "." + request.getMethodName()
+                throw new BsoaRpcException(22222, "[22102]Failed to call " + request.getInterfaceName() + "." + request.getMethodName()
                         + " on remote server: " + connection.getConfig().getProviderInfo() + ", cause by unknown exception: "
                         + e.getClass().getName() + ", message is: " + e.getMessage(), e);
             }
@@ -105,11 +105,11 @@ public class PinpointFailoverClient extends FailoverClient {
         } while (time <= retries);
 
         if (retries == 0) {
-            throw new BsoaRpcException(22222, "[JSF-22103]Failed to call " + request.getInterfaceName() + "." + request.getMethodName()
+            throw new BsoaRpcException(22222, "[22103]Failed to call " + request.getInterfaceName() + "." + request.getMethodName()
                     + " on remote server: " + invokedProviderInfos + ", cause by: "
                     + throwable.getClass().getName() + ", message is :" + throwable.getMessage(), throwable);
         } else {
-            throw new BsoaRpcException(22222, "[JSF-22104]Failed to call " + request.getInterfaceName() + "." + request.getMethodName()
+            throw new BsoaRpcException(22222, "[22104]Failed to call " + request.getInterfaceName() + "." + request.getMethodName()
                     + " on remote server after retry " + (retries + 1) + " times: "
                     + invokedProviderInfos + ", last exception is cause by: "
                     + throwable.getClass().getName() + ", message is: " + throwable.getMessage(), throwable);

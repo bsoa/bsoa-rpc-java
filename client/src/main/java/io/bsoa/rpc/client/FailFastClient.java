@@ -62,7 +62,7 @@ public class FailFastClient extends AbstractClient {
                         + " on remote server " + connection.getConfig().getProviderInfo() + ", return null");
             }
         } catch (Exception e) {
-            throw new BsoaRpcException(22222, "[JSF-22103]Failed to call " + request.getInterfaceName() + "." + request.getMethodName()
+            throw new BsoaRpcException(22222, "[22103]Failed to call " + request.getInterfaceName() + "." + request.getMethodName()
                     + " on remote server: " + connection.getConfig().getProviderInfo() + ", cause by: "
                     + e.getClass().getName() + ", message is: " + e.getMessage(), e);
         }

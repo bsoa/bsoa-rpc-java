@@ -61,9 +61,9 @@ public class ValidationFilter implements Filter {
                 RpcResponse response = MessageBuilder.buildRpcResponse(request);
                 BsoaRpcException re;
                 if (RpcContext.getContext().isProviderSide()) { // 无法直接序列化异常，只能转为字符串然后包装为RpcException
-                    re = new BsoaRpcException(22222, "[JSF-22209]validate is not passed, cause by: " + ExceptionUtils.toString(e));
+                    re = new BsoaRpcException(22222, "[22209]validate is not passed, cause by: " + ExceptionUtils.toString(e));
                 } else {
-                    re = new BsoaRpcException(22222, "[JSF-22210]validate is not passed, cause by: " + e.getMessage(), e);
+                    re = new BsoaRpcException(22222, "[22210]validate is not passed, cause by: " + e.getMessage(), e);
                 }
                 response.setException(re);
                 return response;

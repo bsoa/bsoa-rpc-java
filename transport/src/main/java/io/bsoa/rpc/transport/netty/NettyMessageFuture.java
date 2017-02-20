@@ -174,8 +174,8 @@ public class NettyMessageFuture<V> implements ResponseFuture<V> {
      */
     protected BsoaRpcException clientTimeoutException(boolean scan) {
         Date now = new Date();
-        String errorMsg = (sentTime > 0 ? "[JSF-22110]Waiting provider return response timeout"
-                : "[JSF-22111]Consumer send request timeout")
+        String errorMsg = (sentTime > 0 ? "[22110]Waiting provider return response timeout"
+                : "[22111]Consumer send request timeout")
                 + ". Start time: " + DateUtils.dateToMillisStr(new Date(genTime))
                 + ", End time: " + DateUtils.dateToMillisStr(now)
                 + ((sentTime > 0 ?

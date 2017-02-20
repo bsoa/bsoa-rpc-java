@@ -61,7 +61,7 @@ public class FilterChainTest {
     @Test
     public void testGetContextFromConfig() {
         ConsumerConfig<GenericService> consumerConfig = new ConsumerConfig<GenericService>();
-        consumerConfig.setInterfaceId("com.jd.jsf.gd.test.HelloService");
+        consumerConfig.setInterfaceId("io.bsoa.example.test.HelloService");
         consumerConfig.setTags("ZG1");
         consumerConfig.setTimeout(5000);
         consumerConfig.setConnectTimeout(2000);

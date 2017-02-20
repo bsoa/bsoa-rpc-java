@@ -218,7 +218,7 @@ public class NettyClientTransport extends ClientTransport {
             NettyMessageFuture<BaseMessage> future = (NettyMessageFuture<BaseMessage>) f;
             return future.get(timeout, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
-            throw new BsoaRpcException(22222, "[JSF-22113]Client request thread interrupted");
+            throw new BsoaRpcException(22222, "[22113]Client request thread interrupted");
         } catch (BsoaRpcException e) {
             try {
                 if (msgId != null) {
@@ -349,7 +349,7 @@ public class NettyClientTransport extends ClientTransport {
      */
     public void removeFutureWhenChannelInactive() {
         LOGGER.debug("Interrupt wait of all futures : {} ", futureMap.size());
-        Exception e = new BsoaRpcException(22222, "[JSF-22112]Channel "
+        Exception e = new BsoaRpcException(22222, "[22112]Channel "
                 + NetUtils.channelToString(channel.getLocalAddress(), channel.getRemoteAddress())
                 + " has been closed, remove future when channel inactive");
         for (Map.Entry<Integer, NettyMessageFuture<BaseMessage>> entry : futureMap.entrySet()) {
@@ -365,7 +365,7 @@ public class NettyClientTransport extends ClientTransport {
         int messageId = response.getMessageId();
         NettyMessageFuture<BaseMessage> future = futureMap.get(messageId);
         if (future == null) {
-            LOGGER.warn("[JSF-22114]Not found future which msgId is {} when receive response. May be " +
+            LOGGER.warn("[22114]Not found future which msgId is {} when receive response. May be " +
                     "this future have been removed because of timeout", messageId);
 //            if (msg != null && msg.getMsgBody() != null) {
 //                msg.getMsgBody().release();

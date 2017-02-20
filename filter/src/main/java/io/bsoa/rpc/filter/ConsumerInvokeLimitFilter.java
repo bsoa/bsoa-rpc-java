@@ -52,7 +52,7 @@ public class ConsumerInvokeLimitFilter implements Filter {
             String appId = BsoaConfigs.getStringValue(BsoaOptions.APP_ID);
             if (LimiterFactory.isOverLimit(interfaceId, methodName, tags, appId)) {
                 RpcResponse rpcResponse = MessageBuilder.buildRpcResponse(request);
-                rpcResponse.setException(new BsoaRpcException(22222, "[JSF-22206]Invocation of "
+                rpcResponse.setException(new BsoaRpcException(22222, "[22206]Invocation of "
                         + interfaceId + "." + methodName + " of app:" + appId
                         + " is over invoke limit, please wait next period or add upper limit."));
                 return rpcResponse;

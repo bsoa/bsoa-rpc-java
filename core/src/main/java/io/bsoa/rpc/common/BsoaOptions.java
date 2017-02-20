@@ -69,6 +69,10 @@ public class BsoaOptions {
      */
     public static final String DEFAULT_TAGS = "default.tags";
     /**
+     * 默认注册中心
+     */
+    public static final String DEFAULT_REGISTRY = "default.registry";
+    /**
      * 默认协议
      */
     public static final String DEFAULT_PROTOCOL = "default.protocol";

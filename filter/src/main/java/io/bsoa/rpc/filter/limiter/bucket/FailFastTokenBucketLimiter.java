@@ -40,7 +40,7 @@ public class FailFastTokenBucketLimiter extends AbstractTokenBucketLimiter {
             double tokenPermitted = Math.min(requiredToken, availableTokens);
             double needNewToken = requiredToken - tokenPermitted;
             if (needNewToken > 0) {
-                throw new BsoaRpcException(22222, "[JSF-22211]Invoked exceed the provider limit[" + this.maxTokens + "]");
+                throw new BsoaRpcException(22222, "[22211]Invoked exceed the provider limit[" + this.maxTokens + "]");
             }
             availableTokens -= tokenPermitted;
         }

@@ -304,7 +304,7 @@ public class AllConnectConnectionHolder implements ConnectionHolder {
             ThreadPoolExecutor initPool = new ThreadPoolExecutor(threads, threads,
                     0L, TimeUnit.MILLISECONDS,
                     new LinkedBlockingQueue<Runnable>(providerInfoList.size()),
-                    new NamedThreadFactory("JSF-CLI-CONN-" + interfaceId, true));
+                    new NamedThreadFactory("CLI-CONN-" + interfaceId, true));
             int connectTimeout = consumerConfig.getConnectTimeout();
             for (final ProviderInfo providerInfo : providerInfoList) {
                 final ClientTransportConfig config = providerToClientConfig(providerInfo);
@@ -524,7 +524,7 @@ public class AllConnectConnectionHolder implements ConnectionHolder {
             ThreadPoolExecutor closepool = new ThreadPoolExecutor(threads, threads,
                     0L, TimeUnit.MILLISECONDS,
                     new LinkedBlockingQueue<Runnable>(providerSize),
-                    new NamedThreadFactory("JSF-CLI-DISCONN-" + consumerConfig.getInterfaceId(), true));
+                    new NamedThreadFactory("CLI-DISCONN-" + consumerConfig.getInterfaceId(), true));
             for (Map.Entry<ProviderInfo, ClientTransport> entry : all.entrySet()) {
                 final ProviderInfo providerInfo = entry.getKey();
                 final ClientTransport transport = entry.getValue();
@@ -627,7 +627,7 @@ public class AllConnectConnectionHolder implements ConnectionHolder {
             if (transport.isAvailable()) { // double check
                 return true;
             } else { // 可能在黑名单里，刚连上就断开了
-                LOGGER.warn("[JSF-22004]Connection has been closed after connected (in last 100ms)!" +
+                LOGGER.warn("[22004]Connection has been closed after connected (in last 100ms)!" +
                                 " Maybe connection of provider has reached limit," +
                                 " or your host is in the blacklist of provider {}/{}",
                          interfaceId, transport.getConfig().getProviderInfo());
@@ -664,7 +664,7 @@ public class AllConnectConnectionHolder implements ConnectionHolder {
         int reconnect = consumerConfig.getReconnect();
         if (reconnect > 0) {
             reconnect = Math.max(reconnect, 2000); // 最小2000
-            reconThread = new ScheduledService("JSF-CLI-RC-" + interfaceId, ScheduledService.MODE_FIXEDDELAY, new
+            reconThread = new ScheduledService("CLI-RC-" + interfaceId, ScheduledService.MODE_FIXEDDELAY, new
                     Runnable() {
                         @Override
                         public void run() {
@@ -680,7 +680,7 @@ public class AllConnectConnectionHolder implements ConnectionHolder {
         int heartbeat = consumerConfig.getHeartbeat();
         if (heartbeat > 0) {
             heartbeat = Math.max(heartbeat, 5000); // 最小5000
-            hbThread = new ScheduledService("JSF-CLI-HB-" + interfaceId, ScheduledService.MODE_FIXEDDELAY, new Runnable() {
+            hbThread = new ScheduledService("CLI-HB-" + interfaceId, ScheduledService.MODE_FIXEDDELAY, new Runnable() {
                 @Override
                 public void run() {
                     try {
@@ -721,7 +721,7 @@ public class AllConnectConnectionHolder implements ConnectionHolder {
                 }
             } catch (Exception e) {
                 if (print) {
-                    LOGGER.warn("[JSF-22008]Retry connect to {} provider:{} error ! The exception is " + e
+                    LOGGER.warn("[22008]Retry connect to {} provider:{} error ! The exception is " + e
                             .getMessage(), interfaceId, providerInfo);
                 } else {
                     LOGGER.debug("Retry connect to {} provider:{} error ! The exception is " + e
@@ -809,7 +809,7 @@ public class AllConnectConnectionHolder implements ConnectionHolder {
                         subHealthToRetry(provider, transport); // 亚健康到重试
                     }
                     exception = e instanceof ClientClosedException ? e
-                            : new ClientClosedException("[JSF-22009]Channel has been closed when send heartbeat");
+                            : new ClientClosedException("[22009]Channel has been closed when send heartbeat");
                     break; // 正常断线的情况
                 } else {
                     addFailedCnt(provider);
@@ -818,7 +818,7 @@ public class AllConnectConnectionHolder implements ConnectionHolder {
             }
         }
         if (!ok && exception != null) { // 连续2次心跳异常
-            LOGGER.warn("[JSF-22005]Send heartbeat to " + interfaceId + " provider:" + provider
+            LOGGER.warn("[22005]Send heartbeat to " + interfaceId + " provider:" + provider
                     + " error !", ExceptionUtils.toShortString(exception, 1));
             String monitor = consumerConfig.getParameter(BsoaConstants.HIDDEN_KEY_MONITOR);
 //            if (!CommonUtils.isFalse(monitor) && MonitorFactory.isMonitorOpen(interfaceId,
@@ -833,13 +833,13 @@ public class AllConnectConnectionHolder implements ConnectionHolder {
         if (isAliveProvider && getFailedCnt(provider) >= 6
                 && aliveConnections.containsKey(provider)) { // 连续失败6次（3个心跳周期），加入亚健康
             aliveToSubHealth(provider, transport);
-            LOGGER.warn("[JSF-22006]Send heartbeat failed over 3 times, move {} from alive to" +
+            LOGGER.warn("[22006]Send heartbeat failed over 3 times, move {} from alive to" +
                     " sub-health provider", provider);
         }
         if (!isAliveProvider && getFailedCnt(provider) >= 60
                 && subHealthConnections.containsKey(provider)) { // 连续失败60次（30个心跳周期），加入重连列表
             subHealthToRetry(provider, transport);
-            LOGGER.warn("[JSF-22007]Send heartbeat failed over 30 times, move {} from sub-health to" +
+            LOGGER.warn("[22007]Send heartbeat failed over 30 times, move {} from sub-health to" +
                     " retry provider", provider);
         }*/
     }

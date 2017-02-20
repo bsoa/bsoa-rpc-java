@@ -18,8 +18,8 @@ PS:大家也看到了，本JSON文档是支持注释的，而标准JSOB是不支
   "consumer.provider.nullable":	false,//	consumer的服务端列表是否可被清空	boolean	默认false，默认不能被清空（最后的清空请求被忽略），防止删全部节点等误操作，但是会影响列表的准确性。	1.6.0
   "invoke.send.app":	false,//	Consumer调用时是否发生信息	boolean	默认true，服务端拿到调用端的自动部署应用信息。配为false，服务端拿不到调用者信息	1.6.0
   "serialize.check.reference"	:false,//	序列化是否检测循环引用类型	string	默认true，针对c++等调用者进行关闭	1.6.0
-  "json.serializer.features":	false,//	json序列化的时候，开启的特性	string	默认空，参见com.jd.fastjson.serializer.SerializerFeature，多个逗号分隔	1.6.0
-  "json.parser.features":	false,//	json解析的时候，开启的特性	string	默认空，参见com.jd.fastjson.parser.Feature，多个逗号分隔	1.6.0
+  "json.serializer.features":	false,//	json序列化的时候，开启的特性	string	默认空，参见io.bsoa.fastjson.serializer.SerializerFeature，多个逗号分隔	1.6.0
+  "json.parser.features":	false,//	json解析的时候，开启的特性	string	默认空，参见io.bsoa.fastjson.parser.Feature，多个逗号分隔	1.6.0
 
 
   "transport.heart.io" : true, // 心跳在IO线程吗？ TODO
@@ -32,6 +32,7 @@ PS:大家也看到了，本JSON文档是支持注释的，而标准JSOB是不支
   "default.provider.bootstrap" : "bsoa",
   "default.consumer.bootstrap" : "bsoa",
   "default.tags" : "bsoa",
+  "default.registry" : "zookeeper",
   "default.protocol" : "bsoa",
   "default.serialization" : "hessian",
   "default.compress" : "snappy",

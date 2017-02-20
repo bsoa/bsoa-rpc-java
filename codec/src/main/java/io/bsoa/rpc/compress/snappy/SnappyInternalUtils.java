@@ -39,7 +39,7 @@ final class SnappyInternalUtils
         }
         if (memoryInstance == null) {
             try {
-                Class<? extends Memory> slowMemoryClass = SnappyInternalUtils.class.getClassLoader().loadClass("com.jd.jsf.gd.compress.snappy.SlowMemory").asSubclass(Memory.class);
+                Class<? extends Memory> slowMemoryClass = SnappyInternalUtils.class.getClassLoader().loadClass("io.bsoa.example.compress.snappy.SlowMemory").asSubclass(Memory.class);
                 Memory slowMemory = slowMemoryClass.newInstance();
                 if (slowMemory.loadInt(new byte[4], 0) == 0) {
                     memoryInstance = slowMemory;

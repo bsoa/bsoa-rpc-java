@@ -17,11 +17,11 @@
 package io.bsoa.rpc.protocol.bsoa;
 
 import io.bsoa.rpc.ext.Extension;
-import io.bsoa.rpc.ext.ExtensionLoaderFactory;
 import io.bsoa.rpc.protocol.Protocol;
 import io.bsoa.rpc.protocol.ProtocolDecoder;
 import io.bsoa.rpc.protocol.ProtocolEncoder;
 import io.bsoa.rpc.protocol.ProtocolInfo;
+import io.bsoa.rpc.protocol.ProtocolNegotiator;
 
 import static io.bsoa.rpc.ext.ExtensionLoaderFactory.getExtensionLoader;
 
@@ -41,14 +41,15 @@ public class BsoaProtocol implements Protocol {
 
     private final ProtocolDecoder decoder;
 
+    private final ProtocolNegotiator protocolNegotiator;
+
     public BsoaProtocol() {
         protocolInfo = new BsoaProtocolInfo();
-        encoder = ExtensionLoaderFactory.getExtensionLoader(ProtocolEncoder.class)
-                .getExtension("bsoa");
+        encoder = getExtensionLoader(ProtocolEncoder.class).getExtension("bsoa");
         encoder.setProtocolInfo(protocolInfo);
-        decoder = getExtensionLoader(ProtocolDecoder.class)
-                .getExtension("bsoa");
+        decoder = getExtensionLoader(ProtocolDecoder.class).getExtension("bsoa");
         decoder.setProtocolInfo(protocolInfo);
+        protocolNegotiator = getExtensionLoader(ProtocolNegotiator.class).getExtension("bsoa");
     }
 
     @Override
@@ -64,5 +65,10 @@ public class BsoaProtocol implements Protocol {
     @Override
     public ProtocolDecoder decoder() {
         return decoder;
+    }
+
+    @Override
+    public ProtocolNegotiator negotiator() {
+        return protocolNegotiator;
     }
 }

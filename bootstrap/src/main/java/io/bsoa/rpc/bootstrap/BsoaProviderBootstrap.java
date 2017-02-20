@@ -120,7 +120,7 @@ public class BsoaProviderBootstrap<T> extends ProviderBootstrap<T> {
         // 检查参数
         // tag不能为空
         if (StringUtils.isBlank(providerConfig.getTags())) {
-            throw ExceptionUtils.buildRuntime(22222, "tags", "NULL", "[JSF-21200]Value of \"tags\" is not specified in provider" +
+            throw ExceptionUtils.buildRuntime(22222, "tags", "NULL", "[21200]Value of \"tags\" is not specified in provider" +
                     " config with key " + key + " !");
         }
         // 检查注入的ref是否接口实现类
@@ -134,7 +134,7 @@ public class BsoaProviderBootstrap<T> extends ProviderBootstrap<T> {
         // server 不能为空
         List<ServerConfig> serverConfigs = providerConfig.getServer();
         if (CommonUtils.isEmpty(serverConfigs)) {
-            throw ExceptionUtils.buildRuntime(22222, "server", "NULL", "[JSF-21202]Value of \"server\" is not specified in provider" +
+            throw ExceptionUtils.buildRuntime(22222, "server", "NULL", "[21202]Value of \"server\" is not specified in provider" +
                     " config with key " + key + " !");
         }
 
@@ -183,7 +183,7 @@ public class BsoaProviderBootstrap<T> extends ProviderBootstrap<T> {
             } catch (BsoaRuntimeException e) {
                 throw e;
             } catch (Exception e) {
-                LOGGER.error("[JSF-21204]Catch exception when register processor to server: "
+                LOGGER.error("[21204]Catch exception when register processor to server: "
                         + serverConfig.getId(), e);
             }
         }
@@ -206,7 +206,7 @@ public class BsoaProviderBootstrap<T> extends ProviderBootstrap<T> {
                 // 重名的方法
                 //LOGGER.warn("Method with same name \"{}\" exists ! The usage of " +
                 //        "overloading method is deprecated.", methodName);
-                throw new BsoaRuntimeException(21205, "[JSF-21205]Method with same name \"" + itfClass.getName() + "."
+                throw new BsoaRuntimeException(21205, "[21205]Method with same name \"" + itfClass.getName() + "."
                         + methodName + "\" exists ! The usage of overloading method is deprecated.");
             }
             // 判断服务下方法的黑白名单

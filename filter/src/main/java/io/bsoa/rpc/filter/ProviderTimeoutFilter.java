@@ -62,7 +62,7 @@ public class ProviderTimeoutFilter implements Filter {
                 BsoaConstants.CONFIG_KEY_TIMEOUT, defaultTimeout);
         if (elapsed > providerTimeout) {
             if (LOGGER.isWarnEnabled()) {
-                LOGGER.warn("[JSF-22204]Provider invoke method [" + request.getInterfaceName() + "."
+                LOGGER.warn("[22204]Provider invoke method [" + request.getInterfaceName() + "."
                         + request.getMethodName() + "] timeout. "
                         + "The arguments is: " + Arrays.toString(request.getArgs())
                         + ", timeout is " + providerTimeout + " ms, invoke elapsed " + elapsed + " ms.");

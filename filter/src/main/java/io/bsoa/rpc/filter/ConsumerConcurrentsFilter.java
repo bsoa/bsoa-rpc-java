@@ -68,7 +68,7 @@ public class ConsumerConcurrentsFilter implements Filter {
                         remain = timeout - elapsed;
                         if (remain <= 0) {
                             throw new BsoaRpcException(22222,
-                                    "[JSF-22207]Waiting concurrent timeout in client-side when invoke"
+                                    "[22207]Waiting concurrent timeout in client-side when invoke"
                                     + interfaceId + "." + methodName + ", elapsed: " + elapsed
                                     + ", timeout: " + timeout + ". concurrent invokes: " + active
                                     + ". max concurrents: " + concurrents + ". You can change it by "

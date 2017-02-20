@@ -61,9 +61,9 @@ public class HessianSerializer implements Serializer {
      */
     public HessianSerializer() {
 //        HessianObjectMapping.registryMapping("com.alibaba.dubbo.rpc.service.GenericException"
-//                                            ,"com.jd.service.rpc.service.GenericException");
+//                                            ,"io.bsoa.service.rpc.service.GenericException");
 //        HessianObjectMapping.registryMapping("com.alibaba.dubbo.rpc.RpcException"
-//                                            ,"com.jd.service.rpc.RpcException");
+//                                            ,"io.bsoa.service.rpc.RpcException");
     }
 
     /**

@@ -67,11 +67,11 @@ public class FailoverClient extends AbstractClient {
                 RpcResponse result = super.sendMsg0(connection, msg);
                 if (result != null) {
                     if (throwable != null) {
-                        LOGGER.warn("[JSF-22100]Although success by retry, last exception is: {}", throwable.getMessage());
+                        LOGGER.warn("[22100]Although success by retry, last exception is: {}", throwable.getMessage());
                     }
                     return result;
                 } else {
-                    throwable = new BsoaRpcException("[JSF-22101]Failed to call "+ msg.getInterfaceName() + "." + methodName
+                    throwable = new BsoaRpcException("[22101]Failed to call "+ msg.getInterfaceName() + "." + methodName
                             + " on remote server " + connection.getConfig().getProviderInfo() + ", return null");
                 }
             } catch (BsoaRpcException e) { // rpc异常重试

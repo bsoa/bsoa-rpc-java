@@ -31,20 +31,11 @@ public class BsoaConstants {
     /**
      * zookeeper注册中心
      */
-    public static final String REGISTRY_PROTOCOL_ZK = "jdZooKeeper";
+    public static final String REGISTRY_PROTOCOL_ZK = "zooKeeper";
     /**
      * xml文件注册中心
      */
     public static final String REGISTRY_PROTOCOL_FILE = "fileRegistry";
-    /**
-     * JSF注册中心
-     */
-    public static final String REGISTRY_PROTOCOL_JSF = "jsfRegistry";
-
-    /**
-     * 分发全部
-     */
-    public static final String CLUSTER_BROADCAST = "broadcast";
 
     /**
      * 默认失败重试次数

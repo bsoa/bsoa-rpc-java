@@ -132,7 +132,7 @@ public class ClientProxyInvoker implements Invoker {
      *
      * @param rpcResponse
      *         响应结果
-//     * @see AsyncResultListener#operationComplete(com.jd.jsf.gd.client.MsgFuture)
+//     * @see AsyncResultListener#operationComplete(io.bsoa.example.client.MsgFuture)
      */
     private void notifyResponseListener(String methodName, RpcResponse rpcResponse){
         // 返回结果增加事件监听

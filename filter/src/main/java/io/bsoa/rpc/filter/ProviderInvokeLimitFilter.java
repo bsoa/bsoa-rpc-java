@@ -58,7 +58,7 @@ public class ProviderInvokeLimitFilter implements Filter {
             ProviderInvokerLimiter limiter = LimiterFactory.getProviderLimiter(interfaceId, methodName, tags, appId);
             if (limiter != null && limiter.isOverLimit(interfaceId, methodName, tags, appId)) {
                 RpcResponse rpcResponse = MessageBuilder.buildRpcResponse(request);
-                String message = "[JSF-22211]Invocation of " + interfaceId + "." + methodName + " of app:" + appId
+                String message = "[22211]Invocation of " + interfaceId + "." + methodName + " of app:" + appId
                         + " is over invoke limit:[" + limiter.getLimit() + "], please wait next period or add upper limit.";
                 rpcResponse.setException(new BsoaRpcException(message));
                 return rpcResponse;

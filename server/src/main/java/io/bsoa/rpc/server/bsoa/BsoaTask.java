@@ -79,7 +79,7 @@ public class BsoaTask extends AbstractTask {
         try {
             Integer timeout = (Integer) request.getHeadKey(HeadKey.TIMEOUT);
             if (timeout != null && BsoaContext.now() - request.getReceiveTime() > timeout) { // 客户端已经超时的请求直接丢弃
-                LOGGER.warn("[JSF-23008]Discard request cause by timeout after receive the request: {}", request.getMessageId());
+                LOGGER.warn("[23008]Discard request cause by timeout after receive the request: {}", request.getMessageId());
                 return;
             }
 
@@ -97,7 +97,7 @@ public class BsoaTask extends AbstractTask {
 //            //AUTH check for blacklist/whitelist
 //            if (!ServerAuthHelper.isValid(className, aliasName, NetUtils.toIpString(remoteAddress))) {
 //                throw new RpcException(request.getMsgHeader(),
-//                        "[JSF-23007]Fail to pass the server auth check in server: " + localAddress
+//                        "[23007]Fail to pass the server auth check in server: " + localAddress
 //                                + ", May be your host in blacklist of server");
 //            }
 
@@ -112,7 +112,7 @@ public class BsoaTask extends AbstractTask {
             String key = InvokerHolder.buildKey(interfaceName, tags);
             Invoker invoker = serverHandler.getInvoker(key);
             if (invoker == null) {
-                throw new BsoaRpcException(222222, "[JSF-23006]Cannot found invoker of "
+                throw new BsoaRpcException(222222, "[23006]Cannot found invoker of "
                         + key
                         + " in channel:" + NetUtils.channelToString(remoteAddress, localAddress)
                         + ", current invokers is " + serverHandler.getAllOwnInvoker().keySet());
@@ -154,14 +154,14 @@ public class BsoaTask extends AbstractTask {
 //            }
 
             if (timeout != null && BsoaContext.now() - request.getReceiveTime() > timeout) { // 客户端已经超时的响应直接丢弃
-                LOGGER.warn("[JSF-23008]Discard send response cause by " +
+                LOGGER.warn("[23008]Discard send response cause by " +
                         "timeout after receive the request: {}", request.getMessageId());
                 responseByteBuf.release();
             } else {
                 channel.writeAndFlush(responseByteBuf);
             }
         } catch (Throwable e) {
-            LOGGER.error("[JSF-23011]Error when run JSFTask, request to " + interfaceName
+            LOGGER.error("[23011]Error when run JSFTask, request to " + interfaceName
                     + "/" + methodName + "/" + tags + ", error: " + e.getMessage()
                     + (channel != null ? ", channel: "
                     + NetUtils.channelToString(remoteAddress, localAddress) : ""), e);

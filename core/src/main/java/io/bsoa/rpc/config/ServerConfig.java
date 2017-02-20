@@ -229,7 +229,7 @@ public class ServerConfig extends AbstractIdConfig implements Serializable {
         // 绑定到指定网卡 或全部网卡
         int port = NetUtils.getAvailablePort(this.boundHost, this.getPort());
         if (port != this.port) {
-            LOGGER.info("[JSF-21400]Changed port from {} to {} because the config port is disabled", this.port, port);
+            LOGGER.info("[21400]Changed port from {} to {} because the config port is disabled", this.port, port);
             this.port = port;
         }
 

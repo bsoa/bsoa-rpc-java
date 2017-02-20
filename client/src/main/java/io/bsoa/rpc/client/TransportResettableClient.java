@@ -52,7 +52,7 @@ public class TransportResettableClient extends FailoverClient {
     @Override
     public RpcResponse doSendMsg(RpcRequest msg) {
         if (lock.isLocked()) {
-            throw new BsoaRpcException(22222, "[JSF-22105]Transport resettable client is resetting transports...");
+            throw new BsoaRpcException(22222, "[22105]Transport resettable client is resetting transports...");
         }
         return super.doSendMsg(msg);
     }

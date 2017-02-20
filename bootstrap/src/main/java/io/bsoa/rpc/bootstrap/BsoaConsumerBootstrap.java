@@ -113,7 +113,7 @@ public class BsoaConsumerBootstrap<T> extends ConsumerBootstrap<T> {
         // 检查参数
         // tags不能为空
         if (StringUtils.isBlank(consumerConfig.getTags())) {
-            throw new BsoaRuntimeException(21300, "[JSF-21300]Value of \"tags\" value is " +
+            throw new BsoaRuntimeException(21300, "[21300]Value of \"tags\" value is " +
                     "not specified in consumer config with key " + key + " !");
         }
         // 提前检查接口类
@@ -129,18 +129,18 @@ public class BsoaConsumerBootstrap<T> extends ConsumerBootstrap<T> {
         int c = cnt.incrementAndGet();
         if (c > 3) {
             if(!CommonUtils.isFalse(consumerConfig.getParameter(BsoaConstants.HIDDEN_KEY_WARNNING))){
-                throw new BsoaRuntimeException(21304, "[JSF-21304]Duplicate consumer config with key " + key
+                throw new BsoaRuntimeException(21304, "[21304]Duplicate consumer config with key " + key
                         + " has been referred more than 3 times!"
                         + " Maybe it's wrong config, please check it."
                         + " Ignore this if you did that on purpose!");
             } else {
-                LOGGER.warn("[JSF-21304]Duplicate consumer config with key {} "
+                LOGGER.warn("[21304]Duplicate consumer config with key {} "
                         + "has been referred more than 3 times!"
                         + " Maybe it's wrong config, please check it."
                         + " Ignore this if you did that on purpose!", key);
             }
         } else if (c > 1) {
-            LOGGER.warn("[JSF-21303]Duplicate consumer config with key {} has been referred!"
+            LOGGER.warn("[21303]Duplicate consumer config with key {} has been referred!"
                     + " Maybe it's wrong config, please check it."
                     + " Ignore this if you did that on purpose!", key);
         }
@@ -156,7 +156,7 @@ public class BsoaConsumerBootstrap<T> extends ConsumerBootstrap<T> {
 //            } catch (BsoaRuntimeException e) {
 //                throw e;
 //            } catch (Exception e) {
-//                throw new BsoaRuntimeException("[JSF-21305]Registry codec template error!", e);
+//                throw new BsoaRuntimeException("[21305]Registry codec template error!", e);
 //            }
 //        }
         // 如果本地发布了服务，则优选走本地代理，没有则走远程代理
@@ -187,7 +187,7 @@ public class BsoaConsumerBootstrap<T> extends ConsumerBootstrap<T> {
             if (e instanceof BsoaRuntimeException) {
                 throw (BsoaRuntimeException) e;
             } else {
-                throw new BsoaRuntimeException(22222, "[JSF-21306]Build consumer proxy error!", e);
+                throw new BsoaRuntimeException(22222, "[21306]Build consumer proxy error!", e);
             }
         }
         if (consumerConfig.getOnAvailable() != null && client != null) {

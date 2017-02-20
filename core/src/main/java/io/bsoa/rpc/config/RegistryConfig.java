@@ -19,8 +19,10 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import io.bsoa.rpc.common.BsoaConstants;
-
+import static io.bsoa.rpc.common.BsoaConfigs.getBooleanValue;
+import static io.bsoa.rpc.common.BsoaConfigs.getIntValue;
+import static io.bsoa.rpc.common.BsoaConfigs.getStringValue;
+import static io.bsoa.rpc.common.BsoaOptions.DEFAULT_REGISTRY;
 import static io.bsoa.rpc.common.BsoaOptions.REGISTRY_BATCH;
 import static io.bsoa.rpc.common.BsoaOptions.REGISTRY_BATCH_SIZE;
 import static io.bsoa.rpc.common.BsoaOptions.REGISTRY_CONNECT_TIMEOUT;
@@ -29,8 +31,6 @@ import static io.bsoa.rpc.common.BsoaOptions.REGISTRY_INVOKE_TIMEOUT;
 import static io.bsoa.rpc.common.BsoaOptions.REGISTRY_RECONNECT_PERIOD;
 import static io.bsoa.rpc.common.BsoaOptions.SERVICE_REGISTER;
 import static io.bsoa.rpc.common.BsoaOptions.SERVICE_SUBSCRIBE;
-import static io.bsoa.rpc.common.BsoaConfigs.getBooleanValue;
-import static io.bsoa.rpc.common.BsoaConfigs.getIntValue;
 
 /**
  * Created by zhangg on 16-7-7.
@@ -46,7 +46,7 @@ public class RegistryConfig extends AbstractIdConfig implements Serializable {
     /**
      * 协议
      */
-    private String protocol = BsoaConstants.REGISTRY_PROTOCOL_JSF;
+    private String protocol = getStringValue(DEFAULT_REGISTRY);
 
     /**
      * 地址, 和index必须填一个
@@ -56,7 +56,7 @@ public class RegistryConfig extends AbstractIdConfig implements Serializable {
     /**
      * index服务地址, 和address必须填一个
      */
-    private String index = "i.jsf.jd.com";
+    private String index = "index.bsoa.io";
 
     /**
      * 是否注册，如果是false只订阅不注册

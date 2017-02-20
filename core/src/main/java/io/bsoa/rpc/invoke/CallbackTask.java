@@ -71,7 +71,7 @@ public class CallbackTask implements Runnable {
     public void run() {
         Integer timeout = (Integer) request.getHeadKey(HeadKey.TIMEOUT);
         if (timeout != null && BsoaContext.now() - request.getReceiveTime() > timeout) { // 客户端已经超时的请求直接丢弃
-            LOGGER.warn("[JSF-23008]Discard request cause by timeout after receive the request: {}", request.getMessageId());
+            LOGGER.warn("[23008]Discard request cause by timeout after receive the request: {}", request.getMessageId());
             return;
         }
 
@@ -117,7 +117,7 @@ public class CallbackTask implements Runnable {
         protocol.encoder().encodeAll(response, responseByteBuf);
 
         if (timeout != null && BsoaContext.now() - request.getReceiveTime() > timeout) { // 客户端已经超时的响应直接丢弃
-            LOGGER.warn("[JSF-23008]Discard send response cause by " +
+            LOGGER.warn("[23008]Discard send response cause by " +
                     "timeout after receive the request: {}", request.getMessageId());
             responseByteBuf.release();
         } else {

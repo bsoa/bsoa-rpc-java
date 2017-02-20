@@ -47,11 +47,11 @@ public class ProviderMethodCheckFilter implements Filter {
             BsoaRpcException rpcException;
             if ("$invoke".equals(methodName) && request.getArgs().length == 3) {
                 // 可能是dubbo2.3.2发来的请求，没有带上"generic"标记
-                rpcException = new BsoaRpcException(22222, "[JSF-22203]Provider of " + request.getInterfaceName()
+                rpcException = new BsoaRpcException(22222, "[22203]Provider of " + request.getInterfaceName()
                         + " didn't export method named \"" + methodName + "\", maybe you are using"
                         + " SAF(<1.0.9) for generic invoke to JSF, please upgrade to JSF or SAF(>=1.0.9).");
             } else {
-                rpcException = new BsoaRpcException(22222, "[JSF-22203]Provider of " + request.getInterfaceName()
+                rpcException = new BsoaRpcException(22222, "[22203]Provider of " + request.getInterfaceName()
                         + " didn't export method named \"" + methodName + "\", maybe provider"
                         + " has been exclude it, or don't have this method!");
             }

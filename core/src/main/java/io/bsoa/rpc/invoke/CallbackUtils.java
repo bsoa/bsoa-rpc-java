@@ -118,7 +118,7 @@ public class CallbackUtils {
     private static Class[] getActualClass(Class<? extends Callback> clazz, Type type) {
         if (type instanceof Class) {
             // 例如直接 Callback 不行
-            throw new BsoaRuntimeException(22222, "[JSF-24300]Must set actual type of Callback");
+            throw new BsoaRuntimeException(22222, "[24300]Must set actual type of Callback");
         } else if (type instanceof ParameterizedType) {
             ParameterizedType pt = (ParameterizedType) type;
             Type[] actualTypes = pt.getActualTypeArguments();
@@ -138,17 +138,17 @@ public class CallbackUtils {
                         // 抛出转换异常 表示为"?"泛化类型， java.lang.ClassCastException:
                         // sun.reflect.generics.reflectiveObjects.WildcardTypeImpl cannot be cast to java.lang.Class
                         throw new BsoaRuntimeException(22222,
-                                "[JSF-24300]Must set actual type of Callback, Can not use <?>");
+                                "[24300]Must set actual type of Callback, Can not use <?>");
                     }
                 }
                 return cs;
             } else {
                 throw new BsoaRuntimeException(22222,
-                        "[JSF-24300]Must set only one actual type of Callback!");
+                        "[24300]Must set only one actual type of Callback!");
             }
         } else {
             throw new BsoaRuntimeException(22222,
-                    "[JSF-24300]Must set actual type of Callback!");
+                    "[24300]Must set actual type of Callback!");
         }
     }
 
@@ -223,7 +223,7 @@ public class CallbackUtils {
         }
 
         if (num.intValue() >= 2000) {
-            throw new RuntimeException("[JSF-24301]ServerCallback instance have exceeding 2000 for type:" + clazz + " interfaceId " + interfaceId + " method " + method + " port" + port);
+            throw new RuntimeException("[24301]ServerCallback instance have exceeding 2000 for type:" + clazz + " interfaceId " + interfaceId + " method " + method + " port" + port);
         }
 
         return num.getAndIncrement();

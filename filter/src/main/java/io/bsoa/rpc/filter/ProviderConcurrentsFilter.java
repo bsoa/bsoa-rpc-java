@@ -53,7 +53,7 @@ public class ProviderConcurrentsFilter implements Filter {
             // 判断是否超过并发数大小
             RpcStatus count = RpcStatus.getMethodStatus(config, methodName);
             if (count.getActive() >= concurrents) {
-                throw new BsoaRpcException("[JSF-22208]Failed to invoke method " + interfaceId + "." + methodName
+                throw new BsoaRpcException("[22208]Failed to invoke method " + interfaceId + "." + methodName
                         + ", The service using threads greater than: " + concurrents + ". Change it by "
                         + "<jsf:provider concurrents=\"\"/> or <jsf:method concurrents=\"\"/> on provider");
             }
