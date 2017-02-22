@@ -16,8 +16,8 @@
  */
 package io.bsoa.rpc.listener;
 
-import io.bsoa.rpc.message.NegotiatorRequest;
-import io.bsoa.rpc.message.NegotiatorResponse;
+import io.bsoa.rpc.message.NegotiationRequest;
+import io.bsoa.rpc.message.NegotiationResponse;
 
 /**
  * <p></p>
@@ -31,8 +31,8 @@ public interface NegotiationListener {
     /**
      * 处理握手请求（服务端和客户端都可以互发）
      *
-     * @param negotiatorRequest 协商请求
+     * @param negotiationRequest 协商请求
      * @return 协商响应
      */
-    NegotiatorResponse handshake(NegotiatorRequest negotiatorRequest);
+    NegotiationResponse handshake(NegotiationRequest negotiationRequest);
 }

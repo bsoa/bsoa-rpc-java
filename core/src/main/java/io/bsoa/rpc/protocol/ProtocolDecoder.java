@@ -20,20 +20,28 @@ import io.bsoa.rpc.ext.Extensible;
 import io.bsoa.rpc.transport.AbstractByteBuf;
 
 /**
- * <p>协议解码器（注意，解码器应该不进行调用ByteBuf参数的释放，除非是解码过程中自己生产的Bytebuf）</p>
+ * <p>协议解码器（注意，解码器应该不进行调用ByteBuf参数的释放，除非是解码过程中自己生产的ByteBuf）</p>
  * <p>
  * Created by zhangg on 2016/12/17 18:39. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
 @Extensible
-public interface ProtocolDecoder {
+public abstract class ProtocolDecoder {
+
     /**
-     * 设置协议基本信息
-     *
-     * @param protocolInfo 协议信息
+     * 协议基本信息
      */
-    void setProtocolInfo(ProtocolInfo protocolInfo);
+    protected ProtocolInfo protocolInfo;
+
+    /**
+     * 构造函数
+     *
+     * @param protocolInfo 协议基本信息
+     */
+    public ProtocolDecoder(ProtocolInfo protocolInfo) {
+        this.protocolInfo = protocolInfo;
+    }
 
     /**
      * 头部解码
@@ -41,7 +49,7 @@ public interface ProtocolDecoder {
      * @param byteBuf 字节缓冲器
      * @param out     解析处理的对象列表
      */
-    Object decodeHeader(AbstractByteBuf byteBuf, Object out);
+    public abstract Object decodeHeader(AbstractByteBuf byteBuf, Object out);
 
     /**
      * body解码
@@ -49,7 +57,7 @@ public interface ProtocolDecoder {
      * @param byteBuf 字节缓冲器
      * @param out     解析处理的对象列表
      */
-    Object decodeBody(AbstractByteBuf byteBuf, Object out);
+    public abstract Object decodeBody(AbstractByteBuf byteBuf, Object out);
 
     /**
      * 全部解码
@@ -57,5 +65,5 @@ public interface ProtocolDecoder {
      * @param byteBuf 字节缓冲器
      * @param out     解析处理的对象列表
      */
-    Object decodeAll(AbstractByteBuf byteBuf, Object out);
+    public abstract Object decodeAll(AbstractByteBuf byteBuf, Object out);
 }

@@ -59,8 +59,8 @@ public class MessageBuilder {
      * @param request 协商请求
      * @return 协商结果
      */
-    public static NegotiatorResponse buildNegotiatorResponse(NegotiatorRequest request) {
-        NegotiatorResponse response = new NegotiatorResponse();
+    public static NegotiationResponse buildNegotiationResponse(NegotiationRequest request) {
+        NegotiationResponse response = new NegotiationResponse();
         response.setMessageId(request.getMessageId());
         return response;
     }
@@ -97,10 +97,10 @@ public class MessageBuilder {
                 baseMessage = new HeartbeatResponse();
                 break;
             case 5:
-                baseMessage = new NegotiatorRequest();
+                baseMessage = new NegotiationRequest();
                 break;
             case 6:
-                baseMessage = new NegotiatorResponse();
+                baseMessage = new NegotiationResponse();
                 break;
             default:
                 throw new BsoaRpcException(22222, "Value of attrs in message header must be byte/short/int/string");

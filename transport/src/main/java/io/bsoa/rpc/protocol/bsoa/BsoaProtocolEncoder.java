@@ -37,8 +37,8 @@ import io.bsoa.rpc.message.BaseMessage;
 import io.bsoa.rpc.message.HeartbeatRequest;
 import io.bsoa.rpc.message.HeartbeatResponse;
 import io.bsoa.rpc.message.MessageConstants;
-import io.bsoa.rpc.message.NegotiatorRequest;
-import io.bsoa.rpc.message.NegotiatorResponse;
+import io.bsoa.rpc.message.NegotiationRequest;
+import io.bsoa.rpc.message.NegotiationResponse;
 import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.message.RpcResponse;
 import io.bsoa.rpc.protocol.ProtocolEncoder;
@@ -58,27 +58,34 @@ import static io.bsoa.rpc.common.BsoaOptions.COMPRESS_SIZE_BASELINE;
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
 @Extension("bsoa")
-public class BsoaProtocolEncoder implements ProtocolEncoder {
+public class BsoaProtocolEncoder extends ProtocolEncoder {
 
     /**
      * slf4j Logger for this class
      */
     private final static Logger LOGGER = LoggerFactory.getLogger(BsoaProtocolEncoder.class);
 
+    /**
+     * 压缩是否开启，缓存
+     */
     private boolean compressOpen = BsoaConfigs.getBooleanValue(COMPRESS_OPEN);
+    /**
+     * 压缩开启大小，缓存
+     */
     private int compressSize = BsoaConfigs.getIntValue(COMPRESS_SIZE_BASELINE);
 
-    public BsoaProtocolEncoder() {
+    /**
+     * 构造函数
+     *
+     * @param protocolInfo
+     */
+    public BsoaProtocolEncoder(ProtocolInfo protocolInfo) {
+        super(protocolInfo);
+        // 订阅配置的变化
         BsoaConfigs.subscribe(COMPRESS_SIZE_BASELINE, (oldValue, newValue) -> compressSize = (int) newValue);
         BsoaConfigs.subscribe(COMPRESS_OPEN, (oldValue, newValue) -> compressOpen = (boolean) newValue);
     }
 
-    private ProtocolInfo protocolInfo;
-
-    @Override
-    public void setProtocolInfo(ProtocolInfo protocolInfo) {
-        this.protocolInfo = protocolInfo;
-    }
 
     @Override
     public void encodeHeader(Object object, AbstractByteBuf byteBuf) {
@@ -156,12 +163,12 @@ public class BsoaProtocolEncoder implements ProtocolEncoder {
             } else if (object instanceof HeartbeatResponse) {
                 out.writeLong(((HeartbeatResponse) object).getTimestamp());
                 totalLength += 8;
-            } else if (object instanceof NegotiatorRequest) {
-                NegotiatorRequest request = (NegotiatorRequest) object;
+            } else if (object instanceof NegotiationRequest) {
+                NegotiationRequest request = (NegotiationRequest) object;
                 totalLength += writeString(out, request.getCmd());
                 totalLength += writeString(out, request.getData());
-            } else if (object instanceof NegotiatorResponse) {
-                NegotiatorResponse response = (NegotiatorResponse) object;
+            } else if (object instanceof NegotiationResponse) {
+                NegotiationResponse response = (NegotiationResponse) object;
                 totalLength += writeString(out, response.getRes());
             }
             msg.setTotalLength(totalLength);

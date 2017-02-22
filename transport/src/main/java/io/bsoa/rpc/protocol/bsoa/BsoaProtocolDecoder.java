@@ -37,8 +37,8 @@ import io.bsoa.rpc.message.DecodableMessage;
 import io.bsoa.rpc.message.HeartbeatRequest;
 import io.bsoa.rpc.message.HeartbeatResponse;
 import io.bsoa.rpc.message.MessageBuilder;
-import io.bsoa.rpc.message.NegotiatorRequest;
-import io.bsoa.rpc.message.NegotiatorResponse;
+import io.bsoa.rpc.message.NegotiationRequest;
+import io.bsoa.rpc.message.NegotiationResponse;
 import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.message.RpcResponse;
 import io.bsoa.rpc.protocol.ProtocolDecoder;
@@ -55,18 +55,20 @@ import io.netty.buffer.ByteBuf;
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
 @Extension("bsoa")
-public class BsoaProtocolDecoder implements ProtocolDecoder {
+public class BsoaProtocolDecoder extends ProtocolDecoder {
 
     /**
      * slf4j Logger for this class
      */
     private final static Logger LOGGER = LoggerFactory.getLogger(BsoaProtocolDecoder.class);
 
-    private ProtocolInfo protocolInfo;
-
-    @Override
-    public void setProtocolInfo(ProtocolInfo protocolInfo) {
-        this.protocolInfo = protocolInfo;
+    /**
+     * 构造函数
+     *
+     * @param protocolInfo 协议基本信息
+     */
+    public BsoaProtocolDecoder(ProtocolInfo protocolInfo) {
+        super(protocolInfo);
     }
 
     @Override
@@ -147,12 +149,12 @@ public class BsoaProtocolDecoder implements ProtocolDecoder {
             } else if (object instanceof HeartbeatResponse) {
                 HeartbeatResponse response = (HeartbeatResponse) object;
                 response.setTimestamp(in.readLong());
-            } else if (object instanceof NegotiatorRequest) {
-                NegotiatorRequest request = (NegotiatorRequest) object;
+            } else if (object instanceof NegotiationRequest) {
+                NegotiationRequest request = (NegotiationRequest) object;
                 request.setCmd(readString(in));
                 request.setData(readString(in));
-            } else if (object instanceof NegotiatorResponse) {
-                NegotiatorResponse response = (NegotiatorResponse) object;
+            } else if (object instanceof NegotiationResponse) {
+                NegotiationResponse response = (NegotiationResponse) object;
                 response.setRes(readString(in));
             }
         } catch (BsoaRpcException e) {

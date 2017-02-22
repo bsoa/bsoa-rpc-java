@@ -19,7 +19,7 @@ package io.bsoa.rpc.invoke;
 import javax.annotation.concurrent.NotThreadSafe;
 
 /**
- * <p>面向用户的流式请求监听器</p>
+ * <p>面向用户的流式请求监听器，使用结束请务必关闭Stream</p>
  * <p>
  * Created by zhangg on 2017/2/10 23:29. <br/>
  *

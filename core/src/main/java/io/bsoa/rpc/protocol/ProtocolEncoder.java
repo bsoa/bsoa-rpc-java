@@ -27,14 +27,21 @@ import io.bsoa.rpc.transport.AbstractByteBuf;
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
 @Extensible
-public interface ProtocolEncoder {
+public abstract class ProtocolEncoder {
 
     /**
-     * 设置协议基本信息
-     *
-     * @param protocolInfo 协议信息
+     * 协议基本信息
      */
-    public void setProtocolInfo(ProtocolInfo protocolInfo);
+    protected ProtocolInfo protocolInfo;
+
+    /**
+     * 构造函数
+     *
+     * @param protocolInfo 协议基本信息
+     */
+    public ProtocolEncoder(ProtocolInfo protocolInfo) {
+        this.protocolInfo = protocolInfo;
+    }
 
     /**
      * 头部编码
@@ -42,7 +49,7 @@ public interface ProtocolEncoder {
      * @param object  对象
      * @param byteBuf 字节缓冲器
      */
-    void encodeHeader(Object object, AbstractByteBuf byteBuf);
+    public abstract void encodeHeader(Object object, AbstractByteBuf byteBuf);
 
     /**
      * body编码
@@ -50,7 +57,7 @@ public interface ProtocolEncoder {
      * @param object  对象
      * @param byteBuf 字节缓冲器
      */
-    void encodeBody(Object object, AbstractByteBuf byteBuf);
+    public abstract void encodeBody(Object object, AbstractByteBuf byteBuf);
 
     /**
      * 全部编码
@@ -58,5 +65,5 @@ public interface ProtocolEncoder {
      * @param object  对象
      * @param byteBuf 字节缓冲器
      */
-    void encodeAll(Object object, AbstractByteBuf byteBuf);
+    public abstract void encodeAll(Object object, AbstractByteBuf byteBuf);
 }

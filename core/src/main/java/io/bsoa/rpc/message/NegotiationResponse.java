@@ -22,31 +22,21 @@ import java.io.Serializable;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
  */
-public class NegotiatorRequest extends BaseMessage implements Serializable {
+public class NegotiationResponse extends BaseMessage implements Serializable {
 
-    private static final long serialVersionUID = 7947584366795439228L;
+    private static final long serialVersionUID = 7881204238549761441L;
 
-    public NegotiatorRequest() {
-        super(MessageConstants.NEGOTIATOR_REQUEST);
+    public NegotiationResponse() {
+        super(MessageConstants.NEGOTIATOR_RESPONSE);
     }
 
+    private String res;
 
-    private String cmd;
-    private String data;
-
-    public String getCmd() {
-        return cmd;
+    public String getRes() {
+        return res;
     }
 
-    public void setCmd(String cmd) {
-        this.cmd = cmd;
-    }
-
-    public String getData() {
-        return data;
-    }
-
-    public void setData(String data) {
-        this.data = data;
+    public void setRes(String res) {
+        this.res = res;
     }
 }

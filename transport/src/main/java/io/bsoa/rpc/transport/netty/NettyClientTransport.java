@@ -37,7 +37,7 @@ import io.bsoa.rpc.invoke.StreamUtils;
 import io.bsoa.rpc.message.BaseMessage;
 import io.bsoa.rpc.message.HeartbeatResponse;
 import io.bsoa.rpc.message.MessageConstants;
-import io.bsoa.rpc.message.NegotiatorResponse;
+import io.bsoa.rpc.message.NegotiationResponse;
 import io.bsoa.rpc.message.ResponseFuture;
 import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.message.RpcResponse;
@@ -388,7 +388,7 @@ public class NettyClientTransport extends ClientTransport {
     }
 
     @Override
-    public void receiveNegotiatorResponse(NegotiatorResponse response) {
+    public void receiveNegotiationResponse(NegotiationResponse response) {
         int messageId = response.getMessageId();
         NettyMessageFuture<BaseMessage> future = futureMap.get(messageId);
         if (future != null) {

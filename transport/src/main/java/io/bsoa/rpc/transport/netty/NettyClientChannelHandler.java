@@ -29,8 +29,8 @@ import io.bsoa.rpc.listener.ChannelListener;
 import io.bsoa.rpc.listener.NegotiationListener;
 import io.bsoa.rpc.message.HeadKey;
 import io.bsoa.rpc.message.HeartbeatResponse;
-import io.bsoa.rpc.message.NegotiatorRequest;
-import io.bsoa.rpc.message.NegotiatorResponse;
+import io.bsoa.rpc.message.NegotiationRequest;
+import io.bsoa.rpc.message.NegotiationResponse;
 import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.message.RpcResponse;
 import io.netty.channel.Channel;
@@ -101,20 +101,20 @@ public class NettyClientChannelHandler extends ChannelInboundHandlerAdapter {
                 clientTransport.receiveHeartbeatResponse(response);
             }
             // 协商请求：IO线程处理
-            else if (msg instanceof NegotiatorRequest) {
-                NegotiatorRequest request = (NegotiatorRequest) msg;
+            else if (msg instanceof NegotiationRequest) {
+                NegotiationRequest request = (NegotiationRequest) msg;
                 NegotiationListener listener = clientTransport.getConfig().getNegotiationListener();
                 if (listener == null) {
                     LOGGER.warn("Has no NegotiatorListener in client transport");
                 } else {
-                    NegotiatorResponse response = listener.handshake(request);
+                    NegotiationResponse response = listener.handshake(request);
                     channel.writeAndFlush(response);
                 }
             }
             // 协商响应：发起者线程处理
-            else if (msg instanceof NegotiatorResponse) {
-                NegotiatorResponse response = (NegotiatorResponse) msg;
-                clientTransport.receiveNegotiatorResponse(response);
+            else if (msg instanceof NegotiationResponse) {
+                NegotiationResponse response = (NegotiationResponse) msg;
+                clientTransport.receiveNegotiationResponse(response);
             }
             // RPC请求
             else if (msg instanceof RpcRequest) {

@@ -19,7 +19,7 @@ package io.bsoa.rpc.transport;
 import io.bsoa.rpc.ext.Extensible;
 import io.bsoa.rpc.message.BaseMessage;
 import io.bsoa.rpc.message.HeartbeatResponse;
-import io.bsoa.rpc.message.NegotiatorResponse;
+import io.bsoa.rpc.message.NegotiationResponse;
 import io.bsoa.rpc.message.ResponseFuture;
 import io.bsoa.rpc.message.RpcResponse;
 
@@ -132,7 +132,7 @@ public abstract class ClientTransport {
 
     }
 
-    public void receiveNegotiatorResponse(NegotiatorResponse response) {
+    public void receiveNegotiationResponse(NegotiationResponse response) {
 
     }
 

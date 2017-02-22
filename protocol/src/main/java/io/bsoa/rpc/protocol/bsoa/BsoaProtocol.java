@@ -48,10 +48,10 @@ public class BsoaProtocol implements Protocol {
 
     public BsoaProtocol() {
         protocolInfo = new BsoaProtocolInfo();
-        encoder = getExtensionLoader(ProtocolEncoder.class).getExtension("bsoa");
-        encoder.setProtocolInfo(protocolInfo);
-        decoder = getExtensionLoader(ProtocolDecoder.class).getExtension("bsoa");
-        decoder.setProtocolInfo(protocolInfo);
+        encoder = getExtensionLoader(ProtocolEncoder.class)
+                .getExtension("bsoa", new Class[]{ProtocolInfo.class}, new Object[]{protocolInfo});
+        decoder = getExtensionLoader(ProtocolDecoder.class)
+                .getExtension("bsoa", new Class[]{ProtocolInfo.class}, new Object[]{protocolInfo});
         protocolNegotiator = getExtensionLoader(ProtocolNegotiator.class).getExtension("bsoa");
     }
 

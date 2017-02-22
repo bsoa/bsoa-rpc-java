@@ -38,6 +38,5 @@ public class BsoaProtocolNegotiator implements ProtocolNegotiator{
 
     @Override
     public void addListener(NegotiationListener negotiationListener) {
-        return false;
     }
 }

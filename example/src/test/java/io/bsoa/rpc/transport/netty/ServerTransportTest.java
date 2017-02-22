@@ -24,7 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.bsoa.rpc.message.MessageBuilder;
-import io.bsoa.rpc.message.NegotiatorResponse;
+import io.bsoa.rpc.message.NegotiationResponse;
 import io.bsoa.rpc.server.bsoa.BsoaServerHandler;
 import io.bsoa.rpc.transport.ServerTransport;
 import io.bsoa.rpc.transport.ServerTransportConfig;
@@ -48,7 +48,7 @@ public class ServerTransportTest {
             LOGGER.info(negotiatorRequest.getCmd());
             LOGGER.info(negotiatorRequest.getCmd());
 
-            NegotiatorResponse response = MessageBuilder.buildNegotiatorResponse(negotiatorRequest);
+            NegotiationResponse response = MessageBuilder.buildNegotiationResponse(negotiatorRequest);
             response.setRes("nego response from server");
             return response;
         });
