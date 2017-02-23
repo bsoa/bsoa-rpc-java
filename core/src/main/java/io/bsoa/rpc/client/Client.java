@@ -18,6 +18,8 @@ package io.bsoa.rpc.client;
 import java.util.List;
 import javax.annotation.concurrent.ThreadSafe;
 
+import io.bsoa.rpc.base.Destroyable;
+import io.bsoa.rpc.base.Initializable;
 import io.bsoa.rpc.bootstrap.ConsumerBootstrap;
 import io.bsoa.rpc.ext.Extensible;
 import io.bsoa.rpc.message.RpcRequest;
@@ -32,7 +34,7 @@ import io.bsoa.rpc.message.RpcResponse;
  */
 @Extensible(singleton = false)
 @ThreadSafe
-public abstract class Client {
+public abstract class Client implements Initializable, Destroyable {
 
     /**
      * 服务端消费者启动器
@@ -47,10 +49,6 @@ public abstract class Client {
     public Client(ConsumerBootstrap consumerBootstrap) {
         this.consumerBootstrap = consumerBootstrap;
     }
-
-    public abstract void init();
-
-    public abstract void destroy();
 
     public abstract boolean isAvailable();
 
