@@ -35,12 +35,12 @@ import io.bsoa.rpc.common.utils.ExceptionUtils;
 import io.bsoa.rpc.common.utils.StringUtils;
 import io.bsoa.rpc.config.ConsumerConfig;
 import io.bsoa.rpc.config.RegistryConfig;
+import io.bsoa.rpc.context.AsyncContext;
 import io.bsoa.rpc.context.BsoaContext;
 import io.bsoa.rpc.context.RpcContext;
 import io.bsoa.rpc.context.RpcStatus;
 import io.bsoa.rpc.exception.BsoaRpcException;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
-import io.bsoa.rpc.context.AsyncContext;
 import io.bsoa.rpc.listener.ConsumerStateListener;
 import io.bsoa.rpc.listener.ResponseListener;
 import io.bsoa.rpc.message.HeadKey;
@@ -112,10 +112,7 @@ public abstract class AbstractClient extends Client {
 
     @Override
     public void init() {
-        this.consumerConfig = consumerConfig;
-
         // 负载均衡策略 考虑是否可动态替换？
-        String lb = consumerConfig.getLoadBalancer();
         loadBalancer = LoadBalancerFactory.getLoadBalancer(consumerConfig);
 
         routers = consumerConfig.getRouter();
@@ -123,7 +120,7 @@ public abstract class AbstractClient extends Client {
             routers = initRouterByRule();
         }
         // 连接管理器
-        connectionHolder = ConnectionHolderFactory.getConnectionHolder(consumerConfig.getConnectionHolder());
+        connectionHolder = ConnectionHolderFactory.getConnectionHolder(consumerConfig);
         if (consumerConfig.isLazy()) { // 延迟连接
             LOGGER.info("Connect will lazy init when first invoke.");
         } else { // 建立连接
@@ -163,7 +160,7 @@ public abstract class AbstractClient extends Client {
                 return;
             }
             // 启动重连线程
-            connectionHolder.init(consumerConfig);
+            connectionHolder.init();
             try {
                 // 得到服务端列表
                 List<ProviderInfo> tmpProviderInfoList = buildProviderList();
@@ -248,32 +245,21 @@ public abstract class AbstractClient extends Client {
         return tmpProviderInfoList;
     }
 
-    /**
-     * 增加Provider
-     *
-     * @param providerInfos Provider列表
-     */
+
+    @Override
     public void addProvider(List<ProviderInfo> providerInfos) {
         connectionHolder.addProvider(providerInfos);
     }
 
-    /**
-     * 删除Provider
-     *
-     * @param providerInfos Provider列表
-     */
+    @Override
     public void removeProvider(List<ProviderInfo> providerInfos) {
         connectionHolder.removeProvider(providerInfos);
     }
 
-    /**
-     * 更新Provider
-     *
-     * @param newProviderInfos Provider列表
-     */
-    public void updateProvider(List<ProviderInfo> newProviderInfos) {
+    @Override
+    public void updateProvider(List<ProviderInfo> providerInfos) {
         try {
-            if (CommonUtils.isEmpty(newProviderInfos)) {
+            if (CommonUtils.isEmpty(providerInfos)) {
                 if (CommonUtils.isNotEmpty(connectionHolder.currentProviderList())) {
                     LOGGER.info("Clear all providers, may be this consumer has been add to blacklist");
                     closeTransports();
@@ -283,7 +269,7 @@ public abstract class AbstractClient extends Client {
                 List<ProviderInfo> nowAllP = new ArrayList<ProviderInfo>(nowall);// 当前全部
 
                 // 比较当前的和最新的
-                ListDifference<ProviderInfo> diff = new ListDifference<ProviderInfo>(newProviderInfos, nowAllP);
+                ListDifference<ProviderInfo> diff = new ListDifference<ProviderInfo>(providerInfos, nowAllP);
                 List<ProviderInfo> needAdd = diff.getOnlyOnLeft(); // 需要新建
                 List<ProviderInfo> needDelete = diff.getOnlyOnRight(); // 需要删掉
                 if (!needAdd.isEmpty()) {
@@ -294,7 +280,7 @@ public abstract class AbstractClient extends Client {
                 }
             }
         } catch (Exception e) {
-            LOGGER.error("update " + consumerConfig.getInterfaceId() + " provider (" + newProviderInfos.size()
+            LOGGER.error("update " + consumerConfig.getInterfaceId() + " provider (" + providerInfos.size()
                     + ") from list error:", e);
         }
     }
@@ -651,8 +637,6 @@ public abstract class AbstractClient extends Client {
         }
         closeTransports();
         destroyed = true;
-        // 关闭已有连接
-        closeTransports();
         inited = false;
     }
 
@@ -661,23 +645,21 @@ public abstract class AbstractClient extends Client {
      * 注意：关闭有风险，可能有正在调用的请求，建议判断下isAvailable()
      */
     protected void closeTransports() {
-
-        connectionHolder.preDestroy();
-
-        // 准备关闭连接
-        int count = countOfInvoke.get();
-        final int timeout = consumerConfig.getDisconnectTimeout(); // 等待结果超时时间
-        if (count > 0) { // 有正在调用的请求
-            long start = BsoaContext.now();
-            LOGGER.warn("There are {} outstanding call in client, will close transports util return", count);
-            while (countOfInvoke.get() > 0 && BsoaContext.now() - start < timeout) { // 等待返回结果
-                try {
-                    Thread.sleep(10);
-                } catch (InterruptedException e) {
+        connectionHolder.destroy(() -> {
+            // 准备关闭连接
+            int count = countOfInvoke.get();
+            final int timeout = consumerConfig.getDisconnectTimeout(); // 等待结果超时时间
+            if (count > 0) { // 有正在调用的请求
+                long start = BsoaContext.now();
+                LOGGER.warn("There are {} outstanding call in client, will close transports util return", count);
+                while (countOfInvoke.get() > 0 && BsoaContext.now() - start < timeout) { // 等待返回结果
+                    try {
+                        Thread.sleep(10);
+                    } catch (InterruptedException e) {
+                    }
                 }
             }
-        }
-        connectionHolder.destroy();
+        });
     }
 
     /**

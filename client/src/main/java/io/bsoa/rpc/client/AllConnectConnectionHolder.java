@@ -42,7 +42,6 @@ import io.bsoa.rpc.common.utils.ExceptionUtils;
 import io.bsoa.rpc.common.utils.NetUtils;
 import io.bsoa.rpc.config.ConsumerConfig;
 import io.bsoa.rpc.context.AsyncContext;
-import io.bsoa.rpc.exception.BsoaRuntimeException;
 import io.bsoa.rpc.ext.Extension;
 import io.bsoa.rpc.listener.ConsumerStateListener;
 import io.bsoa.rpc.transport.ClientTransport;
@@ -57,13 +56,22 @@ import io.bsoa.rpc.transport.ClientTransportFactory;
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
 @Extension("all")
-public class AllConnectConnectionHolder implements ConnectionHolder {
+public class AllConnectConnectionHolder extends ConnectionHolder {
 
     /**
      * slf4j Logger for this class
      */
     private final static Logger LOGGER = LoggerFactory.getLogger(AllConnectConnectionHolder.class);
 
+    /**
+     * 构造函数
+     *
+     * @param consumerConfig 服务消费者配置
+     */
+    protected AllConnectConnectionHolder(ConsumerConfig consumerConfig) {
+        super(consumerConfig);
+    }
+    
     /**
      * 存活的客户端列表
      */
@@ -83,11 +91,6 @@ public class AllConnectConnectionHolder implements ConnectionHolder {
      * 客户端变化provider的锁
      */
     private Lock providerLock = new ReentrantLock();
-
-    /**
-     * 当前服务集群对应的Consumer信息
-     */
-    protected ConsumerConfig<?> consumerConfig;
 
     /**
      * Gets retry connections.
@@ -284,12 +287,10 @@ public class AllConnectConnectionHolder implements ConnectionHolder {
     }
 
     @Override
-    public void init(ConsumerConfig consumerConfig) {
-        if (this.consumerConfig != null) {
-            throw new BsoaRuntimeException(22222, "init call multi-times");
+    public void init() {
+        if (reconThread != null || hbThread != null) {
+            startReconnectThread();
         }
-        this.consumerConfig = consumerConfig;
-        startReconnectThread();
     }
 
     @Override
@@ -397,29 +398,6 @@ public class AllConnectConnectionHolder implements ConnectionHolder {
     }
 
     @Override
-    public void updateProviders(List<ProviderInfo> providerInfos) {
-
-    }
-
-    @Override
-    public Map<ProviderInfo, ClientTransport> clearProviders() {
-        providerLock.lock();
-        try {
-            // 当前存活+重试的
-            HashMap<ProviderInfo, ClientTransport> all = new HashMap<ProviderInfo, ClientTransport>(aliveConnections);
-            all.putAll(subHealthConnections);
-            all.putAll(retryConnections);
-            subHealthConnections.clear();
-            aliveConnections.clear();
-            retryConnections.clear();
-            heartbeat_failed_counter.clear();
-            return all;
-        } finally {
-            providerLock.unlock();
-        }
-    }
-
-    @Override
     public ConcurrentHashMap<ProviderInfo, ClientTransport> getAvailableConnections() {
         return aliveConnections.isEmpty() ? subHealthConnections : aliveConnections;
     }
@@ -496,39 +474,69 @@ public class AllConnectConnectionHolder implements ConnectionHolder {
     }
 
     @Override
-    public void preDestroy() {
+    public void destroy() {
+        destroy(null);
+    }
+
+    @Override
+    public void destroy(DestroyHook destroyHook) {
         // 关闭重连线程
         shutdownReconnectThread();
-        // 清空可用列表，不让再调了
+        // 关闭全部长连接
+        closeAllConnections(destroyHook);
+    }
+
+    /**
+     * 清空服务列表
+     *
+     * @return 带回收的服务列表
+     */
+    protected Map<ProviderInfo, ClientTransport> clearProviders() {
         providerLock.lock();
         try {
             // 当前存活+重试的
-            retryConnections.putAll(aliveConnections);
+            HashMap<ProviderInfo, ClientTransport> all = new HashMap<ProviderInfo, ClientTransport>(aliveConnections);
+            all.putAll(subHealthConnections);
+            all.putAll(retryConnections);
+            subHealthConnections.clear();
             aliveConnections.clear();
+            retryConnections.clear();
+            heartbeat_failed_counter.clear();
+            return all;
         } finally {
             providerLock.unlock();
         }
     }
 
-    @Override
-    public void destroy() {
-        // 清空所有列表
+    /**
+     * 销毁全部连接
+     *
+     * @param destroyHook 销毁钩子
+     */
+    protected void closeAllConnections(DestroyHook destroyHook) {
+        // 清空所有列表,不让再调了
         Map<ProviderInfo, ClientTransport> all = clearProviders();
-
+        if (destroyHook != null) {
+            try {
+                destroyHook.preDestroy();
+            } catch (Exception e) {
+                LOGGER.warn("22222", e);
+            }
+        }
         // 多线程销毁已经建立的连接
         int providerSize = all.size();
         if (providerSize > 0) {
             int timeout = consumerConfig.getDisconnectTimeout();
             int threads = Math.min(10, providerSize); // 最大10个
             final CountDownLatch latch = new CountDownLatch(providerSize);
-            ThreadPoolExecutor closepool = new ThreadPoolExecutor(threads, threads,
+            ThreadPoolExecutor closePool = new ThreadPoolExecutor(threads, threads,
                     0L, TimeUnit.MILLISECONDS,
                     new LinkedBlockingQueue<Runnable>(providerSize),
                     new NamedThreadFactory("CLI-DISCONN-" + consumerConfig.getInterfaceId(), true));
             for (Map.Entry<ProviderInfo, ClientTransport> entry : all.entrySet()) {
                 final ProviderInfo providerInfo = entry.getKey();
                 final ClientTransport transport = entry.getValue();
-                closepool.execute(new Runnable() {
+                closePool.execute(new Runnable() {
                     @Override
                     public void run() {
                         try {
@@ -548,7 +556,7 @@ public class AllConnectConnectionHolder implements ConnectionHolder {
             } catch (InterruptedException e) {
                 LOGGER.error("Exception when close transport", e);
             } finally {
-                closepool.shutdown();
+                closePool.shutdown();
             }
         }
     }

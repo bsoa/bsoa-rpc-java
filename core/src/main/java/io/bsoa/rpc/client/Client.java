@@ -50,15 +50,46 @@ public abstract class Client implements Initializable, Destroyable {
         this.consumerBootstrap = consumerBootstrap;
     }
 
+    /**
+     * 是否可用
+     * 
+     * @return
+     */
     public abstract boolean isAvailable();
 
+    /**
+     * 增加服务端列表 （增量）
+     *
+     * @param providerInfos 服务端列表
+     */
     public abstract void addProvider(List<ProviderInfo> providerInfos);
 
-    public abstract void checkStateChange(boolean originalState);
-
+    /**
+     * 删除服务端列表（增量）
+     *
+     * @param providerInfos 服务端列表
+     */
     public abstract void removeProvider(List<ProviderInfo> providerInfos);
 
-    public abstract void updateProvider(List<ProviderInfo> newProviderInfos);
+    /**
+     * 更新服务端列表（全量）
+     *
+     * @param providerInfos 服务端列表，为空代表清空已有列表
+     */
+    public abstract void updateProvider(List<ProviderInfo> providerInfos);
+    
+    /**
+     * 状态变化通知 TODO
+     *
+     * @param originalState
+     */
+    public abstract void checkStateChange(boolean originalState);
 
+    /**
+     * 发送请求
+     *
+     * @param rpcRequest Rpc请求
+     * @return Rpc响应
+     */
     public abstract RpcResponse sendMsg(RpcRequest rpcRequest);
 }

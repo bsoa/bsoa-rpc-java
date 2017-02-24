@@ -18,6 +18,8 @@ package io.bsoa.rpc.registry;
 
 import java.util.List;
 
+import io.bsoa.rpc.base.Destroyable;
+import io.bsoa.rpc.base.Initializable;
 import io.bsoa.rpc.client.ProviderInfo;
 import io.bsoa.rpc.config.ConsumerConfig;
 import io.bsoa.rpc.config.ProviderConfig;
@@ -32,24 +34,28 @@ import io.bsoa.rpc.listener.ProviderInfoListener;
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
 @Extensible(singleton = false)
-public interface Registry {
+public abstract class Registry implements Initializable, Destroyable {
 
     /**
-     * 初始化
+     * 注册中心服务配置
      */
-    public void init(RegistryConfig registryConfig);
+    protected RegistryConfig registryConfig;
 
+    /**
+     * 注册中心配置
+     *
+     * @param registryConfig 注册中心配置
+     */
+    protected Registry(RegistryConfig registryConfig) {
+        this.registryConfig = registryConfig;
+    }
+    
     /**
      * 启动
      *
      * @return
      */
-    public boolean start();
-
-    /**
-     * Destroy void.
-     */
-    public void destroy();
+    public abstract boolean start();
 
     /**
      * 注册服务提供者
@@ -57,21 +63,21 @@ public interface Registry {
      * @param config   Provider配置
      * @param listener 配置监听器
      */
-    public void register(ProviderConfig config, ConfigListener listener);
+    public abstract void register(ProviderConfig config, ConfigListener listener);
 
     /**
      * 反注册服务提供者
      *
      * @param config Provider配置
      */
-    public void unRegister(ProviderConfig config);
+    public abstract void unRegister(ProviderConfig config);
 
     /**
      * 反注册服务提供者
      *
      * @param configs Provider配置
      */
-    public void batchUnRegister(List<ProviderConfig> configs);
+    public abstract void batchUnRegister(List<ProviderConfig> configs);
 
     /**
      * 订阅服务列表
@@ -81,7 +87,7 @@ public interface Registry {
      * @param configListener   配置监听器
      * @return 当前Provider列表 list
      */
-    public List<ProviderInfo> subscribe(ConsumerConfig config, ProviderInfoListener providerInfoListener,
+    public abstract List<ProviderInfo> subscribe(ConsumerConfig config, ProviderInfoListener providerInfoListener,
                                         ConfigListener configListener);
 
     /**
@@ -89,13 +95,13 @@ public interface Registry {
      *
      * @param config Consumer配置
      */
-    public void unSubscribe(ConsumerConfig config);
+    public abstract void unSubscribe(ConsumerConfig config);
 
     /**
      * 反订阅服务调用者相关配置
      *
      * @param configs Consumer配置
      */
-    public void batchUnSubscribe(List<ConsumerConfig> configs);
+    public abstract void batchUnSubscribe(List<ConsumerConfig> configs);
 
 }

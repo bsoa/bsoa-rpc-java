@@ -67,8 +67,7 @@ public class RegistryFactory {
                     throw ExceptionUtils.buildRuntime(22222, "registry.protocol", registryConfig.getProtocol(),
                             "Unsupported protocol of registry config !");
                 }
-                registry = ext.getExtInstance();
-                registry.init(registryConfig);
+                registry = ext.getExtInstance(new Class[]{RegistryConfig.class}, new Object[]{registryConfig});
                 CLIENTREGISTRY_MAP.putIfAbsent(registryConfig, registry);
             }
             return registry;

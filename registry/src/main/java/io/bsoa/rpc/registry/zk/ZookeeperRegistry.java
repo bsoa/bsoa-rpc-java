@@ -73,13 +73,22 @@ import io.bsoa.rpc.registry.Registry;
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
 @Extension("zookeeper")
-public class ZookeeperRegistry implements Registry {
+public class ZookeeperRegistry extends Registry {
 
     /**
      * slf4j Logger for this class
      */
     private final static Logger LOGGER = LoggerFactory.getLogger(ZookeeperRegistry.class);
 
+    /**
+     * 注册中心配置
+     *
+     * @param registryConfig 注册中心配置
+     */
+    protected ZookeeperRegistry(RegistryConfig registryConfig) {
+        super(registryConfig);
+    }
+    
     /**
      * 配置项：是否本地优先
      */
@@ -131,7 +140,7 @@ public class ZookeeperRegistry implements Registry {
     private ZookeeperConfigObserver configObserver;
 
     @Override
-    public void init(RegistryConfig registryConfig) {
+    public void init() {
         String address = registryConfig.getAddress(); // xxx:2181,yyy:2181/path1/paht2
         int idx = address.indexOf("/");
         if (idx > 0) {

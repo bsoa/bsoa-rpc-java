@@ -19,7 +19,11 @@ public class ZookeeperRegistryTest {
 
     @BeforeClass
     public static void beforeClass() throws Exception {
-        zookeeperRegistry = new ZookeeperRegistry();
+        RegistryConfig config = new RegistryConfig()
+                .setAddress("127.0.0.1:2181")
+                .setParameter(PARAM_PREFER_LOCAL_FILE, "false")
+                .setParameter(PARAM_CREATE_EPHEMERAL, "true");
+        zookeeperRegistry = new ZookeeperRegistry(config);
     }
 
     @AfterClass
@@ -31,11 +35,7 @@ public class ZookeeperRegistryTest {
 
     @Test
     public void init() throws Exception {
-        RegistryConfig config = new RegistryConfig()
-                .setAddress("127.0.0.1:2181")
-                .setParameter(PARAM_PREFER_LOCAL_FILE, "false")
-                .setParameter(PARAM_CREATE_EPHEMERAL, "true");
-        zookeeperRegistry.init(config);
+        zookeeperRegistry.init();
     }
 
     @Test

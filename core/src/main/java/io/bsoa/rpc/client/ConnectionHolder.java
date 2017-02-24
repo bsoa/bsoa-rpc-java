@@ -18,10 +18,11 @@ package io.bsoa.rpc.client;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.concurrent.ThreadSafe;
 
+import io.bsoa.rpc.base.Destroyable;
+import io.bsoa.rpc.base.Initializable;
 import io.bsoa.rpc.config.ConsumerConfig;
 import io.bsoa.rpc.ext.Extensible;
 import io.bsoa.rpc.transport.ClientTransport;
@@ -35,54 +36,48 @@ import io.bsoa.rpc.transport.ClientTransport;
  */
 @Extensible(singleton = false)
 @ThreadSafe
-public interface ConnectionHolder {
+public abstract class ConnectionHolder implements Initializable, Destroyable {
 
     /**
-     * 初始化
+     * 服务消费者配置
      */
-    public void init(ConsumerConfig consumerConfig);
+    protected ConsumerConfig consumerConfig;
+
+    /**
+     * 构造函数
+     * @param consumerConfig 服务消费者配置
+     */
+    protected ConnectionHolder(ConsumerConfig consumerConfig){
+        this.consumerConfig = consumerConfig;
+    }
 
     /**
      * 增加多个服务提供者
      *
      * @param providerInfos 多个服务提供者
      */
-    public void addProvider(List<ProviderInfo> providerInfos);
+    public abstract void addProvider(List<ProviderInfo> providerInfos);
 
     /**
      * 刪除多个服务提供者
      *
      * @param providerInfos 多个服务提供者
      */
-    public void removeProvider(List<ProviderInfo> providerInfos);
-
-    /**
-     * 覆盖多个服务提供者
-     *
-     * @param providerInfos 多个服务提供者
-     */
-    public void updateProviders(List<ProviderInfo> providerInfos);
-
-    /**
-     * 清空服务提供者
-     *
-     * @return 多个服务提供者
-     */
-    public Map<ProviderInfo, ClientTransport> clearProviders();
+    public abstract void removeProvider(List<ProviderInfo> providerInfos);
 
     /**
      * 存活的连接
      *
      * @return the alive connections
      */
-    public ConcurrentHashMap<ProviderInfo, ClientTransport> getAvailableConnections();
+    public abstract ConcurrentHashMap<ProviderInfo, ClientTransport> getAvailableConnections();
 
     /**
      * 存活的全部provider
      *
      * @return all alive providers
      */
-    public List<ProviderInfo> getAvailableProviders();
+    public abstract List<ProviderInfo> getAvailableProviders();
 
     /**
      * 根据provider查找存活的ClientTransport
@@ -90,45 +85,35 @@ public interface ConnectionHolder {
      * @param providerInfo the provider
      * @return the client transport
      */
-    public ClientTransport getAvailableClientTransport(ProviderInfo providerInfo);
+    public abstract ClientTransport getAvailableClientTransport(ProviderInfo providerInfo);
 
     /**
      * 是否没有存活的的provider
      *
      * @return all alive providers
      */
-    public boolean isAvailableEmpty();
+    public abstract boolean isAvailableEmpty();
 
     /**
      * 获取当前的Provider列表（包括连上和没连上的）
      *
      * @return 当前的Provider列表 set
      */
-    public Collection<ProviderInfo> currentProviderList();
+    public abstract Collection<ProviderInfo> currentProviderList();
 
     /**
      * 设置为不可用
      *
-     * @param providerInfo  Provider
-     * @param transport 连接
+     * @param providerInfo Provider
+     * @param transport    连接
      */
-    public void setUnavailable(ProviderInfo providerInfo, ClientTransport transport);
+    public abstract void setUnavailable(ProviderInfo providerInfo, ClientTransport transport);
 
     /**
-     * 销毁之前做的事情
-     */
-    public void preDestroy();
-
-    /**
-     * 销毁
-     */
-    public void destroy();
-
-    /**
-     *
      * @param providerInfo
      * @param clientTransport
      */
-    public default void handshake(ProviderInfo providerInfo, ClientTransport clientTransport) {};
+    public void handshake(ProviderInfo providerInfo, ClientTransport clientTransport) {
+    }
 
 }

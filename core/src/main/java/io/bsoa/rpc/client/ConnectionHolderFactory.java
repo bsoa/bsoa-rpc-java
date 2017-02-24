@@ -17,6 +17,7 @@
 package io.bsoa.rpc.client;
 
 import io.bsoa.rpc.common.utils.ExceptionUtils;
+import io.bsoa.rpc.config.ConsumerConfig;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
 import io.bsoa.rpc.ext.ExtensionClass;
 import io.bsoa.rpc.ext.ExtensionLoader;
@@ -36,19 +37,20 @@ public class ConnectionHolderFactory {
             = ExtensionLoaderFactory.getExtensionLoader(ConnectionHolder.class);
 
     /**
-     * 根据名字的到负载均衡器
+     * 根据配置得到连接管理器
      *
-     * @param connectionHolder 负载均衡器名字
+     * @param consumerConfig 服务消费者配置
      * @return ConnectionHolder
      */
-    public static ConnectionHolder getConnectionHolder(String connectionHolder) {
+    public static ConnectionHolder getConnectionHolder(ConsumerConfig consumerConfig) {
         try {
+            String connectionHolder = consumerConfig.getConnectionHolder();
             ExtensionClass<ConnectionHolder> ext = EXTENSION_LOADER.getExtensionClass(connectionHolder);
             if (ext == null) {
                 throw ExceptionUtils.buildRuntime(22222, "consumer.connectionHolder", connectionHolder,
                         "Unsupported connectionHolder of client!");
             }
-            return ext.getExtInstance();
+            return ext.getExtInstance(new Class[]{ConsumerConfig.class}, new Object[]{consumerConfig});
         } catch (BsoaRuntimeException e) {
             throw e;
         } catch (Exception e) {
