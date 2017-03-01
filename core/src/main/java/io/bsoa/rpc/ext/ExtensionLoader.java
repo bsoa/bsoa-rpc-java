@@ -16,18 +16,6 @@
  */
 package io.bsoa.rpc.ext;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.lang.reflect.Modifier;
-import java.net.URL;
-import java.util.Comparator;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.bsoa.rpc.common.BsoaConfigs;
 import io.bsoa.rpc.common.BsoaOptions;
 import io.bsoa.rpc.common.annotation.JustForTest;
@@ -36,6 +24,17 @@ import io.bsoa.rpc.common.utils.ClassTypeUtils;
 import io.bsoa.rpc.common.utils.StringUtils;
 import io.bsoa.rpc.context.BsoaContext;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.lang.reflect.Modifier;
+import java.net.URL;
+import java.util.Comparator;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * <p>一个可扩展接口类，对应一个加载器</p>
@@ -244,11 +243,9 @@ public class ExtensionLoader<T> {
                     + interfaceClass + " from file:" + url + ", Duplicate class with same alias: "
                     + alias + ", " + old.getClazz() + " and " + implClass);
         } else {
-            ExtensionClass<T> extensionClass = new ExtensionClass<T>();
-            extensionClass.setAlias(alias);
+            ExtensionClass<T> extensionClass = new ExtensionClass<T>(implClass, alias);
             extensionClass.setCode(extension.code());
             extensionClass.setSingleton(extensible.singleton());
-            extensionClass.setClazz(implClass);
             extensionClass.setOrder(extension.order());
             all.put(alias, extensionClass);
             if (listener != null) {
@@ -311,7 +308,8 @@ public class ExtensionLoader<T> {
     public T getExtension(String alias) {
         ExtensionClass<T> extensionClass = getExtensionClass(alias);
         if (extensionClass == null) {
-            throw new BsoaRuntimeException(22222, "Extension Not Found :\"" + alias + "\"!");
+            throw new BsoaRuntimeException(22222, "Not found extension of " + interfaceName
+                    + " named: \"" + alias + "\"!");
         } else {
             if (extensible.singleton() && factory != null) {
                 T t = factory.get(alias);

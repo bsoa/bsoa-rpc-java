@@ -15,10 +15,10 @@
  */
 package io.bsoa.rpc.ext;
 
+import org.junit.Test;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import org.junit.Test;
 
 /**
  * Created by zhangg on 17-01-20.
@@ -30,13 +30,13 @@ public class OrderComparatorTest {
     public void compare() throws Exception {
 
         List<ExtensionClass> list = new ArrayList<>();
-        list.add(new ExtensionClass().setAlias("a").setOrder(10));
-        list.add(new ExtensionClass().setAlias("b").setOrder(2));
-        list.add(new ExtensionClass().setAlias("c").setOrder(6));
-        list.add(new ExtensionClass().setAlias("d").setOrder(6));
-        list.add(new ExtensionClass().setAlias("e").setOrder(0));
-        list.add(new ExtensionClass().setAlias("f").setOrder(-1));
-        list.add(new ExtensionClass().setAlias("g").setOrder(10));
+        list.add(new ExtensionClass(null, "a").setOrder(10));
+        list.add(new ExtensionClass(null, "b").setOrder(2));
+        list.add(new ExtensionClass(null, "c").setOrder(6));
+        list.add(new ExtensionClass(null, "d").setOrder(6));
+        list.add(new ExtensionClass(null, "e").setOrder(0));
+        list.add(new ExtensionClass(null, "f").setOrder(-1));
+        list.add(new ExtensionClass(null, "g").setOrder(10));
         list.sort(new ExtensionLoader.OrderComparator());
 
         for (ExtensionClass extensionClass : list) {

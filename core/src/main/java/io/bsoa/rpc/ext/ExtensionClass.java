@@ -16,10 +16,10 @@
  */
 package io.bsoa.rpc.ext;
 
+import io.bsoa.rpc.common.utils.ClassUtils;
+import io.bsoa.rpc.exception.BsoaRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import io.bsoa.rpc.common.utils.ClassUtils;
 
 /**
  * Created by zhangg on 2016/7/14 21:57.
@@ -37,10 +37,13 @@ public class ExtensionClass<T> {
     private static final Logger logger = LoggerFactory.getLogger(ExtensionClass.class);
 
     /**
-     * The Alias.
+     * 扩展接口实现类名
+     */
+    protected final Class<? extends T> clazz;
+    /**
      * 扩展别名,不是provider tags
      */
-    protected String alias;
+    protected final String alias;
     /**
      * 扩展编码，必须唯一
      */
@@ -49,31 +52,27 @@ public class ExtensionClass<T> {
      * 是否单例
      */
     protected boolean singleton;
-    /**
-     * 扩展接口实现类名
-     */
-    protected Class<? extends T> clazz;
+
     /**
      * 扩展点排序值
      */
     protected int order;
-//    /**
-//     * 是否自动激活该扩展
-//     */
-//    protected boolean autoActive;
-//    /**
-//     * 服务提供者端是否自动激活
-//     */
-//    protected boolean providerSide;
-//    /**
-//     * 服务调用端是否自动激活
-//     */
-//    protected boolean consumerSide;
 
     /**
      * 服务端实例对象（只在是单例的时候保留）
      */
     private volatile transient T instance;
+
+    /**
+     * 构造函数
+     *
+     * @param clazz 扩展实现类名
+     * @param alias 扩展别名
+     */
+    public ExtensionClass(Class<? extends T> clazz, String alias) {
+        this.clazz = clazz;
+        this.alias = alias;
+    }
 
     /**
      * 得到服务端实例对象，如果是单例则返回单例对象，如果不是则返回新创建的实例对象
@@ -83,7 +82,6 @@ public class ExtensionClass<T> {
     public T getExtInstance() {
         return getExtInstance(null, null);
     }
-
 
     /**
      * 得到服务端实例对象，如果是单例则返回单例对象，如果不是则返回新创建的实例对象
@@ -106,10 +104,11 @@ public class ExtensionClass<T> {
                     return ClassUtils.newInstanceWithArgs(clazz, argTypes, args);
                 }
             } catch (Exception e) {
-                logger.error("create " + clazz.getCanonicalName() + "instance error", e);
+                // logger.error("create " + clazz.getCanonicalName() + " instance error", e);
+                throw new BsoaRuntimeException(22222, "create " + clazz.getCanonicalName() + " instance error", e);
             }
         }
-        return null;
+        throw new BsoaRuntimeException(22222, "Class of ExtensionClass is null");
     }
 
 
@@ -120,17 +119,6 @@ public class ExtensionClass<T> {
      */
     public String getAlias() {
         return alias;
-    }
-
-    /**
-     * Sets tag.
-     *
-     * @param alias the tag
-     * @return the tag
-     */
-    public ExtensionClass setAlias(String alias) {
-        this.alias = alias;
-        return this;
     }
 
     /**
@@ -181,17 +169,6 @@ public class ExtensionClass<T> {
     }
 
     /**
-     * Sets clazz.
-     *
-     * @param clazz the clazz
-     * @return the clazz
-     */
-    public ExtensionClass setClazz(Class<? extends T> clazz) {
-        this.clazz = clazz;
-        return this;
-    }
-
-    /**
      * Gets order.
      *
      * @return the order
@@ -211,66 +188,6 @@ public class ExtensionClass<T> {
         return this;
     }
 
-//    /**
-//     * Is provider side boolean.
-//     *
-//     * @return the boolean
-//     */
-//    public boolean isProviderSide() {
-//        return providerSide;
-//    }
-//
-//    /**
-//     * Sets provider side.
-//     *
-//     * @param providerSide the provider side
-//     * @return the provider side
-//     */
-//    public ExtensionClass setProviderSide(boolean providerSide) {
-//        this.providerSide = providerSide;
-//        return this;
-//    }
-//
-//    /**
-//     * Is consumer side boolean.
-//     *
-//     * @return the boolean
-//     */
-//    public boolean isConsumerSide() {
-//        return consumerSide;
-//    }
-//
-//    /**
-//     * Sets consumer side.
-//     *
-//     * @param consumerSide the consumer side
-//     * @return the consumer side
-//     */
-//    public ExtensionClass setConsumerSide(boolean consumerSide) {
-//        this.consumerSide = consumerSide;
-//        return this;
-//    }
-//
-//    /**
-//     * Is auto active boolean.
-//     *
-//     * @return the boolean
-//     */
-//    public boolean isAutoActive() {
-//        return autoActive;
-//    }
-//
-//    /**
-//     * Sets auto active.
-//     *
-//     * @param autoActive the auto active
-//     * @return the auto active
-//     */
-//    public ExtensionClass setAutoActive(boolean autoActive) {
-//        this.autoActive = autoActive;
-//        return this;
-//    }
-
     @Override
     public String toString() {
         return "ExtensibleClass{" +
@@ -278,9 +195,6 @@ public class ExtensionClass<T> {
                 ", code=" + code +
                 ", clazz=" + clazz +
                 ", order=" + order +
-//                ", providerSide=" + providerSide +
-//                ", consumerSide=" + consumerSide +
-//                ", autoActive=" + autoActive +
                 '}';
     }
 }

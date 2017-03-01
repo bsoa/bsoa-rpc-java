@@ -15,17 +15,16 @@
  */
 package io.bsoa.rpc.ext;
 
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
+import io.bsoa.rpc.filter.Filter;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.bsoa.rpc.filter.Filter;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Created by zhangg on 17-01-20.
@@ -43,12 +42,12 @@ public class ExtensionLoaderTest {
     @Test
     public void testCompare() throws Exception {
         List<ExtensionClass> list = new ArrayList<>();
-        list.add(new ExtensionClass().setAlias("1").setOrder(10));
-        list.add(new ExtensionClass().setAlias("2").setOrder(0));
-        list.add(new ExtensionClass().setAlias("3").setOrder(0));
-        list.add(new ExtensionClass().setAlias("4").setOrder(5));
-        list.add(new ExtensionClass().setAlias("5").setOrder(12));
-        list.add(new ExtensionClass().setAlias("6").setOrder(2));
+        list.add(new ExtensionClass(null, "1").setOrder(10));
+        list.add(new ExtensionClass(null, "2").setOrder(0));
+        list.add(new ExtensionClass(null, "3").setOrder(0));
+        list.add(new ExtensionClass(null, "4").setOrder(5));
+        list.add(new ExtensionClass(null, "5").setOrder(12));
+        list.add(new ExtensionClass(null, "6").setOrder(2));
 
         Collections.sort(list, new ExtensionLoader.OrderComparator());
 
