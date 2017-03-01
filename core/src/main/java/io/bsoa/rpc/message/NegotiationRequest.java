@@ -26,27 +26,38 @@ public class NegotiationRequest extends BaseMessage implements Serializable {
 
     private static final long serialVersionUID = 7947584366795439228L;
 
+    /**
+     * 构造函数
+     */
     public NegotiationRequest() {
         super(MessageConstants.NEGOTIATOR_REQUEST);
     }
 
-
+    /**
+     * 命令
+     */
     private String cmd;
+    
+    /**
+     * 数据
+     */
     private String data;
 
     public String getCmd() {
         return cmd;
     }
 
-    public void setCmd(String cmd) {
+    public NegotiationRequest setCmd(String cmd) {
         this.cmd = cmd;
+        return this;
     }
 
     public String getData() {
         return data;
     }
 
-    public void setData(String data) {
+    public NegotiationRequest setData(String data) {
         this.data = data;
+        return this;
     }
 }

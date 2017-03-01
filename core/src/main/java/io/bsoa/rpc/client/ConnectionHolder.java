@@ -108,12 +108,4 @@ public abstract class ConnectionHolder implements Initializable, Destroyable {
      * @param transport    连接
      */
     public abstract void setUnavailable(ProviderInfo providerInfo, ClientTransport transport);
-
-    /**
-     * @param providerInfo
-     * @param clientTransport
-     */
-    public void handshake(ProviderInfo providerInfo, ClientTransport clientTransport) {
-    }
-
 }

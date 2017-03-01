@@ -44,6 +44,9 @@ import io.bsoa.rpc.config.ConsumerConfig;
 import io.bsoa.rpc.context.AsyncContext;
 import io.bsoa.rpc.ext.Extension;
 import io.bsoa.rpc.listener.ConsumerStateListener;
+import io.bsoa.rpc.protocol.Protocol;
+import io.bsoa.rpc.protocol.ProtocolFactory;
+import io.bsoa.rpc.protocol.ProtocolNegotiator;
 import io.bsoa.rpc.transport.ClientTransport;
 import io.bsoa.rpc.transport.ClientTransportConfig;
 import io.bsoa.rpc.transport.ClientTransportFactory;
@@ -150,8 +153,17 @@ public class AllConnectConnectionHolder extends ConnectionHolder {
         }
     }
 
+    /**
+     * 检查状态是否可用
+     *
+     * @param providerInfo    服务提供者信息
+     * @param clientTransport 客户端长连接
+     * @return 状态是否可用
+     */
     public boolean checkState(ProviderInfo providerInfo, ClientTransport clientTransport) {
-        return true; // TODO
+        Protocol protocol = ProtocolFactory.getProtocol(providerInfo.getProtocolType());
+        ProtocolNegotiator negotiator = protocol.negotiator();
+        return negotiator.handshake(providerInfo, clientTransport);
     }
 
     /**
@@ -243,13 +255,13 @@ public class AllConnectConnectionHolder extends ConnectionHolder {
      * 2.连接断线后（心跳+调用），如果是可用节点为空
      */
     public void notifyStateChangeToUnavailable() {
-        final List<ConsumerStateListener> onprepear = consumerConfig.getOnAvailable();
-        if (onprepear != null) {
+        final List<ConsumerStateListener> onAvailable = consumerConfig.getOnAvailable();
+        if (onAvailable != null) {
             AsyncContext.getAsyncThreadPool().execute(new Runnable() {
                 @Override
                 public void run() {
                     // 状态变化通知监听器
-                    for (ConsumerStateListener listener : onprepear) {
+                    for (ConsumerStateListener listener : onAvailable) {
                         try {
                             listener.onUnavailable(consumerConfig.getBootstrap().getProxyIns());
                         } catch (Exception e) {

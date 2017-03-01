@@ -35,4 +35,6 @@ public interface NegotiationListener {
      * @return 协商响应
      */
     NegotiationResponse handshake(NegotiationRequest negotiationRequest);
+    
+    
 }
