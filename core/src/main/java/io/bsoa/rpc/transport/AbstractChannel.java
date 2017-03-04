@@ -46,14 +46,14 @@ public interface AbstractChannel {
      *
      * @return the remote address
      */
-    InetSocketAddress getRemoteAddress();
+    InetSocketAddress remoteAddress();
 
     /**
      * 得到连接的本地地址（如果是短连接，可能不准）
      *
      * @return the local address
      */
-    InetSocketAddress getLocalAddress();
+    InetSocketAddress localAddress();
 
     /**
      * 写入数据

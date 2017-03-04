@@ -16,11 +16,10 @@
  */
 package io.bsoa.rpc.transport;
 
-import java.util.List;
-
 import io.bsoa.rpc.client.ProviderInfo;
 import io.bsoa.rpc.listener.ChannelListener;
-import io.bsoa.rpc.listener.NegotiationListener;
+
+import java.util.List;
 
 import static io.bsoa.rpc.common.BsoaConfigs.getBooleanValue;
 import static io.bsoa.rpc.common.BsoaConfigs.getIntValue;
@@ -59,7 +58,6 @@ public class ClientTransportConfig {
     private boolean useEpoll = getBooleanValue(TRANSPORT_USE_EPOLL);
 
     private List<ChannelListener> channelListeners; // 连接事件监听器
-    private NegotiationListener negotiationListener;
 
     public ProviderInfo getProviderInfo() {
         return providerInfo;
@@ -139,15 +137,6 @@ public class ClientTransportConfig {
 
     public ClientTransportConfig setChannelListeners(List<ChannelListener> channelListeners) {
         this.channelListeners = channelListeners;
-        return this;
-    }
-
-    public NegotiationListener getNegotiationListener() {
-        return negotiationListener;
-    }
-
-    public ClientTransportConfig setNegotiationListener(NegotiationListener negotiationListener) {
-        this.negotiationListener = negotiationListener;
         return this;
     }
 }

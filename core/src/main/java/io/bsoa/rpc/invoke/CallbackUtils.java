@@ -16,15 +16,6 @@
  */
 package io.bsoa.rpc.invoke;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.bsoa.rpc.common.BsoaConfigs;
 import io.bsoa.rpc.common.BsoaOptions;
 import io.bsoa.rpc.common.SystemInfo;
@@ -36,6 +27,14 @@ import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.transport.AbstractChannel;
 import io.bsoa.rpc.transport.ClientTransport;
 import io.bsoa.rpc.transport.ClientTransportFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * <p></p>
@@ -260,7 +259,7 @@ public class CallbackUtils {
                     String methodName = request.getMethodName();
                     // 生成callbackInsKey
                     String callbackInsKey = CallbackUtils.cacheLocalCallback(interfaceId,
-                            methodName, callbackIns, channel.getLocalAddress().getPort());
+                            methodName, callbackIns, channel.localAddress().getPort());
                     Class reqClass = CallbackContext.getParamTypeOfCallbackMethod(
                             ClassUtils.getMethodKey(interfaceId, methodName));
                     // 如果是Callback本地实例 则置为一个包装类

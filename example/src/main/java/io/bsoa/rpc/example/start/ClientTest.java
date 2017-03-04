@@ -43,29 +43,44 @@ public class ClientTest {
                 .setUrl("bsoa://127.0.0.1:22000")
                 .setRegister(false);
         HelloService helloService = consumerConfig.refer();
-        try {
-            String s = helloService.sayHello("xxx", 22);
-            LOGGER.warn("{}", s);
-        } catch (Exception e) {
-            LOGGER.error("", e);
+//        try {
+//            for (int i = 0; i < 100; i++) {
+//                String s = helloService.sayHello("xxx", 22);
+//                LOGGER.warn("{}", s);
+//                try {
+//                    Thread.sleep(2000);
+//                } catch (Exception e) {
+//                    // TODO
+//                }
+//            }
+//
+//        } catch (Exception e) {
+//            LOGGER.error("", e);
+//        }
+
+        synchronized (ClientTest.class){
+            while (true){
+                ClientTest.class.wait();
+            }
         }
 
-
-        ConsumerConfig<HelloService> consumerConfig2 = new ConsumerConfig<HelloService>()
-                .setInterfaceId(HelloService.class.getName())
-                .setUrl("bsoa://127.0.0.1:22000")
-                .setRegister(false);
-        HelloService helloService2 = consumerConfig2.refer();
-        try {
-            String s = helloService2.sayHello("xxx", 22);
-            LOGGER.warn("{}", s);
-        } catch (Exception e) {
-            LOGGER.error("", e);
-        }
-
-        consumerConfig.unRefer();
-
-        consumerConfig2.unRefer();
+//        consumerConfig.unRefer();
+//
+//        ConsumerConfig<HelloService> consumerConfig2 = new ConsumerConfig<HelloService>()
+//                .setInterfaceId(HelloService.class.getName())
+//                .setUrl("bsoa://127.0.0.1:22000")
+//                .setRegister(false);
+//        HelloService helloService2 = consumerConfig2.refer();
+//        try {
+//            String s = helloService2.sayHello("xxx", 22);
+//            LOGGER.warn("{}", s);
+//        } catch (Exception e) {
+//            LOGGER.error("", e);
+//        }
+//
+//
+//
+//        consumerConfig2.unRefer();
     }
 
 }

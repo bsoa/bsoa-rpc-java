@@ -16,9 +16,6 @@
  */
 package io.bsoa.rpc.invoke;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.bsoa.rpc.common.utils.NetUtils;
 import io.bsoa.rpc.context.BsoaContext;
 import io.bsoa.rpc.exception.BsoaRpcException;
@@ -31,6 +28,8 @@ import io.bsoa.rpc.protocol.Protocol;
 import io.bsoa.rpc.protocol.ProtocolFactory;
 import io.bsoa.rpc.transport.AbstractByteBuf;
 import io.bsoa.rpc.transport.AbstractChannel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p></p>
@@ -97,13 +96,16 @@ public class CallbackTask implements Runnable {
                 if (CallbackContext.METHOD_NOTIFY.equals(methodName)) {
                     Object ret = callback.notify(request.getArgs()[0]);
                     response.setReturnData(ret);
+                } else if (CallbackContext.METHOD_CLOSE.equals(methodName)) {
+                    callback.close();
+                    CallbackContext.removeCallbackIns(callbackInsKey);
                 } else {
                     response.setException(new BsoaRpcException(22222,
                             "Can not found method named \"" + methodName + "\""));
                 }
             } catch (Exception e) {
                 LOGGER.error("Callback handler catch exception in channel "
-                        + NetUtils.channelToString(channel.getRemoteAddress(), channel.getLocalAddress())
+                        + NetUtils.channelToString(channel.remoteAddress(), channel.localAddress())
                         + ", error message is :" + e.getMessage(), e);
                 response.setException(new BsoaRpcException(22222, "22222"));
             } finally {

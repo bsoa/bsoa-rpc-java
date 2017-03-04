@@ -16,6 +16,13 @@
  */
 package io.bsoa.rpc.common;
 
+import io.bsoa.rpc.common.json.JSON;
+import io.bsoa.rpc.common.utils.ClassLoaderUtils;
+import io.bsoa.rpc.common.utils.FileUtils;
+import io.bsoa.rpc.exception.BsoaRuntimeException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -27,14 +34,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import io.bsoa.rpc.common.json.JSON;
-import io.bsoa.rpc.common.utils.ClassLoaderUtils;
-import io.bsoa.rpc.common.utils.FileUtils;
-import io.bsoa.rpc.exception.BsoaRuntimeException;
 
 /**
  * <p>配置加载器和操作入口</p>
@@ -59,7 +58,7 @@ public class BsoaConfigs {
     private final static ConcurrentHashMap<String, List<ConfigListener>> CFG_LISTENER = new ConcurrentHashMap<>();
 
     static {
-        init();
+        init(); // 加载配置文件
     }
 
     private static void init() {
@@ -76,7 +75,10 @@ public class BsoaConfigs {
             loadCustom("bsoa.json");
             loadCustom("META-INF/bsoa.json");
 
-            CFG.putAll(new HashMap(System.getProperties())); //读取system.properties
+            // load system properties
+            CFG.putAll(new HashMap(System.getProperties()));
+
+            // print if debug
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Load config from file end!");
                 for (Map.Entry<String, Object> entry : CFG.entrySet()) {
@@ -88,6 +90,12 @@ public class BsoaConfigs {
         }
     }
 
+    /**
+     * 加载自定义配置文件
+     *
+     * @param fileName 文件名
+     * @throws IOException 加载异常
+     */
     private static void loadCustom(String fileName) throws IOException {
         ClassLoader classLoader = ClassLoaderUtils.getClassLoader(BsoaConfigs.class);
         Enumeration<URL> urls = classLoader != null ? classLoader.getResources(fileName)
@@ -112,34 +120,10 @@ public class BsoaConfigs {
                     allFile.add(new CfgFile(url, order == null ? 0 : order, map));
                 }
             }
-            Collections.sort(allFile, (o1, o2) -> o1.getOrder() - o2.getOrder());  // 排下序
+            Collections.sort(allFile, (o1, o2) -> o1.getOrder() - o2.getOrder());  // 从小到大排下序
             for (CfgFile file : allFile) {
-                CFG.putAll(file.getMap());
+                CFG.putAll(file.getMap()); // 顺序加载，越大越后加载
             }
-        }
-    }
-
-    private static class CfgFile {
-        private final URL url;
-        private final int order;
-        private final Map map;
-
-        public CfgFile(URL url, int order, Map map) {
-            this.url = url;
-            this.order = order;
-            this.map = map;
-        }
-
-        public URL getUrl() {
-            return url;
-        }
-
-        public int getOrder() {
-            return order;
-        }
-
-        public Map getMap() {
-            return map;
         }
     }
 
@@ -290,6 +274,33 @@ public class BsoaConfigs {
         return oldObj == null ?
                 newObj != null :
                 !oldObj.equals(newObj);
+    }
+
+    /**
+     * 用于排序的一个类
+     */
+    private static class CfgFile {
+        private final URL url;
+        private final int order;
+        private final Map map;
+
+        public CfgFile(URL url, int order, Map map) {
+            this.url = url;
+            this.order = order;
+            this.map = map;
+        }
+
+        public URL getUrl() {
+            return url;
+        }
+
+        public int getOrder() {
+            return order;
+        }
+
+        public Map getMap() {
+            return map;
+        }
     }
 
     /**

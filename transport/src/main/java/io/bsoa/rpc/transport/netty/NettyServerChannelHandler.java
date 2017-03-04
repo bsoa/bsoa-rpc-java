@@ -18,33 +18,28 @@
  */
 package io.bsoa.rpc.transport.netty;
 
-import java.io.IOException;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.bsoa.rpc.common.utils.NetUtils;
 import io.bsoa.rpc.context.AsyncContext;
 import io.bsoa.rpc.exception.BsoaRpcException;
 import io.bsoa.rpc.listener.ChannelListener;
-import io.bsoa.rpc.listener.NegotiationListener;
 import io.bsoa.rpc.message.HeartbeatRequest;
-import io.bsoa.rpc.message.HeartbeatResponse;
-import io.bsoa.rpc.message.MessageBuilder;
 import io.bsoa.rpc.message.NegotiationRequest;
 import io.bsoa.rpc.message.NegotiationResponse;
 import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.message.RpcResponse;
 import io.bsoa.rpc.server.ServerHandler;
 import io.bsoa.rpc.transport.AbstractChannel;
-import io.bsoa.rpc.transport.ClientTransport;
-import io.bsoa.rpc.transport.ClientTransportFactory;
 import io.bsoa.rpc.transport.ServerTransportConfig;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * <p></p>
@@ -58,12 +53,22 @@ public class NettyServerChannelHandler extends ChannelInboundHandlerAdapter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NettyServerChannelHandler.class);
 
-    private final ServerTransportConfig transportConfig;
+    protected final ServerTransportConfig transportConfig;
 
-    private final ServerHandler serverHandler;
+    protected final ServerHandler serverHandler;
 
-    private final List<ChannelListener> connectListeners;
+    protected final List<ChannelListener> connectListeners;
 
+    /**
+     * io.netty.channel.Channel --> io.bsoa.rpc.transport.AbstractChannel
+     */
+    private final ConcurrentHashMap<Channel, AbstractChannel> channelCache = new ConcurrentHashMap<>();
+
+    /**
+     * build NettyServerChannelHandler
+     *
+     * @param transportConfig ServerTransportConfig
+     */
     public NettyServerChannelHandler(ServerTransportConfig transportConfig) {
         this.transportConfig = transportConfig;
         this.serverHandler = transportConfig.getServerHandler();
@@ -72,52 +77,38 @@ public class NettyServerChannelHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
+        if (serverHandler == null) {
+            LOGGER.warn("Has no server handler in server transport");
+            throw new BsoaRpcException(22222, "Has no server handler in server transport");
+        }
         Channel channel = ctx.channel();
-
-        // 心跳请求：IO线程
-        if (msg instanceof HeartbeatRequest) {
+        AbstractChannel abstractChannel = channelCache.get(channel);
+        // RPC请求：不管是正常请求还是Callback还是Stream
+        if (msg instanceof RpcRequest) {
+            RpcRequest request = (RpcRequest) msg;
+            serverHandler.handleRpcRequest(request, abstractChannel);
+        }
+        // 心跳请求
+        else if (msg instanceof HeartbeatRequest) {
             HeartbeatRequest request = (HeartbeatRequest) msg;
-            HeartbeatResponse response = MessageBuilder.buildHeartbeatResponse(request);
-            channel.writeAndFlush(response);
+            serverHandler.handleHeartbeatRequest(request, abstractChannel);
         }
         // 协商请求：IO线程处理
         else if (msg instanceof NegotiationRequest) {
             NegotiationRequest request = (NegotiationRequest) msg;
-            NegotiationListener listener = transportConfig.getNegotiationListener();
-            if (listener == null) {
-                LOGGER.warn("Has no NegotiatorListener in server transport");
-            } else {
-                NegotiationResponse response = listener.handshake(request);
-                channel.writeAndFlush(response);
-            }
+            serverHandler.handleNegotiationRequest(request, abstractChannel);
         }
-        // 协商响应：IO线程处理 TODO
-        else if (msg instanceof NegotiationResponse) {
-            NegotiationResponse response = (NegotiationResponse) msg;
-        }
-        // RPC请求：业务线程处理
-        else if (msg instanceof RpcRequest) {
-            RpcRequest request = (RpcRequest) msg;
-            if (serverHandler == null) {
-                LOGGER.warn("Has no server handler in server transport");
-                throw new BsoaRpcException(22222, "Has no server handler in server transport");
-            } else {
-                // 不管是正常请求还是Callback还是Stream
-                serverHandler.handleRpcRequest(request, new NettyChannel(channel));
-            }
-        }
-        // RPC响应：业务线程处理(Callback或者Stream）
+        // RPC响应
         else if (msg instanceof RpcResponse) {
             RpcResponse response = (RpcResponse) msg;
-            String channelKey = NetUtils.channelToString(channel.remoteAddress(), channel.localAddress());
-            ClientTransport clientTransport = ClientTransportFactory.getReverseClientTransport(channelKey);
-            if (clientTransport != null) {
-                clientTransport.receiveRpcResponse(response);
-            } else {
-                LOGGER.error("no such clientTransport for channel:{}", channel);
-                throw new BsoaRpcException(22222, "No such clientTransport");
-            }
-        } else {
+            serverHandler.receiveRpcResponse(response, abstractChannel);
+        }
+        // 协商响应
+        else if (msg instanceof NegotiationResponse) {
+            NegotiationResponse response = (NegotiationResponse) msg;
+            serverHandler.receiveNegotiationResponse(response, abstractChannel);
+        }
+        else {
             throw new BsoaRpcException(22222, "Only support base message");
         }
     }
@@ -168,14 +159,20 @@ public class NettyServerChannelHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelActive(final ChannelHandlerContext ctx) throws Exception {
         Channel channel = ctx.channel();
-        LOGGER.info("connected from {}", NetUtils.channelToString(channel.remoteAddress(), channel.localAddress()));
-//        BaseServerHandler.addChannel(channel);
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("connected from {}",
+                    NetUtils.channelToString(channel.remoteAddress(), channel.localAddress()));
+        }
+        // save to cache
+        AbstractChannel abstractChannel = new NettyChannel(channel);
+        channelCache.put(channel, abstractChannel);
+        serverHandler.registerChannel(abstractChannel);
+        // notify listener
         if (connectListeners != null) {
-            AbstractChannel nettyChannel = new NettyChannel(channel);
             AsyncContext.getAsyncThreadPool().execute(() -> {
                 for (ChannelListener channelListener : connectListeners) {
                     try {
-                        channelListener.onConnected(nettyChannel);
+                        channelListener.onConnected(abstractChannel);
                     } catch (Exception e) {
                         LOGGER.warn("Failed to call connect listener when channel active", e);
                     }
@@ -187,16 +184,19 @@ public class NettyServerChannelHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelInactive(final ChannelHandlerContext ctx) throws Exception {
         Channel channel = ctx.channel();
-        String key = NetUtils.channelToString(channel.localAddress(), channel.remoteAddress());
-        LOGGER.info("Disconnected from {}", key);
-        ClientTransportFactory.removeReverseClientTransport(key); // 删除callback等生成的反向长连接
-//        BaseServerHandler.removeChannel(channel);
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("Disconnected from {}",
+                    NetUtils.channelToString(channel.localAddress(), channel.remoteAddress()));
+        }
+        // remove from cache
+        AbstractChannel abstractChannel = channelCache.remove(channel);
+        serverHandler.unRegisterChannel(abstractChannel);
+        // notify listener
         if (connectListeners != null) {
-            AbstractChannel nettyChannel = new NettyChannel(channel);
             AsyncContext.getAsyncThreadPool().execute(() -> {
                 for (ChannelListener channelListener : connectListeners) {
                     try {
-                        channelListener.onDisconnected(nettyChannel);
+                        channelListener.onDisconnected(abstractChannel);
                     } catch (Exception e) {
                         LOGGER.warn("Failed to call connect listener when channel active", e);
                     }

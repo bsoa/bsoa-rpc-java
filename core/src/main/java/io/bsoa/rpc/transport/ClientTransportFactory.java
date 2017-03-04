@@ -16,13 +16,6 @@
  */
 package io.bsoa.rpc.transport;
 
-import java.net.InetSocketAddress;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import org.slf4j.Logger;
-
 import io.bsoa.rpc.client.ProviderInfo;
 import io.bsoa.rpc.common.BsoaConfigs;
 import io.bsoa.rpc.common.BsoaOptions;
@@ -31,6 +24,12 @@ import io.bsoa.rpc.common.utils.NetUtils;
 import io.bsoa.rpc.context.BsoaContext;
 import io.bsoa.rpc.ext.ExtensionLoader;
 import io.bsoa.rpc.ext.ExtensionLoaderFactory;
+import org.slf4j.Logger;
+
+import java.net.InetSocketAddress;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static io.bsoa.rpc.common.BsoaConfigs.getBooleanValue;
 import static io.bsoa.rpc.common.BsoaOptions.TRANSPORT_CONNECTION_REUSE;
@@ -149,8 +148,8 @@ public class ClientTransportFactory {
             } else {
                 int currentCount = integer.decrementAndGet(); // 当前连接引用数
                 if (LOGGER.isDebugEnabled()) {
-                    InetSocketAddress local = clientTransport.getChannel().getLocalAddress();
-                    InetSocketAddress remote = clientTransport.getChannel().getRemoteAddress();
+                    InetSocketAddress local = clientTransport.getChannel().localAddress();
+                    InetSocketAddress remote = clientTransport.getChannel().remoteAddress();
                     LOGGER.debug("Client transport {} of {} , current ref count is: {}", clientTransport,
                             NetUtils.channelToString(local, remote), currentCount);
                 }
@@ -158,8 +157,8 @@ public class ClientTransportFactory {
                     String key = getAddr(clientTransport.getConfig());
                     if (LOGGER.isInfoEnabled()) {
                         LOGGER.info("Shutting down client transport {} now..",
-                                NetUtils.channelToString(clientTransport.getChannel().getLocalAddress(),
-                                        clientTransport.getChannel().getRemoteAddress()));
+                                NetUtils.channelToString(clientTransport.getChannel().localAddress(),
+                                        clientTransport.getChannel().remoteAddress()));
                     }
                     CLIENT_TRANSPORT_MAP.remove(key);
                     TRANSPORT_REF_COUNTER.remove(clientTransport);
@@ -258,7 +257,7 @@ public class ClientTransportFactory {
                 }
             }
         }
-        String key = NetUtils.channelToString(channel.getRemoteAddress(), channel.getLocalAddress());
+        String key = NetUtils.channelToString(channel.remoteAddress(), channel.localAddress());
         ClientTransport transport = REVERSE_CLIENT_TRANSPORT_MAP.get(key);
         if (transport == null) {
             synchronized (ClientTransportFactory.class) {

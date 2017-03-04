@@ -16,11 +16,6 @@
  */
 package io.bsoa.rpc.transport.netty;
 
-import java.net.InetSocketAddress;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.bsoa.rpc.common.utils.NetUtils;
 import io.bsoa.rpc.context.RpcContext;
 import io.bsoa.rpc.transport.AbstractByteBuf;
@@ -28,6 +23,10 @@ import io.bsoa.rpc.transport.AbstractChannel;
 import io.netty.channel.Channel;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.FutureListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.net.InetSocketAddress;
 
 /**
  * <p></p>
@@ -60,12 +59,12 @@ public class NettyChannel implements AbstractChannel {
     }
 
     @Override
-    public InetSocketAddress getRemoteAddress() {
+    public InetSocketAddress remoteAddress() {
         return (InetSocketAddress) channel.remoteAddress();
     }
 
     @Override
-    public InetSocketAddress getLocalAddress() {
+    public InetSocketAddress localAddress() {
         return (InetSocketAddress) channel.localAddress();
     }
 

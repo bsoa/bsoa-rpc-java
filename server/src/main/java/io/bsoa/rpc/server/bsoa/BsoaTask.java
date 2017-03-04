@@ -83,8 +83,8 @@ public class BsoaTask extends AbstractTask {
                 return;
             }
 
-            remoteAddress = channel.getRemoteAddress();
-            localAddress = channel.getLocalAddress();
+            remoteAddress = channel.remoteAddress();
+            localAddress = channel.localAddress();
 
             // decode body
             Protocol protocol = ProtocolFactory.getProtocol(request.getProtocolType());

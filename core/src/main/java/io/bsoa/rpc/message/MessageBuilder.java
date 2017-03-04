@@ -34,11 +34,24 @@ public class MessageBuilder {
      *
      * @return 心跳请求
      */
-    public static HeartbeatRequest buildHeartbeatRequest() {
+    public static HeartbeatRequest buildHeartbeatRequest(byte protocolType) {
         HeartbeatRequest request = new HeartbeatRequest();
+        request.setProtocolType(protocolType);
         request.setTimestamp(BsoaContext.now());
         return request;
     }
+
+    /**
+     * 构建心跳包
+     *
+     * @return 心跳请求
+     */
+    public static NegotiationRequest buildNegotiationRequest() {
+        NegotiationRequest request = new NegotiationRequest();
+        return request;
+    }
+
+
 
     /**
      * 根据心跳请求构建心跳结果
@@ -49,6 +62,7 @@ public class MessageBuilder {
     public static HeartbeatResponse buildHeartbeatResponse(HeartbeatRequest request) {
         HeartbeatResponse response = new HeartbeatResponse();
         response.setMessageId(request.getMessageId());
+        request.setProtocolType(request.getProtocolType());
         response.setTimestamp(BsoaContext.now());
         return response;
     }
@@ -61,6 +75,8 @@ public class MessageBuilder {
      */
     public static NegotiationResponse buildNegotiationResponse(NegotiationRequest request) {
         NegotiationResponse response = new NegotiationResponse();
+        response.setProtocolType(request.getProtocolType());
+        response.setCompressType(request.getCompressType());
         response.setMessageId(request.getMessageId());
         return response;
     }

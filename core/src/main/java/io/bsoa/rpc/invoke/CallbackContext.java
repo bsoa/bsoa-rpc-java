@@ -16,11 +16,11 @@
  */
 package io.bsoa.rpc.invoke;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * <p></p>
@@ -36,9 +36,13 @@ public class CallbackContext {
      */
     private final static Logger LOGGER = LoggerFactory.getLogger(CallbackContext.class);
     /**
-     * 方法名onCompleted
+     * 方法名notify
      */
     public static final String METHOD_NOTIFY = "notify";
+    /**
+     * 方法名onCompleted
+     */
+    public static final String METHOD_CLOSE = "close";
     /**
      * 实例Id生成器
      */

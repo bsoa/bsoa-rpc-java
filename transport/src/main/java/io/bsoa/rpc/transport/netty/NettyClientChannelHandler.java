@@ -16,17 +16,11 @@
  */
 package io.bsoa.rpc.transport.netty;
 
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.bsoa.rpc.context.AsyncContext;
 import io.bsoa.rpc.exception.BsoaRpcException;
 import io.bsoa.rpc.invoke.CallbackTask;
 import io.bsoa.rpc.invoke.StreamTask;
 import io.bsoa.rpc.listener.ChannelListener;
-import io.bsoa.rpc.listener.NegotiationListener;
 import io.bsoa.rpc.message.HeadKey;
 import io.bsoa.rpc.message.HeartbeatResponse;
 import io.bsoa.rpc.message.NegotiationRequest;
@@ -36,6 +30,10 @@ import io.bsoa.rpc.message.RpcResponse;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 /**
  * <p></p>
@@ -93,7 +91,6 @@ public class NettyClientChannelHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        Channel channel = ctx.channel();
         try {
             // 心跳响应：TO线程处理
             if (msg instanceof HeartbeatResponse) {
@@ -103,13 +100,7 @@ public class NettyClientChannelHandler extends ChannelInboundHandlerAdapter {
             // 协商请求：IO线程处理
             else if (msg instanceof NegotiationRequest) {
                 NegotiationRequest request = (NegotiationRequest) msg;
-                NegotiationListener listener = clientTransport.getConfig().getNegotiationListener();
-                if (listener == null) {
-                    LOGGER.warn("Has no NegotiatorListener in client transport");
-                } else {
-                    NegotiationResponse response = listener.handshake(request);
-                    channel.writeAndFlush(response);
-                }
+                clientTransport.handleNegotiationRequest(request);
             }
             // 协商响应：发起者线程处理
             else if (msg instanceof NegotiationResponse) {

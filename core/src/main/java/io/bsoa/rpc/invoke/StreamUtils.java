@@ -16,13 +16,6 @@
  */
 package io.bsoa.rpc.invoke;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.bsoa.rpc.common.BsoaConfigs;
 import io.bsoa.rpc.common.BsoaOptions;
 import io.bsoa.rpc.common.SystemInfo;
@@ -34,6 +27,12 @@ import io.bsoa.rpc.message.RpcResponse;
 import io.bsoa.rpc.transport.AbstractChannel;
 import io.bsoa.rpc.transport.ClientTransport;
 import io.bsoa.rpc.transport.ClientTransportFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 
 import static io.bsoa.rpc.common.utils.ClassUtils.getMethodKey;
 
@@ -242,7 +241,7 @@ public class StreamUtils {
                     String methodName = request.getMethodName();
                     // 生成streamInsKey
                     String streamInsKey = StreamUtils.cacheLocalStreamObserver(interfaceId,
-                            methodName, streamIns, channel.getLocalAddress().getPort());
+                            methodName, streamIns, channel.localAddress().getPort());
                     // 如果是StreamObserver本地实例 则置为一个包装类
                     request.getArgs()[i] = new StreamObserverStub<>(streamInsKey);
                     break;
@@ -290,7 +289,7 @@ public class StreamUtils {
             StreamObserver streamIns = (StreamObserver) returnData;
             // 生成streamInsKey
             String streamInsKey = StreamUtils.cacheLocalStreamObserver(request.getInterfaceName(),
-                    request.getMethodName(), streamIns, channel.getLocalAddress().getPort());
+                    request.getMethodName(), streamIns, channel.localAddress().getPort());
             // 如果是StreamObserver本地实例 则置为StreamObserverStub再发给服务端
             response.setReturnData(new StreamObserverStub<>(streamInsKey));
         }

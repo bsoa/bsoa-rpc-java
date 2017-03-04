@@ -16,7 +16,11 @@
  */
 package io.bsoa.rpc.server;
 
+import io.bsoa.rpc.message.HeartbeatRequest;
+import io.bsoa.rpc.message.NegotiationRequest;
+import io.bsoa.rpc.message.NegotiationResponse;
 import io.bsoa.rpc.message.RpcRequest;
+import io.bsoa.rpc.message.RpcResponse;
 import io.bsoa.rpc.transport.AbstractChannel;
 
 /**
@@ -30,4 +34,15 @@ public interface ServerHandler {
 
     public void handleRpcRequest(RpcRequest request, AbstractChannel channel);
 
+    void handleNegotiationRequest(NegotiationRequest request, AbstractChannel channel);
+
+    void registerChannel(AbstractChannel nettyChannel);
+
+    void unRegisterChannel(AbstractChannel nettyChannel);
+
+    void receiveRpcResponse(RpcResponse response, AbstractChannel channel);
+
+    void receiveNegotiationResponse(NegotiationResponse response, AbstractChannel channel);
+
+    void handleHeartbeatRequest(HeartbeatRequest request, AbstractChannel abstractChannel);
 }

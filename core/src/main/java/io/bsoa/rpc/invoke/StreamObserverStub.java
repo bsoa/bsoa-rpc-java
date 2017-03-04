@@ -16,9 +16,6 @@
  */
 package io.bsoa.rpc.invoke;
 
-import java.io.Serializable;
-import javax.annotation.concurrent.NotThreadSafe;
-
 import io.bsoa.rpc.codec.CompressorFactory;
 import io.bsoa.rpc.common.BsoaConfigs;
 import io.bsoa.rpc.common.BsoaOptions;
@@ -33,6 +30,9 @@ import io.bsoa.rpc.message.RPCMessage;
 import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.message.RpcResponse;
 import io.bsoa.rpc.transport.ClientTransport;
+
+import javax.annotation.concurrent.NotThreadSafe;
+import java.io.Serializable;
 
 import static io.bsoa.rpc.invoke.StreamContext.METHOD_ONCOMPLETED;
 import static io.bsoa.rpc.invoke.StreamContext.METHOD_ONERROR;
@@ -80,7 +80,7 @@ public class StreamObserverStub<V> implements StreamObserver<V>, Serializable {
     /**
      * Is this StreamObserver called method named "onCompleted" or "onError"
      */
-    private boolean complete = false;
+    private boolean completed = false;
 
     /**
      * Construct Method
@@ -93,7 +93,7 @@ public class StreamObserverStub<V> implements StreamObserver<V>, Serializable {
 
     @Override
     public void onValue(V value) {
-        if (complete) {
+        if (completed) {
             throw new BsoaRpcException(22222, "StreamObserver is completed!");
         }
         doSendMsg(METHOD_ONVALUE, new Class[]{value.getClass()}, new Object[]{value});
@@ -101,19 +101,19 @@ public class StreamObserverStub<V> implements StreamObserver<V>, Serializable {
 
     @Override
     public void onCompleted() {
-        if (complete) {
+        if (completed) {
             throw new BsoaRpcException(22222, "StreamObserver is completed!");
         }
-        complete = true;
+        completed = true;
         doSendMsg(METHOD_ONCOMPLETED, CodecUtils.EMPTY_CLASS_ARRAY, CodecUtils.EMPTY_OBJECT_ARRAY);
     }
 
     @Override
     public void onError(Throwable t) {
-        if (complete) {
+        if (completed) {
             throw new BsoaRpcException(22222, "StreamObserver is completed!");
         }
-        complete = true;
+        completed = true;
         doSendMsg(METHOD_ONERROR, new Class[]{t.getClass()}, new Object[]{t});
     }
 
@@ -123,8 +123,8 @@ public class StreamObserverStub<V> implements StreamObserver<V>, Serializable {
                     "StreamObserver invalidate cause by channel closed, " +
                             "you can remove the stream proxy stub now, channel is"
                             + (clientTransport == null ? " null" : ": " +
-                            NetUtils.connectToString(clientTransport.getChannel().getLocalAddress(),
-                                    clientTransport.getChannel().getRemoteAddress())));
+                            NetUtils.connectToString(clientTransport.getChannel().localAddress(),
+                                    clientTransport.getChannel().remoteAddress())));
         }
         RpcRequest request = MessageBuilder.buildRpcRequest(StreamObserver.class, methodName, argTypes, args);
         request.setCompressType(compressType); // 默认开启压缩

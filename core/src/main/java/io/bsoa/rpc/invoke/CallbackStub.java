@@ -16,9 +16,8 @@
  */
 package io.bsoa.rpc.invoke;
 
-import java.io.Serializable;
-
 import io.bsoa.rpc.codec.CompressorFactory;
+import io.bsoa.rpc.common.utils.CodecUtils;
 import io.bsoa.rpc.common.utils.NetUtils;
 import io.bsoa.rpc.exception.BsoaRpcException;
 import io.bsoa.rpc.message.HeadKey;
@@ -27,6 +26,8 @@ import io.bsoa.rpc.message.RPCMessage;
 import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.message.RpcResponse;
 import io.bsoa.rpc.transport.ClientTransport;
+
+import java.io.Serializable;
 
 import static io.bsoa.rpc.common.BsoaConfigs.getIntValue;
 import static io.bsoa.rpc.common.BsoaConfigs.getStringValue;
@@ -76,6 +77,11 @@ public class CallbackStub<Q, S> implements Callback<Q, S>, Serializable {
     private byte compressType;
 
     /**
+     * Is this Callback called method named "close"
+     */
+    private boolean closed = false;
+
+    /**
      * Construct Method
      *
      * @param callbackInsKey Instance key of Callback
@@ -88,15 +94,37 @@ public class CallbackStub<Q, S> implements Callback<Q, S>, Serializable {
 
     @Override
     public S notify(Q result) {
+        if (closed) {
+            throw new RuntimeException("Callback invalidate cause by close()");
+        }
         if (clientTransport == null || !clientTransport.isAvailable()) {
             throw new BsoaRpcException(22222, "Callback invalidate cause by channel closed, " +
                     "you can remove the callback stub now, channel is"
-                            + (clientTransport == null ? " null" : ": " +
-                            NetUtils.connectToString(clientTransport.getChannel().getLocalAddress(),
-                                    clientTransport.getChannel().getRemoteAddress())));
+                    + (clientTransport == null ? " null" : ": " +
+                    NetUtils.connectToString(clientTransport.getChannel().localAddress(),
+                            clientTransport.getChannel().remoteAddress())));
+        }
+        return doSendMsg(CallbackContext.METHOD_NOTIFY, argTypes, new Object[]{result});
+    }
+
+    @Override
+    public void close() {
+        if (closed) {
+            return;
+        }
+        doSendMsg(CallbackContext.METHOD_CLOSE, CodecUtils.EMPTY_CLASS_ARRAY, CodecUtils.EMPTY_OBJECT_ARRAY);
+    }
+
+    private S doSendMsg(String methodName, Class[] argTypes, Object[] args) {
+        if (clientTransport == null || !clientTransport.isAvailable()) {
+            throw new BsoaRpcException(22222, "Callback invalidate cause by channel closed, " +
+                    "you can remove the callback stub now, channel is"
+                    + (clientTransport == null ? " null" : ": " +
+                    NetUtils.connectToString(clientTransport.getChannel().localAddress(),
+                            clientTransport.getChannel().remoteAddress())));
         }
         RpcRequest request = MessageBuilder.buildRpcRequest(
-                Callback.class, CallbackContext.METHOD_NOTIFY, argTypes, new Object[]{result});
+                Callback.class, methodName, argTypes, args);
         request.setCompressType(compressType); // 默认开启压缩
         request.setProtocolType(protocolType);
         request.setSerializationType(serializationType);
@@ -128,6 +156,7 @@ public class CallbackStub<Q, S> implements Callback<Q, S>, Serializable {
         this.compressType = CompressorFactory.getCodeByAlias(getStringValue(DEFAULT_COMPRESS));
         return this;
     }
+
 
     /**
      * Gets callback ins key.

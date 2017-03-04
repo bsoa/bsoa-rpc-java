@@ -18,11 +18,6 @@
  */
 package io.bsoa.rpc.protocol.bsoa;
 
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.bsoa.rpc.codec.Compressor;
 import io.bsoa.rpc.codec.CompressorFactory;
 import io.bsoa.rpc.codec.Serializer;
@@ -46,6 +41,10 @@ import io.bsoa.rpc.protocol.ProtocolInfo;
 import io.bsoa.rpc.transport.AbstractByteBuf;
 import io.bsoa.rpc.transport.netty.NettyByteBuf;
 import io.netty.buffer.ByteBuf;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Map;
 
 import static io.bsoa.rpc.common.BsoaOptions.COMPRESS_OPEN;
 import static io.bsoa.rpc.common.BsoaOptions.COMPRESS_SIZE_BASELINE;
@@ -169,7 +168,8 @@ public class BsoaProtocolEncoder extends ProtocolEncoder {
                 totalLength += writeString(out, request.getData());
             } else if (object instanceof NegotiationResponse) {
                 NegotiationResponse response = (NegotiationResponse) object;
-                totalLength += writeString(out, response.getRes());
+                out.writeBoolean(response.isError());
+                totalLength += (1 + writeString(out, response.getData()));
             }
             msg.setTotalLength(totalLength);
             out.setBytes(2, CodecUtils.intToBytes(totalLength)); // 更新字段

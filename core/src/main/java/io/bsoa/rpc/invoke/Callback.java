@@ -16,6 +16,8 @@
  */
 package io.bsoa.rpc.invoke;
 
+import java.io.Closeable;
+
 /**
  * <p>面向用户的，回调的抽象类，实现通知方法，指定传递对象</p>
  * <p>
@@ -25,7 +27,7 @@ package io.bsoa.rpc.invoke;
  * @param <S> the response parameter
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public interface Callback<Q, S> {
+public interface Callback<Q, S> extends Closeable{
 
     /**
      * 回调通知
@@ -34,4 +36,8 @@ public interface Callback<Q, S> {
      * @return 返回值对象 s
      */
     S notify(Q result);
+
+    default void close() {
+
+    }
 }

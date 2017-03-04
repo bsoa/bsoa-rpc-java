@@ -19,16 +19,13 @@
 
 package io.bsoa.rpc.transport.netty;
 
-import org.junit.Assert;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import io.bsoa.rpc.message.MessageBuilder;
-import io.bsoa.rpc.message.NegotiationResponse;
 import io.bsoa.rpc.server.bsoa.BsoaServerHandler;
 import io.bsoa.rpc.transport.ServerTransport;
 import io.bsoa.rpc.transport.ServerTransportConfig;
 import io.bsoa.rpc.transport.ServerTransportFactory;
+import org.junit.Assert;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by zhangg on 2016/12/18.
@@ -44,14 +41,6 @@ public class ServerTransportTest {
         ServerTransportConfig config = new ServerTransportConfig();
         config.setPort(22222);
         config.setDaemon(false);
-        config.setNegotiationListener(negotiatorRequest -> {
-            LOGGER.info(negotiatorRequest.getCmd());
-            LOGGER.info(negotiatorRequest.getCmd());
-
-            NegotiationResponse response = MessageBuilder.buildNegotiationResponse(negotiatorRequest);
-            response.setRes("nego response from server");
-            return response;
-        });
         config.setServerHandler(new BsoaServerHandler(config));
         ServerTransport transport = ServerTransportFactory.getServerTransport(config);
         Assert.assertEquals(transport.getClass(), NettyServerTransport.class);

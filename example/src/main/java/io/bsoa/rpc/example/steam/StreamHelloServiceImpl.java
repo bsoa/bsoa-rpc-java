@@ -38,10 +38,15 @@ public class StreamHelloServiceImpl implements StreamHelloService {
     @Override
     public String download(String name, StreamObserver<String> msgs) {
         LOGGER.info("Download {}", name);
-        msgs.onValue("aaaaaaaaaaaaaaaa");
-        msgs.onValue("bbbbbbbbbbbbbbbbbbbbbb");
-        msgs.onValue("cccc");
-        msgs.onCompleted();
+        try {
+            msgs.onValue("aaaaaaaaaaaaaaaa");
+            msgs.onValue("bbbbbbbbbbbbbbbbbbbbbb");
+            msgs.onValue("cccc");
+        } catch (Exception e) {
+            msgs.onError(e);
+        } finally {
+            msgs.onCompleted();
+        }
         return "Thanks for download " + name;
     }
 

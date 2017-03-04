@@ -16,15 +16,6 @@
  */
 package io.bsoa.rpc.transport.netty;
 
-import java.net.InetSocketAddress;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.bsoa.rpc.common.SystemInfo;
 import io.bsoa.rpc.common.struct.PositiveAtomicCounter;
 import io.bsoa.rpc.common.utils.ClassUtils;
@@ -37,12 +28,14 @@ import io.bsoa.rpc.invoke.StreamUtils;
 import io.bsoa.rpc.message.BaseMessage;
 import io.bsoa.rpc.message.HeartbeatResponse;
 import io.bsoa.rpc.message.MessageConstants;
+import io.bsoa.rpc.message.NegotiationRequest;
 import io.bsoa.rpc.message.NegotiationResponse;
 import io.bsoa.rpc.message.ResponseFuture;
 import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.message.RpcResponse;
 import io.bsoa.rpc.protocol.Protocol;
 import io.bsoa.rpc.protocol.ProtocolFactory;
+import io.bsoa.rpc.protocol.ProtocolNegotiator;
 import io.bsoa.rpc.transport.AbstractByteBuf;
 import io.bsoa.rpc.transport.AbstractChannel;
 import io.bsoa.rpc.transport.ClientTransport;
@@ -55,6 +48,14 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.WriteBufferWaterMark;
 import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.net.InetSocketAddress;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * <p></p>
@@ -350,7 +351,7 @@ public class NettyClientTransport extends ClientTransport {
     public void removeFutureWhenChannelInactive() {
         LOGGER.debug("Interrupt wait of all futures : {} ", futureMap.size());
         Exception e = new BsoaRpcException(22222, "[22112]Channel "
-                + NetUtils.channelToString(channel.getLocalAddress(), channel.getRemoteAddress())
+                + NetUtils.channelToString(channel.localAddress(), channel.remoteAddress())
                 + " has been closed, remove future when channel inactive");
         for (Map.Entry<Integer, NettyMessageFuture<BaseMessage>> entry : futureMap.entrySet()) {
             NettyMessageFuture future = entry.getValue();
@@ -394,6 +395,16 @@ public class NettyClientTransport extends ClientTransport {
         if (future != null) {
             future.setSuccess(response);
             futureMap.remove(messageId);
+        }
+    }
+
+    @Override
+    public void handleNegotiationRequest(NegotiationRequest request) {
+        ProtocolNegotiator negotiator =
+                ProtocolFactory.getProtocol(transportConfig.getProviderInfo().getProtocolType()).negotiator();
+        if (negotiator != null) {
+            NegotiationResponse response = negotiator.handleRequest(request);
+            channel.writeAndFlush(response);
         }
     }
 }

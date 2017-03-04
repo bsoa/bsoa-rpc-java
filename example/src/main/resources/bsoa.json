@@ -1,0 +1,15 @@
+/*
+本文件为Beyond RPC客户端默认配置文件。
+用户可以在自己的工程中自定义bsoa.json进行默认配置覆盖。
+PS:大家也看到了，本JSON文档是支持注释的，而标准JSOB是不支持的，这属于宽松的的json格式哦！
+*/
+{
+  "bsoa.config.order" : 10,  // 加载顺序，越大越后加载
+
+  "app.id" : "111",
+  "app.name": "222",
+  "instance.id" : "333"
+
+
+  //adadad
+}

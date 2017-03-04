@@ -18,12 +18,6 @@
  */
 package io.bsoa.rpc.protocol.bsoa;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.bsoa.rpc.codec.Compressor;
 import io.bsoa.rpc.codec.CompressorFactory;
 import io.bsoa.rpc.codec.Serializer;
@@ -46,6 +40,11 @@ import io.bsoa.rpc.protocol.ProtocolInfo;
 import io.bsoa.rpc.transport.AbstractByteBuf;
 import io.bsoa.rpc.transport.netty.NettyByteBuf;
 import io.netty.buffer.ByteBuf;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * <p></p>
@@ -155,7 +154,8 @@ public class BsoaProtocolDecoder extends ProtocolDecoder {
                 request.setData(readString(in));
             } else if (object instanceof NegotiationResponse) {
                 NegotiationResponse response = (NegotiationResponse) object;
-                response.setRes(readString(in));
+                response.setError(in.readBoolean());
+                response.setData(readString(in));
             }
         } catch (BsoaRpcException e) {
             throw e;

@@ -16,25 +16,6 @@
  */
 package io.bsoa.rpc.client;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.bsoa.rpc.common.struct.ConcurrentHashSet;
 import io.bsoa.rpc.common.struct.NamedThreadFactory;
 import io.bsoa.rpc.common.struct.ScheduledService;
@@ -50,6 +31,24 @@ import io.bsoa.rpc.protocol.ProtocolNegotiator;
 import io.bsoa.rpc.transport.ClientTransport;
 import io.bsoa.rpc.transport.ClientTransportConfig;
 import io.bsoa.rpc.transport.ClientTransportFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * 全部建立长连接，自动维护心跳和长连接
@@ -163,7 +162,11 @@ public class AllConnectConnectionHolder extends ConnectionHolder {
     public boolean checkState(ProviderInfo providerInfo, ClientTransport clientTransport) {
         Protocol protocol = ProtocolFactory.getProtocol(providerInfo.getProtocolType());
         ProtocolNegotiator negotiator = protocol.negotiator();
-        return negotiator.handshake(providerInfo, clientTransport);
+        if (negotiator != null) {
+            return negotiator.handshake(providerInfo, clientTransport);
+        } else {
+            return true;
+        }
     }
 
     /**
@@ -340,7 +343,7 @@ public class AllConnectConnectionHolder extends ConnectionHolder {
                             if (LOGGER.isDebugEnabled()) {
                                 LOGGER.debug("Failed to connect " + providerInfo, e);
                             }
-                            printFailure(interfaceId, providerInfo, transport);
+                            printDead(interfaceId, providerInfo, transport, e);
                             addRetry(providerInfo, transport);
                         } finally {
                             latch.countDown(); // 连上或者抛异常
@@ -582,8 +585,8 @@ public class AllConnectConnectionHolder extends ConnectionHolder {
      */
     private void printSuccess(String interfaceId, ProviderInfo providerInfo, ClientTransport transport) {
         LOGGER.info("Connect to {} provider:{} success ! The connection is "
-                        + NetUtils.connectToString(transport.getChannel().getRemoteAddress(),
-                                transport.getChannel().getLocalAddress())
+                        + NetUtils.connectToString(transport.getChannel().remoteAddress(),
+                                transport.getChannel().localAddress())
                 , interfaceId, providerInfo);
     }
 
@@ -600,11 +603,11 @@ public class AllConnectConnectionHolder extends ConnectionHolder {
 
     /**
      * 打印连不上日志
-     *
-     * @param interfaceId 接口名称
+     *  @param interfaceId 接口名称
      * @param providerInfo    服务端
+     * @param transport
      */
-    private void printDead(String interfaceId, ProviderInfo providerInfo, Exception e) {
+    private void printDead(String interfaceId, ProviderInfo providerInfo, ClientTransport transport, Exception e) {
         Throwable cause = e.getCause();
         LOGGER.warn("Connect to {} provider:{} failure !! The exception is " + ExceptionUtils.toShortString(e, 1)
                         + (cause != null ? ", cause by " + cause.getMessage() + "." : "."),
@@ -734,7 +737,7 @@ public class AllConnectConnectionHolder extends ConnectionHolder {
                 transport.connect();
                 if (doubleCheck(interfaceId, providerInfo, transport)) {
 //                    LOGGER.info("Connect to {} provider:{} success by retry! The connection is " +
-//                                    NetUtils.connectToString(transport.getRemoteAddress(), transport.getLocalAddress()),
+//                                    NetUtils.connectToString(transport.remoteAddress(), transport.localAddress()),
 //                            interfaceId, provider);
                     providerInfo.setReconnectPeriodCoefficient(1);
                     retryToAlive(providerInfo, transport);
@@ -786,15 +789,15 @@ public class AllConnectConnectionHolder extends ConnectionHolder {
         /*
         //TODO
         tring interfaceId = consumerConfig.getInterfaceId();
-        ProtocolType protocolType = provider.getProtocolType();
-        if (protocolType != ProtocolType.jsf && protocolType != ProtocolType.dubbo) {
+        ProtocolType getProtocolType = provider.getProtocolType();
+        if (getProtocolType != ProtocolType.jsf && getProtocolType != ProtocolType.dubbo) {
             return; // 指定协议才发
         }
         if (!transport.isOpen()) {
             aliveToRetryIfExist(provider, transport);
         }
         BaseMessage message = MessageBuilder.buildHeartbeatRequest();
-        if (protocolType == ProtocolType.dubbo) { // dubbo的发hessian
+        if (getProtocolType == ProtocolType.dubbo) { // dubbo的发hessian
             message.getMsgHeader().setCodecType(BsoaConstants.CodecType.hessian.value());
         }
         LOGGER.debug("Send heartbeat to {} provider:{} ...", interfaceId, provider);

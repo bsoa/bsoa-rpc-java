@@ -30,13 +30,24 @@ public class NegotiationResponse extends BaseMessage implements Serializable {
         super(MessageConstants.NEGOTIATOR_RESPONSE);
     }
 
-    private String res;
+    private boolean error;
+    
+    private String data;
 
-    public String getRes() {
-        return res;
+    public boolean isError() {
+        return error;
     }
 
-    public void setRes(String res) {
-        this.res = res;
+    public NegotiationResponse setError(boolean error) {
+        this.error = error;
+        return this;
+    }
+
+    public String getData() {
+        return data;
+    }
+
+    public void setData(String data) {
+        this.data = data;
     }
 }

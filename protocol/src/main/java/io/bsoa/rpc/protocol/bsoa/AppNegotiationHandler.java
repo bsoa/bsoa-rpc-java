@@ -14,26 +14,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.bsoa.rpc.transport;
+package io.bsoa.rpc.protocol.bsoa;
 
-import java.net.InetSocketAddress;
+import io.bsoa.rpc.common.json.JSON;
+import io.bsoa.rpc.exception.BsoaRuntimeException;
+import io.bsoa.rpc.protocol.ProtocolNegotiator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Map;
 
 /**
- * <p></p>
+ * <p>协商处理器</p>
  * <p>
- * Created by zhangg on 2017/1/13 01:32. <br/>
+ * Created by zhangg on 2017/2/20 21:44. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public class ClientTransportUtils {
+public class AppNegotiationHandler implements ProtocolNegotiator.NegotiationHandler {
+    /**
+     * slf4j Logger for this class
+     */
+    public static final Logger LOGGER = LoggerFactory.getLogger(AppNegotiationHandler.class);
 
-    public static InetSocketAddress remoteAddress(ClientTransport transport) {
-        AbstractChannel channel = transport.getChannel();
-        return channel == null ? null : channel.remoteAddress();
+    @Override
+    public String command() {
+        return "app";
     }
 
-    public static InetSocketAddress localAddress(ClientTransport transport) {
-        AbstractChannel channel = transport.getChannel();
-        return channel == null ? null : channel.localAddress();
+    @Override
+    public String handle(String cmd, String data) throws BsoaRuntimeException {
+        Map<String, String> map = JSON.parseObject(data, Map.class);
+        LOGGER.info("client app info : {}", map);
+        return "true";
     }
 }

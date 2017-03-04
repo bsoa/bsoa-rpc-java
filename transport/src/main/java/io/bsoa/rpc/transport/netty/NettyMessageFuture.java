@@ -16,21 +16,12 @@
  */
 package io.bsoa.rpc.transport.netty;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.TimeUnit;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.bsoa.rpc.common.utils.CommonUtils;
 import io.bsoa.rpc.common.utils.DateUtils;
 import io.bsoa.rpc.common.utils.NetUtils;
+import io.bsoa.rpc.context.AsyncContext;
 import io.bsoa.rpc.context.BsoaContext;
 import io.bsoa.rpc.exception.BsoaRpcException;
-import io.bsoa.rpc.context.AsyncContext;
 import io.bsoa.rpc.invoke.StreamUtils;
 import io.bsoa.rpc.listener.ResponseListener;
 import io.bsoa.rpc.message.DecodableMessage;
@@ -39,6 +30,14 @@ import io.bsoa.rpc.message.RpcResponse;
 import io.bsoa.rpc.protocol.Protocol;
 import io.bsoa.rpc.protocol.ProtocolFactory;
 import io.bsoa.rpc.transport.ClientTransport;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p></p>
@@ -185,7 +184,7 @@ public class NettyMessageFuture<V> implements ResponseFuture<V> {
                 + "ms, Timeout: " + timeout
                 + "ms, MsgId: " + this.msgId
                 + ", Channel: " + NetUtils.channelToString(
-                        clientTransport.getChannel().getLocalAddress(), clientTransport.getChannel().getRemoteAddress()))
+                        clientTransport.getChannel().localAddress(), clientTransport.getChannel().remoteAddress()))
                 + (scan ? ", throws by scan thread" : ".");
         return new BsoaRpcException(22222, errorMsg);
     }

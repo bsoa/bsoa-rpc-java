@@ -16,17 +16,6 @@
  */
 package io.bsoa.rpc.context;
 
-import java.lang.management.ManagementFactory;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.bsoa.rpc.bootstrap.ConsumerBootstrap;
 import io.bsoa.rpc.bootstrap.ProviderBootstrap;
 import io.bsoa.rpc.common.BsoaConfigs;
@@ -37,6 +26,16 @@ import io.bsoa.rpc.common.utils.CommonUtils;
 import io.bsoa.rpc.config.ConsumerConfig;
 import io.bsoa.rpc.server.ServerFactory;
 import io.bsoa.rpc.transport.ClientTransportFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.management.ManagementFactory;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  *
@@ -127,6 +126,10 @@ public class BsoaContext {
     private static void destroy(boolean active) {
         // TODO 检查是否有其它需要释放的资源
         IS_SHUTTING_DOWN = true;
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+        }
         // 关闭资源
       /*  ResourceScheduleChecker.close(); */
         // 关闭启动的服务端

@@ -17,15 +17,16 @@
  */
 package io.bsoa.rpc.transport;
 
+import io.bsoa.rpc.common.BsoaOptions;
+import io.bsoa.rpc.listener.ChannelListener;
+import io.bsoa.rpc.server.ServerHandler;
+
 import java.util.List;
 import java.util.Map;
 
-import io.bsoa.rpc.common.BsoaOptions;
-import io.bsoa.rpc.listener.ChannelListener;
-import io.bsoa.rpc.listener.NegotiationListener;
-import io.bsoa.rpc.server.ServerHandler;
-
-import static io.bsoa.rpc.common.BsoaConfigs.*;
+import static io.bsoa.rpc.common.BsoaConfigs.getBooleanValue;
+import static io.bsoa.rpc.common.BsoaConfigs.getIntValue;
+import static io.bsoa.rpc.common.BsoaConfigs.getStringValue;
 
 /**
  * <p></p>
@@ -73,7 +74,6 @@ public class ServerTransportConfig {
 
     private List<ChannelListener> channelListeners;
     private ServerHandler serverHandler;
-    private NegotiationListener negotiationListener;
 
 //    private boolean printMessage = false; // 是否debug模式打印消息体
 
@@ -286,14 +286,6 @@ public class ServerTransportConfig {
 
     public void setChannelListeners(List<ChannelListener> channelListeners) {
         this.channelListeners = channelListeners;
-    }
-
-    public NegotiationListener getNegotiationListener() {
-        return negotiationListener;
-    }
-
-    public void setNegotiationListener(NegotiationListener negotiationListener) {
-        this.negotiationListener = negotiationListener;
     }
 
     public ServerHandler getServerHandler() {

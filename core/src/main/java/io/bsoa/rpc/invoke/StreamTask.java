@@ -16,9 +16,6 @@
  */
 package io.bsoa.rpc.invoke;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.bsoa.rpc.common.utils.NetUtils;
 import io.bsoa.rpc.context.BsoaContext;
 import io.bsoa.rpc.exception.BsoaRpcException;
@@ -31,6 +28,8 @@ import io.bsoa.rpc.protocol.Protocol;
 import io.bsoa.rpc.protocol.ProtocolFactory;
 import io.bsoa.rpc.transport.AbstractByteBuf;
 import io.bsoa.rpc.transport.AbstractChannel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static io.bsoa.rpc.invoke.StreamContext.METHOD_ONCOMPLETED;
 import static io.bsoa.rpc.invoke.StreamContext.METHOD_ONERROR;
@@ -112,7 +111,7 @@ public class StreamTask implements Runnable {
                 }
             } catch (Exception e) {
                 LOGGER.error("StreamObserver handler catch exception in channel "
-                        + NetUtils.channelToString(channel.getRemoteAddress(), channel.getLocalAddress())
+                        + NetUtils.channelToString(channel.remoteAddress(), channel.localAddress())
                         + ", error message is :" + e.getMessage(), e);
                 response.setException(new BsoaRpcException(22222, "22222"));
             } finally {
