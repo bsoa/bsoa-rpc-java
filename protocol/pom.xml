@@ -10,9 +10,7 @@
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>io.bsoa.rpc</groupId>
     <artifactId>bsoa-rpc-protocol</artifactId>
-    <version>${parent.version}</version>
 
     <name>bsoa-rpc-protocol</name>
 
@@ -20,7 +18,7 @@
         <dependency>
             <groupId>io.bsoa.rpc</groupId>
             <artifactId>bsoa-rpc-core</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
 
         <dependency>

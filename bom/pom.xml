@@ -10,81 +10,82 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>bsoa-rpc-bom</artifactId>
-    <name>bsoa-rpc-bom</name>
     <packaging>pom</packaging>
+
+    <name>bsoa-rpc-bom</name>
 
     <dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>io.bsoa.rpc</groupId>
                 <artifactId>bsoa-rpc-core</artifactId>
-                <version>${parent.version}</version>
+                <version>${project.parent.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.bsoa.rpc</groupId>
                 <artifactId>bsoa-rpc-bootstrap</artifactId>
-                <version>${parent.version}</version>
+                <version>${project.parent.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.bsoa.rpc</groupId>
                 <artifactId>bsoa-rpc-common</artifactId>
-                <version>${parent.version}</version>
+                <version>${project.parent.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.bsoa.rpc</groupId>
                 <artifactId>bsoa-rpc-client</artifactId>
-                <version>${parent.version}</version>
+                <version>${project.parent.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.bsoa.rpc</groupId>
                 <artifactId>bsoa-rpc-codec</artifactId>
-                <version>${parent.version}</version>
+                <version>${project.parent.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.bsoa.rpc</groupId>
                 <artifactId>bsoa-rpc-config</artifactId>
-                <version>${parent.version}</version>
+                <version>${project.parent.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.bsoa.rpc</groupId>
                 <artifactId>bsoa-rpc-filter</artifactId>
-                <version>${parent.version}</version>
+                <version>${project.parent.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.bsoa.rpc</groupId>
                 <artifactId>bsoa-rpc-protocol</artifactId>
-                <version>${parent.version}</version>
+                <version>${project.parent.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.bsoa.rpc</groupId>
                 <artifactId>bsoa-rpc-proxy</artifactId>
-                <version>${parent.version}</version>
+                <version>${project.parent.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.bsoa.rpc</groupId>
                 <artifactId>bsoa-rpc-server</artifactId>
-                <version>${parent.version}</version>
+                <version>${project.parent.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.bsoa.rpc</groupId>
                 <artifactId>bsoa-rpc-transport</artifactId>
-                <version>${parent.version}</version>
+                <version>${project.parent.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.bsoa.rpc</groupId>
                 <artifactId>bsoa-rpc-registry</artifactId>
-                <version>${parent.version}</version>
+                <version>${project.parent.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

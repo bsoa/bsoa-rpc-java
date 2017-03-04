@@ -10,7 +10,6 @@
     </parent>
 
     <artifactId>bsoa-rpc-filter</artifactId>
-    <version>${parent.version}</version>
 
     <name>bsoa-rpc-filter</name>
 
@@ -18,7 +17,7 @@
         <dependency>
             <groupId>io.bsoa.rpc</groupId>
             <artifactId>bsoa-rpc-core</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
 
         <dependency>

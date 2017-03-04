@@ -9,9 +9,7 @@
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>io.bsoa.rpc</groupId>
     <artifactId>bsoa-rpc-all</artifactId>
-    <version>${parent.version}</version>
     <packaging>jar</packaging>
 
     <name>BSOA-RPC-JAVA/All-in-One</name>
@@ -21,73 +19,73 @@
         <dependency>
             <groupId>io.bsoa.rpc</groupId>
             <artifactId>bsoa-rpc-core</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
 
         <dependency>
             <groupId>io.bsoa.rpc</groupId>
             <artifactId>bsoa-rpc-bootstrap</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
 
         <dependency>
             <groupId>io.bsoa.rpc</groupId>
             <artifactId>bsoa-rpc-common</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
 
         <dependency>
             <groupId>io.bsoa.rpc</groupId>
             <artifactId>bsoa-rpc-client</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
 
         <dependency>
             <groupId>io.bsoa.rpc</groupId>
             <artifactId>bsoa-rpc-codec</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
 
         <dependency>
             <groupId>io.bsoa.rpc</groupId>
             <artifactId>bsoa-rpc-config</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
 
         <dependency>
             <groupId>io.bsoa.rpc</groupId>
             <artifactId>bsoa-rpc-filter</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
 
         <dependency>
             <groupId>io.bsoa.rpc</groupId>
             <artifactId>bsoa-rpc-protocol</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
 
         <dependency>
             <groupId>io.bsoa.rpc</groupId>
             <artifactId>bsoa-rpc-proxy</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
 
         <dependency>
             <groupId>io.bsoa.rpc</groupId>
             <artifactId>bsoa-rpc-server</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
 
         <dependency>
             <groupId>io.bsoa.rpc</groupId>
             <artifactId>bsoa-rpc-transport</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
 
         <dependency>
             <groupId>io.bsoa.rpc</groupId>
             <artifactId>bsoa-rpc-registry</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
     </dependencies>
     <build>

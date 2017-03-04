@@ -10,9 +10,7 @@
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>io.bsoa.rpc</groupId>
     <artifactId>bsoa-rpc-common</artifactId>
-    <version>${parent.version}</version>
 
     <name>bsoa-rpc-common</name>
 
