@@ -16,13 +16,20 @@
  */
 package io.bsoa.rpc.transport;
 
+import io.bsoa.rpc.context.AsyncContext;
 import io.bsoa.rpc.ext.Extensible;
+import io.bsoa.rpc.invoke.CallbackTask;
+import io.bsoa.rpc.invoke.StreamTask;
 import io.bsoa.rpc.message.BaseMessage;
+import io.bsoa.rpc.message.HeadKey;
 import io.bsoa.rpc.message.HeartbeatResponse;
 import io.bsoa.rpc.message.NegotiationRequest;
 import io.bsoa.rpc.message.NegotiationResponse;
 import io.bsoa.rpc.message.ResponseFuture;
+import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.message.RpcResponse;
+import io.bsoa.rpc.protocol.ProtocolFactory;
+import io.bsoa.rpc.protocol.ProtocolNegotiator;
 
 /**
  * Created by zhangg on 2016/7/17 15:37.
@@ -49,7 +56,7 @@ public abstract class ClientTransport {
     /**
      * 返回配置
      *
-     * @return
+     * @return config
      */
     public ClientTransportConfig getConfig() {
         return transportConfig;
@@ -79,6 +86,8 @@ public abstract class ClientTransport {
 
     /**
      * 设置长连接
+     *
+     * @param channel the channel
      * @return
      */
     public abstract void setChannel(AbstractChannel channel);
@@ -86,14 +95,14 @@ public abstract class ClientTransport {
     /**
      * 得到长连接
      *
-     * @return
+     * @return channel
      */
     public abstract AbstractChannel getChannel();
 
     /**
      * 当前请求数
      *
-     * @return 当前请求数
+     * @return 当前请求数 int
      */
     public int currentRequests() {
         return 0;
@@ -104,7 +113,7 @@ public abstract class ClientTransport {
      *
      * @param message 消息
      * @param timeout 超时时间
-     * @return 异步Future
+     * @return 异步Future response future
      */
     public abstract ResponseFuture asyncSend(BaseMessage message, int timeout);
 
@@ -113,7 +122,7 @@ public abstract class ClientTransport {
      *
      * @param message 消息
      * @param timeout 超时时间
-     * @return RpcResponse
+     * @return RpcResponse base message
      */
     public abstract BaseMessage syncSend(BaseMessage message, int timeout);
 
@@ -125,25 +134,56 @@ public abstract class ClientTransport {
      */
     public abstract void oneWaySend(BaseMessage message, int timeout);
 
-    public void receiveRpcResponse(RpcResponse response) {
+    /**
+     * Receive rpc response.
+     *
+     * @param response the response
+     */
+    public abstract void receiveRpcResponse(RpcResponse response);
 
-    }
+    /**
+     * Receive heartbeat response.
+     *
+     * @param response the response
+     */
+    public abstract void receiveHeartbeatResponse(HeartbeatResponse response);
 
-    public void receiveHeartbeatResponse(HeartbeatResponse response) {
+    /**
+     * Receive negotiation response.
+     *
+     * @param response the response
+     */
+    public abstract void receiveNegotiationResponse(NegotiationResponse response);
 
-    }
-
-    public void receiveNegotiationResponse(NegotiationResponse response) {
-
-    }
-
+    /**
+     * Handle negotiation request.
+     *
+     * @param request the request
+     */
     public void handleNegotiationRequest(NegotiationRequest request) {
-//        NegotiationListener listener = getConfig().getNegotiationListener();
-//        if (listener == null) {
-//            LOGGER.warn("Has no NegotiatorListener in client transport");
-//        } else {
-//            NegotiationResponse response = listener.handshake(request);
-//            channel.writeAndFlush(response);
-//        }
+        ProtocolNegotiator negotiator =
+                ProtocolFactory.getProtocol(transportConfig.getProviderInfo().getProtocolType()).negotiator();
+        if (negotiator != null) {
+            NegotiationResponse response = negotiator.handleRequest(request);
+            getChannel().writeAndFlush(response);
+        }
+    }
+
+    /**
+     * Handle rpc request.
+     *
+     * @param request the request
+     */
+    public void handleRpcRequest(RpcRequest request) {
+        String callbackInsKey = (String) request.getHeadKey(HeadKey.CALLBACK_INS_KEY);
+        if (callbackInsKey != null) { // 服务端发来的callback请求
+            CallbackTask task = new CallbackTask(request, getChannel());
+            AsyncContext.getAsyncThreadPool().execute(task);
+        }
+        String streamInsKey = (String) request.getHeadKey(HeadKey.STREAM_INS_KEY);
+        if (streamInsKey != null) {  // 服务端发给客户的stream请求
+            StreamTask task = new StreamTask(request, getChannel());
+            AsyncContext.getAsyncThreadPool().execute(task);
+        }
     }
 }

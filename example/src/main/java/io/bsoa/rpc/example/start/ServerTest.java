@@ -16,6 +16,8 @@
  */
 package io.bsoa.rpc.example.start;
 
+import io.bsoa.test.EchoService;
+import io.bsoa.test.EchoServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +53,14 @@ public class ServerTest {
                 .setServer(serverConfig)
                 .setRegister(false);
 
+        ProviderConfig<EchoService> providerConfig2 = new ProviderConfig<EchoService>()
+                .setInterfaceId(EchoService.class.getName())
+                .setRef(new EchoServiceImpl())
+                .setServer(serverConfig)
+                .setRegister(false);
+
         providerConfig.export();
+        providerConfig2.export();
 
         LOGGER.warn("started at pid {}", BsoaContext.PID);
     }

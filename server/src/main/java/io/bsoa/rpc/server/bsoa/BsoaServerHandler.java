@@ -84,25 +84,43 @@ public class BsoaServerHandler implements ServerHandler {
      */
     private ThreadPoolExecutor bizThreadPool;
 
+    /**
+     * Instantiates a new Bsoa server handler.
+     *
+     * @param transportConfig the transport config
+     */
     public BsoaServerHandler(ServerTransportConfig transportConfig) {
         this.transportConfig = transportConfig;
         this.bizThreadPool = BusinessPool.getBusinessPool(this.transportConfig);
     }
 
+    /**
+     * Register processor.
+     *
+     * @param instanceName the instance name
+     * @param instance     the instance
+     */
     public void registerProcessor(String instanceName, Invoker instance) {
         instanceMap.put(instanceName, instance);
-//        InvokerHolder.cacheInvoker(instanceName, instance);
     }
 
+    /**
+     * Un register processor.
+     *
+     * @param instanceName the instance name
+     */
     public void unRegisterProcessor(String instanceName) {
         if (instanceMap.containsKey(instanceName)) {
             instanceMap.remove(instanceName);
-//            InvokerHolder.invalidateInvoker(instanceName);
-        } else {
-//            throw new RuntimeException("[23005]No such invoker key when unRegister processor:" + instanceName);
         }
     }
 
+    /**
+     * Gets invoker.
+     *
+     * @param instanceName the instance name
+     * @return the invoker
+     */
     public Invoker getInvoker(String instanceName) {
         return instanceMap.get(instanceName);
     }
@@ -110,7 +128,7 @@ public class BsoaServerHandler implements ServerHandler {
     @Override
     public void handleRpcRequest(RpcRequest request, AbstractChannel channel) {
         try {
-            // 丢到业务线程池去执行 TODO
+            // 丢到业务线程池去执行 TODO dispatch
 //            RpcResponse rpcResponse = MessageBuilder.buildRpcResponse(rpcRequest);
 //            rpcResponse.setReturnData("hello, this is response!");
 //            channel.writeAndFlush(rpcResponse);
@@ -137,6 +155,11 @@ public class BsoaServerHandler implements ServerHandler {
         }
     }
 
+    /**
+     * Broadcast negotiation.
+     *
+     * @param negotiationRequest the negotiation request
+     */
     protected void broadcastNegotiation(NegotiationRequest negotiationRequest){
         if (LOGGER.isWarnEnabled()) {
             LOGGER.warn("Broadcast negotiation to {} clients: {}",
@@ -213,10 +236,20 @@ public class BsoaServerHandler implements ServerHandler {
         channel.writeAndFlush(response);
     }
 
+    /**
+     * Entry size int.
+     *
+     * @return the int
+     */
     public int entrySize() {
         return instanceMap.size();
     }
 
+    /**
+     * Gets all own invoker.
+     *
+     * @return the all own invoker
+     */
     public Map<String, Invoker> getAllOwnInvoker() {
         return instanceMap;
     }

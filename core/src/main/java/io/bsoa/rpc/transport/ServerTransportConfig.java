@@ -64,7 +64,6 @@ public class ServerTransportConfig {
     private int payload = getIntValue(BsoaOptions.TRANSPORT_PAYLOAD_MAX); // 最大数据包 default set to 8M
     private int buffer = getIntValue(BsoaOptions.TRANSPORT_BUFFER_SIZE); // 缓冲器大小
     private boolean telnet = getBooleanValue(BsoaOptions.SERVER_TELNET); // 是否允许telnet
-    private String dispatcher = getStringValue(BsoaOptions.TRANSPORT_SERVER_DISPATCHER); // 线程方法模型
     private boolean daemon = getBooleanValue(BsoaOptions.SERVER_DAEMON); // 是否守护线程，true随主线程退出而退出，false需要主动退出
 
     private int bufferMin = getIntValue(BsoaOptions.TRANSPORT_BUFFER_MIN);
@@ -76,7 +75,6 @@ public class ServerTransportConfig {
     private ServerHandler serverHandler;
 
 //    private boolean printMessage = false; // 是否debug模式打印消息体
-
 
     public String getHost() {
         return host;
@@ -236,14 +234,6 @@ public class ServerTransportConfig {
 
     public void setTelnet(boolean telnet) {
         this.telnet = telnet;
-    }
-
-    public String getDispatcher() {
-        return dispatcher;
-    }
-
-    public void setDispatcher(String dispatcher) {
-        this.dispatcher = dispatcher;
     }
 
     public boolean isDaemon() {

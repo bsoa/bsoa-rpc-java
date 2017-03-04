@@ -16,10 +16,10 @@
  */
 package io.bsoa.rpc.bootstrap;
 
-import java.util.List;
-
 import io.bsoa.rpc.config.ProviderConfig;
 import io.bsoa.rpc.ext.Extensible;
+
+import java.util.List;
 
 /**
  * <p>发布服务的包装类，包括具体的启动后的对象</p>
@@ -28,7 +28,7 @@ import io.bsoa.rpc.ext.Extensible;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-@Extensible
+@Extensible(singleton = false)
 public abstract class ProviderBootstrap<T> {
 
     /**

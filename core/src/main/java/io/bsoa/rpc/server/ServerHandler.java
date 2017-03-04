@@ -24,25 +24,66 @@ import io.bsoa.rpc.message.RpcResponse;
 import io.bsoa.rpc.transport.AbstractChannel;
 
 /**
- * <p></p>
- *
+ * <p>Sever Handler. Manager service invokers & client channels. </p>
+ * <p>
  * Created by zhangg on 2016/12/22 23:03. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
 public interface ServerHandler {
 
-    public void handleRpcRequest(RpcRequest request, AbstractChannel channel);
-
-    void handleNegotiationRequest(NegotiationRequest request, AbstractChannel channel);
-
+    /**
+     * Register channel.
+     *
+     * @param nettyChannel the netty channel
+     */
     void registerChannel(AbstractChannel nettyChannel);
 
+    /**
+     * Un register channel.
+     *
+     * @param nettyChannel the netty channel
+     */
     void unRegisterChannel(AbstractChannel nettyChannel);
 
+    /**
+     * Handle rpc request.
+     *
+     * @param request the request
+     * @param channel the channel
+     */
+    void handleRpcRequest(RpcRequest request, AbstractChannel channel);
+
+    /**
+     * Handle negotiation request.
+     *
+     * @param request the request
+     * @param channel the channel
+     */
+    void handleNegotiationRequest(NegotiationRequest request, AbstractChannel channel);
+
+    /**
+     * Handle heartbeat request.
+     *
+     * @param request         the request
+     * @param abstractChannel the abstract channel
+     */
+    void handleHeartbeatRequest(HeartbeatRequest request, AbstractChannel abstractChannel);
+
+    /**
+     * Receive rpc response.
+     *
+     * @param response the response
+     * @param channel  the channel
+     */
     void receiveRpcResponse(RpcResponse response, AbstractChannel channel);
 
+    /**
+     * Receive negotiation response.
+     *
+     * @param response the response
+     * @param channel  the channel
+     */
     void receiveNegotiationResponse(NegotiationResponse response, AbstractChannel channel);
 
-    void handleHeartbeatRequest(HeartbeatRequest request, AbstractChannel abstractChannel);
 }

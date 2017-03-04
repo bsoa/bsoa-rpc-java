@@ -143,7 +143,6 @@ public class BsoaServer implements Server {
         serverTransportConfig.setUseEpoll(serverConfig.isEpoll());
         serverTransportConfig.setBizPoolQueueType(serverConfig.getQueueType());
         serverTransportConfig.setBizPoolQueues(serverConfig.getQueues());
-        serverTransportConfig.setDispatcher(serverConfig.getDispatcher());
         serverTransportConfig.setDaemon(serverConfig.isDaemon());
         serverTransportConfig.setParameters(serverConfig.getParameters());
         serverTransportConfig.setContainer(serverConfig.getTransport());

@@ -16,6 +16,8 @@
  */
 package io.bsoa.rpc.transport.netty;
 
+import io.bsoa.rpc.common.BsoaConfigs;
+import io.bsoa.rpc.common.BsoaOptions;
 import io.bsoa.rpc.common.SystemInfo;
 import io.bsoa.rpc.common.struct.PositiveAtomicCounter;
 import io.bsoa.rpc.common.utils.ClassUtils;
@@ -28,14 +30,12 @@ import io.bsoa.rpc.invoke.StreamUtils;
 import io.bsoa.rpc.message.BaseMessage;
 import io.bsoa.rpc.message.HeartbeatResponse;
 import io.bsoa.rpc.message.MessageConstants;
-import io.bsoa.rpc.message.NegotiationRequest;
 import io.bsoa.rpc.message.NegotiationResponse;
 import io.bsoa.rpc.message.ResponseFuture;
 import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.message.RpcResponse;
 import io.bsoa.rpc.protocol.Protocol;
 import io.bsoa.rpc.protocol.ProtocolFactory;
-import io.bsoa.rpc.protocol.ProtocolNegotiator;
 import io.bsoa.rpc.transport.AbstractByteBuf;
 import io.bsoa.rpc.transport.AbstractChannel;
 import io.bsoa.rpc.transport.ClientTransport;
@@ -98,7 +98,9 @@ public class NettyClientTransport extends ClientTransport {
     public void connect() {
         // 已经初始化，或者被复用
         if (channel != null) {
-            LOGGER.info("Has been call connect(), ignore this if connection reuse");
+            if (!BsoaConfigs.getBooleanValue(BsoaOptions.TRANSPORT_CONNECTION_REUSE)) {
+                LOGGER.warn("Has been call connect(), ignore this if connection reuse");
+            }
         }
 
         String host = transportConfig.getProviderInfo().getIp();
@@ -395,16 +397,6 @@ public class NettyClientTransport extends ClientTransport {
         if (future != null) {
             future.setSuccess(response);
             futureMap.remove(messageId);
-        }
-    }
-
-    @Override
-    public void handleNegotiationRequest(NegotiationRequest request) {
-        ProtocolNegotiator negotiator =
-                ProtocolFactory.getProtocol(transportConfig.getProviderInfo().getProtocolType()).negotiator();
-        if (negotiator != null) {
-            NegotiationResponse response = negotiator.handleRequest(request);
-            channel.writeAndFlush(response);
         }
     }
 }

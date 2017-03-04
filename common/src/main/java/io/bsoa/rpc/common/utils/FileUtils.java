@@ -16,6 +16,10 @@
  */
 package io.bsoa.rpc.common.utils;
 
+import io.bsoa.rpc.exception.BsoaRuntimeException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -26,11 +30,6 @@ import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import io.bsoa.rpc.exception.BsoaRuntimeException;
 
 /**
  * Title: 文件操作工具类<br>

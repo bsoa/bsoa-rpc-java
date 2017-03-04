@@ -16,6 +16,7 @@
  */
 package io.bsoa.rpc.example.start;
 
+import io.bsoa.test.EchoService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,6 +44,13 @@ public class ClientTest {
                 .setUrl("bsoa://127.0.0.1:22000")
                 .setRegister(false);
         HelloService helloService = consumerConfig.refer();
+
+        ConsumerConfig<EchoService> consumerConfig2 = new ConsumerConfig<EchoService>()
+                .setInterfaceId(EchoService.class.getName())
+                .setUrl("bsoa://127.0.0.1:22000")
+                .setRegister(false);
+        EchoService echoService = consumerConfig2.refer();
+
 //        try {
 //            for (int i = 0; i < 100; i++) {
 //                String s = helloService.sayHello("xxx", 22);

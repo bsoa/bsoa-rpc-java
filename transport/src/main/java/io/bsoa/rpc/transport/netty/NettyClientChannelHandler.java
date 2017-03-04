@@ -18,10 +18,7 @@ package io.bsoa.rpc.transport.netty;
 
 import io.bsoa.rpc.context.AsyncContext;
 import io.bsoa.rpc.exception.BsoaRpcException;
-import io.bsoa.rpc.invoke.CallbackTask;
-import io.bsoa.rpc.invoke.StreamTask;
 import io.bsoa.rpc.listener.ChannelListener;
-import io.bsoa.rpc.message.HeadKey;
 import io.bsoa.rpc.message.HeartbeatResponse;
 import io.bsoa.rpc.message.NegotiationRequest;
 import io.bsoa.rpc.message.NegotiationResponse;
@@ -92,40 +89,31 @@ public class NettyClientChannelHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         try {
-            // 心跳响应：TO线程处理
-            if (msg instanceof HeartbeatResponse) {
+            // RPC响应
+            if (msg instanceof RpcResponse) {
+                RpcResponse response = (RpcResponse) msg;
+                // 不管是正常响应还是Callback还是Stream
+                clientTransport.receiveRpcResponse(response);
+            }
+            // 心跳响应
+            else if (msg instanceof HeartbeatResponse) {
                 HeartbeatResponse response = (HeartbeatResponse) msg;
                 clientTransport.receiveHeartbeatResponse(response);
+            }
+            // 协商响应
+            else if (msg instanceof NegotiationResponse) {
+                NegotiationResponse response = (NegotiationResponse) msg;
+                clientTransport.receiveNegotiationResponse(response);
             }
             // 协商请求：IO线程处理
             else if (msg instanceof NegotiationRequest) {
                 NegotiationRequest request = (NegotiationRequest) msg;
                 clientTransport.handleNegotiationRequest(request);
             }
-            // 协商响应：发起者线程处理
-            else if (msg instanceof NegotiationResponse) {
-                NegotiationResponse response = (NegotiationResponse) msg;
-                clientTransport.receiveNegotiationResponse(response);
-            }
             // RPC请求
             else if (msg instanceof RpcRequest) {
                 RpcRequest request = (RpcRequest) msg;
-                String callbackInsKey = (String) request.getHeadKey(HeadKey.CALLBACK_INS_KEY);
-                if (callbackInsKey != null) { // 服务端发来的callback请求
-                    CallbackTask task = new CallbackTask(request, clientTransport.getChannel());
-                    AsyncContext.getAsyncThreadPool().execute(task);
-                }
-                String streamInsKey = (String) request.getHeadKey(HeadKey.STREAM_INS_KEY);
-                if (streamInsKey != null) {  // 服务端发给客户的stream请求
-                    StreamTask task = new StreamTask(request, clientTransport.getChannel());
-                    AsyncContext.getAsyncThreadPool().execute(task);
-                }
-            }
-            // RPC响应：业务线程处理
-            else if (msg instanceof RpcResponse) {
-                RpcResponse response = (RpcResponse) msg;
-                // 不管是正常响应还是Callback还是Stream
-                clientTransport.receiveRpcResponse(response);
+                clientTransport.handleRpcRequest(request);
             } else {
                 LOGGER.warn("Receive unsupported message! {}", msg.getClass());
                 throw new BsoaRpcException(22222, "Only support base message");

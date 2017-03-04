@@ -16,12 +16,12 @@
  */
 package io.bsoa.rpc.bootstrap;
 
-import java.util.List;
-
 import io.bsoa.rpc.client.Client;
 import io.bsoa.rpc.client.ProviderInfo;
 import io.bsoa.rpc.config.ConsumerConfig;
 import io.bsoa.rpc.ext.Extensible;
+
+import java.util.List;
 
 /**
  * <p>引用服务的包装类，包括具体的启动后的对象</p>
@@ -30,7 +30,7 @@ import io.bsoa.rpc.ext.Extensible;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-@Extensible
+@Extensible(singleton = false)
 public abstract class ConsumerBootstrap<T> {
 
     /**
