@@ -26,8 +26,8 @@ import io.bsoa.rpc.message.RpcResponse;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
  */
-@Extension(value = "testext",order = 2)
-@AutoActive(providerSide = true,consumerSide = false)
+@Extension(value = "testext", order = 2)
+@AutoActive(providerSide = true, consumerSide = false)
 public class ExtensionFilter implements Filter {
 
     @Override

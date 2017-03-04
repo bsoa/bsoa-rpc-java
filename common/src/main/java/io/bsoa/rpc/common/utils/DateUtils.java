@@ -1,18 +1,17 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+/*
+ * Copyright 2016 The BSOA Project
+ *
+ * The BSOA Project licenses this file to you under the Apache License,
+ * version 2.0 (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at:
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
  */
 package io.bsoa.rpc.common.utils;
 
@@ -22,7 +21,7 @@ import java.util.Date;
 
 /**
  * FIXME 不要用 simpleDateFormat
- *
+ * <p>
  * Created by zhangg on 2016/7/16 00:03.
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
@@ -58,8 +57,7 @@ public class DateUtils {
     /**
      * 到下一分钟0秒的毫秒数
      *
-     * @param rightnow
-     *         当前时间
+     * @param rightnow 当前时间
      * @return the int 到下一分钟的毫秒数
      */
     public static int getDelayToNextMinute(long rightnow) {
@@ -69,8 +67,7 @@ public class DateUtils {
     /**
      * 上一分钟的最后一毫秒
      *
-     * @param rightnow
-     *         当前时间
+     * @param rightnow 当前时间
      * @return 上一分钟的最后一毫秒
      */
     public static long getPreMinuteMills(long rightnow) {
@@ -80,8 +77,7 @@ public class DateUtils {
     /**
      * 得到时间字符串
      *
-     * @param date
-     *         时间
+     * @param date 时间
      * @return 时间字符串
      */
     public static String dateToStr(Date date) {
@@ -91,10 +87,8 @@ public class DateUtils {
     /**
      * 时间转字符串
      *
-     * @param date
-     *         时间
-     * @param format
-     *         格式化格式
+     * @param date   时间
+     * @param format 格式化格式
      * @return 时间字符串
      */
     public static String dateToStr(Date date, String format) {
@@ -104,8 +98,7 @@ public class DateUtils {
     /**
      * 字符串转时间
      *
-     * @param dateStr
-     *         时间字符串
+     * @param dateStr 时间字符串
      * @return 时间字符串
      */
     public static Date strToDate(String dateStr) throws ParseException {
@@ -115,10 +108,8 @@ public class DateUtils {
     /**
      * 字符串转时间
      *
-     * @param dateStr
-     *         时间字符串
-     * @param format
-     *         格式化格式
+     * @param dateStr 时间字符串
+     * @param format  格式化格式
      * @return 时间字符串
      */
     public static Date strToDate(String dateStr, String format) throws ParseException {
@@ -128,8 +119,7 @@ public class DateUtils {
     /**
      * 得到毫秒级时间字符串
      *
-     * @param date
-     *         时间
+     * @param date 时间
      * @return 时间字符串
      */
     public static String dateToMillisStr(Date date) {
@@ -139,8 +129,7 @@ public class DateUtils {
     /**
      * 得到Date
      *
-     * @param millisDateStr
-     *         毫秒级时间字符串
+     * @param millisDateStr 毫秒级时间字符串
      * @return Date
      */
     public static Date millisStrToDate(String millisDateStr) throws ParseException {

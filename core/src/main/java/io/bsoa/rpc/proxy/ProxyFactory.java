@@ -23,8 +23,6 @@ import io.bsoa.rpc.ext.ExtensionLoader;
 import io.bsoa.rpc.ext.ExtensionLoaderFactory;
 
 /**
- *
- *
  * Created by zhangg on 16-6-7.
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
@@ -40,14 +38,10 @@ public final class ProxyFactory {
     /**
      * 构建代理类实例
      *
-     * @param proxyType
-     *         代理类型
-     * @param clazz
-     *         原始类
-     * @param proxyInvoker
-     *         代码执行的Invoker
-     * @param <T>
-     *         类型
+     * @param proxyType    代理类型
+     * @param clazz        原始类
+     * @param proxyInvoker 代码执行的Invoker
+     * @param <T>          类型
      * @return 代理类实例
      * @throws Exception
      */

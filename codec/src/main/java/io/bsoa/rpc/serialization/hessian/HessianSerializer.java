@@ -1,27 +1,19 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+/*
+ * Copyright 2016 The BSOA Project
+ *
+ * The BSOA Project licenses this file to you under the Apache License,
+ * version 2.0 (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at:
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
  */
 package io.bsoa.rpc.serialization.hessian;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.bsoa.rpc.codec.Serializer;
 import io.bsoa.rpc.common.struct.UnsafeByteArrayInputStream;
@@ -36,6 +28,12 @@ import io.bsoa.rpc.serialization.hessian.io.AbstractHessianInput;
 import io.bsoa.rpc.serialization.hessian.io.AbstractHessianOutput;
 import io.bsoa.rpc.serialization.hessian.io.Hessian2Input;
 import io.bsoa.rpc.serialization.hessian.io.Hessian2Output;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Map;
 
 import static io.bsoa.rpc.serialization.hessian.HessianConstants.EMPTY_CLASS_ARRAY;
 import static io.bsoa.rpc.serialization.hessian.HessianConstants.EMPTY_OBJECT_ARRAY;
@@ -190,7 +188,7 @@ public class HessianSerializer implements Serializer {
      * 解码客户端发来的RpcRequest.
      *
      * @param input the input
-     * @param req 请求
+     * @param req   请求
      * @return the request message
      * @throws IOException the iO exception
      */
@@ -230,7 +228,7 @@ public class HessianSerializer implements Serializer {
     /**
      * 解码服务端返回的Response
      *
-     * @param in the in
+     * @param in  the in
      * @param res 响应
      * @return the response message
      * @throws IOException the iO exception

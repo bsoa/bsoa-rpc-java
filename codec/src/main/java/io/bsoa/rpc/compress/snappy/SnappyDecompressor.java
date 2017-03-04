@@ -1,19 +1,17 @@
 /*
- * Copyright (C) 2011 the original author or authors.
- * See the notice.md file distributed with this work for additional
- * information regarding copyright ownership.
+ * Copyright 2016 The BSOA Project
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * The BSOA Project licenses this file to you under the Apache License,
+ * version 2.0 (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at:
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
  */
 package io.bsoa.rpc.compress.snappy;
 
@@ -21,19 +19,16 @@ import static io.bsoa.rpc.compress.snappy.SnappyInternalUtils.copyLong;
 import static io.bsoa.rpc.compress.snappy.SnappyInternalUtils.loadByte;
 import static io.bsoa.rpc.compress.snappy.SnappyInternalUtils.lookupShort;
 
-final class SnappyDecompressor
-{
+final class SnappyDecompressor {
     private static final int MAX_INCREMENT_COPY_OVERFLOW = 20;
 
     public static int getUncompressedLength(byte[] compressed, int compressedOffset)
-            throws CorruptionException
-    {
+            throws CorruptionException {
         return readUncompressedLength(compressed, compressedOffset)[0];
     }
 
     public static byte[] uncompress(byte[] compressed, int compressedOffset, int compressedSize)
-            throws CorruptionException
-    {
+            throws CorruptionException {
         // Read the uncompressed length from the front of the compressed input
         int[] varInt = readUncompressedLength(compressed, compressedOffset);
         int expectedLength = varInt[0];
@@ -61,8 +56,7 @@ final class SnappyDecompressor
     }
 
     public static int uncompress(byte[] compressed, int compressedOffset, int compressedSize, byte[] uncompressed, int uncompressedOffset)
-            throws CorruptionException
-    {
+            throws CorruptionException {
         // Read the uncompressed length from the front of the compressed input
         int[] varInt = readUncompressedLength(compressed, compressedOffset);
         int expectedLength = varInt[0];
@@ -95,8 +89,7 @@ final class SnappyDecompressor
             final int inputSize,
             final byte[] output,
             final int outputOffset)
-            throws CorruptionException
-    {
+            throws CorruptionException {
         final int outputLimit = output.length;
 
         final int ipLimit = inputOffset + inputSize;
@@ -118,8 +111,7 @@ final class SnappyDecompressor
                 copyLiteral(input, ipIndex, output, opIndex, literalLength);
                 ipIndex += literalLength;
                 opIndex += literalLength;
-            }
-            else {
+            } else {
                 // copyOffset/256 is encoded in bits 8..10.  By just fetching
                 // those bits, we get copyOffset (since the bit-field starts at
                 // bit 8).
@@ -169,11 +161,9 @@ final class SnappyDecompressor
                         // Fast path, used for the majority (70-80%) of dynamic invocations.
                         copyLong(output, srcIndex, output, opIndex);
                         copyLong(output, srcIndex + 8, output, opIndex + 8);
-                    }
-                    else if (spaceLeft >= length + MAX_INCREMENT_COPY_OVERFLOW) {
+                    } else if (spaceLeft >= length + MAX_INCREMENT_COPY_OVERFLOW) {
                         incrementalCopyFastPath(output, srcIndex, opIndex, length);
-                    }
-                    else {
+                    } else {
                         incrementalCopy(output, srcIndex, output, opIndex, length);
                     }
                 }
@@ -202,8 +192,7 @@ final class SnappyDecompressor
      * it is worth the extra maintenance pain to get the extra 10-20%.
      */
     private static int[] decompressTagSlow(byte[] input, int ipIndex, byte[] output, int outputLimit, int outputOffset, int opIndex)
-            throws CorruptionException
-    {
+            throws CorruptionException {
         // read the op code
         int opCode = loadByte(input, ipIndex++);
         int entry = lookupShort(opLookupTable, opCode);
@@ -232,8 +221,7 @@ final class SnappyDecompressor
             copyLiteral(input, ipIndex, output, opIndex, literalLength);
             ipIndex += literalLength;
             opIndex += literalLength;
-        }
-        else {
+        } else {
             // copyOffset/256 is encoded in bits 8..10.  By just fetching
             // those bits, we get copyOffset (since the bit-field starts at
             // bit 8).
@@ -253,27 +241,23 @@ final class SnappyDecompressor
                     // Fast path, used for the majority (70-80%) of dynamic invocations.
                     copyLong(output, srcIndex, output, opIndex);
                     copyLong(output, srcIndex + 8, output, opIndex + 8);
-                }
-                else if (spaceLeft >= length + MAX_INCREMENT_COPY_OVERFLOW) {
+                } else if (spaceLeft >= length + MAX_INCREMENT_COPY_OVERFLOW) {
                     incrementalCopyFastPath(output, srcIndex, opIndex, length);
-                }
-                else {
+                } else {
                     incrementalCopy(output, srcIndex, output, opIndex, length);
                 }
             }
             opIndex += length;
         }
-        return new int[] {ipIndex, opIndex};
+        return new int[]{ipIndex, opIndex};
     }
 
-    private static int readTrailer(byte[] data, int index, int bytes)
-    {
+    private static int readTrailer(byte[] data, int index, int bytes) {
         return SnappyInternalUtils.loadInt(data, index) & wordmask[bytes];
     }
 
     private static void copyLiteral(byte[] input, int ipIndex, byte[] output, int opIndex, int length)
-            throws CorruptionException
-    {
+            throws CorruptionException {
         assert length > 0;
         assert ipIndex >= 0;
         assert opIndex >= 0;
@@ -288,8 +272,7 @@ final class SnappyDecompressor
         if (length <= 16 && spaceLeft >= 16 && readableBytes >= 16) {
             copyLong(input, ipIndex, output, opIndex);
             copyLong(input, ipIndex + 8, output, opIndex + 8);
-        }
-        else  {
+        } else {
             int fastLength = length & 0xFFFFFFF8;
             if (fastLength <= 64) {
                 // copy long-by-long
@@ -305,8 +288,7 @@ final class SnappyDecompressor
                 for (int i = 0; i < slowLength; i += 1) {
                     output[opIndex + fastLength + i] = input[ipIndex + fastLength + i];
                 }
-            }
-            else {
+            } else {
                 SnappyInternalUtils.copyMemory(input, ipIndex, output, opIndex, length);
             }
         }
@@ -319,22 +301,20 @@ final class SnappyDecompressor
      * src    == "ab"
      * op     == src + 2
      * len    == 20
-     *
+     * <p>
      * After incrementalCopy, the result will have
      * eleven copies of "ab"
      * ababababababababababab
      * Note that this does not match the semantics of either memcpy()
      * or memmove().
      */
-    private static void incrementalCopy(byte[] src, int srcIndex, byte[] op, int opIndex, int length)
-    {
+    private static void incrementalCopy(byte[] src, int srcIndex, byte[] op, int opIndex, int length) {
         do {
             op[opIndex++] = src[srcIndex++];
         } while (--length > 0);
     }
 
-    private static void incrementalCopyFastPath(byte[] output, int srcIndex, int opIndex, int length)
-    {
+    private static void incrementalCopyFastPath(byte[] output, int srcIndex, int opIndex, int length) {
         int copiedLength = 0;
         while ((opIndex + copiedLength) - srcIndex < 8) {
             copyLong(output, srcIndex, output, opIndex + copiedLength);
@@ -402,8 +382,7 @@ final class SnappyDecompressor
      * returns this length with the number of bytes read.
      */
     private static int[] readUncompressedLength(byte[] compressed, int compressedOffset)
-            throws CorruptionException
-    {
+            throws CorruptionException {
         int result;
         int bytesRead = 0;
         {

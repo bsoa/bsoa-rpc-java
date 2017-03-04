@@ -37,7 +37,7 @@ public class NegotiationRequest extends BaseMessage implements Serializable {
      * 命令
      */
     private String cmd;
-    
+
     /**
      * 数据
      */

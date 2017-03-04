@@ -1,20 +1,23 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+/*
+ * Copyright 2016 The BSOA Project
+ *
+ * The BSOA Project licenses this file to you under the Apache License,
+ * version 2.0 (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at:
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
  */
 package io.bsoa.rpc.common.utils;
+
+import io.bsoa.rpc.exception.BsoaRuntimeException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -24,11 +27,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import io.bsoa.rpc.exception.BsoaRuntimeException;
 
 /**
  * Bean的一些操作
@@ -47,16 +45,11 @@ public class BeanUtils {
     /**
      * 设置属性
      *
-     * @param bean
-     *         对象
-     * @param name
-     *         属性名
-     * @param clazz
-     *         设置值的类
-     * @param value
-     *         属性值
-     * @param <T>
-     *         和值对应的类型
+     * @param bean  对象
+     * @param name  属性名
+     * @param clazz 设置值的类
+     * @param value 属性值
+     * @param <T>   和值对应的类型
      * @throws Exception 设值异常
      */
     public static <T> void setProperty(Object bean, String name, Class<T> clazz, T value) throws Exception {
@@ -76,17 +69,12 @@ public class BeanUtils {
     /**
      * 得到属性的值
      *
-     * @param bean
-     *         对象
-     * @param name
-     *         属性名
-     * @param clazz
-     *         设置值的类
-     * @param <T>
-     *         和返回值对应的类型
+     * @param bean  对象
+     * @param name  属性名
+     * @param clazz 设置值的类
+     * @param <T>   和返回值对应的类型
      * @return 属性值
-     * @throws Exception
-     *         取值异常
+     * @throws Exception 取值异常
      */
     public static <T> T getProperty(Object bean, String name, Class<T> clazz) throws Exception {
         Method method = ReflectUtils.getPropertyGetterMethod(bean.getClass(), name);
@@ -105,12 +93,9 @@ public class BeanUtils {
     /**
      * 复制属性到map，可以自定义前缀
      *
-     * @param bean
-     *         对象
-     * @param prefix
-     *         放入key的前缀
-     * @param map
-     *         要写入的map
+     * @param bean   对象
+     * @param prefix 放入key的前缀
+     * @param map    要写入的map
      */
     public static void copyPropertiesToMap(Object bean, String prefix, Map<String, Object> map) {
         Class clazz = bean.getClass();
@@ -172,18 +157,19 @@ public class BeanUtils {
 
     /**
      * 从一个对象复制相同字段到另一个对象，（只写有getter/setter方法都有的值）
-     * @param src 原始对象
-     * @param dst 目标对象
+     *
+     * @param src          原始对象
+     * @param dst          目标对象
      * @param ignoreFields 忽略的字段
      */
     public static void copyProperties(Object src, Object dst, String... ignoreFields) {
         Class srcClazz = src.getClass();
         Class distClazz = dst.getClass();
         Method[] methods = distClazz.getMethods();
-        List<String> ignoreFiledList =  Arrays.asList(ignoreFields);
+        List<String> ignoreFiledList = Arrays.asList(ignoreFields);
         for (Method dstMethod : methods) { // 遍历目标对象的方法
             if (Modifier.isStatic(dstMethod.getModifiers())
-                    || !ReflectUtils.isBeanPropertyReadMethod(dstMethod)){
+                    || !ReflectUtils.isBeanPropertyReadMethod(dstMethod)) {
                 // 不是static方法， 是getter方法
                 continue;
             }
@@ -216,12 +202,9 @@ public class BeanUtils {
     /**
      * 检查一个类的一个对象和另一个对象哪些属性被修改了（只写有getter/setter方法都有的值）
      *
-     * @param src
-     *         修改前对象
-     * @param dst
-     *         修改后对象
-     * @param ignoreFields
-     *         忽略的字段
+     * @param src          修改前对象
+     * @param dst          修改后对象
+     * @param ignoreFields 忽略的字段
      */
     public static <T> List<String> getModifiedFields(T src, T dst, String... ignoreFields) {
         Class clazz = src.getClass();
@@ -230,7 +213,7 @@ public class BeanUtils {
         List<String> modifiedFields = new ArrayList<String>();
         for (Method getterMethod : methods) { // 遍历目标对象的方法
             if (Modifier.isStatic(getterMethod.getModifiers())
-                    || !ReflectUtils.isBeanPropertyReadMethod(getterMethod)){
+                    || !ReflectUtils.isBeanPropertyReadMethod(getterMethod)) {
                 // 不是static方法， 是getter方法
                 continue;
             }

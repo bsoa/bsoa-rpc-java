@@ -15,17 +15,18 @@
  */
 package io.bsoa.rpc.config.spring;
 
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
+import io.bsoa.rpc.common.struct.ConcurrentHashSet;
+import io.bsoa.rpc.common.utils.ClassLoaderUtils;
+import io.bsoa.rpc.common.utils.ExceptionUtils;
+import io.bsoa.rpc.common.utils.StringUtils;
+import io.bsoa.rpc.config.ConsumerConfig;
+import io.bsoa.rpc.config.ProviderConfig;
+import io.bsoa.rpc.config.RegistryConfig;
+import io.bsoa.rpc.config.ServerConfig;
+import io.bsoa.rpc.config.annotation.Consumer;
+import io.bsoa.rpc.config.annotation.Provider;
+import io.bsoa.rpc.config.annotation.Server;
+import io.bsoa.rpc.exception.BsoaRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -48,18 +49,16 @@ import org.springframework.core.type.classreading.MetadataReaderFactory;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.SystemPropertyUtils;
 
-import io.bsoa.rpc.common.struct.ConcurrentHashSet;
-import io.bsoa.rpc.common.utils.ClassLoaderUtils;
-import io.bsoa.rpc.common.utils.ExceptionUtils;
-import io.bsoa.rpc.common.utils.StringUtils;
-import io.bsoa.rpc.config.ConsumerConfig;
-import io.bsoa.rpc.config.ProviderConfig;
-import io.bsoa.rpc.config.RegistryConfig;
-import io.bsoa.rpc.config.ServerConfig;
-import io.bsoa.rpc.config.annotation.Consumer;
-import io.bsoa.rpc.config.annotation.Provider;
-import io.bsoa.rpc.config.annotation.Server;
-import io.bsoa.rpc.exception.BsoaRuntimeException;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Created by zhangg on 16-7-7.
@@ -137,10 +136,10 @@ public class AnnotationBean implements InitializingBean, DisposableBean,
     /**
      * 构造函数 API方式配置annotation
      *
-     * @param registryConfigs          注册中心地址
-     * @param serverConfigs          配置协议
-     * @param basePackage          扫描包路径, 多个用英文逗号分隔
-     * @throws org.springframework.beans.BeansException          the beans exception
+     * @param registryConfigs 注册中心地址
+     * @param serverConfigs   配置协议
+     * @param basePackage     扫描包路径, 多个用英文逗号分隔
+     * @throws org.springframework.beans.BeansException the beans exception
      */
     public AnnotationBean(List<RegistryConfig> registryConfigs,
                           List<ServerConfig> serverConfigs, String basePackage)
@@ -160,9 +159,9 @@ public class AnnotationBean implements InitializingBean, DisposableBean,
     /**
      * 构造函数 API方式配置annotation  reference应使用该构造方法
      *
-     * @param registryConfigs          注册中心地址
-     * @param basePackage          扫描包路径, 多个用英文逗号分隔
-     * @throws org.springframework.beans.BeansException          the beans exception
+     * @param registryConfigs 注册中心地址
+     * @param basePackage     扫描包路径, 多个用英文逗号分隔
+     * @throws org.springframework.beans.BeansException the beans exception
      */
     public AnnotationBean(List<RegistryConfig> registryConfigs, String basePackage) throws BeansException {
         this.registryConfigs = registryConfigs;
@@ -256,7 +255,7 @@ public class AnnotationBean implements InitializingBean, DisposableBean,
     /**
      * Post process before initialization.
      *
-     * @param bean the bean
+     * @param bean     the bean
      * @param beanName the bean name
      * @return the object
      * @throws BeansException the beans exception
@@ -273,7 +272,7 @@ public class AnnotationBean implements InitializingBean, DisposableBean,
     /**
      * Post process after initialization.
      *
-     * @param bean the bean
+     * @param bean     the bean
      * @param beanName the bean name
      * @return the object
      * @throws BeansException the beans exception
@@ -304,7 +303,7 @@ public class AnnotationBean implements InitializingBean, DisposableBean,
     /**
      * Scan the class path for candidate components.
      *
-     * @param basePackage          the package to check for annotated classes
+     * @param basePackage the package to check for annotated classes
      * @return a corresponding Set of autodetected bean definitions
      */
     private Set<BeanDefinition> findCandidateComponents(String basePackage) {
@@ -342,7 +341,7 @@ public class AnnotationBean implements InitializingBean, DisposableBean,
                         Object bean = null;
                         try {
                             bean = ClassLoaderUtils.newInstance(clz);
-                        } catch(Exception e) {
+                        } catch (Exception e) {
                             continue;
                         }
 
@@ -380,7 +379,7 @@ public class AnnotationBean implements InitializingBean, DisposableBean,
     /**
      * Scan provider.
      *
-     * @param bean the bean
+     * @param bean     the bean
      * @param beanName the bean name
      * @return the object
      */
@@ -406,7 +405,7 @@ public class AnnotationBean implements InitializingBean, DisposableBean,
     /**
      * Scan consumer.
      *
-     * @param bean the bean
+     * @param bean     the bean
      * @param beanName the bean name
      * @return the object
      */
@@ -476,9 +475,9 @@ public class AnnotationBean implements InitializingBean, DisposableBean,
     /**
      * 取xml和annotation配置的交集
      *
-     * @param provider          the provider
+     * @param provider       the provider
      * @param interfaceClass the interface class
-     * @param ref the ref
+     * @param ref            the ref
      */
     private ProviderConfig parseAnnotationService(Provider provider, Class interfaceClass, Object ref) {
 
@@ -521,7 +520,7 @@ public class AnnotationBean implements InitializingBean, DisposableBean,
     /**
      * 从annotation中获取Server的配置
      *
-     * @param servers          the servers
+     * @param servers the servers
      * @return list list
      */
     private List<ServerConfig> parseAnnotationServers(Server[] servers) {
@@ -530,7 +529,7 @@ public class AnnotationBean implements InitializingBean, DisposableBean,
             String protocol = server.protocol();
             int port = server.port();
             // 先从缓存里取
-            String key = protocol + "@" +port;
+            String key = protocol + "@" + port;
             ServerConfig serverConfig = serverCache.get(key);
             if (serverConfig == null) {
                 // 复制属性
@@ -549,8 +548,8 @@ public class AnnotationBean implements InitializingBean, DisposableBean,
     /**
      * Refer object.
      *
-     * @param consumer          the consumer
-     * @param consumerClass          the consumer class
+     * @param consumer      the consumer
+     * @param consumerClass the consumer class
      * @return the object
      */
     private ConsumerConfig parseAnnotationCosumer(Consumer consumer, Class<?> consumerClass) {
@@ -580,7 +579,7 @@ public class AnnotationBean implements InitializingBean, DisposableBean,
     /**
      * Resolve base package.
      *
-     * @param basePackage          the base package
+     * @param basePackage the base package
      * @return the string
      */
     protected String resolveBasePackage(String basePackage) {
@@ -591,7 +590,7 @@ public class AnnotationBean implements InitializingBean, DisposableBean,
     /**
      * Gets reference object.
      *
-     * @param type          the type
+     * @param type the type
      * @return the reference object
      */
     public Object getReferenceObject(Class<?> type) {
@@ -659,7 +658,7 @@ public class AnnotationBean implements InitializingBean, DisposableBean,
     /**
      * Sets basePackage.
      *
-     * @param basePackage          the basePackage
+     * @param basePackage the basePackage
      */
     public void setBasePackage(String basePackage) {
         this.basePackage = basePackage;
@@ -707,8 +706,7 @@ public class AnnotationBean implements InitializingBean, DisposableBean,
     /**
      * Is match package.
      *
-     * @param bean
-     *         the bean
+     * @param bean the bean
      * @return the boolean
      */
     protected boolean isMatchPackage(Object bean) {

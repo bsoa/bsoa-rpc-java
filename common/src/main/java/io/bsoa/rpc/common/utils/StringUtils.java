@@ -1,18 +1,17 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+/*
+ * Copyright 2016 The BSOA Project
+ *
+ * The BSOA Project licenses this file to you under the Apache License,
+ * version 2.0 (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at:
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
  */
 package io.bsoa.rpc.common.utils;
 
@@ -21,8 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
- *
  * Created by zhangg on 2016/7/14 21:07.
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
@@ -30,9 +27,9 @@ import java.util.List;
 public class StringUtils {
 
 
-
     /**
      * The empty String {@code ""}.
+     *
      * @since 2.0
      */
     public static final String EMPTY = "";
@@ -41,9 +38,10 @@ public class StringUtils {
 
     // Empty checks
     //-----------------------------------------------------------------------
+
     /**
      * <p>Checks if a CharSequence is empty ("") or null.</p>
-     *
+     * <p>
      * <pre>
      * StringUtils.isEmpty(null)      = true
      * StringUtils.isEmpty("")        = true
@@ -51,12 +49,12 @@ public class StringUtils {
      * StringUtils.isEmpty("bob")     = false
      * StringUtils.isEmpty("  bob  ") = false
      * </pre>
-     *
+     * <p>
      * <p>NOTE: This method changed in Lang version 2.0.
      * It no longer trims the CharSequence.
      * That functionality is available in isBlank().</p>
      *
-     * @param cs  the CharSequence to check, may be null
+     * @param cs the CharSequence to check, may be null
      * @return {@code true} if the CharSequence is empty or null
      * @since 3.0 Changed signature from isEmpty(String) to isEmpty(CharSequence)
      */
@@ -66,7 +64,7 @@ public class StringUtils {
 
     /**
      * <p>Checks if a CharSequence is not empty ("") and not null.</p>
-     *
+     * <p>
      * <pre>
      * StringUtils.isNotEmpty(null)      = false
      * StringUtils.isNotEmpty("")        = false
@@ -75,7 +73,7 @@ public class StringUtils {
      * StringUtils.isNotEmpty("  bob  ") = true
      * </pre>
      *
-     * @param cs  the CharSequence to check, may be null
+     * @param cs the CharSequence to check, may be null
      * @return {@code true} if the CharSequence is not empty and not null
      * @since 3.0 Changed signature from isNotEmpty(String) to isNotEmpty(CharSequence)
      */
@@ -85,7 +83,7 @@ public class StringUtils {
 
     /**
      * <p>Checks if a CharSequence is whitespace, empty ("") or null.</p>
-     *
+     * <p>
      * <pre>
      * StringUtils.isBlank(null)      = true
      * StringUtils.isBlank("")        = true
@@ -94,9 +92,8 @@ public class StringUtils {
      * StringUtils.isBlank("  bob  ") = false
      * </pre>
      *
-     * @param cs  the CharSequence to check, may be null
+     * @param cs the CharSequence to check, may be null
      * @return {@code true} if the CharSequence is null, empty or whitespace
-     * @since 2.0
      * @since 3.0 Changed signature from isBlank(String) to isBlank(CharSequence)
      */
     public static boolean isBlank(CharSequence cs) {
@@ -114,7 +111,7 @@ public class StringUtils {
 
     /**
      * <p>Checks if a CharSequence is not empty (""), not null and not whitespace only.</p>
-     *
+     * <p>
      * <pre>
      * StringUtils.isNotBlank(null)      = false
      * StringUtils.isNotBlank("")        = false
@@ -123,10 +120,9 @@ public class StringUtils {
      * StringUtils.isNotBlank("  bob  ") = true
      * </pre>
      *
-     * @param cs  the CharSequence to check, may be null
+     * @param cs the CharSequence to check, may be null
      * @return {@code true} if the CharSequence is
-     *  not empty and not null and not whitespace
-     * @since 2.0
+     * not empty and not null and not whitespace
      * @since 3.0 Changed signature from isNotBlank(String) to isNotBlank(CharSequence)
      */
     public static boolean isNotBlank(CharSequence cs) {
@@ -142,7 +138,7 @@ public class StringUtils {
      * StringUtils.trim("    abc    ") = "abc"
      * </pre>
      *
-     * @param str  the String to be trimmed, may be null
+     * @param str the String to be trimmed, may be null
      * @return the trimmed string, {@code null} if null String input
      */
     public static String trim(String str) {
@@ -158,9 +154,9 @@ public class StringUtils {
      * StringUtils.trimToNull("    abc    ") = "abc"
      * </pre>
      *
-     * @param str  the String to be trimmed, may be null
+     * @param str the String to be trimmed, may be null
      * @return the trimmed String,
-     *  {@code null} if only chars &lt;= 32, empty or null String input
+     * {@code null} if only chars &lt;= 32, empty or null String input
      * @since 2.0
      */
     public static String trimToNull(String str) {
@@ -177,7 +173,7 @@ public class StringUtils {
      * StringUtils.trimToEmpty("    abc    ") = "abc"
      * </pre>
      *
-     * @param str  the String to be trimmed, may be null
+     * @param str the String to be trimmed, may be null
      * @return the trimmed String, or an empty String if {@code null} input
      * @since 2.0
      */
@@ -189,15 +185,11 @@ public class StringUtils {
     /**
      * Converts a <code>byte[]</code> to a String using the specified character encoding.
      *
-     * @param bytes
-     *            the byte array to read from
-     * @param charsetName
-     *            the encoding to use, if null then use the platform default
+     * @param bytes       the byte array to read from
+     * @param charsetName the encoding to use, if null then use the platform default
      * @return a new String
-     * @throws UnsupportedEncodingException
-     *             If the named charset is not supported
-     * @throws NullPointerException
-     *             if the input is null
+     * @throws UnsupportedEncodingException If the named charset is not supported
+     * @throws NullPointerException         if the input is null
      * @since 3.1
      */
     public static String toString(byte[] bytes, String charsetName) throws UnsupportedEncodingException {
@@ -206,20 +198,21 @@ public class StringUtils {
 
     // Defaults
     //-----------------------------------------------------------------------
+
     /**
      * <p>Returns either the passed in String,
      * or if the String is {@code null}, an empty String ("").</p>
-     *
+     * <p>
      * <pre>
      * StringUtils.defaultString(null)  = ""
      * StringUtils.defaultString("")    = ""
      * StringUtils.defaultString("bat") = "bat"
      * </pre>
      *
-     * @see String#valueOf(Object)
-     * @param str  the String to check, may be null
+     * @param str the String to check, may be null
      * @return the passed in String, or the empty String if it
-     *  was {@code null}
+     * was {@code null}
+     * @see String#valueOf(Object)
      */
     public static String defaultString(final String str) {
         return str == null ? EMPTY : str;
@@ -250,8 +243,7 @@ public class StringUtils {
      * 例如 " 1,2 ,, 3 , " 返回 [1,2,3] 3个值<br/>
      * " 1;2 ;; 3 ; " 返回 [1,2,3] 3个值<br/>
      *
-     * @param src
-     *         原始值
+     * @param src 原始值
      * @return 字符串数组
      */
     public static String[] splitWithCommaOrSemicolon(String src) {
@@ -273,17 +265,18 @@ public class StringUtils {
 
     // Splitting
     //-----------------------------------------------------------------------
+
     /**
      * <p>Splits the provided text into an array, using whitespace as the
      * separator.
      * Whitespace is defined by {@link Character#isWhitespace(char)}.</p>
-     *
+     * <p>
      * <p>The separator is not included in the returned String array.
      * Adjacent separators are treated as one separator.
      * For more control over the split use the StrTokenizer class.</p>
-     *
+     * <p>
      * <p>A {@code null} input String returns {@code null}.</p>
-     *
+     * <p>
      * <pre>
      * StringUtils.split(null)       = null
      * StringUtils.split("")         = []
@@ -292,7 +285,7 @@ public class StringUtils {
      * StringUtils.split(" abc ")    = ["abc"]
      * </pre>
      *
-     * @param str  the String to parse, may be null
+     * @param str the String to parse, may be null
      * @return an array of parsed Strings, {@code null} if null String input
      */
     public static String[] split(final String str) {
@@ -302,13 +295,13 @@ public class StringUtils {
     /**
      * <p>Splits the provided text into an array, separator specified.
      * This is an alternative to using StringTokenizer.</p>
-     *
+     * <p>
      * <p>The separator is not included in the returned String array.
      * Adjacent separators are treated as one separator.
      * For more control over the split use the StrTokenizer class.</p>
-     *
+     * <p>
      * <p>A {@code null} input String returns {@code null}.</p>
-     *
+     * <p>
      * <pre>
      * StringUtils.split(null, *)         = null
      * StringUtils.split("", *)           = []
@@ -318,8 +311,8 @@ public class StringUtils {
      * StringUtils.split("a b c", ' ')    = ["a", "b", "c"]
      * </pre>
      *
-     * @param str  the String to parse, may be null
-     * @param separatorChar  the character used as the delimiter
+     * @param str           the String to parse, may be null
+     * @param separatorChar the character used as the delimiter
      * @return an array of parsed Strings, {@code null} if null String input
      * @since 2.0
      */
@@ -330,14 +323,14 @@ public class StringUtils {
     /**
      * <p>Splits the provided text into an array, separators specified.
      * This is an alternative to using StringTokenizer.</p>
-     *
+     * <p>
      * <p>The separator is not included in the returned String array.
      * Adjacent separators are treated as one separator.
      * For more control over the split use the StrTokenizer class.</p>
-     *
+     * <p>
      * <p>A {@code null} input String returns {@code null}.
      * A {@code null} separatorChars splits on whitespace.</p>
-     *
+     * <p>
      * <pre>
      * StringUtils.split(null, *)         = null
      * StringUtils.split("", *)           = []
@@ -347,9 +340,9 @@ public class StringUtils {
      * StringUtils.split("ab:cd:ef", ":") = ["ab", "cd", "ef"]
      * </pre>
      *
-     * @param str  the String to parse, may be null
-     * @param separatorChars  the characters used as the delimiters,
-     *  {@code null} splits on whitespace
+     * @param str            the String to parse, may be null
+     * @param separatorChars the characters used as the delimiters,
+     *                       {@code null} splits on whitespace
      * @return an array of parsed Strings, {@code null} if null String input
      */
     public static String[] split(final String str, final String separatorChars) {
@@ -359,17 +352,17 @@ public class StringUtils {
     /**
      * <p>Splits the provided text into an array with a maximum length,
      * separators specified.</p>
-     *
+     * <p>
      * <p>The separator is not included in the returned String array.
      * Adjacent separators are treated as one separator.</p>
-     *
+     * <p>
      * <p>A {@code null} input String returns {@code null}.
      * A {@code null} separatorChars splits on whitespace.</p>
-     *
+     * <p>
      * <p>If more than {@code max} delimited substrings are found, the last
      * returned string includes all characters after the first {@code max - 1}
      * returned strings (including separator characters).</p>
-     *
+     * <p>
      * <pre>
      * StringUtils.split(null, *, *)            = null
      * StringUtils.split("", *, *)              = []
@@ -379,11 +372,11 @@ public class StringUtils {
      * StringUtils.split("ab:cd:ef", ":", 2)    = ["ab", "cd:ef"]
      * </pre>
      *
-     * @param str  the String to parse, may be null
-     * @param separatorChars  the characters used as the delimiters,
-     *  {@code null} splits on whitespace
-     * @param max  the maximum number of elements to include in the
-     *  array. A zero or negative value implies no limit
+     * @param str            the String to parse, may be null
+     * @param separatorChars the characters used as the delimiters,
+     *                       {@code null} splits on whitespace
+     * @param max            the maximum number of elements to include in the
+     *                       array. A zero or negative value implies no limit
      * @return an array of parsed Strings, {@code null} if null String input
      */
     public static String[] split(final String str, final String separatorChars, final int max) {
@@ -392,13 +385,13 @@ public class StringUtils {
 
     /**
      * <p>Splits the provided text into an array, separator string specified.</p>
-     *
+     * <p>
      * <p>The separator(s) will not be included in the returned String array.
      * Adjacent separators are treated as one separator.</p>
-     *
+     * <p>
      * <p>A {@code null} input String returns {@code null}.
      * A {@code null} separator splits on whitespace.</p>
-     *
+     * <p>
      * <pre>
      * StringUtils.splitByWholeSeparator(null, *)               = null
      * StringUtils.splitByWholeSeparator("", *)                 = []
@@ -408,25 +401,25 @@ public class StringUtils {
      * StringUtils.splitByWholeSeparator("ab-!-cd-!-ef", "-!-") = ["ab", "cd", "ef"]
      * </pre>
      *
-     * @param str  the String to parse, may be null
-     * @param separator  String containing the String to be used as a delimiter,
-     *  {@code null} splits on whitespace
+     * @param str       the String to parse, may be null
+     * @param separator String containing the String to be used as a delimiter,
+     *                  {@code null} splits on whitespace
      * @return an array of parsed Strings, {@code null} if null String was input
      */
     public static String[] splitByWholeSeparator(final String str, final String separator) {
-        return splitByWholeSeparatorWorker( str, separator, -1, false ) ;
+        return splitByWholeSeparatorWorker(str, separator, -1, false);
     }
 
     /**
      * <p>Splits the provided text into an array, separator string specified.
      * Returns a maximum of {@code max} substrings.</p>
-     *
+     * <p>
      * <p>The separator(s) will not be included in the returned String array.
      * Adjacent separators are treated as one separator.</p>
-     *
+     * <p>
      * <p>A {@code null} input String returns {@code null}.
      * A {@code null} separator splits on whitespace.</p>
-     *
+     * <p>
      * <pre>
      * StringUtils.splitByWholeSeparator(null, *, *)               = null
      * StringUtils.splitByWholeSeparator("", *, *)                 = []
@@ -437,27 +430,27 @@ public class StringUtils {
      * StringUtils.splitByWholeSeparator("ab-!-cd-!-ef", "-!-", 2) = ["ab", "cd-!-ef"]
      * </pre>
      *
-     * @param str  the String to parse, may be null
-     * @param separator  String containing the String to be used as a delimiter,
-     *  {@code null} splits on whitespace
-     * @param max  the maximum number of elements to include in the returned
-     *  array. A zero or negative value implies no limit.
+     * @param str       the String to parse, may be null
+     * @param separator String containing the String to be used as a delimiter,
+     *                  {@code null} splits on whitespace
+     * @param max       the maximum number of elements to include in the returned
+     *                  array. A zero or negative value implies no limit.
      * @return an array of parsed Strings, {@code null} if null String was input
      */
-    public static String[] splitByWholeSeparator( final String str, final String separator, final int max ) {
+    public static String[] splitByWholeSeparator(final String str, final String separator, final int max) {
         return splitByWholeSeparatorWorker(str, separator, max, false);
     }
 
     /**
      * <p>Splits the provided text into an array, separator string specified. </p>
-     *
+     * <p>
      * <p>The separator is not included in the returned String array.
      * Adjacent separators are treated as separators for empty tokens.
      * For more control over the split use the StrTokenizer class.</p>
-     *
+     * <p>
      * <p>A {@code null} input String returns {@code null}.
      * A {@code null} separator splits on whitespace.</p>
-     *
+     * <p>
      * <pre>
      * StringUtils.splitByWholeSeparatorPreserveAllTokens(null, *)               = null
      * StringUtils.splitByWholeSeparatorPreserveAllTokens("", *)                 = []
@@ -467,9 +460,9 @@ public class StringUtils {
      * StringUtils.splitByWholeSeparatorPreserveAllTokens("ab-!-cd-!-ef", "-!-") = ["ab", "cd", "ef"]
      * </pre>
      *
-     * @param str  the String to parse, may be null
-     * @param separator  String containing the String to be used as a delimiter,
-     *  {@code null} splits on whitespace
+     * @param str       the String to parse, may be null
+     * @param separator String containing the String to be used as a delimiter,
+     *                  {@code null} splits on whitespace
      * @return an array of parsed Strings, {@code null} if null String was input
      * @since 2.4
      */
@@ -480,14 +473,14 @@ public class StringUtils {
     /**
      * <p>Splits the provided text into an array, separator string specified.
      * Returns a maximum of {@code max} substrings.</p>
-     *
+     * <p>
      * <p>The separator is not included in the returned String array.
      * Adjacent separators are treated as separators for empty tokens.
      * For more control over the split use the StrTokenizer class.</p>
-     *
+     * <p>
      * <p>A {@code null} input String returns {@code null}.
      * A {@code null} separator splits on whitespace.</p>
-     *
+     * <p>
      * <pre>
      * StringUtils.splitByWholeSeparatorPreserveAllTokens(null, *, *)               = null
      * StringUtils.splitByWholeSeparatorPreserveAllTokens("", *, *)                 = []
@@ -498,11 +491,11 @@ public class StringUtils {
      * StringUtils.splitByWholeSeparatorPreserveAllTokens("ab-!-cd-!-ef", "-!-", 2) = ["ab", "cd-!-ef"]
      * </pre>
      *
-     * @param str  the String to parse, may be null
-     * @param separator  String containing the String to be used as a delimiter,
-     *  {@code null} splits on whitespace
-     * @param max  the maximum number of elements to include in the returned
-     *  array. A zero or negative value implies no limit.
+     * @param str       the String to parse, may be null
+     * @param separator String containing the String to be used as a delimiter,
+     *                  {@code null} splits on whitespace
+     * @param max       the maximum number of elements to include in the returned
+     *                  array. A zero or negative value implies no limit.
      * @return an array of parsed Strings, {@code null} if null String was input
      * @since 2.4
      */
@@ -513,14 +506,14 @@ public class StringUtils {
     /**
      * Performs the logic for the {@code splitByWholeSeparatorPreserveAllTokens} methods.
      *
-     * @param str  the String to parse, may be {@code null}
-     * @param separator  String containing the String to be used as a delimiter,
-     *  {@code null} splits on whitespace
-     * @param max  the maximum number of elements to include in the returned
-     *  array. A zero or negative value implies no limit.
+     * @param str               the String to parse, may be {@code null}
+     * @param separator         String containing the String to be used as a delimiter,
+     *                          {@code null} splits on whitespace
+     * @param max               the maximum number of elements to include in the returned
+     *                          array. A zero or negative value implies no limit.
      * @param preserveAllTokens if {@code true}, adjacent separators are
-     * treated as empty token separators; if {@code false}, adjacent
-     * separators are treated as one separator.
+     *                          treated as empty token separators; if {@code false}, adjacent
+     *                          separators are treated as one separator.
      * @return an array of parsed Strings, {@code null} if null String input
      * @since 2.4
      */
@@ -591,18 +584,19 @@ public class StringUtils {
     }
 
     // -----------------------------------------------------------------------
+
     /**
      * <p>Splits the provided text into an array, using whitespace as the
      * separator, preserving all tokens, including empty tokens created by
      * adjacent separators. This is an alternative to using StringTokenizer.
      * Whitespace is defined by {@link Character#isWhitespace(char)}.</p>
-     *
+     * <p>
      * <p>The separator is not included in the returned String array.
      * Adjacent separators are treated as separators for empty tokens.
      * For more control over the split use the StrTokenizer class.</p>
-     *
+     * <p>
      * <p>A {@code null} input String returns {@code null}.</p>
-     *
+     * <p>
      * <pre>
      * StringUtils.splitPreserveAllTokens(null)       = null
      * StringUtils.splitPreserveAllTokens("")         = []
@@ -611,7 +605,7 @@ public class StringUtils {
      * StringUtils.splitPreserveAllTokens(" abc ")    = ["", "abc", ""]
      * </pre>
      *
-     * @param str  the String to parse, may be {@code null}
+     * @param str the String to parse, may be {@code null}
      * @return an array of parsed Strings, {@code null} if null String input
      * @since 2.1
      */
@@ -623,13 +617,13 @@ public class StringUtils {
      * <p>Splits the provided text into an array, separator specified,
      * preserving all tokens, including empty tokens created by adjacent
      * separators. This is an alternative to using StringTokenizer.</p>
-     *
+     * <p>
      * <p>The separator is not included in the returned String array.
      * Adjacent separators are treated as separators for empty tokens.
      * For more control over the split use the StrTokenizer class.</p>
-     *
+     * <p>
      * <p>A {@code null} input String returns {@code null}.</p>
-     *
+     * <p>
      * <pre>
      * StringUtils.splitPreserveAllTokens(null, *)         = null
      * StringUtils.splitPreserveAllTokens("", *)           = []
@@ -645,9 +639,9 @@ public class StringUtils {
      * StringUtils.splitPreserveAllTokens(" a b c ", ' ')  = ["", a", "b", "c", ""]
      * </pre>
      *
-     * @param str  the String to parse, may be {@code null}
-     * @param separatorChar  the character used as the delimiter,
-     *  {@code null} splits on whitespace
+     * @param str           the String to parse, may be {@code null}
+     * @param separatorChar the character used as the delimiter,
+     *                      {@code null} splits on whitespace
      * @return an array of parsed Strings, {@code null} if null String input
      * @since 2.1
      */
@@ -660,11 +654,11 @@ public class StringUtils {
      * {@code splitPreserveAllTokens} methods that do not return a
      * maximum array length.
      *
-     * @param str  the String to parse, may be {@code null}
-     * @param separatorChar the separate character
+     * @param str               the String to parse, may be {@code null}
+     * @param separatorChar     the separate character
      * @param preserveAllTokens if {@code true}, adjacent separators are
-     * treated as empty token separators; if {@code false}, adjacent
-     * separators are treated as one separator.
+     *                          treated as empty token separators; if {@code false}, adjacent
+     *                          separators are treated as one separator.
      * @return an array of parsed Strings, {@code null} if null String input
      */
     private static String[] splitWorker(final String str, final char separatorChar, final boolean preserveAllTokens) {
@@ -705,14 +699,14 @@ public class StringUtils {
      * <p>Splits the provided text into an array, separators specified,
      * preserving all tokens, including empty tokens created by adjacent
      * separators. This is an alternative to using StringTokenizer.</p>
-     *
+     * <p>
      * <p>The separator is not included in the returned String array.
      * Adjacent separators are treated as separators for empty tokens.
      * For more control over the split use the StrTokenizer class.</p>
-     *
+     * <p>
      * <p>A {@code null} input String returns {@code null}.
      * A {@code null} separatorChars splits on whitespace.</p>
-     *
+     * <p>
      * <pre>
      * StringUtils.splitPreserveAllTokens(null, *)           = null
      * StringUtils.splitPreserveAllTokens("", *)             = []
@@ -728,9 +722,9 @@ public class StringUtils {
      * StringUtils.splitPreserveAllTokens(":cd:ef:", ":")    = ["", cd", "ef", ""]
      * </pre>
      *
-     * @param str  the String to parse, may be {@code null}
-     * @param separatorChars  the characters used as the delimiters,
-     *  {@code null} splits on whitespace
+     * @param str            the String to parse, may be {@code null}
+     * @param separatorChars the characters used as the delimiters,
+     *                       {@code null} splits on whitespace
      * @return an array of parsed Strings, {@code null} if null String input
      * @since 2.1
      */
@@ -742,18 +736,18 @@ public class StringUtils {
      * <p>Splits the provided text into an array with a maximum length,
      * separators specified, preserving all tokens, including empty tokens
      * created by adjacent separators.</p>
-     *
+     * <p>
      * <p>The separator is not included in the returned String array.
      * Adjacent separators are treated as separators for empty tokens.
      * Adjacent separators are treated as one separator.</p>
-     *
+     * <p>
      * <p>A {@code null} input String returns {@code null}.
      * A {@code null} separatorChars splits on whitespace.</p>
-     *
+     * <p>
      * <p>If more than {@code max} delimited substrings are found, the last
      * returned string includes all characters after the first {@code max - 1}
      * returned strings (including separator characters).</p>
-     *
+     * <p>
      * <pre>
      * StringUtils.splitPreserveAllTokens(null, *, *)            = null
      * StringUtils.splitPreserveAllTokens("", *, *)              = []
@@ -766,11 +760,11 @@ public class StringUtils {
      * StringUtils.splitPreserveAllTokens("ab   de fg", null, 4) = ["ab", "", "", "de fg"]
      * </pre>
      *
-     * @param str  the String to parse, may be {@code null}
-     * @param separatorChars  the characters used as the delimiters,
-     *  {@code null} splits on whitespace
-     * @param max  the maximum number of elements to include in the
-     *  array. A zero or negative value implies no limit
+     * @param str            the String to parse, may be {@code null}
+     * @param separatorChars the characters used as the delimiters,
+     *                       {@code null} splits on whitespace
+     * @param max            the maximum number of elements to include in the
+     *                       array. A zero or negative value implies no limit
      * @return an array of parsed Strings, {@code null} if null String input
      * @since 2.1
      */
@@ -783,13 +777,13 @@ public class StringUtils {
      * {@code splitPreserveAllTokens} methods that return a maximum array
      * length.
      *
-     * @param str  the String to parse, may be {@code null}
-     * @param separatorChars the separate character
-     * @param max  the maximum number of elements to include in the
-     *  array. A zero or negative value implies no limit.
+     * @param str               the String to parse, may be {@code null}
+     * @param separatorChars    the separate character
+     * @param max               the maximum number of elements to include in the
+     *                          array. A zero or negative value implies no limit.
      * @param preserveAllTokens if {@code true}, adjacent separators are
-     * treated as empty token separators; if {@code false}, adjacent
-     * separators are treated as one separator.
+     *                          treated as empty token separators; if {@code false}, adjacent
+     *                          separators are treated as one separator.
      * @return an array of parsed Strings, {@code null} if null String input
      */
     private static String[] splitWorker(final String str, final String separatorChars, final int max, final boolean preserveAllTokens) {
@@ -892,6 +886,7 @@ public class StringUtils {
      * StringUtils.splitByCharacterType("foo200Bar")  = ["foo", "200", "B", "ar"]
      * StringUtils.splitByCharacterType("ASFRules")   = ["ASFR", "ules"]
      * </pre>
+     *
      * @param str the String to split, may be {@code null}
      * @return an array of parsed Strings, {@code null} if null String input
      * @since 2.4
@@ -920,6 +915,7 @@ public class StringUtils {
      * StringUtils.splitByCharacterTypeCamelCase("foo200Bar")  = ["foo", "200", "Bar"]
      * StringUtils.splitByCharacterTypeCamelCase("ASFRules")   = ["ASF", "Rules"]
      * </pre>
+     *
      * @param str the String to split, may be {@code null}
      * @return an array of parsed Strings, {@code null} if null String input
      * @since 2.4
@@ -937,7 +933,8 @@ public class StringUtils {
      * immediately preceding a token of type {@code Character.LOWERCASE_LETTER}
      * will belong to the following token rather than to the preceding, if any,
      * {@code Character.UPPERCASE_LETTER} token.
-     * @param str the String to split, may be {@code null}
+     *
+     * @param str       the String to split, may be {@code null}
      * @param camelCase whether to use so-called "camel-case" for letter types
      * @return an array of parsed Strings, {@code null} if null String input
      * @since 2.4
@@ -977,10 +974,8 @@ public class StringUtils {
     /**
      * 连接字符串数组
      *
-     * @param strings
-     *         字符串数组
-     * @param separator
-     *         分隔符
+     * @param strings   字符串数组
+     * @param separator 分隔符
      * @return 按分隔符分隔的字符串
      */
     public static String join(String[] strings, String separator) {
@@ -989,18 +984,17 @@ public class StringUtils {
         }
         StringBuilder sb = new StringBuilder();
         for (String string : strings) {
-            if(isNotBlank(string)) {
+            if (isNotBlank(string)) {
                 sb.append(string).append(separator);
             }
         }
-        return sb.length() > 0? sb.substring(0, sb.length() - separator.length()) : StringUtils.EMPTY;
+        return sb.length() > 0 ? sb.substring(0, sb.length() - separator.length()) : StringUtils.EMPTY;
     }
 
     /**
      * 默认逗号分隔的字符串
      *
-     * @param strings
-     *         字符串数组
+     * @param strings 字符串数组
      * @return 按分隔符分隔的字符串
      */
     public static String joinWithComma(String... strings) {
@@ -1010,8 +1004,7 @@ public class StringUtils {
     /**
      * 对象转string
      *
-     * @param o
-     *         对象
+     * @param o 对象
      * @return 不为null执行toString方法
      */
     public static String toString(Object o) {

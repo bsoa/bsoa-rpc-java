@@ -15,15 +15,15 @@
  */
 package io.bsoa.rpc.client;
 
-import java.util.List;
-import javax.annotation.concurrent.ThreadSafe;
-
 import io.bsoa.rpc.base.Destroyable;
 import io.bsoa.rpc.base.Initializable;
 import io.bsoa.rpc.bootstrap.ConsumerBootstrap;
 import io.bsoa.rpc.ext.Extensible;
 import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.message.RpcResponse;
+
+import javax.annotation.concurrent.ThreadSafe;
+import java.util.List;
 
 /**
  * 客户端，封装了集群模式、长连接管理、服务路由、负载均衡等抽象类
@@ -52,7 +52,7 @@ public abstract class Client implements Initializable, Destroyable {
 
     /**
      * 是否可用
-     * 
+     *
      * @return
      */
     public abstract boolean isAvailable();
@@ -77,7 +77,7 @@ public abstract class Client implements Initializable, Destroyable {
      * @param providerInfos 服务端列表，为空代表清空已有列表
      */
     public abstract void updateProvider(List<ProviderInfo> providerInfos);
-    
+
     /**
      * 状态变化通知 TODO
      *

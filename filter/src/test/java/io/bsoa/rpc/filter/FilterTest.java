@@ -15,16 +15,15 @@
  */
 package io.bsoa.rpc.filter;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import org.junit.Assert;
-import org.junit.Test;
-
 import io.bsoa.rpc.GenericService;
 import io.bsoa.rpc.config.ConsumerConfig;
 import io.bsoa.rpc.config.MethodConfig;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by zhangg on 17-01-20.

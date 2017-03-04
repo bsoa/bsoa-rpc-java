@@ -15,13 +15,6 @@
  */
 package io.bsoa.rpc.config;
 
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.bsoa.rpc.GenericService;
 import io.bsoa.rpc.base.Cache;
 import io.bsoa.rpc.bootstrap.Bootstraps;
@@ -36,6 +29,12 @@ import io.bsoa.rpc.filter.Filter;
 import io.bsoa.rpc.listener.ChannelListener;
 import io.bsoa.rpc.listener.ConsumerStateListener;
 import io.bsoa.rpc.listener.ResponseListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
 
 import static io.bsoa.rpc.common.BsoaConfigs.getBooleanValue;
 import static io.bsoa.rpc.common.BsoaConfigs.getIntValue;
@@ -213,7 +212,8 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Ser
     /**
      * 服务消费者启动类
      */
-	private transient ConsumerBootstrap<T> consumerBootstrap;
+    private transient ConsumerBootstrap<T> consumerBootstrap;
+
     /**
      * Build key.
      *

@@ -15,9 +15,16 @@
  */
 package io.bsoa.rpc.config.spring;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-
+import io.bsoa.rpc.common.BsoaConstants;
+import io.bsoa.rpc.common.utils.ClassLoaderUtils;
+import io.bsoa.rpc.common.utils.CommonUtils;
+import io.bsoa.rpc.common.utils.ExceptionUtils;
+import io.bsoa.rpc.common.utils.StringUtils;
+import io.bsoa.rpc.config.ConsumerConfig;
+import io.bsoa.rpc.config.MethodConfig;
+import io.bsoa.rpc.config.ParameterConfig;
+import io.bsoa.rpc.filter.ExcludeFilter;
+import io.bsoa.rpc.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -33,16 +40,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import io.bsoa.rpc.common.BsoaConstants;
-import io.bsoa.rpc.common.utils.ClassLoaderUtils;
-import io.bsoa.rpc.common.utils.CommonUtils;
-import io.bsoa.rpc.common.utils.ExceptionUtils;
-import io.bsoa.rpc.common.utils.StringUtils;
-import io.bsoa.rpc.config.ConsumerConfig;
-import io.bsoa.rpc.config.MethodConfig;
-import io.bsoa.rpc.config.ParameterConfig;
-import io.bsoa.rpc.filter.ExcludeFilter;
-import io.bsoa.rpc.filter.Filter;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 /**
  * Created by zhangg on 16-7-7.

@@ -19,7 +19,7 @@ import io.bsoa.rpc.ext.Extensible;
 
 /**
  * 协议：包括基本信息，协商接口，编码器，解码器
- *
+ * <p>
  * Created by zhangg on 16-6-7.
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>

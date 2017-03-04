@@ -15,17 +15,16 @@
  */
 package io.bsoa.rpc.config.spring;
 
-import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
-
 import io.bsoa.rpc.config.ParameterConfig;
 import io.bsoa.rpc.config.RegistryConfig;
+import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
 
 /**
  * Created by zhangg on 16-7-7.
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
  */
-public class BsoaNamespaceHandler extends NamespaceHandlerSupport{
+public class BsoaNamespaceHandler extends NamespaceHandlerSupport {
 
     public void init() {
         registerBeanDefinitionParser("provider", new BsoaBeanDefinitionParser(ProviderBean.class, true));

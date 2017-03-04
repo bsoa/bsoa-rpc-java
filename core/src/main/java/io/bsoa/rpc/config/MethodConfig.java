@@ -15,19 +15,19 @@
  */
 package io.bsoa.rpc.config;
 
+import io.bsoa.rpc.listener.ResponseListener;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import io.bsoa.rpc.listener.ResponseListener;
 
 /**
  * Created by zhangg on 16-7-7.
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
  */
-public class MethodConfig implements Serializable{
+public class MethodConfig implements Serializable {
 
     private static final long serialVersionUID = -8594337650648536897L;
 
@@ -290,10 +290,8 @@ public class MethodConfig implements Serializable{
     /**
      * Sets parameter.
      *
-     * @param key
-     *         the key
-     * @param value
-     *         the value
+     * @param key   the key
+     * @param value the value
      */
     public void setParameter(String key, String value) {
         if (parameters == null) {
@@ -305,8 +303,7 @@ public class MethodConfig implements Serializable{
     /**
      * Gets parameter.
      *
-     * @param key
-     *         the key
+     * @param key the key
      * @return the value
      */
     public String getParameter(String key) {

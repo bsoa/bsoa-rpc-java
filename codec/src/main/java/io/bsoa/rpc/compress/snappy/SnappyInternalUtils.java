@@ -1,26 +1,22 @@
 /*
- * Copyright (C) 2011 the original author or authors.
- * See the notice.md file distributed with this work for additional
- * information regarding copyright ownership.
+ * Copyright 2016 The BSOA Project
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * The BSOA Project licenses this file to you under the Apache License,
+ * version 2.0 (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at:
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
  */
 package io.bsoa.rpc.compress.snappy;
 
-final class SnappyInternalUtils
-{
-    private SnappyInternalUtils()
-    {
+final class SnappyInternalUtils {
+    private SnappyInternalUtils() {
     }
 
     private static final Memory memory;
@@ -34,8 +30,7 @@ final class SnappyInternalUtils
             if (unsafeMemory.loadInt(new byte[4], 0) == 0) {
                 memoryInstance = unsafeMemory;
             }
-        }
-        catch (Throwable ignored) {
+        } catch (Throwable ignored) {
         }
         if (memoryInstance == null) {
             try {
@@ -46,8 +41,7 @@ final class SnappyInternalUtils
                 } else {
                     throw new AssertionError("SlowMemory class is broken!");
                 }
-            }
-            catch (Throwable ignored) {
+            } catch (Throwable ignored) {
                 throw new AssertionError("Could not find SlowMemory class");
             }
         }
@@ -56,8 +50,7 @@ final class SnappyInternalUtils
 
     static final boolean HAS_UNSAFE = memory.fastAccessSupported();
 
-    static boolean equals(byte[] left, int leftIndex, byte[] right, int rightIndex, int length)
-    {
+    static boolean equals(byte[] left, int leftIndex, byte[] right, int rightIndex, int length) {
         checkPositionIndexes(leftIndex, leftIndex + length, left.length);
         checkPositionIndexes(rightIndex, rightIndex + length, right.length);
 
@@ -69,40 +62,33 @@ final class SnappyInternalUtils
         return true;
     }
 
-    public static int lookupShort(short[] data, int index)
-    {
+    public static int lookupShort(short[] data, int index) {
         return memory.lookupShort(data, index);
     }
 
-    public static int loadByte(byte[] data, int index)
-    {
+    public static int loadByte(byte[] data, int index) {
         return memory.loadByte(data, index);
     }
 
-    static int loadInt(byte[] data, int index)
-    {
+    static int loadInt(byte[] data, int index) {
         return memory.loadInt(data, index);
     }
 
-    static void copyLong(byte[] src, int srcIndex, byte[] dest, int destIndex)
-    {
+    static void copyLong(byte[] src, int srcIndex, byte[] dest, int destIndex) {
         memory.copyLong(src, srcIndex, dest, destIndex);
     }
 
-    static long loadLong(byte[] data, int index)
-    {
+    static long loadLong(byte[] data, int index) {
         return memory.loadLong(data, index);
     }
 
-    static void copyMemory(byte[] input, int inputIndex, byte[] output, int outputIndex, int length)
-    {
+    static void copyMemory(byte[] input, int inputIndex, byte[] output, int outputIndex, int length) {
         memory.copyMemory(input, inputIndex, output, outputIndex, length);
     }
 
     //
     // Copied from Guava Preconditions
-    static <T> T checkNotNull(T reference, String errorMessageTemplate, Object... errorMessageArgs)
-    {
+    static <T> T checkNotNull(T reference, String errorMessageTemplate, Object... errorMessageArgs) {
         if (reference == null) {
             // If either of these parameters is null, the right thing happens anyway
             throw new NullPointerException(String.format(errorMessageTemplate, errorMessageArgs));
@@ -110,23 +96,20 @@ final class SnappyInternalUtils
         return reference;
     }
 
-    static void checkArgument(boolean expression, String errorMessageTemplate, Object... errorMessageArgs)
-    {
+    static void checkArgument(boolean expression, String errorMessageTemplate, Object... errorMessageArgs) {
         if (!expression) {
             throw new IllegalArgumentException(String.format(errorMessageTemplate, errorMessageArgs));
         }
     }
 
-    static void checkPositionIndexes(int start, int end, int size)
-    {
+    static void checkPositionIndexes(int start, int end, int size) {
         // Carefully optimized for execution by hotspot (explanatory comment above)
         if (start < 0 || end < start || end > size) {
             throw new IndexOutOfBoundsException(badPositionIndexes(start, end, size));
         }
     }
 
-    static String badPositionIndexes(int start, int end, int size)
-    {
+    static String badPositionIndexes(int start, int end, int size) {
         if (start < 0 || start > size) {
             return badPositionIndex(start, size, "start index");
         }
@@ -137,15 +120,12 @@ final class SnappyInternalUtils
         return String.format("end index (%s) must not be less than start index (%s)", end, start);
     }
 
-    static String badPositionIndex(int index, int size, String desc)
-    {
+    static String badPositionIndex(int index, int size, String desc) {
         if (index < 0) {
             return String.format("%s (%s) must not be negative", desc, index);
-        }
-        else if (size < 0) {
+        } else if (size < 0) {
             throw new IllegalArgumentException("negative size: " + size);
-        }
-        else { // index > size
+        } else { // index > size
             return String.format("%s (%s) must not be greater than size (%s)", desc, index, size);
         }
     }

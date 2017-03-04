@@ -1,18 +1,17 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+/*
+ * Copyright 2016 The BSOA Project
+ *
+ * The BSOA Project licenses this file to you under the Apache License,
+ * version 2.0 (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at:
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
  */
 package io.bsoa.rpc.common.utils;
 
@@ -87,8 +86,7 @@ public class FileUtils {
     /**
      * 得到USER_HOME目录
      *
-     * @param base
-     *         用户目录下文件夹
+     * @param base 用户目录下文件夹
      * @return 得到用户目录
      */
     public static String getUserHomeDir(String base) {
@@ -108,8 +106,7 @@ public class FileUtils {
     /**
      * 读取文件内容
      *
-     * @param file
-     *            文件
+     * @param file 文件
      * @return 文件内容
      */
     public static String file2String(File file) throws IOException {
@@ -181,10 +178,8 @@ public class FileUtils {
     /**
      * 字符流写文件 较快
      *
-     * @param file
-     *            文件
-     * @param data
-     *            数据
+     * @param file 文件
+     * @param data 数据
      */
     public static boolean string2File(File file, String data) throws IOException {
         FileWriter writer = null;

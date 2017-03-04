@@ -1,27 +1,19 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+/*
+ * Copyright 2016 The BSOA Project
+ *
+ * The BSOA Project licenses this file to you under the Apache License,
+ * version 2.0 (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at:
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
  */
 package io.bsoa.rpc.client;
-
-import java.util.List;
-import java.util.Map;
-import javax.annotation.concurrent.ThreadSafe;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.bsoa.rpc.base.Invoker;
 import io.bsoa.rpc.bootstrap.ConsumerBootstrap;
@@ -34,10 +26,14 @@ import io.bsoa.rpc.listener.ResponseListener;
 import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.message.RpcResponse;
 import io.bsoa.rpc.protocol.ProtocolFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.annotation.concurrent.ThreadSafe;
+import java.util.List;
+import java.util.Map;
 
 /**
- *
- *
  * Created by zhangg on 2016/7/16 01:11.
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
@@ -67,8 +63,7 @@ public class ClientProxyInvoker implements Invoker {
     /**
      * 构造执行链
      *
-     * @param bootstrap
-     *         调用端配置
+     * @param bootstrap 调用端配置
      */
     public ClientProxyInvoker(ConsumerBootstrap bootstrap) {
         this.consumerConfig = bootstrap.getConsumerConfig();
@@ -82,8 +77,7 @@ public class ClientProxyInvoker implements Invoker {
     /**
      * proxy拦截的调用
      *
-     * @param request
-     *         请求消息
+     * @param request 请求消息
      * @return 调用结果
      */
     @Override
@@ -130,11 +124,10 @@ public class ClientProxyInvoker implements Invoker {
     /**
      * 通知响应监听器
      *
-     * @param rpcResponse
-     *         响应结果
-//     * @see AsyncResultListener#operationComplete(io.bsoa.example.client.MsgFuture)
+     * @param rpcResponse 响应结果
+     *                    //     * @see AsyncResultListener#operationComplete(io.bsoa.example.client.MsgFuture)
      */
-    private void notifyResponseListener(String methodName, RpcResponse rpcResponse){
+    private void notifyResponseListener(String methodName, RpcResponse rpcResponse) {
         // 返回结果增加事件监听
         List<ResponseListener> onreturn = consumerConfig.getMethodOnreturn(methodName);
         if (onreturn != null && !onreturn.isEmpty()) {
@@ -170,8 +163,7 @@ public class ClientProxyInvoker implements Invoker {
     /**
      * 切换客户端
      *
-     * @param newClient
-     *         新客户端
+     * @param newClient 新客户端
      * @return 旧客户端
      */
     public Client setClient(Client newClient) {

@@ -1,30 +1,28 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+/*
+ * Copyright 2016 The BSOA Project
+ *
+ * The BSOA Project licenses this file to you under the Apache License,
+ * version 2.0 (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at:
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
  */
 package io.bsoa.rpc.filter.limiter;
+
+import io.bsoa.rpc.common.utils.CommonUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import io.bsoa.rpc.common.utils.CommonUtils;
 
 /**
  * 限制器接口
@@ -68,9 +66,9 @@ public class LimiterFactory {
 
     /**
      * 服务端限流
-     *
+     * <p>
      * key:interfaceName#method#alias
-     *
+     * <p>
      * value:limiter
      */
     private final static ConcurrentHashMap<String, Limiter> INVOKE_PROVIDER_LIMITER_CACHE
@@ -87,14 +85,10 @@ public class LimiterFactory {
     /**
      * 是否有限制
      *
-     * @param interfaceId
-     *         接口名
-     * @param methodName
-     *         方法名
-     * @param alias
-     *         服务别名
-     * @param appId
-     *         appId
+     * @param interfaceId 接口名
+     * @param methodName  方法名
+     * @param alias       服务别名
+     * @param appId       appId
      * @return boolean 返回true，不让调用
      */
     public static boolean isOverLimit(String interfaceId, String methodName, String alias, String appId) {
@@ -107,18 +101,17 @@ public class LimiterFactory {
     }
 
 
-
-    public static ProviderInvokerLimiter getProviderLimiter(String interfaceId, String methodName, String alias, String appId){
+    public static ProviderInvokerLimiter getProviderLimiter(String interfaceId, String methodName, String alias, String appId) {
         if (INVOKE_PROVIDER_LIMITER_CACHE.isEmpty()) {
             return null;
         }
         String key = buildProviderLimiterKey(interfaceId, methodName, alias, appId);
-        ProviderInvokerLimiter limiter = (ProviderInvokerLimiter)INVOKE_PROVIDER_LIMITER_CACHE.get(key);
-        if (limiter == null){
+        ProviderInvokerLimiter limiter = (ProviderInvokerLimiter) INVOKE_PROVIDER_LIMITER_CACHE.get(key);
+        if (limiter == null) {
             //没有限制此appid的 看是否有限制所有app的,appid 为空代表限制所有 app
-            key = buildProviderLimiterKey(interfaceId,methodName,alias,"");
+            key = buildProviderLimiterKey(interfaceId, methodName, alias, "");
         }
-        limiter = (ProviderInvokerLimiter)INVOKE_PROVIDER_LIMITER_CACHE.get(key);
+        limiter = (ProviderInvokerLimiter) INVOKE_PROVIDER_LIMITER_CACHE.get(key);
         return limiter;
     }
 
@@ -127,7 +120,7 @@ public class LimiterFactory {
     }
 
     private static String buildProviderLimiterKey(String interfaceId, String methodName, String alias, String appId) {
-        return interfaceId + "#" + methodName + "#" + alias+"#"+appId;
+        return interfaceId + "#" + methodName + "#" + alias + "#" + appId;
     }
 
     /**
@@ -156,8 +149,8 @@ public class LimiterFactory {
      * @return 限制规则
      */
     public static String getLimitDetails(String interfaceId, boolean isProvider) {
-        Map<String,Limiter> limiterMap = null;
-        if (isProvider){
+        Map<String, Limiter> limiterMap = null;
+        if (isProvider) {
             limiterMap = INVOKE_PROVIDER_LIMITER_CACHE;
         } else {
             limiterMap = INVOKE_LIMITER_CACHE;
@@ -171,7 +164,7 @@ public class LimiterFactory {
                 matches.add(entry);
             }
         }
-        if(CommonUtils.isNotEmpty(matches)) {
+        if (CommonUtils.isNotEmpty(matches)) {
             StringBuilder sb = new StringBuilder(1024);
             sb.append("[");
             for (Map.Entry<String, Limiter> entry : matches) {
@@ -184,12 +177,13 @@ public class LimiterFactory {
         }
         return null;
     }
+
     public static boolean isFunctionOpen() {
         return open;
     }
 
 
-    public static boolean isGlobalProviderLimitOpen(){
+    public static boolean isGlobalProviderLimitOpen() {
         return providerLimitOpen;
     }
 

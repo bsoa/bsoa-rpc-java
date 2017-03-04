@@ -126,7 +126,7 @@ public class BsoaConsumerBootstrap<T> extends ConsumerBootstrap<T> {
         }
         int c = cnt.incrementAndGet();
         if (c > 3) {
-            if(!CommonUtils.isFalse(consumerConfig.getParameter(BsoaConstants.HIDDEN_KEY_WARNNING))){
+            if (!CommonUtils.isFalse(consumerConfig.getParameter(BsoaConstants.HIDDEN_KEY_WARNNING))) {
                 throw new BsoaRuntimeException(21304, "[21304]Duplicate consumer config with key " + key
                         + " has been referred more than 3 times!"
                         + " Maybe it's wrong config, please check it."
@@ -379,6 +379,7 @@ public class BsoaConsumerBootstrap<T> extends ConsumerBootstrap<T> {
 
         /**
          * Switch client.
+         *
          * @throws Exception the exception
          */
         private void switchClient() throws Exception {

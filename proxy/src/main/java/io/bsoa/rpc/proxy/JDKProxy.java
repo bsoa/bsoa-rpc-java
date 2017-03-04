@@ -15,11 +15,11 @@
  */
 package io.bsoa.rpc.proxy;
 
-import java.lang.reflect.InvocationHandler;
-
 import io.bsoa.rpc.base.Invoker;
 import io.bsoa.rpc.common.utils.ClassLoaderUtils;
 import io.bsoa.rpc.ext.Extension;
+
+import java.lang.reflect.InvocationHandler;
 
 /**
  * Created by zhangg on 16-6-7.

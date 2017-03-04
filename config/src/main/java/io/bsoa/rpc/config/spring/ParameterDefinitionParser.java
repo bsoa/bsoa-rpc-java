@@ -15,15 +15,14 @@
  */
 package io.bsoa.rpc.config.spring;
 
+import io.bsoa.rpc.common.BsoaConstants;
+import io.bsoa.rpc.common.utils.CommonUtils;
+import io.bsoa.rpc.context.BsoaContext;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Element;
-
-import io.bsoa.rpc.common.BsoaConstants;
-import io.bsoa.rpc.common.utils.CommonUtils;
-import io.bsoa.rpc.context.BsoaContext;
 
 /**
  * Created by zhangg on 16-7-7.
@@ -46,7 +45,7 @@ public class ParameterDefinitionParser implements BeanDefinitionParser {
         String key = element.getAttribute("key");
         String value = element.getAttribute("value");
         String hide = element.getAttribute("hide");
-        if(CommonUtils.isTrue(hide)){
+        if (CommonUtils.isTrue(hide)) {
             BsoaContext.putGlobalVal(BsoaConstants.HIDE_KEY_PREFIX + key, value);
         } else {
             BsoaContext.putGlobalVal(key, value);

@@ -15,16 +15,6 @@
  */
 package io.bsoa.rpc.client;
 
-import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.bsoa.rpc.bootstrap.ConsumerBootstrap;
 import io.bsoa.rpc.codec.SerializerFactory;
 import io.bsoa.rpc.common.BsoaConstants;
@@ -52,6 +42,15 @@ import io.bsoa.rpc.registry.RegistryFactory;
 import io.bsoa.rpc.transport.ClientTransport;
 import io.bsoa.rpc.transport.ClientTransportConfig;
 import io.bsoa.rpc.transport.ClientTransportUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by zhangg on 16-7-7.
@@ -501,7 +500,7 @@ public abstract class AbstractClient extends Client {
      * 检查服务端版本，特殊处理
      *
      * @param providerInfo 服务端
-     * @param request  请求对象
+     * @param request      请求对象
      */
     private void checkProviderVersion(ProviderInfo providerInfo, RpcRequest request) {
         int version = providerInfo.getBsoaVersion();
@@ -538,7 +537,7 @@ public abstract class AbstractClient extends Client {
     /**
      * 根据规则进行负载均衡
      *
-     * @param message          调用对象
+     * @param message              调用对象
      * @param invokedProviderInfos 已调用列表
      * @return 一个可用的provider
      */
@@ -582,6 +581,7 @@ public abstract class AbstractClient extends Client {
     private BsoaRpcException noAliveProviderException(String s, Collection<ProviderInfo> providerInfos) {
         return new BsoaRpcException(22222, "No Alive Provider");
     }
+
     protected BsoaRpcException noAliveProvider(String key, String IP) {
         // TODO
         return new BsoaRpcException(22222, "No Alive Provider");
@@ -590,7 +590,7 @@ public abstract class AbstractClient extends Client {
     /**
      * 得到provider得到连接
      *
-     * @param message  调用对象
+     * @param message      调用对象
      * @param providerInfo 指定Provider
      * @return 一个可用的transport或者null
      */
@@ -612,7 +612,7 @@ public abstract class AbstractClient extends Client {
      * 检查分组映射
      *
      * @param providerInfo 服务端
-     * @param message  请求对象
+     * @param message      请求对象
      */
     private void checkAlias(ProviderInfo providerInfo, RpcRequest message) {
         String pTags = providerInfo.getTags();

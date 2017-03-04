@@ -15,19 +15,18 @@
  */
 package io.bsoa.rpc.config.spring;
 
-import java.io.Serializable;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.BeanNameAware;
-import org.springframework.beans.factory.InitializingBean;
-
 import io.bsoa.rpc.common.utils.ClassLoaderUtils;
 import io.bsoa.rpc.common.utils.ClassUtils;
 import io.bsoa.rpc.common.utils.ExceptionUtils;
 import io.bsoa.rpc.common.utils.StringUtils;
 import io.bsoa.rpc.config.AbstractIdConfig;
 import io.bsoa.rpc.filter.Filter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.BeanNameAware;
+import org.springframework.beans.factory.InitializingBean;
+
+import java.io.Serializable;
 
 /**
  * Created by zhangg on 16-7-7.

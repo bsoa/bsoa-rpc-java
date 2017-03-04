@@ -15,10 +15,10 @@
  */
 package io.bsoa.rpc.config;
 
+import io.bsoa.rpc.context.BsoaContext;
+
 import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import io.bsoa.rpc.context.BsoaContext;
 
 /**
  * Created by zhangg on 16-7-7.
@@ -33,6 +33,7 @@ public abstract class AbstractIdConfig implements Serializable {
     static {
         BsoaContext.now();
     }
+
     /**
      * Id生成器
      */

@@ -1,40 +1,39 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+/*
+ * Copyright 2016 The BSOA Project
+ *
+ * The BSOA Project licenses this file to you under the Apache License,
+ * version 2.0 (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at:
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
  */
 package io.bsoa.rpc.transport;
 
 /**
  * <p></p>
- *
+ * <p>
  * Created by zhangg on 2016/12/23 23:50. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
 public interface AbstractByteBuf {
 
-   /* public int capacity();
+    /* public int capacity();
 
-    public AbstractByteBuf capacity(int newCapacity);
+     public AbstractByteBuf capacity(int newCapacity);
 
-    public int readerIndex();
+     public int readerIndex();
 
-    public AbstractByteBuf readerIndex(int readerIndex);
+     public AbstractByteBuf readerIndex(int readerIndex);
 
-    public int writerIndex();
-*/
+     public int writerIndex();
+ */
     public AbstractByteBuf writerIndex(int writerIndex);
 /*
     public AbstractByteBuf setIndex(int readerIndex, int writerIndex);
@@ -328,35 +327,36 @@ public interface AbstractByteBuf {
     public byte[] array();
 
     /**
-    public int arrayOffset();
-
-    public boolean hasMemoryAddress();
-
-    public long memoryAddress();
-
-    public String toString(Charset charset);
-
-    public String toString(int index, int length, Charset charset);
-
-    public int hashCode();
-
-    public boolean equals(Object obj);
-
-    public int compareTo(AbstractByteBuf buffer);
-
-    public String toString();
-
-    public AbstractByteBuf retain(int increment);
-
-    public int refCnt();
-
-    public AbstractByteBuf retain();
-
-    public AbstractByteBuf touch();
-
-    public AbstractByteBuf touch(Object hint);
-
-    public boolean release(int decrement);*/
+     * public int arrayOffset();
+     * <p>
+     * public boolean hasMemoryAddress();
+     * <p>
+     * public long memoryAddress();
+     * <p>
+     * public String toString(Charset charset);
+     * <p>
+     * public String toString(int index, int length, Charset charset);
+     * <p>
+     * public int hashCode();
+     * <p>
+     * public boolean equals(Object obj);
+     * <p>
+     * public int compareTo(AbstractByteBuf buffer);
+     * <p>
+     * public String toString();
+     * <p>
+     * public AbstractByteBuf retain(int increment);
+     * <p>
+     * public int refCnt();
+     * <p>
+     * public AbstractByteBuf retain();
+     * <p>
+     * public AbstractByteBuf touch();
+     * <p>
+     * public AbstractByteBuf touch(Object hint);
+     * <p>
+     * public boolean release(int decrement);
+     */
 
     public boolean release();
 }

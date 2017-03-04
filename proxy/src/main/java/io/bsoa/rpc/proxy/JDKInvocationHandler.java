@@ -15,17 +15,17 @@
  */
 package io.bsoa.rpc.proxy;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-
 import io.bsoa.rpc.base.Invoker;
 import io.bsoa.rpc.message.MessageBuilder;
 import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.message.RpcResponse;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+
 /**
  * JDK代理处理器，拦截请求变为invocation进行调用
- *
+ * <p>
  * Created by zhangg on 16-6-7.
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
@@ -56,7 +56,7 @@ public class JDKInvocationHandler implements InvocationHandler {
         RpcRequest rpcRequest = MessageBuilder.buildRpcRequest(method.getDeclaringClass(),
                 methodName, paramTypes, paramValues);
         RpcResponse rpcRpcResponse = proxyInvoker.invoke(rpcRequest);
-        if(rpcRpcResponse.hasError()){
+        if (rpcRpcResponse.hasError()) {
             throw rpcRpcResponse.getException();
         }
         return rpcRpcResponse.getReturnData();

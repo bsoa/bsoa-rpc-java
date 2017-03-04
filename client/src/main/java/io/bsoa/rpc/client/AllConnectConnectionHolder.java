@@ -1,18 +1,17 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+/*
+ * Copyright 2016 The BSOA Project
+ *
+ * The BSOA Project licenses this file to you under the Apache License,
+ * version 2.0 (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at:
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
  */
 package io.bsoa.rpc.client;
 
@@ -52,7 +51,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * 全部建立长连接，自动维护心跳和长连接
- *
+ * <p>
  * Created by zhangg on 2016/7/17 15:27.
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
@@ -73,7 +72,7 @@ public class AllConnectConnectionHolder extends ConnectionHolder {
     protected AllConnectConnectionHolder(ConsumerConfig consumerConfig) {
         super(consumerConfig);
     }
-    
+
     /**
      * 存活的客户端列表
      */
@@ -106,10 +105,8 @@ public class AllConnectConnectionHolder extends ConnectionHolder {
     /**
      * Add alive.
      *
-     * @param providerInfo
-     *         the provider
-     * @param transport
-     *         the transport
+     * @param providerInfo the provider
+     * @param transport    the transport
      */
     protected void addAlive(ProviderInfo providerInfo, ClientTransport transport) {
         if (checkState(providerInfo, transport)) {
@@ -121,10 +118,8 @@ public class AllConnectConnectionHolder extends ConnectionHolder {
     /**
      * Add retry.
      *
-     * @param providerInfo
-     *         the provider
-     * @param transport
-     *         the transport
+     * @param providerInfo the provider
+     * @param transport    the transport
      */
     protected void addRetry(ProviderInfo providerInfo, ClientTransport transport) {
         retryConnections.put(providerInfo, transport);
@@ -134,10 +129,8 @@ public class AllConnectConnectionHolder extends ConnectionHolder {
     /**
      * 从重试丢到存活列表
      *
-     * @param providerInfo
-     *         Provider
-     * @param transport
-     *         连接
+     * @param providerInfo Provider
+     * @param transport    连接
      */
     protected void retryToAlive(ProviderInfo providerInfo, ClientTransport transport) {
         providerLock.lock();
@@ -172,10 +165,8 @@ public class AllConnectConnectionHolder extends ConnectionHolder {
     /**
      * 从存活丢到亚健康列表
      *
-     * @param providerInfo
-     *         Provider
-     * @param transport
-     *         连接
+     * @param providerInfo Provider
+     * @param transport    连接
      */
     protected void aliveToSubHealth(ProviderInfo providerInfo, ClientTransport transport) {
         providerLock.lock();
@@ -191,10 +182,8 @@ public class AllConnectConnectionHolder extends ConnectionHolder {
     /**
      * 从亚健康丢到存活列表
      *
-     * @param providerInfo
-     *         Provider
-     * @param transport
-     *         连接
+     * @param providerInfo Provider
+     * @param transport    连接
      */
     protected void subHealthToAlive(ProviderInfo providerInfo, ClientTransport transport) {
         providerLock.lock();
@@ -212,10 +201,8 @@ public class AllConnectConnectionHolder extends ConnectionHolder {
     /**
      * 从存活丢到亚健康列表
      *
-     * @param providerInfo
-     *         Provider
-     * @param transport
-     *         连接
+     * @param providerInfo Provider
+     * @param transport    连接
      */
     protected void subHealthToRetry(ProviderInfo providerInfo, ClientTransport transport) {
         providerLock.lock();
@@ -231,8 +218,7 @@ public class AllConnectConnectionHolder extends ConnectionHolder {
     /**
      * 删除provider
      *
-     * @param providerInfo
-     *         the provider
+     * @param providerInfo the provider
      * @return 如果已经建立连接 ，返回ClientTransport
      */
     protected ClientTransport remove(ProviderInfo providerInfo) {
@@ -439,8 +425,7 @@ public class AllConnectConnectionHolder extends ConnectionHolder {
     /**
      * Provider对象得到 ClientTransportConfig
      *
-     * @param providerInfo
-     *         Provider
+     * @param providerInfo Provider
      * @return ClientTransportConfig
      */
     private ClientTransportConfig providerToClientConfig(ProviderInfo providerInfo) {
@@ -579,23 +564,23 @@ public class AllConnectConnectionHolder extends ConnectionHolder {
     /**
      * 打印连接成功日志
      *
-     * @param interfaceId 接口名称
-     * @param providerInfo    服务端
-     * @param transport   连接
+     * @param interfaceId  接口名称
+     * @param providerInfo 服务端
+     * @param transport    连接
      */
     private void printSuccess(String interfaceId, ProviderInfo providerInfo, ClientTransport transport) {
         LOGGER.info("Connect to {} provider:{} success ! The connection is "
                         + NetUtils.connectToString(transport.getChannel().remoteAddress(),
-                                transport.getChannel().localAddress())
+                transport.getChannel().localAddress())
                 , interfaceId, providerInfo);
     }
 
     /**
      * 打印连接失败日志
      *
-     * @param interfaceId 接口名称
-     * @param providerInfo    服务端
-     * @param transport   连接
+     * @param interfaceId  接口名称
+     * @param providerInfo 服务端
+     * @param transport    连接
      */
     private void printFailure(String interfaceId, ProviderInfo providerInfo, ClientTransport transport) {
         LOGGER.info("Connect to {} provider:{} failure !", interfaceId, providerInfo);
@@ -603,8 +588,9 @@ public class AllConnectConnectionHolder extends ConnectionHolder {
 
     /**
      * 打印连不上日志
-     *  @param interfaceId 接口名称
-     * @param providerInfo    服务端
+     *
+     * @param interfaceId  接口名称
+     * @param providerInfo 服务端
      * @param transport
      */
     private void printDead(String interfaceId, ProviderInfo providerInfo, ClientTransport transport, Exception e) {
@@ -635,10 +621,8 @@ public class AllConnectConnectionHolder extends ConnectionHolder {
     /**
      * 两次验证检查ClientTransport是否存活
      *
-     * @param interfaceId
-     *         接口
-     * @param transport
-     *         ClientTransport对象
+     * @param interfaceId 接口
+     * @param transport   ClientTransport对象
      * @return 是否存活
      */
     protected boolean doubleCheck(String interfaceId, ProviderInfo providerInfo, ClientTransport transport) {
@@ -653,7 +637,7 @@ public class AllConnectConnectionHolder extends ConnectionHolder {
                 LOGGER.warn("[22004]Connection has been closed after connected (in last 100ms)!" +
                                 " Maybe connection of provider has reached limit," +
                                 " or your host is in the blacklist of provider {}/{}",
-                         interfaceId, transport.getConfig().getProviderInfo());
+                        interfaceId, transport.getConfig().getProviderInfo());
                 providerInfo.setReconnectPeriodCoefficient(5);
                 return false;
             }
@@ -708,7 +692,7 @@ public class AllConnectConnectionHolder extends ConnectionHolder {
                 public void run() {
                     try {
                         sendHeartbeat();
-                    } catch(Throwable e) {
+                    } catch (Throwable e) {
                         LOGGER.error("Exception when send heartbeat to provider", e);
                     }
                 }
@@ -778,12 +762,9 @@ public class AllConnectConnectionHolder extends ConnectionHolder {
     /**
      * 给单个节点发心跳
      *
-     * @param providerInfo
-     *         服务端
-     * @param transport
-     *         连接
-     * @param isAliveProvider
-     *         是否存活列表
+     * @param providerInfo    服务端
+     * @param transport       连接
+     * @param isAliveProvider 是否存活列表
      */
     private void sendHeartbeatToProvider(ProviderInfo providerInfo, ClientTransport transport, boolean isAliveProvider) {
         /*

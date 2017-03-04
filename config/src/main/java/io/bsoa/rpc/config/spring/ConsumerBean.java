@@ -15,11 +15,10 @@
  */
 package io.bsoa.rpc.config.spring;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
+import io.bsoa.rpc.common.utils.CommonUtils;
+import io.bsoa.rpc.config.ConsumerConfig;
+import io.bsoa.rpc.config.RegistryConfig;
+import io.bsoa.rpc.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -30,10 +29,10 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
-import io.bsoa.rpc.common.utils.CommonUtils;
-import io.bsoa.rpc.config.ConsumerConfig;
-import io.bsoa.rpc.config.RegistryConfig;
-import io.bsoa.rpc.filter.Filter;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by zhangg on 17-1-26.

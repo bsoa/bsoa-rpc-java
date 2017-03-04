@@ -15,15 +15,6 @@
  */
 package io.bsoa.rpc.config;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.bsoa.rpc.base.Cache;
 import io.bsoa.rpc.bootstrap.Bootstraps;
 import io.bsoa.rpc.bootstrap.ProviderBootstrap;
@@ -33,7 +24,18 @@ import io.bsoa.rpc.common.utils.ExceptionUtils;
 import io.bsoa.rpc.common.utils.StringUtils;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
 import io.bsoa.rpc.filter.Filter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import static io.bsoa.rpc.common.BsoaConfigs.getBooleanValue;
+import static io.bsoa.rpc.common.BsoaConfigs.getIntValue;
+import static io.bsoa.rpc.common.BsoaConfigs.getStringValue;
 import static io.bsoa.rpc.common.BsoaOptions.PROVIDER_CONCURRENTS;
 import static io.bsoa.rpc.common.BsoaOptions.PROVIDER_DELAY;
 import static io.bsoa.rpc.common.BsoaOptions.PROVIDER_DYNAMIC;
@@ -42,9 +44,6 @@ import static io.bsoa.rpc.common.BsoaOptions.PROVIDER_INCLUDE;
 import static io.bsoa.rpc.common.BsoaOptions.PROVIDER_INVOKE_TIMEOUT;
 import static io.bsoa.rpc.common.BsoaOptions.PROVIDER_PRIORITY;
 import static io.bsoa.rpc.common.BsoaOptions.PROVIDER_WEIGHT;
-import static io.bsoa.rpc.common.BsoaConfigs.getBooleanValue;
-import static io.bsoa.rpc.common.BsoaConfigs.getIntValue;
-import static io.bsoa.rpc.common.BsoaConfigs.getStringValue;
 import static io.bsoa.rpc.config.ConfigValueHelper.checkNormalWithCommaColon;
 
 /**
@@ -639,6 +638,7 @@ public class ProviderConfig<T> extends AbstractInterfaceConfig<T> implements Ser
 
     /**
      * 得到服务提供者启动器
+     *
      * @return
      */
     public ProviderBootstrap getBootstrap() {

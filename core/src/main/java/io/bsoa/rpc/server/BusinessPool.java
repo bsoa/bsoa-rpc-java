@@ -15,6 +15,15 @@
  */
 package io.bsoa.rpc.server;
 
+import io.bsoa.rpc.common.BsoaConstants;
+import io.bsoa.rpc.common.struct.NamedThreadFactory;
+import io.bsoa.rpc.common.utils.CommonUtils;
+import io.bsoa.rpc.common.utils.ThreadPoolUtils;
+import io.bsoa.rpc.exception.BsoaRuntimeException;
+import io.bsoa.rpc.transport.ServerTransportConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -22,16 +31,6 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import io.bsoa.rpc.common.BsoaConstants;
-import io.bsoa.rpc.common.struct.NamedThreadFactory;
-import io.bsoa.rpc.common.utils.CommonUtils;
-import io.bsoa.rpc.common.utils.ThreadPoolUtils;
-import io.bsoa.rpc.exception.BsoaRuntimeException;
-import io.bsoa.rpc.transport.ServerTransportConfig;
 
 /**
  * Created by zhangg on 16-6-7.
@@ -53,8 +52,7 @@ public class BusinessPool {
     /**
      * 构建业务线程池
      *
-     * @param transportConfig
-     *         ServerTransportConfig
+     * @param transportConfig ServerTransportConfig
      * @return 线程池
      */
     public static ThreadPoolExecutor getBusinessPool(ServerTransportConfig transportConfig) {
@@ -78,8 +76,7 @@ public class BusinessPool {
     /**
      * 按端口查询业务线程池
      *
-     * @param port
-     *         端口
+     * @param port 端口
      * @return 线程池
      */
     public static ThreadPoolExecutor getBusinessPool(int port) {
@@ -113,6 +110,7 @@ public class BusinessPool {
         NamedThreadFactory threadFactory = new NamedThreadFactory("BZ-" + port, true);
         RejectedExecutionHandler handler = new RejectedExecutionHandler() {
             private int i = 1;
+
             @Override
             public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
                 if (i++ % 7 == 0) {

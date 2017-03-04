@@ -17,7 +17,7 @@ package io.bsoa.rpc.exception;
 
 /**
  * 调用时异常，
- *
+ * <p>
  * Created by zhangg on 16-6-7.
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>

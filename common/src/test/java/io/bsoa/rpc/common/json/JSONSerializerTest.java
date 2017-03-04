@@ -1,15 +1,29 @@
+/*
+ * Copyright 2016 The BSOA Project
+ *
+ * The BSOA Project licenses this file to you under the Apache License,
+ * version 2.0 (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at:
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
+ */
 package io.bsoa.rpc.common.json;
+
+import org.junit.Assert;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 /**
- *
  * <p>
  * Created by zhangg on 2017/1/20 14:07.
  *
@@ -20,8 +34,8 @@ public class JSONSerializerTest {
     @Test
     public void testSerialize() {
         Assert.assertEquals(JSONSerializer.serialize(null), "null");
-        Assert.assertEquals(JSONSerializer.serialize((byte)1), "1");
-        Assert.assertEquals(JSONSerializer.serialize((short)1), "1");
+        Assert.assertEquals(JSONSerializer.serialize((byte) 1), "1");
+        Assert.assertEquals(JSONSerializer.serialize((short) 1), "1");
         Assert.assertEquals(JSONSerializer.serialize(-1), "-1");
         Assert.assertEquals(JSONSerializer.serialize(1l), "1");
         Assert.assertEquals(JSONSerializer.serialize(1.0d), "1.0");
@@ -33,7 +47,7 @@ public class JSONSerializerTest {
         Assert.assertEquals(JSONSerializer.serialize("\"c\""), "\"\\\"c\\\"\"");
 
         Assert.assertEquals(JSONSerializer.serialize(new String[]{}), "[]");
-        Assert.assertEquals(JSONSerializer.serialize(new String[]{"1","2"}), "[\"1\",\"2\"]");
+        Assert.assertEquals(JSONSerializer.serialize(new String[]{"1", "2"}), "[\"1\",\"2\"]");
         List list = new ArrayList();
         Assert.assertEquals(JSONSerializer.serialize(list), "[]");
         list.add("1");
@@ -41,7 +55,7 @@ public class JSONSerializerTest {
         Assert.assertEquals(JSONSerializer.serialize(list), "[\"1\",\"2\"]");
         Map map = new HashMap();
         Assert.assertEquals(JSONSerializer.serialize(map), "{}");
-        map.put("1","2");
+        map.put("1", "2");
         Assert.assertEquals(JSONSerializer.serialize(map), "{\"1\":\"2\"}");
     }
 
@@ -78,9 +92,9 @@ public class JSONSerializerTest {
         Assert.assertEquals(json.get("d"), 1.0);
         Assert.assertEquals(json.get("e"), false);
         Assert.assertEquals(json.get("f"), "c");
-        Assert.assertEquals(((List)json.get("g")).size(), 0);
-        Assert.assertEquals(((List)json.get("h")).get(0), 1);
-        Assert.assertEquals(((List)json.get("i")).get(1), "22");
+        Assert.assertEquals(((List) json.get("g")).size(), 0);
+        Assert.assertEquals(((List) json.get("h")).get(0), 1);
+        Assert.assertEquals(((List) json.get("i")).get(1), "22");
         Assert.assertEquals(((Map) json.get("j")).size(), 0);
         Assert.assertEquals(((Map) json.get("k")).get("11"), "22");
     }

@@ -1,20 +1,22 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+/*
+ * Copyright 2016 The BSOA Project
+ *
+ * The BSOA Project licenses this file to you under the Apache License,
+ * version 2.0 (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at:
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
  */
 package io.bsoa.rpc.context;
+
+import io.bsoa.rpc.client.ProviderInfo;
+import io.bsoa.rpc.config.AbstractInterfaceConfig;
 
 import java.util.Collections;
 import java.util.Map;
@@ -23,9 +25,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-
-import io.bsoa.rpc.client.ProviderInfo;
-import io.bsoa.rpc.config.AbstractInterfaceConfig;
 
 /**
  * <p>
@@ -120,9 +119,9 @@ public class RpcStatus {
     /**
      * 接口+方法+provider级的状态统计数据，leastactive用
      *
-     * @param interfaceId 接口
-     * @param methodName  方法
-     * @param providerInfo    连接
+     * @param interfaceId  接口
+     * @param methodName   方法
+     * @param providerInfo 连接
      * @return RpcStatus对象
      */
     public static RpcStatus getStatus(String interfaceId, String methodName, ProviderInfo providerInfo) {
@@ -138,9 +137,9 @@ public class RpcStatus {
     /**
      * Remove status.
      *
-     * @param interfaceId 接口
-     * @param methodName  方法
-     * @param providerInfo    连接
+     * @param interfaceId  接口
+     * @param methodName   方法
+     * @param providerInfo 连接
      */
     public static void removeStatus(String interfaceId, String methodName, ProviderInfo providerInfo) {
         String key = getIdentityString(interfaceId, methodName, providerInfo);
@@ -150,9 +149,9 @@ public class RpcStatus {
     /**
      * 唯一的关键字
      *
-     * @param interfaceId 接口
-     * @param methodName  方法
-     * @param providerInfo    连接
+     * @param interfaceId  接口
+     * @param methodName   方法
+     * @param providerInfo 连接
      * @return 关键字
      */
     private static String getIdentityString(String interfaceId, String methodName, ProviderInfo providerInfo) {
@@ -175,9 +174,9 @@ public class RpcStatus {
     /**
      * 开始统计
      *
-     * @param interfaceId 接口
-     * @param methodName  方法
-     * @param providerInfo    连接
+     * @param interfaceId  接口
+     * @param methodName   方法
+     * @param providerInfo 连接
      * @return 关键字
      */
     public static void beginCount(String interfaceId, String methodName, ProviderInfo providerInfo) {
@@ -209,11 +208,11 @@ public class RpcStatus {
     /**
      * End count.
      *
-     * @param interfaceId 接口
-     * @param methodName  方法
-     * @param providerInfo    the provider
-     * @param elapsed     the elapsed
-     * @param succeeded   the succeeded
+     * @param interfaceId  接口
+     * @param methodName   方法
+     * @param providerInfo the provider
+     * @param elapsed      the elapsed
+     * @param succeeded    the succeeded
      */
     public static void endCount(String interfaceId, String methodName, ProviderInfo providerInfo, long elapsed, boolean succeeded) {
         endCount(getStatus(interfaceId, methodName, providerInfo), elapsed, succeeded);

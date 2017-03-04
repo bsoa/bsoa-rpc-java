@@ -1,18 +1,17 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+/*
+ * Copyright 2016 The BSOA Project
+ *
+ * The BSOA Project licenses this file to you under the Apache License,
+ * version 2.0 (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at:
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
  */
 package io.bsoa.rpc.context;
 
@@ -38,8 +37,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- *
- *
  * Created by zhangg on 2016/7/14 21:01.
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
@@ -120,8 +117,7 @@ public class BsoaContext {
     /**
      * 销毁方法
      *
-     * @param active
-     *         是否主动销毁
+     * @param active 是否主动销毁
      */
     private static void destroy(boolean active) {
         // TODO 检查是否有其它需要释放的资源
@@ -173,8 +169,7 @@ public class BsoaContext {
     /**
      * 增加缓存ConsumerConfig
      *
-     * @param consumerConfig
-     *         the consumer config
+     * @param consumerConfig the consumer config
      */
     public static void cacheConsumerConfig(ConsumerBootstrap consumerConfig) {
         REFERRED_CONSUMER_CONFIGS.add(consumerConfig);
@@ -183,8 +178,7 @@ public class BsoaContext {
     /**
      * 缓存的ConsumerConfig失效
      *
-     * @param consumerConfig
-     *         the consumer config
+     * @param consumerConfig the consumer config
      */
     public static void invalidateConsumerConfig(ConsumerBootstrap consumerConfig) {
         REFERRED_CONSUMER_CONFIGS.remove(consumerConfig);
@@ -193,8 +187,7 @@ public class BsoaContext {
     /**
      * 增加缓存ProviderConfig
      *
-     * @param providerConfig
-     *         the provider config
+     * @param providerConfig the provider config
      */
     public static void cacheProviderConfig(ProviderBootstrap providerConfig) {
         EXPORTED_PROVIDER_CONFIGS.add(providerConfig);
@@ -203,8 +196,7 @@ public class BsoaContext {
     /**
      * 缓存的ProviderConfig失效
      *
-     * @param providerConfig
-     *         the provider config
+     * @param providerConfig the provider config
      */
     public static void invalidateProviderConfig(ProviderBootstrap providerConfig) {
         EXPORTED_PROVIDER_CONFIGS.remove(providerConfig);
@@ -231,8 +223,7 @@ public class BsoaContext {
     /**
      * 得到上下文信息
      *
-     * @param key
-     *         the key
+     * @param key the key
      * @return the object
      * @see ConcurrentHashMap#get(Object)
      */
@@ -243,10 +234,8 @@ public class BsoaContext {
     /**
      * 设置上下文信息（不存在才设置成功）
      *
-     * @param key
-     *         the key
-     * @param value
-     *         the value
+     * @param key   the key
+     * @param value the value
      * @return the object
      * @see ConcurrentHashMap#putIfAbsent(Object, Object)
      */
@@ -257,10 +246,8 @@ public class BsoaContext {
     /**
      * 设置上下文信息
      *
-     * @param key
-     *         the key
-     * @param value
-     *         the value
+     * @param key   the key
+     * @param value the value
      * @return the object
      * @see ConcurrentHashMap#put(Object, Object)
      */
@@ -335,10 +322,8 @@ public class BsoaContext {
     /**
      * 获取全局参数
      *
-     * @param key
-     *         the key
-     * @param defaultVal
-     *         the default val
+     * @param key        the key
+     * @param defaultVal the default val
      * @return the global val
      */
     public static String getGlobalVal(String key, String defaultVal) {
@@ -348,10 +333,8 @@ public class BsoaContext {
     /**
      * 设置全局参数
      *
-     * @param key
-     *         the key
-     * @param value
-     *         the value
+     * @param key   the key
+     * @param value the value
      */
     public static void putGlobalVal(String key, String value) {
         putInterfaceVal(BsoaConstants.GLOBAL_SETTING, key, value);
@@ -360,12 +343,9 @@ public class BsoaContext {
     /**
      * 获取接口参数
      *
-     * @param interfaceId
-     *         the interface id
-     * @param key
-     *         the key
-     * @param defaultVal
-     *         the default val
+     * @param interfaceId the interface id
+     * @param key         the key
+     * @param defaultVal  the default val
      * @return the interface val
      */
     public static String getInterfaceVal(String interfaceId, String key, String defaultVal) {
@@ -381,12 +361,9 @@ public class BsoaContext {
     /**
      * 设置接口参数
      *
-     * @param interfaceId
-     *         the interface id
-     * @param key
-     *         the key
-     * @param value
-     *         the value
+     * @param interfaceId the interface id
+     * @param key         the key
+     * @param value       the value
      */
     public static void putInterfaceVal(String interfaceId, String key, String value) {
         if (value != null) {
@@ -412,8 +389,7 @@ public class BsoaContext {
     /**
      * 获取接口全部参数
      *
-     * @param interfaceId
-     *         the interface id
+     * @param interfaceId the interface id
      * @return the config map
      */
     public static Map<String, String> getConfigMap(String interfaceId) {
@@ -435,8 +411,7 @@ public class BsoaContext {
     /**
      * 通过注册中心接口id查询类名
      *
-     * @param ifaceId
-     *         注册中心接口id
+     * @param ifaceId 注册中心接口id
      * @return 类名
      */
     public static String getClassNameByIfaceId(String ifaceId) {
@@ -446,8 +421,7 @@ public class BsoaContext {
     /**
      * 通过类名查询注册中心接口id
      *
-     * @param className
-     *         类名
+     * @param className 类名
      * @return 注册中心接口id
      */
     public static String getIfaceIdByClassName(String className) {
@@ -457,10 +431,8 @@ public class BsoaContext {
     /**
      * 注册中心接口id和实际类名映射
      *
-     * @param className
-     *         实际类名
-     * @param ifaceId
-     *         注册中心接口id
+     * @param className 实际类名
+     * @param ifaceId   注册中心接口id
      */
     public static synchronized void cacheClassNameAndIfaceId(String className, String ifaceId) {
         if (ifaceIdClassNameMap == null) {

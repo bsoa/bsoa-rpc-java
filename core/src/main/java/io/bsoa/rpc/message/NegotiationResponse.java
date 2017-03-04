@@ -31,7 +31,7 @@ public class NegotiationResponse extends BaseMessage implements Serializable {
     }
 
     private boolean error;
-    
+
     private String data;
 
     public boolean isError() {

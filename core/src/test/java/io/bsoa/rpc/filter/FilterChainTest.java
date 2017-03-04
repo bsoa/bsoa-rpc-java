@@ -15,13 +15,6 @@
  */
 package io.bsoa.rpc.filter;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import org.junit.Assert;
-import org.junit.Test;
-
 import io.bsoa.rpc.GenericService;
 import io.bsoa.rpc.config.ConsumerConfig;
 import io.bsoa.rpc.config.MethodConfig;
@@ -29,6 +22,12 @@ import io.bsoa.rpc.message.MessageBuilder;
 import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.message.RpcResponse;
 import io.bsoa.test.HelloService;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by zhangg on 17-01-20.

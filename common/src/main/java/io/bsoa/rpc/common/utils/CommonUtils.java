@@ -1,20 +1,22 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+/*
+ * Copyright 2016 The BSOA Project
+ *
+ * The BSOA Project licenses this file to you under the Apache License,
+ * version 2.0 (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at:
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
  */
 package io.bsoa.rpc.common.utils;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,12 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
- *
- *
  * Created by zhangg on 2016/7/14 20:46.
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
@@ -42,10 +39,8 @@ public class CommonUtils {
     /**
      * byte array copy.
      *
-     * @param src
-     *         src.
-     * @param length
-     *         new length.
+     * @param src    src.
+     * @param length new length.
      * @return new byte array.
      */
     public static byte[] copyOf(byte[] src, int length) {
@@ -57,16 +52,11 @@ public class CommonUtils {
     /**
      * 将值放入ConcurrentMap，已经考虑第一次并发问题
      *
-     * @param map
-     *         ConcurrentMap
-     * @param key
-     *         关键字
-     * @param value
-     *         值
-     * @param <K>
-     *         关键字类型
-     * @param <V>
-     *         值类型
+     * @param map   ConcurrentMap
+     * @param key   关键字
+     * @param value 值
+     * @param <K>   关键字类型
+     * @param <V>   值类型
      * @return
      */
     public static <K, V> V putToConcurrentMap(ConcurrentMap<K, V> map, K key, V value) {
@@ -77,8 +67,7 @@ public class CommonUtils {
     /**
      * 不为空，且为“true”
      *
-     * @param b
-     *         Boolean对象
+     * @param b Boolean对象
      * @return 不为空，且为true
      */
     public static boolean isTrue(String b) {
@@ -88,8 +77,7 @@ public class CommonUtils {
     /**
      * 不为空，且为true
      *
-     * @param b
-     *         Boolean对象
+     * @param b Boolean对象
      * @return 不为空，且为true
      */
     public static boolean isTrue(Boolean b) {
@@ -99,8 +87,7 @@ public class CommonUtils {
     /**
      * 不为空，且为false
      *
-     * @param b
-     *         Boolean对象
+     * @param b Boolean对象
      * @return 不为空，且为true
      */
     public static boolean isFalse(Boolean b) {
@@ -110,8 +97,7 @@ public class CommonUtils {
     /**
      * 不为空，且为“false”
      *
-     * @param b
-     *         Boolean对象
+     * @param b Boolean对象
      * @return 不为空，且为true
      */
     public static boolean isFalse(String b) {
@@ -121,8 +107,7 @@ public class CommonUtils {
     /**
      * 判断一个集合是否为空
      *
-     * @param collection
-     *         集合
+     * @param collection 集合
      * @return 是否为空
      */
     public static boolean isEmpty(Collection collection) {
@@ -132,8 +117,7 @@ public class CommonUtils {
     /**
      * 判断一个集合是否为非空
      *
-     * @param collection
-     *         集合
+     * @param collection 集合
      * @return 是否为非空
      */
     public static boolean isNotEmpty(Collection collection) {
@@ -143,8 +127,7 @@ public class CommonUtils {
     /**
      * 判断一个Map是否为空
      *
-     * @param map
-     *         Map
+     * @param map Map
      * @return 是否为空
      */
     public static boolean isEmpty(Map map) {
@@ -154,8 +137,7 @@ public class CommonUtils {
     /**
      * 判断一个Map是否为非空
      *
-     * @param map
-     *         Map
+     * @param map Map
      * @return 是否为非空
      */
     public static boolean isNotEmpty(Map map) {
@@ -165,8 +147,7 @@ public class CommonUtils {
     /**
      * 判断一个Array是否为空
      *
-     * @param array
-     *         数组
+     * @param array 数组
      * @return 是否为空
      */
     public static boolean isEmpty(Object[] array) {
@@ -176,8 +157,7 @@ public class CommonUtils {
     /**
      * 判断一个Array是否为非空
      *
-     * @param array
-     *         数组
+     * @param array 数组
      * @return 是否为非空
      */
     public static boolean isNotEmpty(Object[] array) {
@@ -187,10 +167,8 @@ public class CommonUtils {
     /**
      * 字符串转值
      *
-     * @param num
-     *         数字
-     * @param defaultInt
-     *         默认值
+     * @param num        数字
+     * @param defaultInt 默认值
      * @return int
      */
     public static int parseInt(String num, int defaultInt) {
@@ -208,10 +186,8 @@ public class CommonUtils {
     /**
      * 字符串转值
      *
-     * @param nums
-     *         多个数字
-     * @param sperator
-     *         分隔符
+     * @param nums     多个数字
+     * @param sperator 分隔符
      * @return int[]
      */
     public static int[] parseInts(String nums, String sperator) {
@@ -226,12 +202,9 @@ public class CommonUtils {
     /**
      * 比较list元素是否一致，忽略顺序
      *
-     * @param left
-     *         左边List
-     * @param right
-     *         右边List
-     * @param <T>
-     *         元素类型
+     * @param left  左边List
+     * @param right 右边List
+     * @param <T>   元素类型
      * @return 是否一致
      */
     public static <T> boolean listEquals(List<T> left, List<T> right) {
@@ -259,10 +232,8 @@ public class CommonUtils {
     /**
      * 连接集合类为字符串
      *
-     * @param collection
-     *         集合
-     * @param separator
-     *         分隔符
+     * @param collection 集合
+     * @param separator  分隔符
      * @return 分隔符连接的字符串
      */
     public static String join(Collection collection, String separator) {
