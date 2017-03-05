@@ -15,10 +15,13 @@
  */
 package io.bsoa.rpc.transport.netty;
 
+import io.bsoa.rpc.common.BsoaConfigs;
+import io.bsoa.rpc.common.BsoaOptions;
 import io.bsoa.rpc.common.utils.NetUtils;
 import io.bsoa.rpc.protocol.Protocol;
 import io.bsoa.rpc.protocol.ProtocolFactory;
 import io.bsoa.rpc.protocol.ProtocolInfo;
+import io.bsoa.rpc.transport.AbstractChannel;
 import io.bsoa.rpc.transport.ServerTransportConfig;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -57,7 +60,7 @@ public class AdapterDecoder extends ByteToMessageDecoder {
     /**
      * 是否允许telnet
      */
-    private boolean telnet;
+    private ServerTransportConfig transportConfig;
 
     /**
      * Instantiates a new Adapter decoder.
@@ -67,7 +70,7 @@ public class AdapterDecoder extends ByteToMessageDecoder {
      */
     public AdapterDecoder(NettyServerChannelHandler serverChannelHandler, ServerTransportConfig transportConfig) {
         this.serverChannelHandler = serverChannelHandler;
-        this.telnet = transportConfig.isTelnet();
+        this.transportConfig = transportConfig;
     }
 
     @Override
@@ -81,26 +84,37 @@ public class AdapterDecoder extends ByteToMessageDecoder {
         byte[] magicHeadBytes = new byte[offset];
         in.readBytes(magicHeadBytes);
         in.readerIndex(in.readerIndex() - offset);
-        // 自动判断协议
-        Protocol protocol = ProtocolFactory.adaptiveProtocol(magicHeadBytes);
 
         InetSocketAddress localAddress = (InetSocketAddress) ctx.channel().localAddress();
         InetSocketAddress remoteAddress = (InetSocketAddress) ctx.channel().remoteAddress();
+        String channelKey =  NetUtils.connectToString(remoteAddress, localAddress);
 
+        // 自动判断协议
+        Protocol protocol = ProtocolFactory.adaptiveProtocol(magicHeadBytes);
+        boolean adaptive = BsoaConfigs.getBooleanValue(BsoaOptions.TRANSPORT_SERVER_PROTOCOL_ADAPTIVE);
         if (protocol != null) {
+            if (!adaptive && protocol.protocolInfo().getName().equals(transportConfig.getProtocolType())) {
+                // 不支持多协议的时候，收到了其它协议的请求
+                LOGGER.warn("Not support protocol adaptive. You can set" +
+                        " \"transport.server.protocol.adaptive\" to true.");
+                ctx.close();
+            }
             ChannelPipeline pipeline = ctx.pipeline();
             ProtocolInfo protocolInfo = protocol.protocolInfo();
+            // 设置协议到上下文
+            AbstractChannel abstractChannel = NettyChannelHolder.initAbstractChannel(ctx.channel());
+            abstractChannel.context().setProtocol(protocolInfo.getName());
             if (protocolInfo.getNetProtocol() == ProtocolInfo.NET_PROTOCOL_TCP) {
                 LOGGER.info("Accept tcp connection of protocol:{} {}", protocolInfo.getName(),
                         NetUtils.connectToString(remoteAddress, localAddress));
                 pipeline.addLast("frame", protocolInfo.isLengthFixed() ?
-                        new FixedLengthFrameDecoder(protocolInfo.lengthFieldLength()) :
-                        new LengthFieldBasedFrameDecoder(protocolInfo.maxFrameLength(),
-                                protocolInfo.lengthFieldOffset(),
-                                protocolInfo.lengthFieldLength(),
-                                protocolInfo.lengthAdjustment(),
-                                protocolInfo.initialBytesToStrip(),
-                                false)) // TODO failfast ??
+                                new FixedLengthFrameDecoder(protocolInfo.lengthFieldLength()) :
+                                new LengthFieldBasedFrameDecoder(protocolInfo.maxFrameLength(),
+                                        protocolInfo.lengthFieldOffset(),
+                                        protocolInfo.lengthFieldLength(),
+                                        protocolInfo.lengthAdjustment(),
+                                        protocolInfo.initialBytesToStrip(),
+                                        false)) // TODO failfast ??
                         .addLast("encoder", new NettyEncoder(protocol))
                         .addLast("decoder", new NettyDecoder(protocol))
                         .addLast("logging", new LoggingHandler(LogLevel.DEBUG))
@@ -119,14 +133,21 @@ public class AdapterDecoder extends ByteToMessageDecoder {
 //                pipeline.remove(this);
             }
         } else { //telnet
-            LOGGER.info("Accept telnet connection {}", NetUtils.connectToString(remoteAddress, localAddress));
+            if (!adaptive) { // 不支持多协议的时候，收到了其它协议的请求
+                LOGGER.warn("Not support protocol adaptive. You can set" +
+                        " \"transport.server.protocol.adaptive\" to true.");
+                ctx.close();
+                return;
+            }
+
+            LOGGER.info("Accept telnet connection {}", channelKey);
 
             ChannelPipeline pipeline = ctx.pipeline();
-            pipeline.addLast(new TelnetCodec());
-            pipeline.addLast(new TelnetChannelHandler());
+            pipeline.addLast("telnetCodec", new TelnetCodec());
+            pipeline.addLast("telnetHandler", new TelnetChannelHandler());
             pipeline.remove(this);
 
-            if (telnet) {
+            if (transportConfig.isTelnet()) {
                 pipeline.fireChannelActive(); // 重新触发连接建立事件
             } else {
                 ctx.channel().writeAndFlush("Sorry! Not support telnet");

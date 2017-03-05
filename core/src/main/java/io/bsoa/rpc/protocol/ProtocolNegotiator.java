@@ -16,7 +16,6 @@
 package io.bsoa.rpc.protocol;
 
 import io.bsoa.rpc.client.ProviderInfo;
-import io.bsoa.rpc.exception.BsoaRuntimeException;
 import io.bsoa.rpc.ext.Extensible;
 import io.bsoa.rpc.message.NegotiationRequest;
 import io.bsoa.rpc.message.NegotiationResponse;
@@ -43,7 +42,7 @@ public interface ProtocolNegotiator {
     public boolean handshake(ProviderInfo providerInfo, ClientTransport clientTransport);
 
     /**
-     * 处理握手请求（服务端和客户端都可以互发）
+     * 处理协商请求（服务端和客户端都可以互发）
      *
      * @param negotiationRequest 协商请求
      * @return 协商响应
@@ -51,24 +50,13 @@ public interface ProtocolNegotiator {
     NegotiationResponse handleRequest(NegotiationRequest negotiationRequest, ChannelContext context);
 
     /**
-     * 协商命令处理器
+     * 发送协议请求
+     *
+     * @param transport          长连接
+     * @param negotiationRequest 协商请求
+     * @param timeout            超时时间
+     * @return 协商响应（如果是单向协商则返回null）
      */
-    interface NegotiationHandler {
-        /**
-         * 得到命令
-         *
-         * @return 命令
-         */
-        String command();
-
-        /**
-         * 处理命令
-         *
-         * @param request 请求内容
-         * @param context 上下文
-         * @return 正常返回的响应
-         * @throws BsoaRuntimeException 异常时一定要抛出
-         */
-        String handle(NegotiationRequest request, ChannelContext context) throws BsoaRuntimeException;
-    }
+    NegotiationResponse sendNegotiationRequest(ClientTransport transport,
+                                               NegotiationRequest negotiationRequest, int timeout);
 }

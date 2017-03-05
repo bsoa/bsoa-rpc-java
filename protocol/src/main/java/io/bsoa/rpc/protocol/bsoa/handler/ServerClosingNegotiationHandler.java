@@ -13,56 +13,42 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package io.bsoa.rpc.protocol.bsoa;
+package io.bsoa.rpc.protocol.bsoa.handler;
 
 import io.bsoa.rpc.common.json.JSON;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
 import io.bsoa.rpc.message.NegotiationRequest;
-import io.bsoa.rpc.protocol.ProtocolNegotiator;
+import io.bsoa.rpc.protocol.bsoa.BsoaNegotiationHandler;
 import io.bsoa.rpc.transport.ChannelContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
- * <p>协商处理器</p>
+ * <p></p>
  * <p>
- * Created by zhangg on 2017/2/20 21:44. <br/>
+ * Created by zhangg on 2017/03/2017/3/4 12:43. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public class HeaderCacheNegotiationHandler implements ProtocolNegotiator.NegotiationHandler {
+public class ServerClosingNegotiationHandler implements BsoaNegotiationHandler {
+
     /**
      * slf4j Logger for this class
      */
-    public static final Logger LOGGER = LoggerFactory.getLogger(HeaderCacheNegotiationHandler.class);
+    public static final Logger LOGGER = LoggerFactory.getLogger(ServerClosingNegotiationHandler.class);
 
     @Override
     public String command() {
-        return "headerCache";
+        return "serverClosing";
     }
 
     @Override
     public String handle(NegotiationRequest request, ChannelContext context) throws BsoaRuntimeException {
         String data = request.getData();
         Map<String, String> map = JSON.parseObject(data, Map.class);
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("Receive client header cache negotiation info : {}", map);
-        }
-        Map<String, Boolean> result = new HashMap<>();
-        for (Map.Entry<String, String> entry : map.entrySet()) {
-            Byte key = Byte.valueOf(entry.getKey());
-            String value = entry.getValue();
-            try {
-                context.putHeadCache(key, value);
-                result.put(entry.getKey(), true);
-            } catch (Exception e) {
-                result.put(entry.getKey(), false);
-                LOGGER.warn("", e);
-            }
-        }
-        return JSON.toJSONString(result);
+        LOGGER.info("server will reboot, info:{}", map);
+        return "true";
     }
 }

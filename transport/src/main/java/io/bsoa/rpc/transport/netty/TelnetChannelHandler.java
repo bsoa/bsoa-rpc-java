@@ -48,11 +48,6 @@ public class TelnetChannelHandler extends ChannelInboundHandlerAdapter {
     public static final Map<Channel, String> charsetMap = new ConcurrentHashMap<Channel, String>();
 
     /**
-     * io.netty.channel.Channel --> io.bsoa.rpc.transport.AbstractChannel
-     */
-    private final ConcurrentHashMap<Channel, AbstractChannel> channelCache = new ConcurrentHashMap<>();
-
-    /**
      * The constant HELP.
      */
     private static final String HELP = "help";
@@ -85,13 +80,17 @@ public class TelnetChannelHandler extends ChannelInboundHandlerAdapter {
         }
         //调用指定命令
         String result = "";
+        if (EXIT.equalsIgnoreCase(command)) {
+            ctx.channel().close();
+        }
         TelnetHandler handler = TelnetHandlerFactory.getHandler(command);
-        AbstractChannel abstractChannel = channelCache.get(ctx.channel());
+        AbstractChannel abstractChannel = NettyChannelHolder.getAbstractChannel(ctx.channel());
         if (handler != null) {
             result = handler.telnet(abstractChannel, message);
         } else {
             StringBuffer sb = new StringBuffer();
-            sb.append("ERROR:You input the command:[" + command + " " + message + "] is not exist!!\r\n");
+            sb.append("ERROR:You input the command:[" + command + "]," +
+                    " message:[" + message + "] is not exist!!\r\n");
             result = HELP_HANDLER.telnet(abstractChannel, message);
             sb.append(result);
             sb.append("Please input again!\r\n");
@@ -100,9 +99,6 @@ public class TelnetChannelHandler extends ChannelInboundHandlerAdapter {
         if (result != null && !"".equals(result.trim())) {
             ctx.writeAndFlush(result + "\r\n");
             ctx.writeAndFlush(BsoaConfigs.getStringValue(BsoaOptions.DEFAULT_PROTOCOL) + ">");
-        }
-        if (EXIT.equalsIgnoreCase(command)) {
-            ctx.channel().close();
         }
     }
 
@@ -115,10 +111,8 @@ public class TelnetChannelHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        // save to cache
-        Channel channel = ctx.channel();
-        AbstractChannel abstractChannel = new NettyChannel(channel);
-        channelCache.put(channel, abstractChannel);
+        AbstractChannel abstractChannel = NettyChannelHolder.initAbstractChannel(ctx.channel());
+        abstractChannel.context().setProtocol("telnet");
     }
 
 //    /**
@@ -130,8 +124,8 @@ public class TelnetChannelHandler extends ChannelInboundHandlerAdapter {
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         Channel channel = ctx.channel();
         LOGGER.info("Disconnected telnet from {}", NetUtils.channelToString(channel.remoteAddress(), channel.localAddress()));
-        channelCache.remove(channel);
         charsetMap.remove(channel);
+        NettyChannelHolder.removeAbstractChannel(channel);
 //        BaseServerHandler.removeChannel(channel);
 //        ALLOW_INVOKE_CHANNELS.remove(channel);
     }

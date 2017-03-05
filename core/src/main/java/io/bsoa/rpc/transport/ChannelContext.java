@@ -31,10 +31,7 @@ public class ChannelContext {
     /**
      * 每个长连接独立的一个缓存，最多256条
      * TODO 是否分将缓存 全局静态区和动态区
-     * 为提高效率，Map降级为数组
      */
-//    protected String[] headerCache = new String[256];
-
     protected TwoWayMap<Byte, String> headerCache = new TwoWayMap<>();
     /**
      * 对方版本
@@ -52,6 +49,10 @@ public class ChannelContext {
      * 客户端应用实例id
      */
     protected String clientInstanceId;
+    /**
+     * 长连接的协议
+     */
+    private String protocol;
 
     /**
      * Put header cache
@@ -188,5 +189,23 @@ public class ChannelContext {
     public ChannelContext setClientInstanceId(String clientInstanceId) {
         this.clientInstanceId = clientInstanceId;
         return this;
+    }
+
+    /**
+     * Sets protocol.
+     *
+     * @param protocol the protocol
+     */
+    public void setProtocol(String protocol) {
+        this.protocol = protocol;
+    }
+
+    /**
+     * Gets protocol.
+     *
+     * @return the protocol
+     */
+    public String getProtocol() {
+        return protocol;
     }
 }

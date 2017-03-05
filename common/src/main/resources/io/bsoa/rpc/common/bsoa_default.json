@@ -43,8 +43,8 @@ PS:大家也看到了，本JSON文档是支持注释的，而标准JSON是不支
   "default.transport" : "netty4",
 
   // ===============bsoa协议特有========
-  "bsoa.head.ref" : true,
-  "bsoa.head.ref.size" : 256, //协议头ref字段的byte长度，可选1和2，表示上限256/65536
+  "bsoa.negotiation.enable" : false,
+  "bsoa.head.ref.enable" : true,
 
   //  ==============配置相关============
   "registry.connect.timeout" : 20000,   /* 默认连注册中心的超时时间*/

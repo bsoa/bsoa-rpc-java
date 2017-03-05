@@ -141,10 +141,7 @@ public class BsoaServerHandler implements ServerHandler {
                     bizThreadPool.submit(task);
                 }
             } catch (RejectedExecutionException e) {
-                // 表示我很忙，等20s再来调我
-                NegotiationRequest negotiationRequest = MessageBuilder.buildNegotiationRequest()
-                        .setCmd("serverBusy").setData("{\"waitTime\": 20000}");
-                broadcastNegotiation(negotiationRequest);
+                // TODO sendServerBusyNegotiation();
                 throw e;
             }
         } catch (BsoaRpcException e) {
@@ -154,6 +151,12 @@ public class BsoaServerHandler implements ServerHandler {
         }
     }
 
+    protected void sendServerBusyNegotiation() {
+        // 表示我很忙，等20s再来调我 TODO 控制发送频率
+        NegotiationRequest negotiationRequest = MessageBuilder.buildNegotiationRequest()
+                .setCmd("serverBusy").setData("{\"waitTime\": 20000}");
+        broadcastNegotiation(negotiationRequest);
+    }
     /**
      * Broadcast negotiation.
      *
@@ -168,8 +171,13 @@ public class BsoaServerHandler implements ServerHandler {
         int timeout = BsoaConfigs.getIntValue(BsoaOptions.CONSUMER_INVOKE_TIMEOUT);
         for (Map.Entry<String, AbstractChannel> entry : clientChannels.entrySet()) {
             try {
-                ClientTransport clientTransport = ClientTransportFactory.getReverseClientTransport(entry.getValue());
-                clientTransport.oneWaySend(negotiationRequest, timeout);
+                AbstractChannel channel = entry.getValue();
+                Protocol protocol = ProtocolFactory.getProtocol(channel.context().getProtocol());
+                ProtocolNegotiator negotiator = protocol.negotiator();
+                if(negotiator!=null){
+                    ClientTransport clientTransport = ClientTransportFactory.getReverseClientTransport(channel);
+                    negotiator.sendNegotiationRequest(clientTransport, negotiationRequest, timeout);
+                }
             } catch (Exception e) {
                 if (LOGGER.isWarnEnabled()) {
                     LOGGER.warn("Fail to send negotiation to {}, cause by: {}",

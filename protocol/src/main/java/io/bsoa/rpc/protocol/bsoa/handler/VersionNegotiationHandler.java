@@ -13,42 +13,51 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package io.bsoa.rpc.protocol.bsoa;
+package io.bsoa.rpc.protocol.bsoa.handler;
 
+import io.bsoa.rpc.common.BsoaVersion;
 import io.bsoa.rpc.common.json.JSON;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
 import io.bsoa.rpc.message.NegotiationRequest;
-import io.bsoa.rpc.protocol.ProtocolNegotiator;
+import io.bsoa.rpc.protocol.bsoa.BsoaNegotiationHandler;
 import io.bsoa.rpc.transport.ChannelContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
- * <p></p>
+ * <p>协商处理器</p>
  * <p>
- * Created by zhangg on 2017/03/2017/3/4 12:43. <br/>
+ * Created by zhangg on 2017/2/20 21:44. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public class ServerRebootNegotiationHandler implements ProtocolNegotiator.NegotiationHandler {
+public class VersionNegotiationHandler implements BsoaNegotiationHandler {
 
     /**
      * slf4j Logger for this class
      */
-    public static final Logger LOGGER = LoggerFactory.getLogger(ServerRebootNegotiationHandler.class);
+    public static final Logger LOGGER = LoggerFactory.getLogger(VersionNegotiationHandler.class);
 
     @Override
     public String command() {
-        return "serverReboot";
+        return "version";
     }
 
     @Override
     public String handle(NegotiationRequest request, ChannelContext context) throws BsoaRuntimeException {
         String data = request.getData();
         Map<String, String> map = JSON.parseObject(data, Map.class);
-        LOGGER.info("server will reboot, info:{}", map);
-        return "true";
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("Receive client version negotiation info : {}", map);
+        }
+        context.setDstVersion(Integer.parseInt(map.get("version")));
+
+        Map<String, String> tmp = new HashMap<>();
+        tmp.put("version", BsoaVersion.BSOA_VERSION + "");
+        tmp.put("build", BsoaVersion.BUILD_VERSION);
+        return JSON.toJSONString(tmp); // 把自己版本发给对方
     }
 }

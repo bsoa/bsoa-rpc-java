@@ -47,22 +47,25 @@ public class ClientTest {
                 .setInterfaceId(EchoService.class.getName())
                 .setUrl("bsoa://127.0.0.1:22000")
                 .setRegister(false);
-        EchoService echoService = consumerConfig2.refer();
+        EchoService echoService =  consumerConfig2.refer();
 
-//        try {
-//            for (int i = 0; i < 100; i++) {
-//                String s = helloService.sayHello("xxx", 22);
-//                LOGGER.warn("{}", s);
-//                try {
-//                    Thread.sleep(2000);
-//                } catch (Exception e) {
-//                    // TODO
-//                }
-//            }
-//
-//        } catch (Exception e) {
-//            LOGGER.error("", e);
-//        }
+        try {
+            for (int i = 0; i < 100; i++) {
+                try {
+                    String s = helloService.sayHello("xxx", 22);
+                    LOGGER.warn("{}", s);
+                } catch (Exception e) {
+                    LOGGER.error(e.getMessage());
+                }
+                try {
+                    Thread.sleep(2000);
+                } catch (Exception e) {
+                }
+            }
+
+        } catch (Exception e) {
+            LOGGER.error("", e);
+        }
 
         synchronized (ClientTest.class) {
             while (true) {

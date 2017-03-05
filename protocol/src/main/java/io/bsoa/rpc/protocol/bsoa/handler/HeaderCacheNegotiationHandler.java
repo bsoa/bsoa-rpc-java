@@ -13,13 +13,12 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package io.bsoa.rpc.protocol.bsoa;
+package io.bsoa.rpc.protocol.bsoa.handler;
 
-import io.bsoa.rpc.common.BsoaVersion;
 import io.bsoa.rpc.common.json.JSON;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
 import io.bsoa.rpc.message.NegotiationRequest;
-import io.bsoa.rpc.protocol.ProtocolNegotiator;
+import io.bsoa.rpc.protocol.bsoa.BsoaNegotiationHandler;
 import io.bsoa.rpc.transport.ChannelContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,16 +33,15 @@ import java.util.Map;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public class VersionNegotiationHandler implements ProtocolNegotiator.NegotiationHandler {
-
+public class HeaderCacheNegotiationHandler implements BsoaNegotiationHandler {
     /**
      * slf4j Logger for this class
      */
-    public static final Logger LOGGER = LoggerFactory.getLogger(VersionNegotiationHandler.class);
+    public static final Logger LOGGER = LoggerFactory.getLogger(HeaderCacheNegotiationHandler.class);
 
     @Override
     public String command() {
-        return "version";
+        return "headerCache";
     }
 
     @Override
@@ -51,13 +49,20 @@ public class VersionNegotiationHandler implements ProtocolNegotiator.Negotiation
         String data = request.getData();
         Map<String, String> map = JSON.parseObject(data, Map.class);
         if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("Receive client version negotiation info : {}", map);
+            LOGGER.info("Receive client header cache negotiation info : {}", map);
         }
-        context.setDstVersion(Integer.parseInt(map.get("version")));
-
-        Map<String, String> tmp = new HashMap<>();
-        tmp.put("version", BsoaVersion.BSOA_VERSION + "");
-        tmp.put("build", BsoaVersion.BUILD_VERSION);
-        return JSON.toJSONString(tmp); // 把自己版本发给对方
+        Map<String, Boolean> result = new HashMap<>();
+        for (Map.Entry<String, String> entry : map.entrySet()) {
+            Byte key = Byte.valueOf(entry.getKey());
+            String value = entry.getValue();
+            try {
+                context.putHeadCache(key, value);
+                result.put(entry.getKey(), true);
+            } catch (Exception e) {
+                result.put(entry.getKey(), false);
+                LOGGER.warn("", e);
+            }
+        }
+        return JSON.toJSONString(result);
     }
 }

@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * <p></p>
@@ -56,10 +56,7 @@ public class NettyServerChannelHandler extends ChannelInboundHandlerAdapter {
 
     protected final List<ChannelListener> connectListeners;
 
-    /**
-     * io.netty.channel.Channel --> io.bsoa.rpc.transport.AbstractChannel
-     */
-    private final ConcurrentHashMap<Channel, AbstractChannel> channelCache = new ConcurrentHashMap<>();
+    private AtomicInteger channelCounter = new AtomicInteger(0);
 
     /**
      * build NettyServerChannelHandler
@@ -79,7 +76,7 @@ public class NettyServerChannelHandler extends ChannelInboundHandlerAdapter {
             throw new BsoaRpcException(22222, "Has no server handler in server transport");
         }
         Channel channel = ctx.channel();
-        AbstractChannel abstractChannel = channelCache.get(channel);
+        AbstractChannel abstractChannel = NettyChannelHolder.getAbstractChannel(channel);
         // RPC请求：不管是正常请求还是Callback还是Stream
         if (msg instanceof RpcRequest) {
             RpcRequest request = (RpcRequest) msg;
@@ -115,7 +112,7 @@ public class NettyServerChannelHandler extends ChannelInboundHandlerAdapter {
         if (cause instanceof IOException) {
             LOGGER.warn("catch IOException at {} : {}",
                     NetUtils.channelToString(channel.remoteAddress(), channel.localAddress()),
-                    cause.getMessage());
+                    cause.getMessage(), cause);
         } else if (cause instanceof BsoaRpcException) {
 //            BsoaRpcException rpc = (BsoaRpcException) cause;
 //            MessageHeader header = rpc.getMsgHeader();
@@ -148,7 +145,7 @@ public class NettyServerChannelHandler extends ChannelInboundHandlerAdapter {
         } else {
             LOGGER.warn("catch " + cause.getClass().getName() + " at {} : {}",
                     NetUtils.channelToString(channel.remoteAddress(), channel.localAddress()),
-                    cause.getMessage());
+                    cause.getMessage(), cause);
         }
     }
 
@@ -159,9 +156,9 @@ public class NettyServerChannelHandler extends ChannelInboundHandlerAdapter {
             LOGGER.info("connected from {}",
                     NetUtils.channelToString(channel.remoteAddress(), channel.localAddress()));
         }
+        channelCounter.incrementAndGet();
         // save to cache
-        AbstractChannel abstractChannel = new NettyChannel(channel);
-        channelCache.put(channel, abstractChannel);
+        AbstractChannel abstractChannel = NettyChannelHolder.getAbstractChannel(channel);
         serverHandler.registerChannel(abstractChannel);
         // notify listener
         if (connectListeners != null) {
@@ -184,8 +181,9 @@ public class NettyServerChannelHandler extends ChannelInboundHandlerAdapter {
             LOGGER.info("Disconnected from {}",
                     NetUtils.channelToString(channel.localAddress(), channel.remoteAddress()));
         }
+        channelCounter.decrementAndGet();
         // remove from cache
-        AbstractChannel abstractChannel = channelCache.remove(channel);
+        AbstractChannel abstractChannel = NettyChannelHolder.removeAbstractChannel(channel);
         serverHandler.unRegisterChannel(abstractChannel);
         // notify listener
         if (connectListeners != null) {
@@ -204,5 +202,9 @@ public class NettyServerChannelHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         LOGGER.info("event triggered:{}", evt);
+    }
+
+    public int getChannelNum() {
+        return channelCounter.get();
     }
 }

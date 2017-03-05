@@ -95,6 +95,16 @@ public class BsoaOptions {
      * 默认压缩算法
      */
     public static final String DEFAULT_COMPRESS = "default.compress";
+
+    /**
+     * bsoa协议是否使用头部映射
+     */
+    public static final String BSOA_NEGOTIATION_ENABLE = "bsoa.negotiation.enable";
+    /**
+     * bsoa协议是否使用头部映射
+     */
+    public static final String BSOA_HEAD_REF_ENABLE = "bsoa.head.ref.enable";
+
     /**
      * 默认连注册中心的超时时间
      */

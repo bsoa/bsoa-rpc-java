@@ -40,17 +40,19 @@ public enum HeadKey {
      */
     METHOD_NAME((byte) 4, String.class),
     /**
+     * 回调函数实例
+     */
+    CALLBACK_INS_KEY((byte) 5, String.class), // 回调函数对应的实例id
+    /**
      * 方法参数类型：实际名称
      */
     @Deprecated
-    METHOD_ARG_TYPES((byte) 5, String.class),
+    METHOD_ARG_TYPES((byte) 6, String.class),
     /**
-     * 回调函数实例
+     * rpc客户端版本，协商阶段可以决定，无需重复传递
      */
-    CALLBACK_INS_KEY((byte) 6, String.class), // 回调函数对应的实例id
-
-    //compress((byte) 6, String.class),
-    //jsfVersion((byte) 7, Short.class), // 客户端的JSF版本
+    @Deprecated
+    BSOA_VERSION((byte) 7, Short.class),
     /**
      * 请求的语言（针对跨语言 1c++ 2lua）
      */
@@ -59,11 +61,7 @@ public enum HeadKey {
      * 返回结果（针对跨语言 0成功 1失败）
      */
     responseCode((byte) 9, Byte.class),
-    /**
-     * rpc客户端版本，协商阶段可以决定，无需重复传递
-     */
-    @Deprecated
-    BSOA_VERSION((byte) 11, Short.class),
+
     /**
      * 接口名：映射值
      */
@@ -150,15 +148,15 @@ public enum HeadKey {
             case 4:
                 key = METHOD_NAME;
                 break;
-            case 5:
+            case 6:
                 key = METHOD_ARG_TYPES;
                 break;
-            case 6:
+            case 5:
                 key = CALLBACK_INS_KEY;
                 break;
-            /*case 7:
-                key = jsfVersion;
-                break;*/
+            case 7:
+                key = BSOA_VERSION;
+                break;
             case 8:
                 key = srcLanguage;
                 break;

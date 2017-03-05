@@ -289,7 +289,7 @@ public class AllConnectConnectionHolder extends ConnectionHolder {
 
     @Override
     public void init() {
-        if (reconThread != null || hbThread != null) {
+        if (reconThread == null && hbThread == null) {
             startReconnectThread();
         }
     }

@@ -24,10 +24,17 @@ import io.bsoa.rpc.common.utils.CommonUtils;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
 import io.bsoa.rpc.ext.Extension;
 import io.bsoa.rpc.message.MessageBuilder;
+import io.bsoa.rpc.message.MessageConstants;
 import io.bsoa.rpc.message.NegotiationRequest;
 import io.bsoa.rpc.message.NegotiationResponse;
 import io.bsoa.rpc.protocol.ProtocolFactory;
 import io.bsoa.rpc.protocol.ProtocolNegotiator;
+import io.bsoa.rpc.protocol.bsoa.handler.AppNegotiationHandler;
+import io.bsoa.rpc.protocol.bsoa.handler.HeaderCacheNegotiationHandler;
+import io.bsoa.rpc.protocol.bsoa.handler.SerialNegotiationHandler;
+import io.bsoa.rpc.protocol.bsoa.handler.ServerBusyNegotiationHandler;
+import io.bsoa.rpc.protocol.bsoa.handler.ServerClosingNegotiationHandler;
+import io.bsoa.rpc.protocol.bsoa.handler.VersionNegotiationHandler;
 import io.bsoa.rpc.transport.ChannelContext;
 import io.bsoa.rpc.transport.ClientTransport;
 import org.slf4j.Logger;
@@ -55,7 +62,10 @@ public class BsoaProtocolNegotiator implements ProtocolNegotiator {
     /**
      * 命令列表
      */
-    protected ConcurrentHashMap<String, NegotiationHandler> commands = new ConcurrentHashMap<>();
+    protected ConcurrentHashMap<String, BsoaNegotiationHandler> commands = new ConcurrentHashMap<>();
+
+    private boolean negotiation = BsoaConfigs.getBooleanValue(BsoaOptions.BSOA_NEGOTIATION_ENABLE);
+    private boolean headRef = BsoaConfigs.getBooleanValue(BsoaOptions.BSOA_HEAD_REF_ENABLE);
 
     /**
      * init
@@ -65,21 +75,25 @@ public class BsoaProtocolNegotiator implements ProtocolNegotiator {
         register(new AppNegotiationHandler());
         register(new HeaderCacheNegotiationHandler());
         register(new ServerBusyNegotiationHandler());
-        register(new ServerRebootNegotiationHandler());
+        register(new ServerClosingNegotiationHandler());
         register(new SerialNegotiationHandler());
     }
 
-    private void register(ProtocolNegotiator.NegotiationHandler handler) {
+    private void register(BsoaNegotiationHandler handler) {
         commands.put(handler.command(), handler);
     }
 
     @Override
     public boolean handshake(ProviderInfo providerInfo, ClientTransport clientTransport) {
-        NegotiationRequest request = MessageBuilder.buildNegotiationRequest();
-        request.setProtocolType(ProtocolFactory.getCodeByAlias(providerInfo.getProtocolType()));
-        cacheProviderVersion(clientTransport, request); // 记住真正服务端版本
-        sendConsumerAppId(clientTransport, request); // 发送给客户端信息给服务端
-        sendInterfaceNameCache(providerInfo, clientTransport, request);
+        if (negotiation) {
+            NegotiationRequest request = MessageBuilder.buildNegotiationRequest();
+            request.setProtocolType(ProtocolFactory.getCodeByAlias(providerInfo.getProtocolType()));
+            cacheProviderVersion(clientTransport, request); // 记住真正服务端版本
+            sendConsumerAppId(clientTransport, request); // 发送给客户端信息给服务端
+            if (headRef) {
+                sendInterfaceNameCache(providerInfo, clientTransport, request);
+            }
+        }
         return true;
     }
 
@@ -90,7 +104,7 @@ public class BsoaProtocolNegotiator implements ProtocolNegotiator {
         if (cmd == null) {
             response.setError(true).setData("command is null");
         } else {
-            NegotiationHandler handler = commands.get(cmd);
+            BsoaNegotiationHandler handler = commands.get(cmd);
             if (handler == null) {
                 response.setError(true).setData("unsupported command: " + cmd);
             } else {
@@ -104,9 +118,20 @@ public class BsoaProtocolNegotiator implements ProtocolNegotiator {
         return response;
     }
 
+    @Override
+    public NegotiationResponse sendNegotiationRequest(ClientTransport clientTransport,
+                                                      NegotiationRequest negotiationRequest, int timeout) {
+        if (negotiationRequest.getDirectionType() == MessageConstants.DIRECTION_ONEWAY) {
+            clientTransport.oneWaySend(negotiationRequest, timeout);
+            return null;
+        } else {
+            return (NegotiationResponse) clientTransport.syncSend(negotiationRequest, timeout);
+        }
+    }
+
     protected String send(ClientTransport clientTransport, NegotiationRequest request) {
-        NegotiationResponse response = (NegotiationResponse) clientTransport
-                .syncSend(request, clientTransport.getConfig().getInvokeTimeout());
+        NegotiationResponse response = sendNegotiationRequest(clientTransport, request,
+                clientTransport.getConfig().getInvokeTimeout());
         if (response.isError()) {
             String errorMsg = response.getData();
             LOGGER.warn("negotiation failed, cause by: {}", response.getData());
@@ -128,8 +153,15 @@ public class BsoaProtocolNegotiator implements ProtocolNegotiator {
         map.put("version", BsoaVersion.BSOA_VERSION + "");
         map.put("build", BsoaVersion.BUILD_VERSION);
         request.setData(JSON.toJSONString(map)); // 把自己版本发给服务端
-        String supportedVersion = send(clientTransport, request);
-        LOGGER.info("------------{}", supportedVersion);  // TODO 记住长连接对于的服务端版本
+        String serverVersionJson = send(clientTransport, request);
+        Map<String, String> serverMap = JSON.parseObject(serverVersionJson, Map.class);
+        if (serverMap != null) {
+            String serverVer = serverMap.get("version");
+            if (serverVer != null) {
+                // 记录到长连接的上下文
+                clientTransport.getChannel().context().setDstVersion(Integer.parseInt(serverVer));
+            }
+        }
     }
 
     /**
@@ -140,14 +172,14 @@ public class BsoaProtocolNegotiator implements ProtocolNegotiator {
      * @see AppNegotiationHandler
      */
     protected void sendConsumerAppId(ClientTransport clientTransport, NegotiationRequest request) {
+        request.setDirectionType(MessageConstants.DIRECTION_ONEWAY);
         request.setCmd("app");
         Map<String, String> map = new HashMap<>();
         map.put(BsoaOptions.APP_ID, BsoaConfigs.getStringValue(BsoaOptions.APP_ID));
         map.put(BsoaOptions.APP_NAME, BsoaConfigs.getStringValue(BsoaOptions.APP_NAME));
         map.put(BsoaOptions.INSTANCE_ID, BsoaConfigs.getStringValue(BsoaOptions.INSTANCE_ID));
         request.setData(JSON.toJSONString(map));
-        String supportedVersion = send(clientTransport, request); // TODO 记住长连接对于的服务端版本
-        LOGGER.info("------------{}", supportedVersion);
+        send(clientTransport, request); // 单向
     }
 
     /**

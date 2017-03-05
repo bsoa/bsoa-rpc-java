@@ -13,12 +13,13 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package io.bsoa.rpc.protocol.bsoa;
+package io.bsoa.rpc.protocol.bsoa.handler;
 
+import io.bsoa.rpc.common.BsoaOptions;
 import io.bsoa.rpc.common.json.JSON;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
 import io.bsoa.rpc.message.NegotiationRequest;
-import io.bsoa.rpc.protocol.ProtocolNegotiator;
+import io.bsoa.rpc.protocol.bsoa.BsoaNegotiationHandler;
 import io.bsoa.rpc.transport.ChannelContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,22 +33,27 @@ import java.util.Map;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public class ServerBusyNegotiationHandler implements ProtocolNegotiator.NegotiationHandler {
+public class AppNegotiationHandler implements BsoaNegotiationHandler {
     /**
      * slf4j Logger for this class
      */
-    public static final Logger LOGGER = LoggerFactory.getLogger(ServerBusyNegotiationHandler.class);
+    public static final Logger LOGGER = LoggerFactory.getLogger(AppNegotiationHandler.class);
 
     @Override
     public String command() {
-        return "serverBusy";
+        return "app";
     }
 
     @Override
     public String handle(NegotiationRequest request, ChannelContext context) throws BsoaRuntimeException {
         String data = request.getData();
         Map<String, String> map = JSON.parseObject(data, Map.class);
-        LOGGER.info("server is busy, info:{}", map);
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("Receive client app negotiation info : {}", map);
+        }
+        context.setClientAppId(map.get(BsoaOptions.APP_ID));
+        context.setClientAppName(map.get(BsoaOptions.APP_NAME));
+        context.setClientInstanceId(map.get(BsoaOptions.INSTANCE_ID));
         return "true";
     }
 }

@@ -13,12 +13,12 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package io.bsoa.rpc.protocol.bsoa;
+package io.bsoa.rpc.protocol.bsoa.handler;
 
 import io.bsoa.rpc.common.json.JSON;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
 import io.bsoa.rpc.message.NegotiationRequest;
-import io.bsoa.rpc.protocol.ProtocolNegotiator;
+import io.bsoa.rpc.protocol.bsoa.BsoaNegotiationHandler;
 import io.bsoa.rpc.transport.ChannelContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,31 +26,28 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 
 /**
- * <p>支持的类型</p>
+ * <p>协商处理器</p>
  * <p>
  * Created by zhangg on 2017/2/20 21:44. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public class SerialNegotiationHandler implements ProtocolNegotiator.NegotiationHandler {
-
+public class ServerBusyNegotiationHandler implements BsoaNegotiationHandler {
     /**
      * slf4j Logger for this class
      */
-    public static final Logger LOGGER = LoggerFactory.getLogger(SerialNegotiationHandler.class);
+    public static final Logger LOGGER = LoggerFactory.getLogger(ServerBusyNegotiationHandler.class);
 
     @Override
     public String command() {
-        return "serial";
+        return "serverBusy";
     }
 
     @Override
     public String handle(NegotiationRequest request, ChannelContext context) throws BsoaRuntimeException {
         String data = request.getData();
         Map<String, String> map = JSON.parseObject(data, Map.class);
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("Receive client serial negotiation info : {}", map);
-        }
-        return ""; // 返回服务端支持的序列化 或者  服务端推荐的序列化 TODO
+        LOGGER.info("server is busy, info:{}", map);
+        return "true";
     }
 }

@@ -15,19 +15,12 @@
  */
 package io.bsoa.rpc.transport.netty;
 
-import io.bsoa.rpc.common.BsoaConfigs;
-import io.bsoa.rpc.common.BsoaOptions;
-import io.bsoa.rpc.protocol.Protocol;
-import io.bsoa.rpc.protocol.ProtocolFactory;
-import io.bsoa.rpc.protocol.ProtocolInfo;
 import io.bsoa.rpc.transport.ServerTransportConfig;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.handler.codec.FixedLengthFrameDecoder;
-import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
-import io.netty.handler.logging.LogLevel;
-import io.netty.handler.logging.LoggingHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p></p>
@@ -39,46 +32,33 @@ import io.netty.handler.logging.LoggingHandler;
 @ChannelHandler.Sharable
 public class NettyServerChannelInitializer extends ChannelInitializer<SocketChannel> {
 
-    private NettyServerChannelHandler serverChannelHandler;
+    /**
+     * slf4j Logger for this class
+     */
+    public static final Logger LOGGER = LoggerFactory.getLogger(NettyServerChannelInitializer.class);
 
-    private ConnectionChannelHandler connectionChannelHandler;
+    private NettyServerChannelHandler serverChannelHandler;
 
     private ServerTransportConfig transportConfig;
 
     public NettyServerChannelInitializer(ServerTransportConfig transportConfig) {
         this.transportConfig = transportConfig;
         this.serverChannelHandler = new NettyServerChannelHandler(transportConfig);
-        this.connectionChannelHandler = new ConnectionChannelHandler(transportConfig);
     }
 
     @Override
     protected void initChannel(SocketChannel ch) throws Exception {
-        boolean adaptive = BsoaConfigs.getBooleanValue(BsoaOptions.TRANSPORT_SERVER_PROTOCOL_ADAPTIVE);
-        if (adaptive) {
-            // 支持一个端口多协议
-            // 根据第一次请求识别协议，构建后面的ChannelHandler
-            ch.pipeline().addLast(connectionChannelHandler)
-                    .addLast(new AdapterDecoder(serverChannelHandler, transportConfig));
-        } else {
-            Protocol protocol = ProtocolFactory.getProtocol(transportConfig.getProtocolType());
-            ProtocolInfo protocolInfo = protocol.protocolInfo();
-            if (protocolInfo.getNetProtocol() == ProtocolInfo.NET_PROTOCOL_TCP) {
-                ch.pipeline().addLast(connectionChannelHandler)
-                        .addLast("frame", protocolInfo.isLengthFixed() ?
-                                new FixedLengthFrameDecoder(protocolInfo.lengthFieldLength()) :
-                                new LengthFieldBasedFrameDecoder(protocolInfo.maxFrameLength(),
-                                        protocolInfo.lengthFieldOffset(),
-                                        protocolInfo.lengthFieldLength(),
-                                        protocolInfo.lengthAdjustment(),
-                                        protocolInfo.initialBytesToStrip(),
-                                        false)) // TODO failfast ??
-                        .addLast("encoder", new NettyEncoder(protocol))
-                        .addLast("decoder", new NettyDecoder(protocol))
-                        .addLast("logging", new LoggingHandler(LogLevel.DEBUG))
-                        .addLast("serverChannelHandler", serverChannelHandler);
-            } else if (protocolInfo.getNetProtocol() == ProtocolInfo.NET_PROTOCOL_HTTP) {
-                // FIXME HTTP支持
+        int currentChannelNum = serverChannelHandler.getChannelNum(); // 当前连接数
+        // 刚建立连接，不管是啥长连接
+        if (transportConfig.getMaxConnection() > 0 && currentChannelNum >= transportConfig.getMaxConnection()) {
+            if (LOGGER.isWarnEnabled()) {
+                LOGGER.warn("Maximum connection {} have been reached, cannot create channel any more",
+                        transportConfig.getMaxConnection());
             }
+            ch.close();
+            return;
         }
+
+        ch.pipeline().addLast("adapter", new AdapterDecoder(serverChannelHandler, transportConfig));
     }
 }

@@ -13,27 +13,35 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package io.bsoa.rpc.listener;
+package io.bsoa.rpc.protocol.bsoa;
 
+import io.bsoa.rpc.exception.BsoaRuntimeException;
 import io.bsoa.rpc.message.NegotiationRequest;
-import io.bsoa.rpc.message.NegotiationResponse;
+import io.bsoa.rpc.transport.ChannelContext;
 
 /**
  * <p></p>
  * <p>
- * Created by zhangg on 2016/12/22 22:43. <br/>
+ * Created by zhangg on 2017/03/2017/3/5 18:37. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public interface NegotiationListener {
+public interface BsoaNegotiationHandler {
 
     /**
-     * 处理握手请求（服务端和客户端都可以互发）
+     * 得到命令
      *
-     * @param negotiationRequest 协商请求
-     * @return 协商响应
+     * @return 命令
      */
-    NegotiationResponse handshake(NegotiationRequest negotiationRequest);
+    String command();
 
-
+    /**
+     * 处理命令
+     *
+     * @param request 请求内容
+     * @param context 上下文
+     * @return 正常返回的响应
+     * @throws BsoaRuntimeException 异常时一定要抛出
+     */
+    String handle(NegotiationRequest request, ChannelContext context) throws BsoaRuntimeException;
 }
