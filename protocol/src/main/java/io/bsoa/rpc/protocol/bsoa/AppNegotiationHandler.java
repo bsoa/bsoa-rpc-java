@@ -15,9 +15,12 @@
  */
 package io.bsoa.rpc.protocol.bsoa;
 
+import io.bsoa.rpc.common.BsoaOptions;
 import io.bsoa.rpc.common.json.JSON;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
+import io.bsoa.rpc.message.NegotiationRequest;
 import io.bsoa.rpc.protocol.ProtocolNegotiator;
+import io.bsoa.rpc.transport.ChannelContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,9 +45,15 @@ public class AppNegotiationHandler implements ProtocolNegotiator.NegotiationHand
     }
 
     @Override
-    public String handle(String cmd, String data) throws BsoaRuntimeException {
+    public String handle(NegotiationRequest request, ChannelContext context) throws BsoaRuntimeException {
+        String data = request.getData();
         Map<String, String> map = JSON.parseObject(data, Map.class);
-        LOGGER.info("client app info : {}", map);
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("Receive client app negotiation info : {}", map);
+        }
+        context.setClientAppId(map.get(BsoaOptions.APP_ID));
+        context.setClientAppName(map.get(BsoaOptions.APP_NAME));
+        context.setClientInstanceId(map.get(BsoaOptions.INSTANCE_ID));
         return "true";
     }
 }

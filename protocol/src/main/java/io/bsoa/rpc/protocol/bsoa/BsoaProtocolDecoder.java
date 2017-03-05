@@ -35,8 +35,6 @@ import io.bsoa.rpc.message.RpcResponse;
 import io.bsoa.rpc.protocol.ProtocolDecoder;
 import io.bsoa.rpc.protocol.ProtocolInfo;
 import io.bsoa.rpc.transport.AbstractByteBuf;
-import io.bsoa.rpc.transport.netty.NettyByteBuf;
-import io.netty.buffer.ByteBuf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,9 +66,7 @@ public class BsoaProtocolDecoder extends ProtocolDecoder {
     }
 
     @Override
-    public Object decodeHeader(AbstractByteBuf byteBuf, Object out) {
-        NettyByteBuf nettyByteBuf = (NettyByteBuf) byteBuf;
-        ByteBuf in = nettyByteBuf.getByteBuf();
+    public Object decodeHeader(AbstractByteBuf in, Object out) {
 
         // 前面2位magiccode 和 4位总长度 已经跳过
         if (in.readerIndex() != 0) {
@@ -103,10 +99,8 @@ public class BsoaProtocolDecoder extends ProtocolDecoder {
     }
 
     @Override
-    public Object decodeBody(AbstractByteBuf byteBuf, Object object) {
-        NettyByteBuf nettyByteBuf = (NettyByteBuf) byteBuf;
+    public Object decodeBody(AbstractByteBuf in, Object object) {
         try {
-            ByteBuf in = nettyByteBuf.getByteBuf();
             if (object == null) {
                 throw new BsoaRpcException(22222, "Need decode header first!");
             }
@@ -174,14 +168,11 @@ public class BsoaProtocolDecoder extends ProtocolDecoder {
             // 其它在业务线程里decode
             DecodableMessage message = (DecodableMessage) msg;
 
-            NettyByteBuf nettyByteBuf = (NettyByteBuf) byteBuf;
-            ByteBuf in = nettyByteBuf.getByteBuf();
-            int index = in.readerIndex() + in.readableBytes();
-            ByteBuf body = in.slice(in.readerIndex(), in.readableBytes());
+            int index = byteBuf.readerIndex() + byteBuf.readableBytes();
+            AbstractByteBuf body = byteBuf.slice(byteBuf.readerIndex(), byteBuf.readableBytes());
             body.retain();
-            in.readerIndex(index);
-            AbstractByteBuf newBb = new NettyByteBuf(body);
-            message.setByteBuf(newBb);
+            byteBuf.readerIndex(index);
+            message.setByteBuf(body);
         }
         return out;
     }
@@ -191,9 +182,9 @@ public class BsoaProtocolDecoder extends ProtocolDecoder {
      *
      * @param in 输入流
      * @return 字符串
-     * @see BsoaProtocolEncoder#writeString(ByteBuf, String)
+     * @see BsoaProtocolEncoder#writeString(AbstractByteBuf, String)
      */
-    private String readString(ByteBuf in) {
+    private String readString(AbstractByteBuf in) {
         int length = in.readInt();
         if (length == -1) {
             return null;
@@ -218,7 +209,7 @@ public class BsoaProtocolDecoder extends ProtocolDecoder {
      * boolean: 1位key+1位标识(6)+1位值<br/> 3
      * </p>
      */
-    protected static void bytes2Map(Map<Byte, Object> dataMap, ByteBuf byteBuf) {
+    protected static void bytes2Map(Map<Byte, Object> dataMap, AbstractByteBuf byteBuf) {
         byte size = byteBuf.readByte();
         for (int i = 0; i < size; i++) {
             byte key = byteBuf.readByte();

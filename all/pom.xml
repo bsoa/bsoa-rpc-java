@@ -165,6 +165,7 @@
                                     <include>io.bsoa.rpc:bsoa-rpc-filter</include>
                                     <include>io.bsoa.rpc:bsoa-rpc-protocol</include>
                                     <include>io.bsoa.rpc:bsoa-rpc-proxy</include>
+                                    <include>io.bsoa.rpc:bsoa-rpc-registry</include>
                                     <include>io.bsoa.rpc:bsoa-rpc-server</include>
                                     <include>io.bsoa.rpc:bsoa-rpc-transport</include>
                                 </includes>

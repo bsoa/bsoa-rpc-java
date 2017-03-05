@@ -20,6 +20,7 @@ import io.bsoa.rpc.exception.BsoaRuntimeException;
 import io.bsoa.rpc.ext.Extensible;
 import io.bsoa.rpc.message.NegotiationRequest;
 import io.bsoa.rpc.message.NegotiationResponse;
+import io.bsoa.rpc.transport.ChannelContext;
 import io.bsoa.rpc.transport.ClientTransport;
 
 /**
@@ -47,7 +48,7 @@ public interface ProtocolNegotiator {
      * @param negotiationRequest 协商请求
      * @return 协商响应
      */
-    NegotiationResponse handleRequest(NegotiationRequest negotiationRequest);
+    NegotiationResponse handleRequest(NegotiationRequest negotiationRequest, ChannelContext context);
 
     /**
      * 协商命令处理器
@@ -63,12 +64,11 @@ public interface ProtocolNegotiator {
         /**
          * 处理命令
          *
-         * @param command 请求命令
-         * @param data    请求内容
-         * @return 响应
-         * @throws BsoaRuntimeException 异常
-         *                              TODO 传入其它上下文
+         * @param request 请求内容
+         * @param context 上下文
+         * @return 正常返回的响应
+         * @throws BsoaRuntimeException 异常时一定要抛出
          */
-        String handle(String command, String data) throws BsoaRuntimeException;
+        String handle(NegotiationRequest request, ChannelContext context) throws BsoaRuntimeException;
     }
 }

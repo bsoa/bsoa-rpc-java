@@ -42,6 +42,9 @@ PS:大家也看到了，本JSON文档是支持注释的，而标准JSON是不支
   "default.charset" : "UTF-8",
   "default.transport" : "netty4",
 
+  // ===============bsoa协议特有========
+  "bsoa.head.ref" : true,
+  "bsoa.head.ref.size" : 256, //协议头ref字段的byte长度，可选1和2，表示上限256/65536
 
   //  ==============配置相关============
   "registry.connect.timeout" : 20000,   /* 默认连注册中心的超时时间*/
@@ -68,7 +71,6 @@ PS:大家也看到了，本JSON文档是支持注释的，而标准JSON是不支
   "server.epoll" : false, // 是否启动epoll
   "server.daemon" : true, // 是否hold住端口，true的话随主线程退出而退出，false的话则要主动退出
 
-
   "service.register" : true, //默认服务是否注册
   "service.subscribe" : true, //默认服务是否订阅
 
@@ -81,9 +83,9 @@ PS:大家也看到了，本JSON文档是支持注释的，而标准JSON是不支
   "provider.invoke.timeout" : 0, //服务端调用超时， 不打断执行。0表示不判断
   "provider.concurrents" : 0, //接口下每方法的最大可并行执行请求数，配置-1关闭并发过滤器，等于0表示开启过滤但是不限制
 
-  "consumer.cluster": "failover",
+  "consumer.cluster": "failover", // 集群策略
   "consumer.connectionHolder" : "all", // 默认连接全部建立长连接
-  "consumer.loadBalancer" : "random",
+  "consumer.loadBalancer" : "random", // 负载均衡
   "consumer.retries" : 0, //默认失败重试次数
   "consumer.concurrents": 0, //接口下每方法的最大可并行执行请求数，配置-1关闭并发过滤器，等于0表示开启过滤但是不限制
   "consumer.async" : false, // 默认是否异步
@@ -123,7 +125,7 @@ PS:大家也看到了，本JSON文档是支持注释的，而标准JSON是不支
   //"transport.server.telnet" : true, // 是否允许telnet
   //"transport.server.daemon" : true, // 是否守护线程，true随主线程退出而退出，false需要主动退出
   "transport.server.dispatcher" : "", // 线程方法模型
-  "transport.server.protocol.adaptive" : false, // 是否一个端口支持多协议
+  "transport.server.protocol.adaptive" : true, // 是否一个端口支持多协议
   "transport.buffer.size" : 8192,
   "transport.buffer.max" : 32768,  // 写入的buffer水位最大值
   "transport.buffer.min" : 1024, // 写入的buffer水位最小值

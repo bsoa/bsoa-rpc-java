@@ -44,7 +44,7 @@ public class BsoaProtocolInfo extends ProtocolInfo {
 
     private final int magicFieldOffset = 0; // 魔术位0-2位
 
-    private final byte[] magicCode = new byte[]{(byte) 0xb5, (byte) 0x0a};
+    private final byte[] magicCode = new byte[]{(byte) 0x08, (byte) 0x0a}; // 2个不可见字符
 
     public BsoaProtocolInfo() {
         super("bsoa", (byte) 10, false, NET_PROTOCOL_TCP);// 是一个变长协议

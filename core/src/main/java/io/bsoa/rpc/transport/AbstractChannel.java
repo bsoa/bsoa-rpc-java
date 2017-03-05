@@ -29,14 +29,21 @@ public interface AbstractChannel {
     /**
      * 得到容器类型，例如是netty还是jetty等
      *
-     * @return
+     * @return Name of container
      */
     String getContainer();
 
     /**
+     * 长连接上下文
+     *
+     * @return ChannelContext
+     */
+    ChannelContext context();
+
+    /**
      * 得到ByteBuf对象
      *
-     * @return
+     * @return ByteBuf对象
      */
     AbstractByteBuf getByteBuf();
 
@@ -57,14 +64,14 @@ public interface AbstractChannel {
     /**
      * 写入数据
      *
-     * @param obj
+     * @param obj data which need to write
      */
     void writeAndFlush(Object obj);
 
     /**
      * 是否可用
      *
-     * @return
+     * @return 是否可以
      */
     boolean isAvailable();
 }

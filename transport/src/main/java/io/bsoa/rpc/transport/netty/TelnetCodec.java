@@ -176,7 +176,7 @@ public class TelnetCodec extends ByteToMessageCodec<Object> {
             return;
         }
         if ("".equals(temp)) {
-            context.channel().writeAndFlush("jsf>");
+            context.channel().writeAndFlush(BsoaConfigs.getStringValue(BsoaOptions.DEFAULT_PROTOCOL) + ">");
             return;
         }
         historyIndex = -1;

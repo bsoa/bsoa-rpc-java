@@ -26,28 +26,28 @@ public enum HeadKey {
     /**
      * 请求超时时间
      */
-    TIMEOUT(1, Integer.class),
+    TIMEOUT((byte) 1, Integer.class),
     /**
      * 接口名：实际名称
      */
-    INTERFACE_NAME(2, String.class),
+    INTERFACE_NAME((byte) 2, String.class),
     /**
      * 分组名称：实际名称
      */
-    TAGS(3, String.class),
+    TAGS((byte) 3, String.class),
     /**
      * 方法名称：实际名称
      */
-    METHOD_NAME(4, String.class),
+    METHOD_NAME((byte) 4, String.class),
     /**
      * 方法参数类型：实际名称
      */
     @Deprecated
-    METHOD_ARG_TYPES(5, String.class),
+    METHOD_ARG_TYPES((byte) 5, String.class),
     /**
      * 回调函数实例
      */
-    CALLBACK_INS_KEY(6, String.class), // 回调函数对应的实例id
+    CALLBACK_INS_KEY((byte) 6, String.class), // 回调函数对应的实例id
 
     //compress((byte) 6, String.class),
     //jsfVersion((byte) 7, Short.class), // 客户端的JSF版本
@@ -60,30 +60,31 @@ public enum HeadKey {
      */
     responseCode((byte) 9, Byte.class),
     /**
-     * rpc客户端版本
+     * rpc客户端版本，协商阶段可以决定，无需重复传递
      */
-    BSOA_VERSION(11, Short.class),
+    @Deprecated
+    BSOA_VERSION((byte) 11, Short.class),
     /**
      * 接口名：映射值
      */
-    INTERFACE_NAME_REF(12, String.class),
+    INTERFACE_NAME_REF((byte) 12, Void.class),
     /**
      * 分组名称：映射值
      */
-    GROUP_REF(13, String.class),
+    GROUP_REF((byte) 13, Byte.class),
     /**
      * 方法名称：映射值
      */
-    METHOD_NAME_REF(14, String.class),
+    METHOD_NAME_REF((byte) 14, Byte.class),
     /**
      * 方法参数类型：映射值
      */
     @Deprecated
-    METHOD_ARG_TYPES_REF(15, String.class),
+    METHOD_ARG_TYPES_REF((byte) 15, String.class),
     /**
      * 回调函数实例
      */
-    STREAM_INS_KEY(16, String.class), // 回调函数对应的实例id
+    STREAM_INS_KEY((byte) 16, String.class), // 回调函数对应的实例id
     ;
 
     /**
@@ -105,8 +106,8 @@ public enum HeadKey {
      */
     private final Class valueType;
 
-    HeadKey(int code, Class valueType) {
-        this.code = (byte) code;
+    HeadKey(byte code, Class valueType) {
+        this.code = code;
         this.valueType = valueType;
     }
 

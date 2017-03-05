@@ -18,7 +18,9 @@ package io.bsoa.rpc.protocol.bsoa;
 import io.bsoa.rpc.common.BsoaVersion;
 import io.bsoa.rpc.common.json.JSON;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
+import io.bsoa.rpc.message.NegotiationRequest;
 import io.bsoa.rpc.protocol.ProtocolNegotiator;
+import io.bsoa.rpc.transport.ChannelContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,10 +47,17 @@ public class VersionNegotiationHandler implements ProtocolNegotiator.Negotiation
     }
 
     @Override
-    public String handle(String cmd, String data) throws BsoaRuntimeException {
-        Map<String, String> map = new HashMap<>();
-        map.put("version", BsoaVersion.BSOA_VERSION + "");
-        map.put("build", BsoaVersion.BUILD_VERSION);
-        return JSON.toJSONString(map); // 把自己版本发给服务端
+    public String handle(NegotiationRequest request, ChannelContext context) throws BsoaRuntimeException {
+        String data = request.getData();
+        Map<String, String> map = JSON.parseObject(data, Map.class);
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("Receive client version negotiation info : {}", map);
+        }
+        context.setDstVersion(Integer.parseInt(map.get("version")));
+
+        Map<String, String> tmp = new HashMap<>();
+        tmp.put("version", BsoaVersion.BSOA_VERSION + "");
+        tmp.put("build", BsoaVersion.BUILD_VERSION);
+        return JSON.toJSONString(tmp); // 把自己版本发给对方
     }
 }

@@ -163,7 +163,7 @@ public abstract class ClientTransport {
         ProtocolNegotiator negotiator =
                 ProtocolFactory.getProtocol(transportConfig.getProviderInfo().getProtocolType()).negotiator();
         if (negotiator != null) {
-            NegotiationResponse response = negotiator.handleRequest(request);
+            NegotiationResponse response = negotiator.handleRequest(request, getChannel().context());
             getChannel().writeAndFlush(response);
         }
     }

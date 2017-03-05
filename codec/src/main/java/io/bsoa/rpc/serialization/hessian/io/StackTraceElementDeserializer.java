@@ -52,15 +52,13 @@ package io.bsoa.rpc.serialization.hessian.io;
  * Deserializing a JDK 1.4 StackTraceElement
  */
 public class StackTraceElementDeserializer extends JavaDeserializer {
-  public StackTraceElementDeserializer()
-  {
-    super(StackTraceElement.class);
-  }
+    public StackTraceElementDeserializer() {
+        super(StackTraceElement.class);
+    }
 
-  @Override
-  protected Object instantiate()
-    throws Exception
-  {
-    return new StackTraceElement("", "", "", 0);
-  }
+    @Override
+    protected Object instantiate()
+            throws Exception {
+        return new StackTraceElement("", "", "", 0);
+    }
 }

@@ -26,20 +26,22 @@ public interface AbstractByteBuf {
 
     /* public int capacity();
 
-     public AbstractByteBuf capacity(int newCapacity);
+    public AbstractByteBuf capacity(int newCapacity);
+    */
+    public int readerIndex();
 
-     public int readerIndex();
+    public AbstractByteBuf readerIndex(int readerIndex);
 
-     public AbstractByteBuf readerIndex(int readerIndex);
+    public int writerIndex();
 
-     public int writerIndex();
- */
     public AbstractByteBuf writerIndex(int writerIndex);
-/*
-    public AbstractByteBuf setIndex(int readerIndex, int writerIndex);
 
+    /*
+    public AbstractByteBuf setIndex(int readerIndex, int writerIndex);
+    */
     public int readableBytes();
 
+    /*
     public int writableBytes();
 
     public int maxWritableBytes();
@@ -129,9 +131,10 @@ public interface AbstractByteBuf {
     public CharSequence getCharSequence(int index, int length, Charset charset);
 
     public AbstractByteBuf setBoolean(int index, boolean value);
-
+    */
     public AbstractByteBuf setByte(int index, int value);
 
+    /*
     public AbstractByteBuf setShort(int index, int value);
 
     public AbstractByteBuf setShortLE(int index, int value);
@@ -157,9 +160,10 @@ public interface AbstractByteBuf {
     public AbstractByteBuf setBytes(int index, AbstractByteBuf src, int length);
 
     public AbstractByteBuf setBytes(int index, AbstractByteBuf src, int srcIndex, int length);
-
+    */
     public AbstractByteBuf setBytes(int index, byte[] src);
 
+    /*
     public AbstractByteBuf setBytes(int index, byte[] src, int srcIndex, int length);
 
     public AbstractByteBuf setBytes(int index, AbstractByteBuf src);
@@ -173,15 +177,17 @@ public interface AbstractByteBuf {
     public AbstractByteBuf setZero(int index, int length);
 
     public int setCharSequence(int index, CharSequence sequence, Charset charset);
-
+    */
     public boolean readBoolean();
 
     public byte readByte();
 
+    /*
     public short readUnsignedByte();
-
+    */
     public short readShort();
 
+    /*
     public short readShortLE();
 
     public int readUnsignedShort();
@@ -195,25 +201,28 @@ public interface AbstractByteBuf {
     public int readUnsignedMedium();
 
     public int readUnsignedMediumLE();
-
+    */
     public int readInt();
 
+    /*
     public int readIntLE();
 
     public long readUnsignedInt();
 
     public long readUnsignedIntLE();
-
+    */
     public long readLong();
 
+    /*
     public long readLongLE();
-
+    */
     public char readChar();
 
     public float readFloat();
 
     public double readDouble();
 
+    /*
     public AbstractByteBuf readBytes(int length);
 
     public AbstractByteBuf readSlice(int length);
@@ -223,9 +232,10 @@ public interface AbstractByteBuf {
     public AbstractByteBuf readBytes(AbstractByteBuf dst, int length);
 
     public AbstractByteBuf readBytes(AbstractByteBuf dst, int dstIndex, int length);
-
+    */
     public AbstractByteBuf readBytes(byte[] dst);
 
+    /*
     public AbstractByteBuf readBytes(byte[] dst, int dstIndex, int length);
 
     public AbstractByteBuf readBytes(AbstractByteBuf dst);
@@ -239,39 +249,44 @@ public interface AbstractByteBuf {
     public int readBytes(FileChannel out, long position, int length) throws IOException;
 
     public AbstractByteBuf skipBytes(int length);
-
+    */
     public AbstractByteBuf writeBoolean(boolean value);
 
     public AbstractByteBuf writeByte(int value);
 
     public AbstractByteBuf writeShort(int value);
 
+    /*
     public AbstractByteBuf writeShortLE(int value);
 
     public AbstractByteBuf writeMedium(int value);
 
     public AbstractByteBuf writeMediumLE(int value);
-
+    */
     public AbstractByteBuf writeInt(int value);
 
+    /*
     public AbstractByteBuf writeIntLE(int value);
-
+    */
     public AbstractByteBuf writeLong(long value);
 
+    /*
     public AbstractByteBuf writeLongLE(long value);
-
+    */
     public AbstractByteBuf writeChar(int value);
 
     public AbstractByteBuf writeFloat(float value);
 
     public AbstractByteBuf writeDouble(double value);
 
+    /*
     public AbstractByteBuf writeBytes(AbstractByteBuf src, int length);
 
     public AbstractByteBuf writeBytes(AbstractByteBuf src, int srcIndex, int length);
-
+    */
     public AbstractByteBuf writeBytes(byte[] src);
 
+    /*
     public AbstractByteBuf writeBytes(byte[] src, int srcIndex, int length);
 
     public AbstractByteBuf writeBytes(AbstractByteBuf src);
@@ -301,9 +316,9 @@ public interface AbstractByteBuf {
     public AbstractByteBuf slice();
 
     public AbstractByteBuf retainedSlice();
-
+    */
     public AbstractByteBuf slice(int index, int length);
-
+    /*
     public AbstractByteBuf retainedSlice(int index, int length);
 
     public AbstractByteBuf duplicate();
@@ -326,37 +341,37 @@ public interface AbstractByteBuf {
 
     public byte[] array();
 
-    /**
-     * public int arrayOffset();
-     * <p>
-     * public boolean hasMemoryAddress();
-     * <p>
-     * public long memoryAddress();
-     * <p>
-     * public String toString(Charset charset);
-     * <p>
-     * public String toString(int index, int length, Charset charset);
-     * <p>
-     * public int hashCode();
-     * <p>
-     * public boolean equals(Object obj);
-     * <p>
-     * public int compareTo(AbstractByteBuf buffer);
-     * <p>
-     * public String toString();
-     * <p>
-     * public AbstractByteBuf retain(int increment);
-     * <p>
-     * public int refCnt();
-     * <p>
-     * public AbstractByteBuf retain();
-     * <p>
-     * public AbstractByteBuf touch();
-     * <p>
-     * public AbstractByteBuf touch(Object hint);
-     * <p>
-     * public boolean release(int decrement);
-     */
+    /*
+    public int arrayOffset();
+
+    public boolean hasMemoryAddress();
+
+    public long memoryAddress();
+
+    public String toString(Charset charset);
+
+    public String toString(int index, int length, Charset charset);
+
+    public int hashCode();
+
+    public boolean equals(Object obj);
+
+    public int compareTo(AbstractByteBuf buffer);
+
+    public String toString();
+    */
+    public AbstractByteBuf retain(int increment);
+
+    public int refCnt();
+
+    public AbstractByteBuf retain();
+
+    /*
+    public AbstractByteBuf touch();
+
+    public AbstractByteBuf touch(Object hint);
+    */
+    public boolean release(int decrement);
 
     public boolean release();
 }

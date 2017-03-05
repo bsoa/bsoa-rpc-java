@@ -184,10 +184,10 @@ public class BsoaServerHandler implements ServerHandler {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.info("Receive negotiation request: cmd:{}, data:{}", request.getCmd(), request.getData());
         }
-        Protocol protocol = ProtocolFactory.getProtocol(request.getProtocolType());
+        Protocol protocol = ProtocolFactory.getProtocol(request.getProtocolType()); // 由于服务端端口是支持多协议的
         ProtocolNegotiator negotiator = protocol.negotiator();
         if (negotiator != null) {
-            NegotiationResponse response = negotiator.handleRequest(request);
+            NegotiationResponse response = negotiator.handleRequest(request, channel.context());
             channel.writeAndFlush(response);
         }
     }

@@ -17,7 +17,9 @@ package io.bsoa.rpc.protocol.bsoa;
 
 import io.bsoa.rpc.common.json.JSON;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
+import io.bsoa.rpc.message.NegotiationRequest;
 import io.bsoa.rpc.protocol.ProtocolNegotiator;
+import io.bsoa.rpc.transport.ChannelContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +45,8 @@ public class ServerRebootNegotiationHandler implements ProtocolNegotiator.Negoti
     }
 
     @Override
-    public String handle(String command, String data) throws BsoaRuntimeException {
+    public String handle(NegotiationRequest request, ChannelContext context) throws BsoaRuntimeException {
+        String data = request.getData();
         Map<String, String> map = JSON.parseObject(data, Map.class);
         LOGGER.info("server will reboot, info:{}", map);
         return "true";

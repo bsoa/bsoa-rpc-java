@@ -17,10 +17,13 @@ package io.bsoa.rpc.protocol.bsoa;
 
 import io.bsoa.rpc.common.json.JSON;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
+import io.bsoa.rpc.message.NegotiationRequest;
 import io.bsoa.rpc.protocol.ProtocolNegotiator;
+import io.bsoa.rpc.transport.ChannelContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -42,9 +45,24 @@ public class HeaderCacheNegotiationHandler implements ProtocolNegotiator.Negotia
     }
 
     @Override
-    public String handle(String cmd, String data) throws BsoaRuntimeException {
+    public String handle(NegotiationRequest request, ChannelContext context) throws BsoaRuntimeException {
+        String data = request.getData();
         Map<String, String> map = JSON.parseObject(data, Map.class);
-        LOGGER.info("put header cache: {}", map);
-        return "true";
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("Receive client header cache negotiation info : {}", map);
+        }
+        Map<String, Boolean> result = new HashMap<>();
+        for (Map.Entry<String, String> entry : map.entrySet()) {
+            Byte key = Byte.valueOf(entry.getKey());
+            String value = entry.getValue();
+            try {
+                context.putHeadCache(key, value);
+                result.put(entry.getKey(), true);
+            } catch (Exception e) {
+                result.put(entry.getKey(), false);
+                LOGGER.warn("", e);
+            }
+        }
+        return JSON.toJSONString(result);
     }
 }

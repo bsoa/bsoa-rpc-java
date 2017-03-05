@@ -19,6 +19,7 @@ import io.bsoa.rpc.common.utils.NetUtils;
 import io.bsoa.rpc.context.RpcContext;
 import io.bsoa.rpc.transport.AbstractByteBuf;
 import io.bsoa.rpc.transport.AbstractChannel;
+import io.bsoa.rpc.transport.ChannelContext;
 import io.netty.channel.Channel;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.FutureListener;
@@ -41,15 +42,23 @@ public class NettyChannel implements AbstractChannel {
      */
     private final static Logger LOGGER = LoggerFactory.getLogger(NettyChannel.class);
 
+    private ChannelContext context;
+
     private Channel channel;
 
     public NettyChannel(Channel channel) {
         this.channel = channel;
+        this.context = new ChannelContext();
     }
 
     @Override
     public String getContainer() {
         return "netty";
+    }
+
+    @Override
+    public ChannelContext context() {
+        return context;
     }
 
     @Override

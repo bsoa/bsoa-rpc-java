@@ -28,6 +28,7 @@ import io.bsoa.rpc.message.NegotiationRequest;
 import io.bsoa.rpc.message.NegotiationResponse;
 import io.bsoa.rpc.protocol.ProtocolFactory;
 import io.bsoa.rpc.protocol.ProtocolNegotiator;
+import io.bsoa.rpc.transport.ChannelContext;
 import io.bsoa.rpc.transport.ClientTransport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,6 +66,7 @@ public class BsoaProtocolNegotiator implements ProtocolNegotiator {
         register(new HeaderCacheNegotiationHandler());
         register(new ServerBusyNegotiationHandler());
         register(new ServerRebootNegotiationHandler());
+        register(new SerialNegotiationHandler());
     }
 
     private void register(ProtocolNegotiator.NegotiationHandler handler) {
@@ -82,7 +84,7 @@ public class BsoaProtocolNegotiator implements ProtocolNegotiator {
     }
 
     @Override
-    public NegotiationResponse handleRequest(NegotiationRequest request) {
+    public NegotiationResponse handleRequest(NegotiationRequest request, ChannelContext context) {
         NegotiationResponse response = MessageBuilder.buildNegotiationResponse(request);
         String cmd = request.getCmd();
         if (cmd == null) {
@@ -93,7 +95,7 @@ public class BsoaProtocolNegotiator implements ProtocolNegotiator {
                 response.setError(true).setData("unsupported command: " + cmd);
             } else {
                 try {
-                    response.setData(handler.handle(cmd, request.getData()));
+                    response.setData(handler.handle(request, context));
                 } catch (Exception e) {
                     response.setError(true).setData(e.getMessage());
                 }
@@ -113,6 +115,13 @@ public class BsoaProtocolNegotiator implements ProtocolNegotiator {
         return response.getData();
     }
 
+    /**
+     * 协商双方版本
+     *
+     * @param clientTransport 客户端长连接
+     * @param request         协商请求
+     * @see VersionNegotiationHandler
+     */
     protected void cacheProviderVersion(ClientTransport clientTransport, NegotiationRequest request) {
         request.setCmd("version");
         Map<String, String> map = new HashMap<>();
@@ -123,22 +132,37 @@ public class BsoaProtocolNegotiator implements ProtocolNegotiator {
         LOGGER.info("------------{}", supportedVersion);  // TODO 记住长连接对于的服务端版本
     }
 
+    /**
+     * 传递应用信息
+     *
+     * @param clientTransport 客户端长连接
+     * @param request         协商请求
+     * @see AppNegotiationHandler
+     */
     protected void sendConsumerAppId(ClientTransport clientTransport, NegotiationRequest request) {
         request.setCmd("app");
         Map<String, String> map = new HashMap<>();
-        map.put("appId", BsoaConfigs.getStringValue(BsoaOptions.APP_ID));
-        map.put("appName", BsoaConfigs.getStringValue(BsoaOptions.APP_NAME));
-        map.put("instanceId", BsoaConfigs.getStringValue(BsoaOptions.INSTANCE_ID));
+        map.put(BsoaOptions.APP_ID, BsoaConfigs.getStringValue(BsoaOptions.APP_ID));
+        map.put(BsoaOptions.APP_NAME, BsoaConfigs.getStringValue(BsoaOptions.APP_NAME));
+        map.put(BsoaOptions.INSTANCE_ID, BsoaConfigs.getStringValue(BsoaOptions.INSTANCE_ID));
         request.setData(JSON.toJSONString(map));
         String supportedVersion = send(clientTransport, request); // TODO 记住长连接对于的服务端版本
         LOGGER.info("------------{}", supportedVersion);
     }
 
+    /**
+     * 传递头部缓存信息
+     *
+     * @param providerInfo    服务端信息
+     * @param clientTransport 客户端长连接
+     * @param request         协商请求
+     * @see HeaderCacheNegotiationHandler
+     */
     protected void sendInterfaceNameCache(ProviderInfo providerInfo, ClientTransport clientTransport,
                                           NegotiationRequest request) {
         request.setCmd("headerCache");
         Map<String, String> map = new HashMap<>();
-        int cacheId = 0; //申请一个cache TODO
+        int cacheId = 0;// clientTransport.getChannel().context().; //申请一个cache TODO
         map.put(providerInfo.getInterfaceId(), cacheId + "");
         request.setData(JSON.toJSONString(map));
         String result = send(clientTransport, request);

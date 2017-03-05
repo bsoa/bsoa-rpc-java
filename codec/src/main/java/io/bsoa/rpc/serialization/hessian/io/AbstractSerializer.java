@@ -52,12 +52,12 @@ import java.io.IOException;
 import java.util.logging.Logger;
 
 /**
- * Serializing an object. 
+ * Serializing an object.
  */
 abstract public class AbstractSerializer implements Serializer {
-  protected static final Logger log
-    = Logger.getLogger(AbstractSerializer.class.getName());
-  
-  abstract public void writeObject(Object obj, AbstractHessianOutput out)
-    throws IOException;
+    protected static final Logger log
+            = Logger.getLogger(AbstractSerializer.class.getName());
+
+    abstract public void writeObject(Object obj, AbstractHessianOutput out)
+            throws IOException;
 }

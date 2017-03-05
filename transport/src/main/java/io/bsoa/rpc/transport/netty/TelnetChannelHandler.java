@@ -15,9 +15,12 @@
  */
 package io.bsoa.rpc.transport.netty;
 
+import io.bsoa.rpc.common.BsoaConfigs;
+import io.bsoa.rpc.common.BsoaOptions;
 import io.bsoa.rpc.common.utils.NetUtils;
 import io.bsoa.rpc.protocol.TelnetHandler;
 import io.bsoa.rpc.protocol.TelnetHandlerFactory;
+import io.bsoa.rpc.transport.AbstractChannel;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -43,6 +46,11 @@ public class TelnetChannelHandler extends ChannelInboundHandlerAdapter {
      * 客户端字符集
      */
     public static final Map<Channel, String> charsetMap = new ConcurrentHashMap<Channel, String>();
+
+    /**
+     * io.netty.channel.Channel --> io.bsoa.rpc.transport.AbstractChannel
+     */
+    private final ConcurrentHashMap<Channel, AbstractChannel> channelCache = new ConcurrentHashMap<>();
 
     /**
      * The constant HELP.
@@ -78,19 +86,20 @@ public class TelnetChannelHandler extends ChannelInboundHandlerAdapter {
         //调用指定命令
         String result = "";
         TelnetHandler handler = TelnetHandlerFactory.getHandler(command);
+        AbstractChannel abstractChannel = channelCache.get(ctx.channel());
         if (handler != null) {
-            result = handler.telnet(new NettyChannel(ctx.channel()), message);
+            result = handler.telnet(abstractChannel, message);
         } else {
             StringBuffer sb = new StringBuffer();
             sb.append("ERROR:You input the command:[" + command + " " + message + "] is not exist!!\r\n");
-            result = HELP_HANDLER.telnet(new NettyChannel(ctx.channel()), message);
+            result = HELP_HANDLER.telnet(abstractChannel, message);
             sb.append(result);
             sb.append("Please input again!\r\n");
             result = sb.toString();
         }
         if (result != null && !"".equals(result.trim())) {
             ctx.writeAndFlush(result + "\r\n");
-            ctx.writeAndFlush("jsf>");
+            ctx.writeAndFlush(BsoaConfigs.getStringValue(BsoaOptions.DEFAULT_PROTOCOL) + ">");
         }
         if (EXIT.equalsIgnoreCase(command)) {
             ctx.channel().close();
@@ -104,11 +113,14 @@ public class TelnetChannelHandler extends ChannelInboundHandlerAdapter {
         ctx.channel().writeAndFlush(cause.getMessage());
     }
 
-//    @Override
-//    public void channelActive(ChannelHandlerContext ctx) throws Exception {
-//        BaseServerHandler.addChannel(ctx.channel());
-//    }
-//
+    @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        // save to cache
+        Channel channel = ctx.channel();
+        AbstractChannel abstractChannel = new NettyChannel(channel);
+        channelCache.put(channel, abstractChannel);
+    }
+
 //    /**
 //     * 允许执行远程invoke命令的连接，前面进行过sudo操作
 //     */
@@ -118,8 +130,9 @@ public class TelnetChannelHandler extends ChannelInboundHandlerAdapter {
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         Channel channel = ctx.channel();
         LOGGER.info("Disconnected telnet from {}", NetUtils.channelToString(channel.remoteAddress(), channel.localAddress()));
+        channelCache.remove(channel);
+        charsetMap.remove(channel);
 //        BaseServerHandler.removeChannel(channel);
-//        charsetMap.remove(channel);
 //        ALLOW_INVOKE_CHANNELS.remove(channel);
     }
 }

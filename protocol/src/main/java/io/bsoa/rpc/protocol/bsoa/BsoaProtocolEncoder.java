@@ -36,8 +36,6 @@ import io.bsoa.rpc.message.RpcResponse;
 import io.bsoa.rpc.protocol.ProtocolEncoder;
 import io.bsoa.rpc.protocol.ProtocolInfo;
 import io.bsoa.rpc.transport.AbstractByteBuf;
-import io.bsoa.rpc.transport.netty.NettyByteBuf;
-import io.netty.buffer.ByteBuf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,10 +82,7 @@ public class BsoaProtocolEncoder extends ProtocolEncoder {
 
 
     @Override
-    public void encodeHeader(Object object, AbstractByteBuf byteBuf) {
-        NettyByteBuf src = (NettyByteBuf) byteBuf;
-        ByteBuf out = src.getByteBuf();
-
+    public void encodeHeader(Object object, AbstractByteBuf out) {
         if (object instanceof BaseMessage) {
             BaseMessage msg = (BaseMessage) object;
 
@@ -129,9 +124,7 @@ public class BsoaProtocolEncoder extends ProtocolEncoder {
     }
 
     @Override
-    public void encodeBody(Object object, AbstractByteBuf byteBuf) {
-        NettyByteBuf src = (NettyByteBuf) byteBuf;
-        ByteBuf out = src.getByteBuf();
+    public void encodeBody(Object object, AbstractByteBuf out) {
         if (object instanceof BaseMessage) {
             BaseMessage msg = (BaseMessage) object;
             int totalLength = msg.getTotalLength();
@@ -193,9 +186,9 @@ public class BsoaProtocolEncoder extends ProtocolEncoder {
      * @param out    输出流
      * @param string 字符串
      * @return 写入的长度
-     * @see BsoaProtocolDecoder#readString(ByteBuf)
+     * @see BsoaProtocolDecoder#readString(AbstractByteBuf)
      */
-    private int writeString(ByteBuf out, String string) {
+    private int writeString(AbstractByteBuf out, String string) {
         if (string != null) {
             if (string.length() == 0) {
                 out.writeInt(0);
@@ -224,7 +217,7 @@ public class BsoaProtocolEncoder extends ProtocolEncoder {
      * boolean: 1位key+1位标识(6)+1位值<br/> 3
      * </p>
      */
-    protected static short map2bytes(Map<Byte, Object> dataMap, ByteBuf byteBuf) {
+    protected static short map2bytes(Map<Byte, Object> dataMap, AbstractByteBuf byteBuf) {
         byteBuf.writeByte(dataMap.size());
         short writeBytes = 1; // 写入的字节数
         for (Map.Entry<Byte, Object> attr : dataMap.entrySet()) {
