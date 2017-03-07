@@ -15,6 +15,12 @@
  */
 package io.bsoa.rpc.transport.netty;
 
+import java.net.InetSocketAddress;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.bsoa.rpc.common.BsoaConfigs;
 import io.bsoa.rpc.common.BsoaOptions;
 import io.bsoa.rpc.common.utils.NetUtils;
@@ -31,11 +37,6 @@ import io.netty.handler.codec.FixedLengthFrameDecoder;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.net.InetSocketAddress;
-import java.util.List;
 
 /**
  * <p>同一个端口支持多种协议</p>
@@ -105,7 +106,7 @@ public class AdapterDecoder extends ByteToMessageDecoder {
             AbstractChannel abstractChannel = NettyChannelHolder.initAbstractChannel(ctx.channel());
             abstractChannel.context().setProtocol(protocolInfo.getName());
             if (protocolInfo.getNetProtocol() == ProtocolInfo.NET_PROTOCOL_TCP) {
-                LOGGER.info("Accept tcp connection of protocol:{} {}", protocolInfo.getName(),
+                LOGGER.info("Accept tcp connection use {} protocol {}", protocolInfo.getName(),
                         NetUtils.connectToString(remoteAddress, localAddress));
                 pipeline.addLast("frame", protocolInfo.isLengthFixed() ?
                                 new FixedLengthFrameDecoder(protocolInfo.lengthFieldLength()) :

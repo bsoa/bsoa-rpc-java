@@ -19,7 +19,7 @@ import io.bsoa.rpc.transport.AbstractByteBuf;
 import io.netty.buffer.ByteBuf;
 
 /**
- * <p></p>
+ * <p>包装Netty的ByteBuf为Bsoa的AbstractByteBuf</p>
  * <p>
  * Created by zhangg on 2016/12/23 23:51. <br/>
  *

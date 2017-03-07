@@ -15,16 +15,17 @@
  */
 package io.bsoa.rpc.transport.netty;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.bsoa.rpc.protocol.Protocol;
 import io.bsoa.rpc.protocol.ProtocolEncoder;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
- * <p></p>
+ * <p>User protocol encoder, encode object to byte[]</p>
  * <p>
  * Created by zhangg on 2016/12/17 20:01. <br/>
  *

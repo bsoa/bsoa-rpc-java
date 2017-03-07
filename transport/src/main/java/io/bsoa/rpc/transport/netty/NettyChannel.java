@@ -15,6 +15,11 @@
  */
 package io.bsoa.rpc.transport.netty;
 
+import java.net.InetSocketAddress;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.bsoa.rpc.common.utils.NetUtils;
 import io.bsoa.rpc.context.RpcContext;
 import io.bsoa.rpc.transport.AbstractByteBuf;
@@ -23,13 +28,9 @@ import io.bsoa.rpc.transport.ChannelContext;
 import io.netty.channel.Channel;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.FutureListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.net.InetSocketAddress;
 
 /**
- * <p></p>
+ * <p>包装了Netty的Channel为AbstractChannel</p>
  * <p>
  * Created by zhangg on 2016/12/17 17:50. <br/>
  *
@@ -42,8 +43,14 @@ public class NettyChannel implements AbstractChannel {
      */
     private final static Logger LOGGER = LoggerFactory.getLogger(NettyChannel.class);
 
+    /**
+     * 长连接上下文
+     */
     private ChannelContext context;
 
+    /**
+     * Netty的Channel
+     */
     private Channel channel;
 
     public NettyChannel(Channel channel) {

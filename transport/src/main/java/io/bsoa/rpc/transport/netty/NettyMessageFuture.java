@@ -15,6 +15,15 @@
  */
 package io.bsoa.rpc.transport.netty;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.bsoa.rpc.common.utils.CommonUtils;
 import io.bsoa.rpc.common.utils.DateUtils;
 import io.bsoa.rpc.common.utils.NetUtils;
@@ -29,14 +38,6 @@ import io.bsoa.rpc.message.RpcResponse;
 import io.bsoa.rpc.protocol.Protocol;
 import io.bsoa.rpc.protocol.ProtocolFactory;
 import io.bsoa.rpc.transport.ClientTransport;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.TimeUnit;
 
 /**
  * <p></p>
@@ -103,12 +104,12 @@ public class NettyMessageFuture<V> implements ResponseFuture<V> {
 
     @Override
     public boolean cancel(boolean mayInterruptIfRunning) {
-        boolean res = this.cancle0(mayInterruptIfRunning);
+        boolean res = this.cancel0(mayInterruptIfRunning);
         notifyListeners(this.listeners);
         return res;
     }
 
-    private boolean cancle0(boolean mayInterruptIfRunning) {
+    private boolean cancel0(boolean mayInterruptIfRunning) {
         Object result = this.result;
         if (isDone0(result) || result == UNCANCELLABLE) {
             return false;
@@ -150,13 +151,13 @@ public class NettyMessageFuture<V> implements ResponseFuture<V> {
     @Override
     public V get(long timeout, TimeUnit unit) throws InterruptedException {
         timeout = unit.toMillis(timeout); // 转为毫秒
-        long remaintime = timeout - (sentTime - genTime); // 剩余时间
-        if (remaintime <= 0) { // 没有剩余时间不等待
+        long remainTime = timeout - (sentTime - genTime); // 剩余时间
+        if (remainTime <= 0) { // 没有剩余时间不等待
             if (isDone()) { // 直接看是否已经返回
                 return getNow();
             }
         } else { // 等待剩余时间
-            if (await(remaintime, TimeUnit.MILLISECONDS)) {
+            if (await(remainTime, TimeUnit.MILLISECONDS)) {
                 return getNow();
             }
         }

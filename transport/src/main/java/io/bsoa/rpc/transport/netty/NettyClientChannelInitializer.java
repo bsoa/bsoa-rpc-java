@@ -36,10 +36,21 @@ import io.netty.handler.logging.LoggingHandler;
  */
 public class NettyClientChannelInitializer extends ChannelInitializer<SocketChannel> {
 
+    /**
+     * ClientTransportConfig
+     */
+    private ClientTransportConfig transportConfig;
+    
+    /**
+     * 客户端的ChannelHandler
+     */
     private NettyClientChannelHandler clientChannelHandler;
 
-    private ClientTransportConfig transportConfig;
-
+    /**
+     * Construct of
+     *
+     * @param clientTransport ClientTransportConfig
+     */
     public NettyClientChannelInitializer(NettyClientTransport clientTransport) {
         this.transportConfig = clientTransport.getConfig();
         this.clientChannelHandler = new NettyClientChannelHandler(clientTransport);

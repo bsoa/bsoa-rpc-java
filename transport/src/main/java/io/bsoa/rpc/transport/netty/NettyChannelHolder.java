@@ -15,10 +15,10 @@
  */
 package io.bsoa.rpc.transport.netty;
 
+import java.util.concurrent.ConcurrentHashMap;
+
 import io.bsoa.rpc.transport.AbstractChannel;
 import io.netty.channel.Channel;
-
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * <p></p>
@@ -33,8 +33,14 @@ public class NettyChannelHolder {
      * io.netty.channel.Channel --> io.bsoa.rpc.transport.AbstractChannel
      */
     private static ConcurrentHashMap<Channel, AbstractChannel> allChannels
-        =new ConcurrentHashMap<>();
+            = new ConcurrentHashMap<>();
 
+    /**
+     * 使用Netty初始化一个AbstractChannel，用于重复使用，而不是每次创建
+     *
+     * @param nettyChannel io.netty.channel.Channel
+     * @return io.bsoa.rpc.transport.AbstractChannel
+     */
     public static AbstractChannel initAbstractChannel(Channel nettyChannel) {
         AbstractChannel abstractChannel = allChannels.get(nettyChannel);
         if (abstractChannel == null) {
@@ -49,10 +55,22 @@ public class NettyChannelHolder {
         return abstractChannel;
     }
 
+    /**
+     * 获取Netty的Channel对应的AbstractChannel
+     *
+     * @param nettyChannel io.netty.channel.Channel
+     * @return io.bsoa.rpc.transport.AbstractChannel
+     */
     public static AbstractChannel getAbstractChannel(Channel nettyChannel) {
         return allChannels.get(nettyChannel);
     }
 
+    /**
+     * 获取Netty的Channel对应的AbstractChannel
+     *
+     * @param nettyChannel io.netty.channel.Channel
+     * @return io.bsoa.rpc.transport.AbstractChannel
+     */
     public static AbstractChannel removeAbstractChannel(Channel nettyChannel) {
         return allChannels.remove(nettyChannel);
     }

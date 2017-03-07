@@ -15,21 +15,22 @@
  */
 package io.bsoa.rpc.transport.netty;
 
-import io.bsoa.rpc.common.BsoaConfigs;
-import io.bsoa.rpc.common.BsoaOptions;
-import io.bsoa.rpc.common.utils.StringUtils;
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.ByteToMessageCodec;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.bsoa.rpc.common.BsoaConfigs;
+import io.bsoa.rpc.common.BsoaOptions;
+import io.bsoa.rpc.common.utils.StringUtils;
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.ByteToMessageCodec;
 
 /**
  * <p></p>
@@ -40,6 +41,9 @@ import java.util.List;
  */
 public class TelnetCodec extends ByteToMessageCodec<Object> {
 
+    /**
+     * slf4j Logger for this class
+     */
     private static final Logger logger = LoggerFactory.getLogger(TelnetCodec.class);
 
     private static final List<?> EXIT = Arrays.asList(

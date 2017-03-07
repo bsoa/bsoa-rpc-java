@@ -15,6 +15,11 @@
  */
 package io.bsoa.rpc.transport.netty;
 
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.bsoa.rpc.context.AsyncContext;
 import io.bsoa.rpc.exception.BsoaRpcException;
 import io.bsoa.rpc.listener.ChannelListener;
@@ -26,10 +31,6 @@ import io.bsoa.rpc.message.RpcResponse;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 /**
  * <p></p>
@@ -40,6 +41,9 @@ import java.util.List;
  */
 public class NettyClientChannelHandler extends ChannelInboundHandlerAdapter {
 
+    /**
+     * slf4j Logger for this class
+     */
     private static final Logger LOGGER = LoggerFactory.getLogger(NettyClientChannelHandler.class);
 
     private NettyClientTransport clientTransport;

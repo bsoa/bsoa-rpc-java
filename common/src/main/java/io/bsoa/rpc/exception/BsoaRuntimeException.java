@@ -42,10 +42,6 @@ public final class BsoaRuntimeException extends RuntimeException {
         this.code = code;
     }
 
-    private BsoaRuntimeException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
     public BsoaRuntimeException(int code, String message, Throwable cause) {
         super(message, cause);
         this.code = code;
@@ -53,5 +49,9 @@ public final class BsoaRuntimeException extends RuntimeException {
 
     public int getCode() {
         return code;
+    }
+    
+    public String getMessage() {
+        return "[bsoa-" + code + "]" + super.getMessage();
     }
 }

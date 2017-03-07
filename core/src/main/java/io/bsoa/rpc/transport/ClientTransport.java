@@ -103,9 +103,7 @@ public abstract class ClientTransport {
      *
      * @return 当前请求数 int
      */
-    public int currentRequests() {
-        return 0;
-    }
+    public abstract int currentRequests();
 
     /**
      * 异步调用

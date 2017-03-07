@@ -15,6 +15,15 @@
  */
 package io.bsoa.rpc.transport.netty;
 
+import java.net.InetSocketAddress;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.bsoa.rpc.common.BsoaConfigs;
 import io.bsoa.rpc.common.BsoaOptions;
 import io.bsoa.rpc.common.SystemInfo;
@@ -47,14 +56,6 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.WriteBufferWaterMark;
 import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.net.InetSocketAddress;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * <p></p>
@@ -80,8 +81,15 @@ public class NettyClientTransport extends ClientTransport {
      */
     private final PositiveAtomicCounter requestId = new PositiveAtomicCounter();
 
+    /**
+     * FutureMap of all request in this channel. <br/>
+     * { requestId : ResponseFuture }
+     */
     private final ConcurrentHashMap<Integer, NettyMessageFuture<BaseMessage>> futureMap = new ConcurrentHashMap<>();
 
+    /**
+     * AbstractChannel of this class
+     */
     private NettyChannel channel;
 
     /**
@@ -182,6 +190,11 @@ public class NettyClientTransport extends ClientTransport {
     @Override
     public AbstractChannel getChannel() {
         return channel;
+    }
+
+    @Override
+    public int currentRequests() {
+        return currentRequests.get();
     }
 
     @Override

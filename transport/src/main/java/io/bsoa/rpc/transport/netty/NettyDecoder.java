@@ -15,18 +15,19 @@
  */
 package io.bsoa.rpc.transport.netty;
 
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.bsoa.rpc.protocol.Protocol;
 import io.bsoa.rpc.protocol.ProtocolDecoder;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 /**
- * <p></p>
+ * <p>User protocol decoder, decode byte[] to object</p>
  * <p>
  * Created by zhangg on 2016/12/17 20:02. <br/>
  *
@@ -39,8 +40,16 @@ public class NettyDecoder extends ByteToMessageDecoder {
      */
     private final static Logger LOGGER = LoggerFactory.getLogger(NettyDecoder.class);
 
+    /**
+     * A channel only can use one final protocol
+     */
     private final ProtocolDecoder protocolDecoder;
 
+    /**
+     * Build NettyDecoder
+     *
+     * @param protocol one protocol
+     */
     public NettyDecoder(Protocol protocol) {
         this.protocolDecoder = protocol.decoder();
     }

@@ -15,12 +15,18 @@
  */
 package io.bsoa.rpc.filter;
 
+import java.lang.reflect.Method;
+import java.net.InetSocketAddress;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.bsoa.rpc.common.BsoaConstants;
+import io.bsoa.rpc.common.json.BeanSerializer;
 import io.bsoa.rpc.common.utils.CodecUtils;
 import io.bsoa.rpc.common.utils.CommonUtils;
 import io.bsoa.rpc.common.utils.ExceptionUtils;
 import io.bsoa.rpc.common.utils.NetUtils;
-import io.bsoa.rpc.common.utils.PojoUtils;
 import io.bsoa.rpc.common.utils.ReflectUtils;
 import io.bsoa.rpc.exception.BsoaRpcException;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
@@ -28,11 +34,6 @@ import io.bsoa.rpc.ext.Extension;
 import io.bsoa.rpc.message.MessageBuilder;
 import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.message.RpcResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.lang.reflect.Method;
-import java.net.InetSocketAddress;
 
 /**
  * 服务端的泛化调用过滤器, 如果是generic请求，那么可能传递的参数值和参数类型不匹配 需要转换
@@ -67,7 +68,11 @@ public class ProviderGenericFilter implements Filter {
                 paramTypes = paramTypes == null ? CodecUtils.EMPTY_CLASS_ARRAY : paramTypes; // 如果客户端写的是null
                 paramValues = paramValues == null ? CodecUtils.EMPTY_OBJECT_ARRAY : paramValues; // 如果客户端写的是null
                 // 参数值类型 和 参数类型不匹配 解析数据 TODO
-                Object[] newParamValues = PojoUtils.realize(paramValues, paramTypes, method.getGenericParameterTypes());
+                Object[] newParamValues = new Object[paramTypes.length];
+                        //PojoUtils.realize(paramValues, paramTypes, method.getGenericParameterTypes());
+                for (int i = 0; i < paramTypes.length; i++) {
+                    newParamValues[i] = BeanSerializer.deserializeByType(paramValues[i], paramTypes[i]);
+                }
                 request.setArgs(newParamValues);
 
                 /*for (int i = 0; i < paramTypes.length; i++) {
@@ -113,7 +118,7 @@ public class ProviderGenericFilter implements Filter {
                 }
             } else { // 无异常
                 Object result = response.getReturnData();
-                result = PojoUtils.generalize(result);
+                result = BeanSerializer.serialize(result, true);
                 response.setReturnData(result);
             }
             return response;

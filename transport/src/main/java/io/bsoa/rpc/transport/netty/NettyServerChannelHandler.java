@@ -15,6 +15,13 @@
  */
 package io.bsoa.rpc.transport.netty;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.bsoa.rpc.common.utils.NetUtils;
 import io.bsoa.rpc.context.AsyncContext;
 import io.bsoa.rpc.exception.BsoaRpcException;
@@ -31,15 +38,9 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * <p></p>
+ * <p>一个服务的所有长连接公用一个ChannelHandler，所以需要@ChannelHandler.Sharable</p>
  * <p>
  * Created by zhangg on 2016/12/18 00:01. <br/>
  *

@@ -16,7 +16,7 @@
 package io.bsoa.rpc.transport;
 
 /**
- * <p></p>
+ * <p>ByteBuf的一个抽象，这样可以隔离各种Bytebuf</p>
  * <p>
  * Created by zhangg on 2016/12/23 23:50. <br/>
  *
