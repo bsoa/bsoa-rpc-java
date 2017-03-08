@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 The BSOA Project
+ * Copyright © 2016-2017 The BSOA Project
  *
  * The BSOA Project licenses this file to you under the Apache License,
  * version 2.0 (the "License"); you may not use this file except in compliance
@@ -113,7 +113,7 @@ public class NettyServerChannelHandler extends ChannelInboundHandlerAdapter {
         if (cause instanceof IOException) {
             LOGGER.warn("catch IOException at {} : {}",
                     NetUtils.channelToString(channel.remoteAddress(), channel.localAddress()),
-                    cause.getMessage(), cause);
+                    cause.getMessage());
         } else if (cause instanceof BsoaRpcException) {
 //            BsoaRpcException rpc = (BsoaRpcException) cause;
 //            MessageHeader header = rpc.getMsgHeader();
@@ -146,7 +146,7 @@ public class NettyServerChannelHandler extends ChannelInboundHandlerAdapter {
         } else {
             LOGGER.warn("catch " + cause.getClass().getName() + " at {} : {}",
                     NetUtils.channelToString(channel.remoteAddress(), channel.localAddress()),
-                    cause.getMessage(), cause);
+                    cause.getMessage());
         }
     }
 

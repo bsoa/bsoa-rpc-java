@@ -1,5 +1,5 @@
 - 文档  
-  - 项目主页：[www.bsoa.io](http://www.bsoa.io)
+  - 项目主页：[http://www.bsoa.io](http://www.bsoa.io)
   - 文档主页：https://github.com/bsoa/bsoa-doc/wiki
 
 - 项目简介
@@ -13,4 +13,4 @@
 - 版本内容更新
 - 声明  
 - 协议  
-   - [ Apache License Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
+   - [Apache License Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)

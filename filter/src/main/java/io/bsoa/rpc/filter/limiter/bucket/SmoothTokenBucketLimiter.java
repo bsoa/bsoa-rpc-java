@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 The BSOA Project
+ * Copyright © 2016-2017 The BSOA Project
  *
  * The BSOA Project licenses this file to you under the Apache License,
  * version 2.0 (the "License"); you may not use this file except in compliance
