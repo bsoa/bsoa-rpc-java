@@ -21,7 +21,7 @@
             <url>http://www.apache.org/licenses/LICENSE-2.0</url>
         </license>
     </licenses>
-    <inceptionYear>2016</inceptionYear>
+    <inceptionYear>2017</inceptionYear>
 
     <organization>
         <name>The BSOA Project</name>
@@ -59,6 +59,7 @@
         <module>all</module>
         <module>example</module>
         <module>bom</module>
+        <module>test</module>
     </modules>
 
     <properties>
