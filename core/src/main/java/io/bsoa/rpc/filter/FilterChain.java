@@ -42,7 +42,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public class FilterChain<T> {
+public class FilterChain {
 
     /**
      * 日志
@@ -99,7 +99,7 @@ public class FilterChain<T> {
      * @param lastInvoker 最终过滤器
      * @param config      接口配置
      */
-    protected FilterChain(List<Filter> filters, FilterInvoker lastInvoker, AbstractInterfaceConfig<T> config) {
+    protected FilterChain(List<Filter> filters, FilterInvoker lastInvoker, AbstractInterfaceConfig config) {
         // 调用过程外面包装多层自定义filter
         // 前面的过滤器在最外层
         invokerChain = lastInvoker;

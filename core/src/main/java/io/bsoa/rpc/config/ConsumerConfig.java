@@ -16,7 +16,6 @@
 package io.bsoa.rpc.config;
 
 import io.bsoa.rpc.GenericService;
-import io.bsoa.rpc.base.Cache;
 import io.bsoa.rpc.bootstrap.Bootstraps;
 import io.bsoa.rpc.bootstrap.ConsumerBootstrap;
 import io.bsoa.rpc.client.Router;
@@ -25,7 +24,6 @@ import io.bsoa.rpc.common.utils.ClassLoaderUtils;
 import io.bsoa.rpc.common.utils.CommonUtils;
 import io.bsoa.rpc.common.utils.ExceptionUtils;
 import io.bsoa.rpc.common.utils.StringUtils;
-import io.bsoa.rpc.filter.Filter;
 import io.bsoa.rpc.listener.ChannelListener;
 import io.bsoa.rpc.listener.ConsumerStateListener;
 import io.bsoa.rpc.listener.ResponseListener;
@@ -34,7 +32,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 
 import static io.bsoa.rpc.common.BsoaConfigs.getBooleanValue;
 import static io.bsoa.rpc.common.BsoaConfigs.getIntValue;
@@ -58,7 +55,6 @@ import static io.bsoa.rpc.common.BsoaOptions.CONSUMER_RETRIES;
 import static io.bsoa.rpc.common.BsoaOptions.CONSUMER_STICKY;
 import static io.bsoa.rpc.common.BsoaOptions.DEFAULT_PROTOCOL;
 import static io.bsoa.rpc.common.BsoaOptions.DEFAULT_SERIALIZATION;
-import static io.bsoa.rpc.config.ConfigValueHelper.checkNormalWithCommaColon;
 
 /**
  * Created by zhangg on 16-7-7.
@@ -66,7 +62,7 @@ import static io.bsoa.rpc.config.ConfigValueHelper.checkNormalWithCommaColon;
  * @param <T> the type parameter
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
  */
-public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Serializable {
+public class ConsumerConfig<T> extends AbstractInterfaceConfig<T, ConsumerConfig<T>> implements Serializable {
 
     /**
      * slf4j Logger for this class
@@ -751,183 +747,6 @@ public class ConsumerConfig<T> extends AbstractInterfaceConfig<T> implements Ser
      */
     public ConsumerConfig<T> setConcurrents(int concurrents) {
         this.concurrents = concurrents;
-        return this;
-    }
-
-    /**
-     * Sets interface id.
-     *
-     * @param interfaceId the interface id
-     * @return the interface id
-     */
-    public ConsumerConfig<T> setInterfaceId(String interfaceId) {
-        this.interfaceId = interfaceId;
-        return this;
-    }
-
-    /**
-     * Sets tags.
-     *
-     * @param tags the tags
-     */
-    public ConsumerConfig<T> setTags(String tags) {
-        checkNormalWithCommaColon("tags", tags);
-        this.tags = tags;
-        return this;
-    }
-
-    /**
-     * Sets filter ref.
-     *
-     * @param filterRef the filter ref
-     * @return the filter ref
-     */
-    public ConsumerConfig<T> setFilterRef(List<Filter> filterRef) {
-        this.filterRef = filterRef;
-        return this;
-    }
-
-    /**
-     * Sets filter.
-     *
-     * @param filter the filter
-     * @return the filter
-     */
-    public ConsumerConfig<T> setFilters(List<String> filter) {
-        this.filter = filter;
-        return this;
-    }
-
-    /**
-     * Sets registry.
-     *
-     * @param registry the registry
-     * @return the registry
-     */
-    public ConsumerConfig<T> setRegistry(List<RegistryConfig> registry) {
-        this.registry = registry;
-        return this;
-    }
-
-    /**
-     * Sets methods.
-     *
-     * @param methods the methods
-     * @return the methods
-     */
-    public ConsumerConfig<T> setMethods(Map<String, MethodConfig> methods) {
-        this.methods = methods;
-        return this;
-    }
-
-    /**
-     * Sets register.
-     *
-     * @param register the register
-     * @return the register
-     */
-    public ConsumerConfig<T> setRegister(boolean register) {
-        this.register = register;
-        return this;
-    }
-
-    /**
-     * Sets subscribe.
-     *
-     * @param subscribe the subscribe
-     * @return the subscribe
-     */
-    public ConsumerConfig<T> setSubscribe(boolean subscribe) {
-        this.subscribe = subscribe;
-        return this;
-    }
-
-    /**
-     * Sets proxy.
-     *
-     * @param proxy the proxy
-     * @return the proxy
-     */
-    public ConsumerConfig<T> setProxy(String proxy) {
-        this.proxy = proxy;
-        return this;
-    }
-
-    /**
-     * Sets cache ref.
-     *
-     * @param cacheRef the cache ref
-     * @return the cache ref
-     */
-    public ConsumerConfig<T> setCacheRef(Cache cacheRef) {
-        this.cacheRef = cacheRef;
-        return this;
-    }
-
-    /**
-     * Sets mock ref.
-     *
-     * @param mockRef the mock ref
-     * @return the mock ref
-     */
-    public ConsumerConfig<T> setMockRef(T mockRef) {
-        this.mockRef = mockRef;
-        return this;
-    }
-
-    /**
-     * Sets parameters.
-     *
-     * @param parameters the parameters
-     * @return the parameters
-     */
-    public ConsumerConfig<T> setParameters(Map<String, String> parameters) {
-        this.parameters = parameters;
-        return this;
-    }
-
-    /**
-     * Sets mock.
-     *
-     * @param mock the mock
-     * @return the mock
-     */
-    public ConsumerConfig<T> setMock(boolean mock) {
-        this.mock = mock;
-        return this;
-    }
-
-
-    /**
-     * Sets validation.
-     *
-     * @param validation the validation
-     * @return the validation
-     */
-    public ConsumerConfig<T> setValidation(boolean validation) {
-        this.validation = validation;
-        return this;
-    }
-
-    /**
-     * Sets compress.
-     *
-     * @param compress the compress
-     * @return the compress
-     */
-    public ConsumerConfig<T> setCompress(String compress) {
-        this.compress = compress;
-        return this;
-    }
-
-    /**
-     * Sets cache.
-     *
-     * @param cache the cache
-     * @return the cache
-     */
-    public ConsumerConfig<T> setCache(boolean cache) {
-        this.cache = cache;
         return this;
     }
 

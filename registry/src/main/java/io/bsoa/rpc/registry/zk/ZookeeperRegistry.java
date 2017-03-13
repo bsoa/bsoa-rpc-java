@@ -16,6 +16,7 @@
 package io.bsoa.rpc.registry.zk;
 
 import io.bsoa.rpc.client.ProviderInfo;
+import io.bsoa.rpc.common.annotation.JustForTest;
 import io.bsoa.rpc.common.utils.CommonUtils;
 import io.bsoa.rpc.config.AbstractInterfaceConfig;
 import io.bsoa.rpc.config.ConsumerConfig;
@@ -36,6 +37,7 @@ import org.apache.zookeeper.CreateMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.URLEncoder;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -130,7 +132,7 @@ public class ZookeeperRegistry extends Registry {
      * @see CreateMode#PERSISTENT
      * @see CreateMode#EPHEMERAL
      */
-    private boolean ephemeralNode;
+    private boolean ephemeralNode = true;
 
     /**
      * 配置项观察者
@@ -138,16 +140,21 @@ public class ZookeeperRegistry extends Registry {
     private ZookeeperConfigObserver configObserver;
 
     @Override
-    public void init() {
-        String address = registryConfig.getAddress(); // xxx:2181,yyy:2181/path1/paht2
-        int idx = address.indexOf("/");
+    public synchronized void init() {
+        if (client != null) {
+            return;
+        }
+        String addressInput = registryConfig.getAddress(); // xxx:2181,yyy:2181/path1/paht2
+        int idx = addressInput.indexOf("/");
+        String address; // IP地址
         if (idx > 0) {
-            address = address.substring(idx);
-            rootPath = address.substring(idx);
+            address = addressInput.substring(0, idx);
+            rootPath = addressInput.substring(idx);
             if (!rootPath.endsWith("/")) {
                 rootPath += "/"; // 保证以"/"结尾
             }
         } else {
+            address = addressInput;
             rootPath = "/";
         }
         configObserver = new ZookeeperConfigObserver();
@@ -166,7 +173,13 @@ public class ZookeeperRegistry extends Registry {
     }
 
     @Override
-    public boolean start() {
+    public synchronized boolean start() {
+        if (client == null) {
+            return false;
+        }
+        if (client.getState() == CuratorFrameworkState.STARTED) {
+            return true;
+        }
         try {
             client.start();
         } catch (Exception e) {
@@ -198,7 +211,8 @@ public class ZookeeperRegistry extends Registry {
                 if (CommonUtils.isNotEmpty(urls)) {
                     String providerPath = buildProviderPath(config);
                     for (String url : urls) {
-                        client.create()
+                        url = URLEncoder.encode(url, "UTF-8");
+                        client.create().creatingParentContainersIfNeeded()
                                 .withMode(ephemeralNode ? CreateMode.EPHEMERAL : CreateMode.PERSISTENT) // 是否永久节点
                                 .forPath(providerPath + "/" + url,
                                         config.isDynamic() ? PROVIDER_ONLINE : PROVIDER_OFFLINE); // 是否默认上下线
@@ -217,7 +231,7 @@ public class ZookeeperRegistry extends Registry {
                 // 监听配置节点下 子节点增加、子节点删除、子节点Data修改事件
                 PathChildrenCache pathChildrenCache = new PathChildrenCache(client, configPath, true);
                 pathChildrenCache.getListenable().addListener((client1, event) -> {
-                    System.out.println("Receive event: " + "type=[" + event.getType() + "]");
+                    LOGGER.debug("Receive zookeeper event: " + "type=[" + event.getType() + "]");
                     switch (event.getType()) {
                         case CHILD_ADDED: //加了一个配置
                             configObserver.addConfig(config.getInterfaceId(), event.getData());
@@ -253,6 +267,7 @@ public class ZookeeperRegistry extends Registry {
                 if (CommonUtils.isNotEmpty(urls)) {
                     String providerPath = buildProviderPath(config);
                     for (String url : urls) {
+                        url = URLEncoder.encode(url, "UTF-8");
                         client.delete().forPath(providerPath + "/" + url);
                     }
                 }
@@ -289,7 +304,7 @@ public class ZookeeperRegistry extends Registry {
         if (config.isRegister()) {
             try {
                 String consumerNode = buildConsumerPath(config);
-                client.create()
+                client.create().creatingParentContainersIfNeeded()
                         .withMode(ephemeralNode ? CreateMode.EPHEMERAL : CreateMode.PERSISTENT) // 是否永久节点
                         .forPath(consumerNode);
             } catch (Exception e) {
@@ -299,7 +314,7 @@ public class ZookeeperRegistry extends Registry {
         // 订阅Providers节点
         try {
             String consumerNode = buildConsumerPath(config);
-            client.create()
+            client.create().creatingParentContainersIfNeeded()
                     .withMode(ephemeralNode ? CreateMode.EPHEMERAL : CreateMode.PERSISTENT) // 是否永久节点
                     .forPath(consumerNode, PROVIDER_NONE); // 是否
         } catch (Exception e) {
@@ -319,17 +334,25 @@ public class ZookeeperRegistry extends Registry {
 
     }
 
+    @JustForTest
+    public CuratorFramework getClient() {
+        return client;
+    }
+
+    protected void check(String path) throws Exception {
+        client.checkExists().creatingParentContainersIfNeeded().forPath(path);
+    }
 
     private String buildProviderPath(ProviderConfig config) {
-        return "bsoa/" + config.getInterfaceId() + "/providers";
+        return rootPath + "bsoa/" + config.getInterfaceId() + "/providers";
     }
 
     private String buildConsumerPath(ConsumerConfig config) {
-        return "bsoa/" + config.getInterfaceId() + "/consumers";
+        return rootPath + "bsoa/" + config.getInterfaceId() + "/consumers";
     }
 
     private String buildConfigPath(AbstractInterfaceConfig config) {
-        return "bsoa/" + config.getInterfaceId() + "/configs";
+        return rootPath + "bsoa/" + config.getInterfaceId() + "/configs";
     }
 
 }

@@ -23,7 +23,7 @@ import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.transport.ClientTransport;
 import io.bsoa.rpc.transport.ClientTransportConfig;
 import io.bsoa.rpc.transport.ClientTransportFactory;
-import io.bsoa.test.HelloService;
+import io.bsoa.test.TestService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,9 +73,9 @@ public class ClientTransportMutisTest {
                         try {
 //                            HeartbeatRequest request = new HeartbeatRequest();
 //                            request.setTimestamp(System.currentTimeMillis());
-                            RpcRequest request = MessageBuilder.buildRpcRequest(HelloService.class, "sayHello",
-                                    new Class[]{String.class, int.class},
-                                    new Object[]{"xxx", 1});
+                            RpcRequest request = MessageBuilder.buildRpcRequest(TestService.class, "str",
+                                    new Class[]{String.class},
+                                    new Object[]{"xxx"});
                             request.setTags("tag1");
                             request.setProtocolType((byte) 10);
                             request.setSerializationType((byte) 2);

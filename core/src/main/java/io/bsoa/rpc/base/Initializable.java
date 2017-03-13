@@ -53,8 +53,6 @@ public interface Initializable {
         public default void preInitialize() {
         }
 
-        ;
-
         /**
          * 加载后要做的事情
          */

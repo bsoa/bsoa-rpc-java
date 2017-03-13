@@ -23,9 +23,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Created by zhangg on 16-7-7.
  *
+ *  @param <S> the sub class of AbstractIdConfig
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
  */
-public abstract class AbstractIdConfig implements Serializable {
+public abstract class AbstractIdConfig<S extends AbstractIdConfig> implements Serializable {
 
 
     private static final long serialVersionUID = -1932911135229369183L;
@@ -62,7 +63,13 @@ public abstract class AbstractIdConfig implements Serializable {
      *
      * @param id the id
      */
-    public void setId(String id) {
+    public S setId(String id) {
         this.id = id;
+        return castThis();
+    }
+
+
+    protected S castThis() {
+        return (S) this;
     }
 }

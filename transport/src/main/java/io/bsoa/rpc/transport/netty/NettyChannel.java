@@ -15,19 +15,17 @@
  */
 package io.bsoa.rpc.transport.netty;
 
-import java.net.InetSocketAddress;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.bsoa.rpc.common.utils.NetUtils;
-import io.bsoa.rpc.context.RpcContext;
 import io.bsoa.rpc.transport.AbstractByteBuf;
 import io.bsoa.rpc.transport.AbstractChannel;
 import io.bsoa.rpc.transport.ChannelContext;
 import io.netty.channel.Channel;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.FutureListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.net.InetSocketAddress;
 
 /**
  * <p>包装了Netty的Channel为AbstractChannel</p>
@@ -90,9 +88,7 @@ public class NettyChannel implements AbstractChannel {
             if (!future1.isSuccess()) {
                 Throwable throwable = future1.cause();
                 LOGGER.error("[23009]Failed to send to "
-                        + NetUtils.channelToString(
-                        RpcContext.getContext().getLocalAddress(),
-                        RpcContext.getContext().getRemoteAddress())
+                        + NetUtils.channelToString(this.localAddress(), this.remoteAddress())
                         + " for msg : " + obj
                         + ", Cause by:", throwable);
                 //throw new RpcException("Fail to send Response msg for response:" + msg.getMsgHeader(), throwable);

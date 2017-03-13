@@ -19,7 +19,7 @@ import io.bsoa.rpc.bootstrap.Bootstraps;
 import io.bsoa.rpc.bootstrap.ConsumerBootstrap;
 import io.bsoa.rpc.config.ConsumerConfig;
 import io.bsoa.rpc.context.BsoaContext;
-import io.bsoa.test.HelloService;
+import io.bsoa.test.TestService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,17 +43,17 @@ public class ConsumerMutisTest {
     private final static Logger LOGGER = LoggerFactory.getLogger(ClientTransportTest.class);
 
     public static void main(String[] args) throws InterruptedException {
-        ConsumerConfig<HelloService> consumerConfig = new ConsumerConfig<>();
-        consumerConfig.setInterfaceId(HelloService.class.getName());
+        ConsumerConfig<TestService> consumerConfig = new ConsumerConfig<>();
+        consumerConfig.setInterfaceId(TestService.class.getName());
         consumerConfig.setTags("tag1");
         consumerConfig.setSerialization("hessian");
         consumerConfig.setUrl("bsoa://127.0.0.1:22222");
-        ConsumerBootstrap<HelloService> bootstrap = Bootstraps.from(consumerConfig);
-        HelloService helloService = bootstrap.refer();
+        ConsumerBootstrap<TestService> bootstrap = Bootstraps.from(consumerConfig);
+        TestService helloService = bootstrap.refer();
 
         LOGGER.warn("started at pid {}", BsoaContext.PID);
         try {
-            String s = helloService.sayHello("xxx", 22);
+            String s = helloService.str("xxx");
             LOGGER.info("{}", s);
         } catch (Exception e) {
             LOGGER.error("", e);
@@ -68,7 +68,7 @@ public class ConsumerMutisTest {
                     int n = 0;
                     while (true) {
                         try {
-                            helloService.sayHello("xxx", 2);
+                            helloService.str("xxx");
                             // 1k
                             //service.echoStr("10241234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890");
                             // 5k

@@ -15,7 +15,6 @@
  */
 package io.bsoa.rpc.config;
 
-import io.bsoa.rpc.base.Cache;
 import io.bsoa.rpc.bootstrap.Bootstraps;
 import io.bsoa.rpc.bootstrap.ProviderBootstrap;
 import io.bsoa.rpc.common.utils.ClassLoaderUtils;
@@ -23,7 +22,6 @@ import io.bsoa.rpc.common.utils.CommonUtils;
 import io.bsoa.rpc.common.utils.ExceptionUtils;
 import io.bsoa.rpc.common.utils.StringUtils;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
-import io.bsoa.rpc.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +42,6 @@ import static io.bsoa.rpc.common.BsoaOptions.PROVIDER_INCLUDE;
 import static io.bsoa.rpc.common.BsoaOptions.PROVIDER_INVOKE_TIMEOUT;
 import static io.bsoa.rpc.common.BsoaOptions.PROVIDER_PRIORITY;
 import static io.bsoa.rpc.common.BsoaOptions.PROVIDER_WEIGHT;
-import static io.bsoa.rpc.config.ConfigValueHelper.checkNormalWithCommaColon;
 
 /**
  * Created by zhangg on 16-7-7.
@@ -52,7 +49,7 @@ import static io.bsoa.rpc.config.ConfigValueHelper.checkNormalWithCommaColon;
  * @param <T> the type parameter
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
  */
-public class ProviderConfig<T> extends AbstractInterfaceConfig<T> implements Serializable {
+public class ProviderConfig<T> extends AbstractInterfaceConfig<T, ProviderConfig<T>> implements Serializable {
 
     /**
      * The constant serialVersionUID.
@@ -371,183 +368,6 @@ public class ProviderConfig<T> extends AbstractInterfaceConfig<T> implements Ser
         return this;
     }
 
-    /**
-     * Sets interface id.
-     *
-     * @param interfaceId the interface id
-     * @return the interface id
-     */
-    public ProviderConfig<T> setInterfaceId(String interfaceId) {
-        this.interfaceId = interfaceId;
-        return this;
-    }
-
-    /**
-     * Sets tags.
-     *
-     * @param tags the tags
-     */
-    public ProviderConfig<T> setTags(String tags) {
-        checkNormalWithCommaColon("tags", tags);
-        this.tags = tags;
-        return this;
-    }
-
-    /**
-     * Sets filter ref.
-     *
-     * @param filterRef the filter ref
-     * @return the filter ref
-     */
-    public ProviderConfig<T> setFilterRef(List<Filter> filterRef) {
-        this.filterRef = filterRef;
-        return this;
-    }
-
-    /**
-     * Sets filter.
-     *
-     * @param filter the filter
-     * @return the filter
-     */
-    public ProviderConfig<T> setFilters(List<String> filter) {
-        this.filter = filter;
-        return this;
-    }
-
-    /**
-     * Sets registry.
-     *
-     * @param registry the registry
-     * @return the registry
-     */
-    public ProviderConfig<T> setRegistry(List<RegistryConfig> registry) {
-        this.registry = registry;
-        return this;
-    }
-
-    /**
-     * Sets methods.
-     *
-     * @param methods the methods
-     * @return the methods
-     */
-    public ProviderConfig<T> setMethods(Map<String, MethodConfig> methods) {
-        this.methods = methods;
-        return this;
-    }
-
-    /**
-     * Sets register.
-     *
-     * @param register the register
-     * @return the register
-     */
-    public ProviderConfig<T> setRegister(boolean register) {
-        this.register = register;
-        return this;
-    }
-
-    /**
-     * Sets subscribe.
-     *
-     * @param subscribe the subscribe
-     * @return the subscribe
-     */
-    public ProviderConfig<T> setSubscribe(boolean subscribe) {
-        this.subscribe = subscribe;
-        return this;
-    }
-
-    /**
-     * Sets proxy.
-     *
-     * @param proxy the proxy
-     * @return the proxy
-     */
-    public ProviderConfig<T> setProxy(String proxy) {
-        this.proxy = proxy;
-        return this;
-    }
-
-    /**
-     * Sets cache ref.
-     *
-     * @param cacheRef the cache ref
-     * @return the cache ref
-     */
-    public ProviderConfig<T> setCacheRef(Cache cacheRef) {
-        this.cacheRef = cacheRef;
-        return this;
-    }
-
-    /**
-     * Sets mock ref.
-     *
-     * @param mockRef the mock ref
-     * @return the mock ref
-     */
-    public ProviderConfig<T> setMockRef(T mockRef) {
-        this.mockRef = mockRef;
-        return this;
-    }
-
-    /**
-     * Sets parameters.
-     *
-     * @param parameters the parameters
-     * @return the parameters
-     */
-    public ProviderConfig<T> setParameters(Map<String, String> parameters) {
-        this.parameters = parameters;
-        return this;
-    }
-
-    /**
-     * Sets mock.
-     *
-     * @param mock the mock
-     * @return the mock
-     */
-    public ProviderConfig<T> setMock(boolean mock) {
-        this.mock = mock;
-        return this;
-    }
-
-
-    /**
-     * Sets validation.
-     *
-     * @param validation the validation
-     * @return the validation
-     */
-    public ProviderConfig<T> setValidation(boolean validation) {
-        this.validation = validation;
-        return this;
-    }
-
-    /**
-     * Sets compress.
-     *
-     * @param compress the compress
-     * @return the compress
-     */
-    public ProviderConfig<T> setCompress(String compress) {
-        this.compress = compress;
-        return this;
-    }
-
-    /**
-     * Sets cache.
-     *
-     * @param cache the cache
-     * @return the cache
-     */
-    public ProviderConfig<T> setCache(boolean cache) {
-        this.cache = cache;
-        return this;
-    }
-
     @Override
     public boolean hasTimeout() {
         if (timeout > 0) {
@@ -588,6 +408,7 @@ public class ProviderConfig<T> extends AbstractInterfaceConfig<T> implements Ser
      * add server.
      *
      * @param server ServerConfig
+     * @return the ProviderConfig
      */
     public ProviderConfig<T> setServer(ServerConfig server) {
         if (this.server == null) {
@@ -639,7 +460,7 @@ public class ProviderConfig<T> extends AbstractInterfaceConfig<T> implements Ser
     /**
      * 得到服务提供者启动器
      *
-     * @return
+     * @return bootstrap bootstrap
      */
     public ProviderBootstrap getBootstrap() {
         return providerBootstrap;

@@ -125,7 +125,8 @@ public class BsoaProviderBootstrap<T> extends ProviderBootstrap<T> {
         T ref = providerConfig.getRef();
         Class proxyClass = providerConfig.getProxyClass();
         if (!proxyClass.isInstance(ref)) {
-            throw ExceptionUtils.buildRuntime(22222, "provider.ref", ref.getClass().getName(),
+            throw ExceptionUtils.buildRuntime(22222, "provider.ref",
+                    ref == null ? "null" : ref.getClass().getName(),
                     "This is not an instance of " + providerConfig.getInterfaceId()
                             + " in provider config with key " + key + " !");
         }

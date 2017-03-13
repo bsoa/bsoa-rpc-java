@@ -52,9 +52,11 @@ import static io.bsoa.rpc.config.ConfigValueHelper.checkNormalWithCommaColon;
  * Created by zhangg on 16-7-7.
  *
  * @param <T> the type parameter
+ * @param <S> the sub class of AbstractInterfaceConfig
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
  */
-public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implements Serializable {
+public abstract class AbstractInterfaceConfig<T, S extends AbstractInterfaceConfig>
+        extends AbstractIdConfig<S> implements Serializable {
 
     /**
      * The constant serialVersionUID.
@@ -200,9 +202,9 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
      * @param interfaceId the interface id
      * @return the interface id
      */
-    public AbstractInterfaceConfig setInterfaceId(String interfaceId) {
+    public S setInterfaceId(String interfaceId) {
         this.interfaceId = interfaceId;
-        return this;
+        return castThis();
     }
 
     /**
@@ -218,11 +220,12 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
      * Sets tags.
      *
      * @param tags the tags
+     * @return the tags
      */
-    public AbstractInterfaceConfig setTags(String tags) {
+    public S setTags(String tags) {
         checkNormalWithCommaColon("tags", tags);
         this.tags = tags;
-        return this;
+        return castThis();
     }
 
     /**
@@ -240,9 +243,9 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
      * @param filterRef the filter ref
      * @return the filter ref
      */
-    public AbstractInterfaceConfig setFilterRef(List<Filter> filterRef) {
+    public S setFilterRef(List<Filter> filterRef) {
         this.filterRef = filterRef;
-        return this;
+        return castThis();
     }
 
     /**
@@ -260,9 +263,9 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
      * @param filter the filter
      * @return the filter
      */
-    public AbstractInterfaceConfig setFilters(List<String> filter) {
+    public S setFilters(List<String> filter) {
         this.filter = filter;
-        return this;
+        return castThis();
     }
 
     /**
@@ -280,9 +283,9 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
      * @param registry the registry
      * @return the registry
      */
-    public AbstractInterfaceConfig setRegistry(List<RegistryConfig> registry) {
+    public S setRegistry(List<RegistryConfig> registry) {
         this.registry = registry;
-        return this;
+        return castThis();
     }
 
     /**
@@ -300,9 +303,9 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
      * @param methods the methods
      * @return the methods
      */
-    public AbstractInterfaceConfig setMethods(Map<String, MethodConfig> methods) {
+    public S setMethods(Map<String, MethodConfig> methods) {
         this.methods = methods;
-        return this;
+        return castThis();
     }
 
     /**
@@ -320,9 +323,9 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
      * @param register the register
      * @return the register
      */
-    public AbstractInterfaceConfig setRegister(boolean register) {
+    public S setRegister(boolean register) {
         this.register = register;
-        return this;
+        return castThis();
     }
 
     /**
@@ -340,9 +343,9 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
      * @param subscribe the subscribe
      * @return the subscribe
      */
-    public AbstractInterfaceConfig setSubscribe(boolean subscribe) {
+    public S setSubscribe(boolean subscribe) {
         this.subscribe = subscribe;
-        return this;
+        return castThis();
     }
 
     /**
@@ -360,9 +363,9 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
      * @param proxy the proxy
      * @return the proxy
      */
-    public AbstractInterfaceConfig setProxy(String proxy) {
+    public S setProxy(String proxy) {
         this.proxy = proxy;
-        return this;
+        return castThis();
     }
 
     /**
@@ -380,9 +383,9 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
      * @param cacheRef the cache ref
      * @return the cache ref
      */
-    public AbstractInterfaceConfig setCacheRef(Cache cacheRef) {
+    public S setCacheRef(Cache cacheRef) {
         this.cacheRef = cacheRef;
-        return this;
+        return castThis();
     }
 
     /**
@@ -400,9 +403,9 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
      * @param mockRef the mock ref
      * @return the mock ref
      */
-    public AbstractInterfaceConfig setMockRef(T mockRef) {
+    public S setMockRef(T mockRef) {
         this.mockRef = mockRef;
-        return this;
+        return castThis();
     }
 
     /**
@@ -420,9 +423,9 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
      * @param parameters the parameters
      * @return the parameters
      */
-    public AbstractInterfaceConfig setParameters(Map<String, String> parameters) {
+    public S setParameters(Map<String, String> parameters) {
         this.parameters = parameters;
-        return this;
+        return castThis();
     }
 
     /**
@@ -440,9 +443,9 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
      * @param mock the mock
      * @return the mock
      */
-    public AbstractInterfaceConfig setMock(boolean mock) {
+    public S setMock(boolean mock) {
         this.mock = mock;
-        return this;
+        return castThis();
     }
 
     /**
@@ -460,9 +463,9 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
      * @param validation the validation
      * @return the validation
      */
-    public AbstractInterfaceConfig setValidation(boolean validation) {
+    public S setValidation(boolean validation) {
         this.validation = validation;
-        return this;
+        return castThis();
     }
 
     /**
@@ -480,9 +483,9 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
      * @param compress the compress
      * @return the compress
      */
-    public AbstractInterfaceConfig setCompress(String compress) {
+    public S setCompress(String compress) {
         this.compress = compress;
-        return this;
+        return castThis();
     }
 
     /**
@@ -500,9 +503,9 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
      * @param cache the cache
      * @return the cache
      */
-    public AbstractInterfaceConfig setCache(boolean cache) {
+    public S setCache(boolean cache) {
         this.cache = cache;
-        return this;
+        return castThis();
     }
 
     /**
@@ -520,9 +523,9 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
      * @param configListener the config listener
      * @return the config listener
      */
-    public AbstractInterfaceConfig setConfigListener(ConfigListener configListener) {
+    public S setConfigListener(ConfigListener configListener) {
         this.configListener = configListener;
-        return this;
+        return castThis();
     }
 
     /**
@@ -537,14 +540,14 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
     /**
      * 是否有超时配置
      *
-     * @return 是否配置了timeout
+     * @return 是否配置了timeout boolean
      */
     public abstract boolean hasTimeout();
 
     /**
      * 是否有并发限制配置
      *
-     * @return 是否配置了并发限制
+     * @return 是否配置了并发限制 boolean
      */
     public abstract boolean hasConcurrents();
 
@@ -609,8 +612,9 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
      * Sets methods.
      *
      * @param methods the methods
+     * @return the methods
      */
-    public void setMethods(List<MethodConfig> methods) {
+    public S setMethods(List<MethodConfig> methods) {
         if (this.methods == null) {
             this.methods = new ConcurrentHashMap<String, MethodConfig>();
         }
@@ -619,18 +623,21 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
                 this.methods.put(methodConfig.getName(), methodConfig);
             }
         }
+        return castThis();
     }
 
     /**
      * 设置注册中心
      *
      * @param registry RegistryConfig
+     * @return the registry
      */
-    public void setRegistry(RegistryConfig registry) {
+    public S setRegistry(RegistryConfig registry) {
         if (this.registry == null) {
             this.registry = new ArrayList<RegistryConfig>();
         }
         this.registry.add(registry);
+        return castThis();
     }
 
     /**
@@ -838,8 +845,9 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
      *
      * @param key   the key
      * @param value the value
+     * @return the parameter
      */
-    public void setParameter(String key, String value) {
+    public S setParameter(String key, String value) {
         if (parameters == null) {
             parameters = new ConcurrentHashMap<String, String>();
         }
@@ -848,6 +856,7 @@ public abstract class AbstractInterfaceConfig<T> extends AbstractIdConfig implem
         } else {
             parameters.put(key, value);
         }
+        return castThis();
     }
 
     /**
