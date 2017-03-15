@@ -77,7 +77,7 @@ public class CallbackUtils {
     }
 
     @JustForTest
-    protected static void scanMethod(String interfaceId, Method method) {
+    static void scanMethod(String interfaceId, Method method) {
         Class[] paramClasses = method.getParameterTypes();
         Type[] paramTypes = method.getGenericParameterTypes();
         int cnt = 0;

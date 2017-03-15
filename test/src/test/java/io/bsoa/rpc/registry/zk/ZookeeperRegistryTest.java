@@ -15,6 +15,7 @@
  */
 package io.bsoa.rpc.registry.zk;
 
+import io.bsoa.rpc.config.ConsumerConfig;
 import io.bsoa.rpc.config.ProviderConfig;
 import io.bsoa.rpc.config.RegistryConfig;
 import io.bsoa.rpc.config.ServerConfig;
@@ -46,7 +47,7 @@ public class ZookeeperRegistryTest {
                 .setProtocol("zookeeper")
                 .setAddress("127.0.0.1:2181/test")
                 .setParameter(PARAM_PREFER_LOCAL_FILE, "false")
-                .setParameter(PARAM_CREATE_EPHEMERAL, "true");
+                .setParameter(PARAM_CREATE_EPHEMERAL, "false");
         zookeeperRegistry = (ZookeeperRegistry) RegistryFactory.getRegistry(registryConfig);
 
         zookeeperRegistry.init();
@@ -80,12 +81,11 @@ public class ZookeeperRegistryTest {
                 .setRef(new TestServiceImpl())
                 .setRegistry(registryConfig);
         providerConfig.export();
-        zookeeperRegistry.register(providerConfig, null);
 
-        String key = (String) providerConfig.getBootstrap().buildUrls().get(0);
+        String key = ZookeeperRegistryHelper.convertProviderToUrls(providerConfig).get(0);
         key = URLEncoder.encode(key, "UTF-8");
         String path = "/test/bsoa/io.bsoa.test.TestService/providers";
-        List<String> providers = zookeeperRegistry.getClient().getChildren()
+        List<String> providers = zookeeperRegistry.getZkClient().getChildren()
                 .forPath(path);
 
         boolean exists = false;
@@ -95,13 +95,18 @@ public class ZookeeperRegistryTest {
             }
         }
         Assert.assertTrue(exists);
-
         providerConfig.unExport();
 
+        providers = zookeeperRegistry.getZkClient().getChildren()
+                .forPath(path);
 
-//        List<ProviderInfo> providerInfos =zookeeperRegistry.subscribe(consumerConfig, null, null);
-//        Assert.assertArrayEquals(providerInfos.size() = 1);
-
+        exists = false;
+        for (String provider : providers) {
+            if(provider.equals(key)){
+                exists = true;
+            }
+        }
+        Assert.assertFalse(exists);
     }
 
     @Test
@@ -116,7 +121,38 @@ public class ZookeeperRegistryTest {
 
     @Test
     public void subscribe() throws Exception {
+        ConsumerConfig consumerConfig = new ConsumerConfig<TestService>()
+                .setId("yyy")
+                .setInterfaceId(TestService.class.getName())
+                .setRegistry(registryConfig);
+        consumerConfig.refer();
 
+        String key = ZookeeperRegistryHelper.convertConsumerToUrl(consumerConfig);
+        key = URLEncoder.encode(key, "UTF-8");
+        String path = "/test/bsoa/io.bsoa.test.TestService/consumers";
+        List<String> consumers = zookeeperRegistry.getZkClient().getChildren()
+                .forPath(path);
+
+        boolean exists = false;
+        for (String consumer : consumers) {
+            if(consumer.equals(key)){
+                exists = true;
+            }
+        }
+        Assert.assertTrue(exists);
+
+        consumerConfig.unRefer();
+
+        consumers = zookeeperRegistry.getZkClient().getChildren()
+                .forPath(path);
+
+        exists = false;
+        for (String consumer : consumers) {
+            if(consumer.equals(key)){
+                exists = true;
+            }
+        }
+        Assert.assertFalse(exists);
     }
 
     @Test

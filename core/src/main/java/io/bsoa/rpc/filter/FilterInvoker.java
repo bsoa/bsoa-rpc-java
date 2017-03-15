@@ -126,7 +126,7 @@ public class FilterInvoker implements Invoker {
      * @return Filter
      */
     @JustForTest
-    protected Filter getNextFilter() {
+    Filter getNextFilter() {
         return nextFilter;
     }
 

@@ -322,7 +322,7 @@ public class BsoaConstants {
     /**
      * 配置key:jsfVersion
      */
-    public static final String CONFIG_KEY_BSOAVERSION = "jsfVersion";
+    public static final String CONFIG_KEY_BSOAVERSION = "bsoaVersion";
 
     /**
      * 配置key:crosslang 是否支持跨语言

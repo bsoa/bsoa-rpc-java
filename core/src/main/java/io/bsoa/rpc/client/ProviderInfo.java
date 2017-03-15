@@ -152,7 +152,9 @@ public class ProviderInfo implements Serializable {
             }
             String[] ipport = address.split(":", -1);
             this.setIp(ipport[0]);
-            this.setPort(Integer.valueOf(ipport[1]));
+            if (ipport.length > 1) {
+                this.setPort(Integer.valueOf(ipport[1]));
+            }
 
             // 后面可以解析remainUrl得到interface等 /xxx?a=1&b=2
             if (remainUrl.length() > 0) {

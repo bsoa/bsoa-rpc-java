@@ -15,11 +15,14 @@
  */
 package io.bsoa.rpc.registry.zk;
 
+import io.bsoa.rpc.config.AbstractInterfaceConfig;
+import io.bsoa.rpc.listener.ConfigListener;
 import org.apache.curator.framework.recipes.cache.ChildData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * <p></p>
@@ -28,7 +31,7 @@ import java.util.List;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public class ZookeeperConfigObserver {
+public class ZookeeperConfigObserver extends AbstractZookeeperObserver {
 
     /**
      * slf4j Logger for this class
@@ -36,12 +39,19 @@ public class ZookeeperConfigObserver {
     private final static Logger LOGGER = LoggerFactory.getLogger(ZookeeperConfigObserver.class);
 
     /**
+     * The Config listener map.
+     */
+    private ConcurrentHashMap<AbstractInterfaceConfig, List<ConfigListener>> configListenerMap
+            = new ConcurrentHashMap<>();
+
+
+    /**
      * 该接口下增加了一个配置
      *
-     * @param interfaceId 接口名称
+     * @param config 接口名称
      * @param data        配置
      */
-    public void addConfig(String interfaceId, ChildData data) {
+    public void addConfig(AbstractInterfaceConfig config, ChildData data) {
         if (data == null) {
             LOGGER.info("data is null");
         } else {
@@ -51,7 +61,7 @@ public class ZookeeperConfigObserver {
         }
     }
 
-    public void removeConfig(String interfaceId, ChildData data) {
+    public void removeConfig(AbstractInterfaceConfig config, ChildData data) {
         if (data == null) {
             LOGGER.info("data is null");
         } else {
@@ -61,7 +71,7 @@ public class ZookeeperConfigObserver {
         }
     }
 
-    public void updateConfig(String interfaceId, ChildData data) {
+    public void updateConfig(AbstractInterfaceConfig config, ChildData data) {
         if (data == null) {
             LOGGER.info("data is null");
         } else {
@@ -71,7 +81,29 @@ public class ZookeeperConfigObserver {
         }
     }
 
-    public void updateConfigAll(String interfaceId, List<ChildData> currentData) {
+    public void updateConfigAll(AbstractInterfaceConfig config, List<ChildData> currentData) {
 
+    }
+
+
+    /**
+     * Add config listener.
+     *
+     * @param config   the config
+     * @param listener the listener
+     */
+    public void addConfigListener(AbstractInterfaceConfig config, ConfigListener listener) {
+        if (listener != null) {
+            initOrAddList(configListenerMap, config, listener);
+        }
+    }
+
+    /**
+     * Remove config listener.
+     *
+     * @param config the config
+     */
+    public void removeConfigListener(AbstractInterfaceConfig config) {
+        configListenerMap.remove(config);
     }
 }

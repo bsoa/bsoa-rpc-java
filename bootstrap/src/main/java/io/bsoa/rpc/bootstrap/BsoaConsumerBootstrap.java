@@ -223,7 +223,7 @@ public class BsoaConsumerBootstrap<T> extends ConsumerBootstrap<T> {
         proxyIns = null;
 
         // 取消订阅到注册中心
-        unsubscribe();
+        unSubscribe();
     }
 
     /**
@@ -233,14 +233,12 @@ public class BsoaConsumerBootstrap<T> extends ConsumerBootstrap<T> {
      */
     public List<ProviderInfo> subscribe() {
         List<ProviderInfo> tmpProviderInfoList = new ArrayList<ProviderInfo>();
-        for (ProviderInfo providerInfo : tmpProviderInfoList) {
-
-        }
         List<RegistryConfig> registryConfigs = consumerConfig.getRegistry();
         // 从注册中心订阅
         for (RegistryConfig registryConfig : registryConfigs) {
-            Registry registry = RegistryFactory
-                    .getRegistry(registryConfig);
+            Registry registry = RegistryFactory.getRegistry(registryConfig);
+            registry.init();
+            registry.start();
             try {
                 List<ProviderInfo> providerInfos = registry.subscribe(consumerConfig,
                         providerInfoListener, consumerConfig.getConfigListener());
@@ -260,7 +258,7 @@ public class BsoaConsumerBootstrap<T> extends ConsumerBootstrap<T> {
     /**
      * 取消订阅服务列表
      */
-    public void unsubscribe() {
+    public void unSubscribe() {
         if (StringUtils.isEmpty(consumerConfig.getUrl()) && consumerConfig.isSubscribe()) {
             List<RegistryConfig> registryConfigs = consumerConfig.getRegistry();
             if (registryConfigs != null) {
@@ -269,7 +267,7 @@ public class BsoaConsumerBootstrap<T> extends ConsumerBootstrap<T> {
                     try {
                         registry.unSubscribe(consumerConfig);
                     } catch (Exception e) {
-                        LOGGER.warn("Catch exception when unsubscribe from registry: " + registryConfig.getId()
+                        LOGGER.warn("Catch exception when unSubscribe from registry: " + registryConfig.getId()
                                 + ", but you can ignore if it's called by JVM shutdown hook", e);
                     }
                 }
@@ -352,7 +350,7 @@ public class BsoaConsumerBootstrap<T> extends ConsumerBootstrap<T> {
                 // 需要重新发布
                 LOGGER.info("Rerefer consumer {}", consumerConfig.buildKey());
                 try {
-                    unsubscribe();// 取消订阅旧的
+                    unSubscribe();// 取消订阅旧的
                     for (Map.Entry<String, String> entry : newValues.entrySet()) { // change attrs
                         consumerConfig.updateAttribute(entry.getKey(), entry.getValue(), true);
                     }
@@ -368,7 +366,7 @@ public class BsoaConsumerBootstrap<T> extends ConsumerBootstrap<T> {
                     switchClient();
                 } catch (Exception e) { //切换客户端出现异常
                     LOGGER.error("Catch exception when consumer refer after attribute changed", e);
-                    unsubscribe(); // 取消订阅新的
+                    unSubscribe(); // 取消订阅新的
                     for (Map.Entry<String, String> entry : oldValues.entrySet()) { //rollback old attrs
                         consumerConfig.updateAttribute(entry.getKey(), entry.getValue(), true);
                     }

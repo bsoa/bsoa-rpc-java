@@ -349,6 +349,9 @@ public class ServerConfig extends AbstractIdConfig implements Serializable {
      * @return the context path
      */
     public ServerConfig setContextPath(String contextPath) {
+        if (!contextPath.endsWith("/")) {
+            contextPath += "/";
+        }
         this.contextPath = contextPath;
         return this;
     }

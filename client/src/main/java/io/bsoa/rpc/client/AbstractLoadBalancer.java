@@ -60,7 +60,7 @@ public abstract class AbstractLoadBalancer extends LoadBalancer {
 
     private BsoaRpcException noAliveProvider(String key, Collection<ProviderInfo> providerInfos) {
         // TODO
-        return new BsoaRpcException(22222, "No Alive Provider");
+        return new BsoaRpcException(22222, "No Alive Provider current provider is :" + providerInfos);
     }
 
     /**

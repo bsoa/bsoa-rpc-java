@@ -187,7 +187,7 @@ public class ExtensionLoader<T> {
     }
 
     @JustForTest
-    protected void readLine(URL url, String line) throws Throwable {
+    void readLine(URL url, String line) throws Throwable {
         String[] aliasAndClassName = parseAliasAndClassName(line);
         if (aliasAndClassName == null || aliasAndClassName.length != 2) {
             return;
@@ -284,7 +284,7 @@ public class ExtensionLoader<T> {
      * @return 扩展类对象
      */
     @JustForTest
-    protected ConcurrentHashMap<String, ExtensionClass<T>> getAllExtensions() {
+    ConcurrentHashMap<String, ExtensionClass<T>> getAllExtensions() {
         return all;
     }
 

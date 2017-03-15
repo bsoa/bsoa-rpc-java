@@ -274,6 +274,8 @@ public class BsoaProviderBootstrap<T> extends ProviderBootstrap<T> {
 //                super.setParameter(BsoaConstants.CONFIG_KEY_CROSSLANG, crossLang + "");
                 for (RegistryConfig registryConfig : registryConfigs) {
                     Registry registry = RegistryFactory.getRegistry(registryConfig);
+                    registry.init();
+                    registry.start();
                     try {
                         registry.register(providerConfig, providerConfig.getConfigListener());
                     } catch (BsoaRuntimeException e) {

@@ -41,6 +41,10 @@ import java.net.URLEncoder;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static io.bsoa.rpc.registry.zk.ZookeeperRegistryHelper.buildConfigPath;
+import static io.bsoa.rpc.registry.zk.ZookeeperRegistryHelper.buildConsumerPath;
+import static io.bsoa.rpc.registry.zk.ZookeeperRegistryHelper.buildProviderPath;
+
 /**
  * <p>简单的Zookeeper注册中心,具有如下特性：<br>
  * 1.可以设置优先读取远程，还是优先读取本地备份文件<br>
@@ -109,9 +113,9 @@ public class ZookeeperRegistry extends Registry {
     private final static byte[] PROVIDER_NONE = new byte[0];
 
     /**
-     * Zookeeper client
+     * Zookeeper zkClient
      */
-    private CuratorFramework client;
+    private CuratorFramework zkClient;
 
     /**
      * Root path of registry data
@@ -139,9 +143,14 @@ public class ZookeeperRegistry extends Registry {
      */
     private ZookeeperConfigObserver configObserver;
 
+    /**
+     * 配置项观察者
+     */
+    private ZookeeperProviderObserver providerObserver;
+
     @Override
     public synchronized void init() {
-        if (client != null) {
+        if (zkClient != null) {
             return;
         }
         String addressInput = registryConfig.getAddress(); // xxx:2181,yyy:2181/path1/paht2
@@ -157,12 +166,11 @@ public class ZookeeperRegistry extends Registry {
             address = addressInput;
             rootPath = "/";
         }
-        configObserver = new ZookeeperConfigObserver();
         preferLocalFile = CommonUtils.isTrue(registryConfig.getParameter(PARAM_PREFER_LOCAL_FILE));
         ephemeralNode = CommonUtils.isTrue(registryConfig.getParameter(PARAM_CREATE_EPHEMERAL));
         LOGGER.info("Init ZookeeperRegistry with address {}, root path is {}.", address, rootPath);
         RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
-        client = CuratorFrameworkFactory.builder()
+        zkClient = CuratorFrameworkFactory.builder()
                 .connectString(address)
                 .sessionTimeoutMs(registryConfig.getConnectTimeout() * 3)
                 .connectionTimeoutMs(registryConfig.getConnectTimeout())
@@ -174,24 +182,25 @@ public class ZookeeperRegistry extends Registry {
 
     @Override
     public synchronized boolean start() {
-        if (client == null) {
+        if (zkClient == null) {
+            LOGGER.warn("Start zookeeper registry must be do init first!");
             return false;
         }
-        if (client.getState() == CuratorFrameworkState.STARTED) {
+        if (zkClient.getState() == CuratorFrameworkState.STARTED) {
             return true;
         }
         try {
-            client.start();
+            zkClient.start();
         } catch (Exception e) {
-            throw new BsoaRuntimeException(22222, "Failed to start zookeeper client", e);
+            throw new BsoaRuntimeException(22222, "Failed to start zookeeper zkClient", e);
         }
-        return client.getState() == CuratorFrameworkState.STARTED;
+        return zkClient.getState() == CuratorFrameworkState.STARTED;
     }
 
     @Override
     public void destroy() {
-        if (client != null && client.getState() == CuratorFrameworkState.STARTED) {
-            client.close();
+        if (zkClient != null && zkClient.getState() == CuratorFrameworkState.STARTED) {
+            zkClient.close();
         }
     }
 
@@ -204,15 +213,15 @@ public class ZookeeperRegistry extends Registry {
 
     @Override
     public void register(ProviderConfig config, ConfigListener listener) {
-        // 注册服务端节点
         if (config.isRegister()) {
+            // 注册服务端节点
             try {
-                List<String> urls = config.getBootstrap().buildUrls();
+                List<String> urls = ZookeeperRegistryHelper.convertProviderToUrls(config);
                 if (CommonUtils.isNotEmpty(urls)) {
-                    String providerPath = buildProviderPath(config);
+                    String providerPath = buildProviderPath(rootPath, config);
                     for (String url : urls) {
                         url = URLEncoder.encode(url, "UTF-8");
-                        client.create().creatingParentContainersIfNeeded()
+                        getAndCheckZkClient().create().creatingParentContainersIfNeeded()
                                 .withMode(ephemeralNode ? CreateMode.EPHEMERAL : CreateMode.PERSISTENT) // 是否永久节点
                                 .forPath(providerPath + "/" + url,
                                         config.isDynamic() ? PROVIDER_ONLINE : PROVIDER_OFFLINE); // 是否默认上下线
@@ -224,37 +233,44 @@ public class ZookeeperRegistry extends Registry {
             }
         }
 
-        // 订阅配置节点
         if (config.isSubscribe()) {
-            try {
-                String configPath = buildConfigPath(config);
-                // 监听配置节点下 子节点增加、子节点删除、子节点Data修改事件
-                PathChildrenCache pathChildrenCache = new PathChildrenCache(client, configPath, true);
-                pathChildrenCache.getListenable().addListener((client1, event) -> {
-                    LOGGER.debug("Receive zookeeper event: " + "type=[" + event.getType() + "]");
-                    switch (event.getType()) {
-                        case CHILD_ADDED: //加了一个配置
-                            configObserver.addConfig(config.getInterfaceId(), event.getData());
-                            break;
-                        case CHILD_REMOVED: //删了一个配置
-                            configObserver.removeConfig(config.getInterfaceId(), event.getData());
-                            break;
-                        case CHILD_UPDATED:
-                            configObserver.updateConfig(config.getInterfaceId(), event.getData());
-                            break;
-                    }
-                });
-//        watcher.start(PathChildrenCache.StartMode.NORMAL);// 历史数据触发事件，CurrentData为空
-                pathChildrenCache.start(PathChildrenCache.StartMode.BUILD_INITIAL_CACHE);// 历史数据不触发事件，而是初始化到CurrentData
-//        watcher.start(PathChildrenCache.StartMode.POST_INITIALIZED_EVENT);// 历史数据触发事件，CurrentData为空，最后会收到一个加载完毕事件
-                INTERFACE_CONFIG_CACHE.put(configPath, pathChildrenCache);
-                configObserver.updateConfigAll(config.getInterfaceId(), pathChildrenCache.getCurrentData());
-
-
-            } catch (Exception e) {
-                throw new BsoaRuntimeException(22222,
-                        "Failed to subscribe provider config to zookeeperRegistry!", e);
+            // 订阅配置节点
+            String configPath = buildConfigPath(rootPath, config);
+            if (!INTERFACE_CONFIG_CACHE.containsKey(configPath)) {
+                subscribeConfig(config, listener);
             }
+        }
+    }
+
+    protected void subscribeConfig(AbstractInterfaceConfig config, ConfigListener listener) {
+        String configPath = buildConfigPath(rootPath, config);
+        try {
+            if (configObserver == null) { // 初始化
+                configObserver = new ZookeeperConfigObserver();
+            }
+            configObserver.addConfigListener(config, listener);
+            // 监听配置节点下 子节点增加、子节点删除、子节点Data修改事件
+            PathChildrenCache pathChildrenCache = new PathChildrenCache(zkClient, configPath, true);
+            pathChildrenCache.getListenable().addListener((client1, event) -> {
+                LOGGER.debug("Receive zookeeper event: " + "type=[" + event.getType() + "]");
+                switch (event.getType()) {
+                    case CHILD_ADDED: //加了一个配置
+                        configObserver.addConfig(config, event.getData());
+                        break;
+                    case CHILD_REMOVED: //删了一个配置
+                        configObserver.removeConfig(config, event.getData());
+                        break;
+                    case CHILD_UPDATED:
+                        configObserver.updateConfig(config, event.getData());
+                        break;
+                }
+            });
+            pathChildrenCache.start(PathChildrenCache.StartMode.BUILD_INITIAL_CACHE);
+            INTERFACE_CONFIG_CACHE.put(configPath, pathChildrenCache);
+            configObserver.updateConfigAll(config, pathChildrenCache.getCurrentData());
+        } catch (Exception e) {
+            throw new BsoaRuntimeException(22222,
+                    "Failed to subscribe provider config to zookeeperRegistry!", e);
         }
     }
 
@@ -263,12 +279,12 @@ public class ZookeeperRegistry extends Registry {
         // 反注册服务端节点
         if (config.isRegister()) {
             try {
-                List<String> urls = config.getBootstrap().buildUrls();
+                List<String> urls = ZookeeperRegistryHelper.convertProviderToUrls(config);
                 if (CommonUtils.isNotEmpty(urls)) {
-                    String providerPath = buildProviderPath(config);
+                    String providerPath = buildProviderPath(rootPath, config);
                     for (String url : urls) {
                         url = URLEncoder.encode(url, "UTF-8");
-                        client.delete().forPath(providerPath + "/" + url);
+                        getAndCheckZkClient().delete().forPath(providerPath + "/" + url);
                     }
                 }
             } catch (Exception e) {
@@ -279,9 +295,10 @@ public class ZookeeperRegistry extends Registry {
         // 反订阅配置节点
         if (config.isSubscribe()) {
             try {
-                String configPath = buildConfigPath(config);
+                String configPath = buildConfigPath(rootPath, config);
                 // 监听这个节点下 子节点增加、子节点删除、子节点Data修改事件
                 // TODO
+                configObserver.removeConfigListener(config);
             } catch (Exception e) {
                 throw new BsoaRuntimeException(22222,
                         "Failed to register provider config to zookeeperRegistry!", e);
@@ -303,56 +320,106 @@ public class ZookeeperRegistry extends Registry {
         // 注册Consumer节点
         if (config.isRegister()) {
             try {
-                String consumerNode = buildConsumerPath(config);
-                client.create().creatingParentContainersIfNeeded()
-                        .withMode(ephemeralNode ? CreateMode.EPHEMERAL : CreateMode.PERSISTENT) // 是否永久节点
-                        .forPath(consumerNode);
+                String consumerPath = buildConsumerPath(rootPath, config);
+                String url = ZookeeperRegistryHelper.convertConsumerToUrl(config);
+                url = URLEncoder.encode(url, "UTF-8");
+                getAndCheckZkClient().create().creatingParentContainersIfNeeded()
+                        .withMode(CreateMode.EPHEMERAL) // Consumer临时节点
+                        .forPath(consumerPath + "/" + url);
             } catch (Exception e) {
-                throw new BsoaRuntimeException(22222, "Failed to register consumer config to zookeeperRegistry!");
+                throw new BsoaRuntimeException(22222,
+                        "Failed to register consumer config to zookeeperRegistry!", e);
             }
         }
-        // 订阅Providers节点
-        try {
-            String consumerNode = buildConsumerPath(config);
-            client.create().creatingParentContainersIfNeeded()
-                    .withMode(ephemeralNode ? CreateMode.EPHEMERAL : CreateMode.PERSISTENT) // 是否永久节点
-                    .forPath(consumerNode, PROVIDER_NONE); // 是否
-        } catch (Exception e) {
-            throw new BsoaRuntimeException(22222, "Failed to register consumer config to zookeeperRegistry!");
+        if (config.isSubscribe()) {
+            // 订阅配置
+            String configPath = buildConfigPath(rootPath, config);
+            if (!INTERFACE_CONFIG_CACHE.containsKey(configPath)) {
+                subscribeConfig(config, configListener);
+            }
+
+            // 订阅Providers节点
+            try {
+                if (providerObserver == null) { // 初始化
+                    providerObserver = new ZookeeperProviderObserver();
+                }
+                String providerPath = buildProviderPath(rootPath, config);
+
+                // 监听配置节点下 子节点增加、子节点删除、子节点Data修改事件
+                providerObserver.addProviderListener(config, providerInfoListener);
+                // TODO 换成监听父节点变化（只是监听变化了，而不通知变化了什么，然后客户端自己来拉数据的）
+                PathChildrenCache pathChildrenCache = new PathChildrenCache(zkClient, providerPath, true);
+                pathChildrenCache.getListenable().addListener((client1, event) -> {
+                    LOGGER.debug("Receive zookeeper event: " + "type=[" + event.getType() + "]");
+                    switch (event.getType()) {
+                        case CHILD_ADDED: //加了一个provider
+                            providerObserver.addProvider(config, providerPath, event.getData());
+                            break;
+                        case CHILD_REMOVED: //删了一个provider
+                            providerObserver.removeProvider(config, providerPath, event.getData());
+                            break;
+                        case CHILD_UPDATED: // 更新一个Provider
+                            providerObserver.updateProvider(config, providerPath, event.getData());
+                            break;
+                    }
+                });
+                pathChildrenCache.start(PathChildrenCache.StartMode.BUILD_INITIAL_CACHE);
+                return ZookeeperRegistryHelper.convertUrlsToProviders(providerPath, pathChildrenCache.getCurrentData());
+            } catch (Exception e) {
+                throw new BsoaRuntimeException(22222,
+                        "Failed to register consumer config to zookeeperRegistry!", e);
+            }
         }
-        // 订阅配置
         return null;
     }
 
     @Override
     public void unSubscribe(ConsumerConfig config) {
+        // 反注册服务端节点
+        if (config.isRegister()) {
+            try {
+                String consumerPath = buildConsumerPath(rootPath, config);
+                String url = ZookeeperRegistryHelper.convertConsumerToUrl(config);
+                url = URLEncoder.encode(url, "UTF-8");
+                getAndCheckZkClient().delete().forPath(consumerPath + "/" + url);
+            } catch (Exception e) {
+                throw new BsoaRuntimeException(22222,
+                        "Failed to register provider config to zookeeperRegistry!", e);
+            }
+        }
+        // 反订阅配置节点
+        if (config.isSubscribe()) {
+            try {
+                String configPath = buildConfigPath(rootPath, config);
+                // 监听这个节点下 子节点增加、子节点删除、子节点Data修改事件
+                // TODO
 
+                configObserver.removeConfigListener(config);
+                providerObserver.removeProviderListener(config);
+            } catch (Exception e) {
+                throw new BsoaRuntimeException(22222,
+                        "Failed to register provider config to zookeeperRegistry!", e);
+            }
+        }
     }
 
     @Override
     public void batchUnSubscribe(List<ConsumerConfig> configs) {
-
+        // 一个一个来，后续看看要不要使用curator的事务
+        for (ConsumerConfig config : configs) {
+            unSubscribe(config);
+        }
     }
 
     @JustForTest
-    public CuratorFramework getClient() {
-        return client;
+    CuratorFramework getZkClient() {
+        return zkClient;
     }
 
-    protected void check(String path) throws Exception {
-        client.checkExists().creatingParentContainersIfNeeded().forPath(path);
+    private CuratorFramework getAndCheckZkClient() {
+        if (zkClient == null || zkClient.getState() != CuratorFrameworkState.STARTED) {
+            throw new BsoaRuntimeException(22222, "Zookeeper client is not available");
+        }
+        return zkClient;
     }
-
-    private String buildProviderPath(ProviderConfig config) {
-        return rootPath + "bsoa/" + config.getInterfaceId() + "/providers";
-    }
-
-    private String buildConsumerPath(ConsumerConfig config) {
-        return rootPath + "bsoa/" + config.getInterfaceId() + "/consumers";
-    }
-
-    private String buildConfigPath(AbstractInterfaceConfig config) {
-        return rootPath + "bsoa/" + config.getInterfaceId() + "/configs";
-    }
-
 }

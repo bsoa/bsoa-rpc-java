@@ -579,7 +579,7 @@ public abstract class AbstractClient extends Client {
     }
 
     private BsoaRpcException noAliveProviderException(String s, Collection<ProviderInfo> providerInfos) {
-        return new BsoaRpcException(22222, "No Alive Provider");
+        return new BsoaRpcException(22222, "No Alive Provider, current is " + providerInfos);
     }
 
     protected BsoaRpcException noAliveProvider(String key, String IP) {
