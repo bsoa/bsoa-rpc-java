@@ -22,6 +22,7 @@ import io.bsoa.rpc.invoke.StreamTask;
 import io.bsoa.rpc.message.BaseMessage;
 import io.bsoa.rpc.message.HeadKey;
 import io.bsoa.rpc.message.HeartbeatResponse;
+import io.bsoa.rpc.message.MessageConstants;
 import io.bsoa.rpc.message.NegotiationRequest;
 import io.bsoa.rpc.message.NegotiationResponse;
 import io.bsoa.rpc.message.ResponseFuture;
@@ -161,8 +162,10 @@ public abstract class ClientTransport {
         ProtocolNegotiator negotiator =
                 ProtocolFactory.getProtocol(transportConfig.getProviderInfo().getProtocolType()).negotiator();
         if (negotiator != null) {
-            NegotiationResponse response = negotiator.handleRequest(request, getChannel().context());
-            getChannel().writeAndFlush(response);
+            NegotiationResponse response = negotiator.handleRequest(request, getChannel());
+            if (request.getDirectionType() == MessageConstants.DIRECTION_FORWARD) {
+                getChannel().writeAndFlush(response); // 不是单向的，需要返回
+            }
         }
     }
 

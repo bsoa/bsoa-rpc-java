@@ -33,7 +33,7 @@ import static io.bsoa.rpc.ext.ExtensionLoaderFactory.getExtensionLoader;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-@Extension(value = "bsoa", code = 10)
+@Extension(value = BsoaProtocolInfo.PROTOCOL_NAME, code = BsoaProtocolInfo.PROTOCOL_CODE)
 @ThreadSafe
 public class BsoaProtocol implements Protocol {
 
@@ -47,11 +47,12 @@ public class BsoaProtocol implements Protocol {
 
     public BsoaProtocol() {
         protocolInfo = new BsoaProtocolInfo();
-        encoder = getExtensionLoader(ProtocolEncoder.class)
-                .getExtension("bsoa", new Class[]{ProtocolInfo.class}, new Object[]{protocolInfo});
-        decoder = getExtensionLoader(ProtocolDecoder.class)
-                .getExtension("bsoa", new Class[]{ProtocolInfo.class}, new Object[]{protocolInfo});
-        protocolNegotiator = getExtensionLoader(ProtocolNegotiator.class).getExtension("bsoa");
+        encoder = getExtensionLoader(ProtocolEncoder.class).getExtension(BsoaProtocolInfo.PROTOCOL_NAME,
+                new Class[]{ProtocolInfo.class}, new Object[]{protocolInfo});
+        decoder = getExtensionLoader(ProtocolDecoder.class).getExtension(BsoaProtocolInfo.PROTOCOL_NAME,
+                new Class[]{ProtocolInfo.class}, new Object[]{protocolInfo});
+        protocolNegotiator = getExtensionLoader(ProtocolNegotiator.class)
+                .getExtension(BsoaProtocolInfo.PROTOCOL_NAME);
     }
 
     @Override

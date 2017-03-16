@@ -195,7 +195,7 @@ public class BsoaServerHandler implements ServerHandler {
         Protocol protocol = ProtocolFactory.getProtocol(request.getProtocolType()); // 由于服务端端口是支持多协议的
         ProtocolNegotiator negotiator = protocol.negotiator();
         if (negotiator != null) {
-            NegotiationResponse response = negotiator.handleRequest(request, channel.context());
+            NegotiationResponse response = negotiator.handleRequest(request, channel);
             channel.writeAndFlush(response);
         }
     }

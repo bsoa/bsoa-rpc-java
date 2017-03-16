@@ -54,7 +54,8 @@ public class BsoaConfigs {
     /**
      * 配置变化监听器
      */
-    private final static ConcurrentHashMap<String, List<ConfigListener>> CFG_LISTENER = new ConcurrentHashMap<>();
+    private final static ConcurrentHashMap<String, List<BsoaConfigListener>> CFG_LISTENER 
+            = new ConcurrentHashMap<>();
 
     static {
         init(); // 加载配置文件
@@ -130,9 +131,9 @@ public class BsoaConfigs {
         Object oldValue = CFG.get(key);
         if (changed(oldValue, newValue)) {
             CFG.put(key, newValue);
-            List<ConfigListener> configListeners = CFG_LISTENER.get(key);
-            for (ConfigListener configListener : configListeners) {
-                configListener.onChange(oldValue, newValue);
+            List<BsoaConfigListener> bsoaConfigListeners = CFG_LISTENER.get(key);
+            for (BsoaConfigListener bsoaConfigListener : bsoaConfigListeners) {
+                bsoaConfigListener.onChange(oldValue, newValue);
             }
         }
     }
@@ -233,29 +234,29 @@ public class BsoaConfigs {
      * 订阅配置变化
      *
      * @param key            关键字
-     * @param configListener 配置监听器
+     * @param bsoaConfigListener 配置监听器
      * @see BsoaOptions
      */
-    public static synchronized void subscribe(String key, ConfigListener configListener) {
-        List<ConfigListener> listeners = CFG_LISTENER.get(key);
+    public static synchronized void subscribe(String key, BsoaConfigListener bsoaConfigListener) {
+        List<BsoaConfigListener> listeners = CFG_LISTENER.get(key);
         if (listeners == null) {
             listeners = new ArrayList<>();
             CFG_LISTENER.put(key, listeners);
         }
-        listeners.add(configListener);
+        listeners.add(bsoaConfigListener);
     }
 
     /**
      * 取消订阅配置变化
      *
      * @param key            关键字
-     * @param configListener 配置监听器
+     * @param bsoaConfigListener 配置监听器
      * @see BsoaOptions
      */
-    public static synchronized void unSubscribe(String key, ConfigListener configListener) {
-        List<ConfigListener> listeners = CFG_LISTENER.get(key);
+    public static synchronized void unSubscribe(String key, BsoaConfigListener bsoaConfigListener) {
+        List<BsoaConfigListener> listeners = CFG_LISTENER.get(key);
         if (listeners != null) {
-            listeners.remove(configListener);
+            listeners.remove(bsoaConfigListener);
             if (listeners.size() == 0) {
                 CFG_LISTENER.remove(key);
             }
@@ -305,7 +306,7 @@ public class BsoaConfigs {
     /**
      * 配置变更会拿到通知
      */
-    public interface ConfigListener<T> {
+    public interface BsoaConfigListener<T> {
         public void onChange(T oldValue, T newValue);
     }
 

@@ -15,15 +15,6 @@
  */
 package io.bsoa.rpc.transport.netty;
 
-import java.net.InetSocketAddress;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.bsoa.rpc.common.BsoaConfigs;
 import io.bsoa.rpc.common.BsoaOptions;
 import io.bsoa.rpc.common.SystemInfo;
@@ -56,6 +47,14 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.WriteBufferWaterMark;
 import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.net.InetSocketAddress;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * <p></p>
@@ -108,6 +107,7 @@ public class NettyClientTransport extends ClientTransport {
             if (!BsoaConfigs.getBooleanValue(BsoaOptions.TRANSPORT_CONNECTION_REUSE)) {
                 LOGGER.warn("Has been call connect(), ignore this if connection reuse");
             }
+            return;
         }
 
         String host = transportConfig.getProviderInfo().getIp();

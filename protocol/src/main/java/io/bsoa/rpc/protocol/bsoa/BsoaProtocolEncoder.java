@@ -51,7 +51,7 @@ import static io.bsoa.rpc.common.BsoaOptions.COMPRESS_SIZE_BASELINE;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-@Extension("bsoa")
+@Extension(BsoaProtocolInfo.PROTOCOL_NAME)
 public class BsoaProtocolEncoder extends ProtocolEncoder {
 
     /**

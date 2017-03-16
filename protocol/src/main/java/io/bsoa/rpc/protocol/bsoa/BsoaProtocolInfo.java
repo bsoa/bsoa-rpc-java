@@ -29,6 +29,10 @@ import io.bsoa.rpc.protocol.ProtocolInfo;
  */
 public class BsoaProtocolInfo extends ProtocolInfo {
 
+    public static final String PROTOCOL_NAME = "bsoa";
+
+    public static final byte PROTOCOL_CODE = 10;
+    
     private int maxFrameLength = BsoaConfigs.getOrDefaultValue(
             BsoaOptions.TRANSPORT_PAYLOAD_MAX, 20 * 1024 * 1024); //  最大值默认20M
 
@@ -47,7 +51,7 @@ public class BsoaProtocolInfo extends ProtocolInfo {
     private final byte[] magicCode = new byte[]{(byte) 0x08, (byte) 0x0a}; // 2个不可见字符
 
     public BsoaProtocolInfo() {
-        super("bsoa", (byte) 10, false, NET_PROTOCOL_TCP);// 是一个变长协议
+        super(PROTOCOL_NAME, (byte) 10, false, NET_PROTOCOL_TCP);// 是一个变长协议
     }
 
     @Override

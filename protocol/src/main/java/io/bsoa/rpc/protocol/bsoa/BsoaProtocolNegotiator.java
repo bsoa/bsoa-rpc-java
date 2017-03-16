@@ -27,7 +27,6 @@ import io.bsoa.rpc.message.MessageBuilder;
 import io.bsoa.rpc.message.MessageConstants;
 import io.bsoa.rpc.message.NegotiationRequest;
 import io.bsoa.rpc.message.NegotiationResponse;
-import io.bsoa.rpc.protocol.ProtocolFactory;
 import io.bsoa.rpc.protocol.ProtocolNegotiator;
 import io.bsoa.rpc.protocol.bsoa.handler.AppNegotiationHandler;
 import io.bsoa.rpc.protocol.bsoa.handler.HeaderCacheNegotiationHandler;
@@ -35,7 +34,7 @@ import io.bsoa.rpc.protocol.bsoa.handler.SerialNegotiationHandler;
 import io.bsoa.rpc.protocol.bsoa.handler.ServerBusyNegotiationHandler;
 import io.bsoa.rpc.protocol.bsoa.handler.ServerClosingNegotiationHandler;
 import io.bsoa.rpc.protocol.bsoa.handler.VersionNegotiationHandler;
-import io.bsoa.rpc.transport.ChannelContext;
+import io.bsoa.rpc.transport.AbstractChannel;
 import io.bsoa.rpc.transport.ClientTransport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +50,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-@Extension("bsoa")
+@Extension(BsoaProtocolInfo.PROTOCOL_NAME)
 public class BsoaProtocolNegotiator implements ProtocolNegotiator {
 
     /**
@@ -64,7 +63,14 @@ public class BsoaProtocolNegotiator implements ProtocolNegotiator {
      */
     protected ConcurrentHashMap<String, BsoaNegotiationHandler> commands = new ConcurrentHashMap<>();
 
+    /**
+     * 是否启动协商功能
+     */
     private boolean negotiation = BsoaConfigs.getBooleanValue(BsoaOptions.BSOA_NEGOTIATION_ENABLE);
+    
+    /**
+     * 是否启动头部引用功能
+     */
     private boolean headRef = BsoaConfigs.getBooleanValue(BsoaOptions.BSOA_HEAD_REF_ENABLE);
 
     /**
@@ -86,19 +92,17 @@ public class BsoaProtocolNegotiator implements ProtocolNegotiator {
     @Override
     public boolean handshake(ProviderInfo providerInfo, ClientTransport clientTransport) {
         if (negotiation) {
-            NegotiationRequest request = MessageBuilder.buildNegotiationRequest();
-            request.setProtocolType(ProtocolFactory.getCodeByAlias(providerInfo.getProtocolType()));
-            cacheProviderVersion(clientTransport, request); // 记住真正服务端版本
-            sendConsumerAppId(clientTransport, request); // 发送给客户端信息给服务端
+            cacheProviderVersion(clientTransport); // 记住真正服务端版本
+            sendConsumerAppId(clientTransport); // 发送给客户端信息给服务端
             if (headRef) {
-                sendInterfaceNameCache(providerInfo, clientTransport, request);
+                sendInterfaceNameCache(providerInfo, clientTransport);
             }
         }
         return true;
     }
 
     @Override
-    public NegotiationResponse handleRequest(NegotiationRequest request, ChannelContext context) {
+    public NegotiationResponse handleRequest(NegotiationRequest request, AbstractChannel channel) {
         NegotiationResponse response = MessageBuilder.buildNegotiationResponse(request);
         String cmd = request.getCmd();
         if (cmd == null) {
@@ -109,7 +113,7 @@ public class BsoaProtocolNegotiator implements ProtocolNegotiator {
                 response.setError(true).setData("unsupported command: " + cmd);
             } else {
                 try {
-                    response.setData(handler.handle(request, context));
+                    response.setData(handler.handle(request, channel));
                 } catch (Exception e) {
                     response.setError(true).setData(e.getMessage());
                 }
@@ -129,7 +133,13 @@ public class BsoaProtocolNegotiator implements ProtocolNegotiator {
         }
     }
 
-    protected String send(ClientTransport clientTransport, NegotiationRequest request) {
+    protected void oneWaySend(ClientTransport clientTransport, NegotiationRequest request) {
+        request.setDirectionType(MessageConstants.DIRECTION_ONEWAY);
+        sendNegotiationRequest(clientTransport, request,
+                clientTransport.getConfig().getInvokeTimeout());
+    }
+
+    protected String syncSend(ClientTransport clientTransport, NegotiationRequest request) {
         NegotiationResponse response = sendNegotiationRequest(clientTransport, request,
                 clientTransport.getConfig().getInvokeTimeout());
         if (response.isError()) {
@@ -144,16 +154,17 @@ public class BsoaProtocolNegotiator implements ProtocolNegotiator {
      * 协商双方版本
      *
      * @param clientTransport 客户端长连接
-     * @param request         协商请求
      * @see VersionNegotiationHandler
      */
-    protected void cacheProviderVersion(ClientTransport clientTransport, NegotiationRequest request) {
+    protected void cacheProviderVersion(ClientTransport clientTransport) {
+        NegotiationRequest request = MessageBuilder.buildNegotiationRequest();
+        request.setProtocolType(BsoaProtocolInfo.PROTOCOL_CODE);
         request.setCmd("version");
         Map<String, String> map = new HashMap<>();
         map.put("version", BsoaVersion.BSOA_VERSION + "");
         map.put("build", BsoaVersion.BUILD_VERSION);
         request.setData(JSON.toJSONString(map)); // 把自己版本发给服务端
-        String serverVersionJson = send(clientTransport, request);
+        String serverVersionJson = syncSend(clientTransport, request);
         Map<String, String> serverMap = JSON.parseObject(serverVersionJson, Map.class);
         if (serverMap != null) {
             String serverVer = serverMap.get("version");
@@ -168,18 +179,18 @@ public class BsoaProtocolNegotiator implements ProtocolNegotiator {
      * 传递应用信息
      *
      * @param clientTransport 客户端长连接
-     * @param request         协商请求
      * @see AppNegotiationHandler
      */
-    protected void sendConsumerAppId(ClientTransport clientTransport, NegotiationRequest request) {
-        request.setDirectionType(MessageConstants.DIRECTION_ONEWAY);
+    protected void sendConsumerAppId(ClientTransport clientTransport) {
+        NegotiationRequest request = MessageBuilder.buildNegotiationRequest();
+        request.setProtocolType(BsoaProtocolInfo.PROTOCOL_CODE);
         request.setCmd("app");
         Map<String, String> map = new HashMap<>();
         map.put(BsoaOptions.APP_ID, BsoaConfigs.getStringValue(BsoaOptions.APP_ID));
         map.put(BsoaOptions.APP_NAME, BsoaConfigs.getStringValue(BsoaOptions.APP_NAME));
         map.put(BsoaOptions.INSTANCE_ID, BsoaConfigs.getStringValue(BsoaOptions.INSTANCE_ID));
         request.setData(JSON.toJSONString(map));
-        send(clientTransport, request); // 单向
+        oneWaySend(clientTransport, request); // 单向
     }
 
     /**
@@ -187,17 +198,17 @@ public class BsoaProtocolNegotiator implements ProtocolNegotiator {
      *
      * @param providerInfo    服务端信息
      * @param clientTransport 客户端长连接
-     * @param request         协商请求
      * @see HeaderCacheNegotiationHandler
      */
-    protected void sendInterfaceNameCache(ProviderInfo providerInfo, ClientTransport clientTransport,
-                                          NegotiationRequest request) {
+    protected void sendInterfaceNameCache(ProviderInfo providerInfo, ClientTransport clientTransport) {
+        NegotiationRequest request = MessageBuilder.buildNegotiationRequest();
+        request.setProtocolType(BsoaProtocolInfo.PROTOCOL_CODE);
         request.setCmd("headerCache");
         Map<String, String> map = new HashMap<>();
         int cacheId = 0;// clientTransport.getChannel().context().; //申请一个cache TODO
-        map.put(providerInfo.getInterfaceId(), cacheId + "");
+        map.put(cacheId + "", providerInfo.getInterfaceId());
         request.setData(JSON.toJSONString(map));
-        String result = send(clientTransport, request);
+        String result = syncSend(clientTransport, request);
         if (CommonUtils.isTrue(result)) {
             LOGGER.info("------------{}", result);
             // 保留下来这个缓存  cacheId  TODO

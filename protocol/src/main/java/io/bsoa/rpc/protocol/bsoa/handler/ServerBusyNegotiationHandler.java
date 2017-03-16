@@ -19,6 +19,7 @@ import io.bsoa.rpc.common.json.JSON;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
 import io.bsoa.rpc.message.NegotiationRequest;
 import io.bsoa.rpc.protocol.bsoa.BsoaNegotiationHandler;
+import io.bsoa.rpc.transport.AbstractChannel;
 import io.bsoa.rpc.transport.ChannelContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +45,8 @@ public class ServerBusyNegotiationHandler implements BsoaNegotiationHandler {
     }
 
     @Override
-    public String handle(NegotiationRequest request, ChannelContext context) throws BsoaRuntimeException {
+    public String handle(NegotiationRequest request, AbstractChannel channel) throws BsoaRuntimeException {
+        ChannelContext context = channel.context();
         String data = request.getData();
         Map<String, String> map = JSON.parseObject(data, Map.class);
         LOGGER.info("server is busy, info:{}", map);

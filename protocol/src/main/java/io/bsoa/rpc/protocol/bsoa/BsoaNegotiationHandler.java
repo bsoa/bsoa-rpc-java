@@ -17,7 +17,7 @@ package io.bsoa.rpc.protocol.bsoa;
 
 import io.bsoa.rpc.exception.BsoaRuntimeException;
 import io.bsoa.rpc.message.NegotiationRequest;
-import io.bsoa.rpc.transport.ChannelContext;
+import io.bsoa.rpc.transport.AbstractChannel;
 
 /**
  * <p></p>
@@ -39,9 +39,9 @@ public interface BsoaNegotiationHandler {
      * 处理命令
      *
      * @param request 请求内容
-     * @param context 上下文
+     * @param channel 长连接（带上下文）
      * @return 正常返回的响应
      * @throws BsoaRuntimeException 异常时一定要抛出
      */
-    String handle(NegotiationRequest request, ChannelContext context) throws BsoaRuntimeException;
+    String handle(NegotiationRequest request, AbstractChannel channel) throws BsoaRuntimeException;
 }

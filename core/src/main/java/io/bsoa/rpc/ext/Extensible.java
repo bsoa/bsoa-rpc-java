@@ -22,7 +22,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * <p>代表这个类或者接口是可扩展的</p>
+ * <p>代表这个类或者接口是可扩展的，默认单例、不需要编码</p>
  * <p>
  * Created by zhangg on 2016/12/17 19:06. <br/>
  *

@@ -48,7 +48,7 @@ import java.util.Map;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-@Extension("bsoa")
+@Extension(BsoaProtocolInfo.PROTOCOL_NAME)
 public class BsoaProtocolDecoder extends ProtocolDecoder {
 
     /**

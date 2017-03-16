@@ -19,7 +19,7 @@ import io.bsoa.rpc.client.ProviderInfo;
 import io.bsoa.rpc.ext.Extensible;
 import io.bsoa.rpc.message.NegotiationRequest;
 import io.bsoa.rpc.message.NegotiationResponse;
-import io.bsoa.rpc.transport.ChannelContext;
+import io.bsoa.rpc.transport.AbstractChannel;
 import io.bsoa.rpc.transport.ClientTransport;
 
 /**
@@ -45,9 +45,10 @@ public interface ProtocolNegotiator {
      * 处理协商请求（服务端和客户端都可以互发）
      *
      * @param negotiationRequest 协商请求
+     * @param channel            长连接信息
      * @return 协商响应
      */
-    NegotiationResponse handleRequest(NegotiationRequest negotiationRequest, ChannelContext context);
+    NegotiationResponse handleRequest(NegotiationRequest negotiationRequest, AbstractChannel channel);
 
     /**
      * 发送协议请求
