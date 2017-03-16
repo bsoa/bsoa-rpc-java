@@ -129,7 +129,7 @@ public class StreamObserverStub<V> implements StreamObserver<V>, Serializable {
         request.setCompressType(compressType); // 默认开启压缩
         request.setProtocolType(protocolType);
         request.setSerializationType(serializationType);
-        request.setDirectionType(MessageConstants.DIRECTION_FORWARD); // 单向
+        request.setDirectionType(MessageConstants.DIRECTION_ONEWAY); // 单向
         request.addHeadKey(HeadKey.STREAM_INS_KEY, this.streamInsKey);  //最重要
         RpcResponse response = (RpcResponse) clientTransport.syncSend(request, timeout);
         if (response.hasError()) {

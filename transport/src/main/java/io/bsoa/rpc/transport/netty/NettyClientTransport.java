@@ -28,7 +28,6 @@ import io.bsoa.rpc.invoke.CallbackUtils;
 import io.bsoa.rpc.invoke.StreamUtils;
 import io.bsoa.rpc.message.BaseMessage;
 import io.bsoa.rpc.message.HeartbeatResponse;
-import io.bsoa.rpc.message.MessageConstants;
 import io.bsoa.rpc.message.NegotiationResponse;
 import io.bsoa.rpc.message.ResponseFuture;
 import io.bsoa.rpc.message.RpcRequest;
@@ -103,7 +102,7 @@ public class NettyClientTransport extends ClientTransport {
     @Override
     public void connect() {
         // 已经初始化，或者被复用
-        if (channel != null) {
+        if (channel != null && channel.isAvailable()) {
             if (!BsoaConfigs.getBooleanValue(BsoaOptions.TRANSPORT_CONNECTION_REUSE)) {
                 LOGGER.warn("Has been call connect(), ignore this if connection reuse");
             }
@@ -285,7 +284,7 @@ public class NettyClientTransport extends ClientTransport {
         if (!isAvailable()) {
             throw new BsoaRpcException(22222, "msg cannot be null.");
         }
-        boolean oneWay = message.getDirectionType() == MessageConstants.DIRECTION_ONEWAY;
+        boolean oneWay = message.isOneWay();
         NettyMessageFuture<BaseMessage> nettyMessageFuture = null;
         Channel channel = this.channel.getChannel();
         if (!oneWay) {

@@ -20,7 +20,6 @@ import io.bsoa.rpc.context.BsoaContext;
 import io.bsoa.rpc.exception.BsoaRpcException;
 import io.bsoa.rpc.message.HeadKey;
 import io.bsoa.rpc.message.MessageBuilder;
-import io.bsoa.rpc.message.MessageConstants;
 import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.message.RpcResponse;
 import io.bsoa.rpc.protocol.Protocol;
@@ -77,8 +76,7 @@ public class StreamTask implements Runnable {
             return;
         }
 
-        byte directionType = request.getDirectionType();
-        if (directionType != MessageConstants.DIRECTION_FORWARD) {
+        if (request.isOneWay()) {
             LOGGER.warn("SteamEvent must be forward!");
         }
 

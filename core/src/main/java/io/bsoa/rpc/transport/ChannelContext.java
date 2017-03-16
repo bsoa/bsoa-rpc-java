@@ -32,11 +32,11 @@ public class ChannelContext {
      * 每个长连接独立的一个缓存，最多256条
      * TODO 是否分将缓存 全局静态区和动态区
      */
-    protected volatile TwoWayMap<Byte, String> headerCache;
+    protected volatile TwoWayMap<Short, String> headerCache;
     /**
      * 对方版本
      */
-    protected int dstVersion;
+    protected Integer dstVersion;
     /**
      * 客户端应用Id
      */
@@ -60,7 +60,7 @@ public class ChannelContext {
      * @param key   the key
      * @param value the value
      */
-    public void putHeadCache(Byte key, String value) {
+    public void putHeadCache(Short key, String value) {
         if (headerCache == null) {
             synchronized (this) {
                 if (headerCache == null) {
@@ -69,31 +69,10 @@ public class ChannelContext {
             }
         }
         if (headerCache != null && !headerCache.containsKey(key)) {
-            if (headerCache.size() >= 255) {
-                throw new BsoaRuntimeException(22222, "Cache of channel is full! size >= 255");
-            }
             headerCache.put(key, value);
         }
     }
-    
-    public Byte getAvailableRefIndex() {
-        if (headerCache == null) {
-            synchronized (this) {
-                if (headerCache == null) {
-                    headerCache = new TwoWayMap<>();
-                }
-            }
-        }
-        if (headerCache.size() >= 255) {
-            return null;
-        }
-        for (byte i = Byte.MIN_VALUE; i < Byte.MAX_VALUE; i++) {
-            if (!headerCache.containsKey(i)) {
-                return i;
-            }
-        }
-        return null;
-    }
+
 
     /**
      * Invalidate head cache.
@@ -102,7 +81,7 @@ public class ChannelContext {
      * @param value the value
      */
     public void invalidateHeadCache(Byte key, String value) {
-        if (headerCache!=null && headerCache.containsKey(key)) {
+        if (headerCache != null && headerCache.containsKey(key)) {
             String old = headerCache.get(key);
             if (!old.equals(value)) {
                 throw new BsoaRuntimeException(22222, "Value of old is not match current");
@@ -117,8 +96,8 @@ public class ChannelContext {
      * @param key the key
      * @return the header
      */
-    public String getHeader(Byte key) {
-        if (key != null && headerCache!=null) {
+    public String getHeader(Short key) {
+        if (key != null && headerCache != null) {
             return headerCache.get(key);
         }
         return null;
@@ -130,8 +109,8 @@ public class ChannelContext {
      * @param value the value
      * @return the header
      */
-    public Byte getHeaderKey(String value) {
-        if (StringUtils.isNotEmpty(value) && headerCache!=null) {
+    public Short getHeaderKey(String value) {
+        if (StringUtils.isNotEmpty(value) && headerCache != null) {
             return headerCache.getKey(value);
         }
         return null;
@@ -142,7 +121,7 @@ public class ChannelContext {
      *
      * @return the dst version
      */
-    public int getDstVersion() {
+    public Integer getDstVersion() {
         return dstVersion;
     }
 
@@ -152,7 +131,7 @@ public class ChannelContext {
      * @param dstVersion the dst version
      * @return the dst version
      */
-    public ChannelContext setDstVersion(int dstVersion) {
+    public ChannelContext setDstVersion(Integer dstVersion) {
         this.dstVersion = dstVersion;
         return this;
     }
@@ -233,5 +212,35 @@ public class ChannelContext {
      */
     public String getProtocol() {
         return protocol;
+    }
+
+    /**
+     * 得到可用的引用索引
+     *
+     * @param consumerToProvider 客户端发起true、还是服务端发起false
+     * @return 可用的引用索引
+     */
+    public Short getAvailableRefIndex(boolean consumerToProvider) {
+        if (headerCache == null) {
+            synchronized (this) {
+                if (headerCache == null) {
+                    headerCache = new TwoWayMap<>();
+                }
+            }
+        }
+        if (consumerToProvider) { // from consumer to provider : 0~32766
+            for (short i = 0; i < Short.MAX_VALUE; i++) {
+                if (!headerCache.containsKey(i)) {
+                    return i;
+                }
+            }
+        } else { // from provider to consumer : -1~-32767
+            for (short i = -1; i > Short.MIN_VALUE; i--) {
+                if (!headerCache.containsKey(i)) {
+                    return i;
+                }
+            }
+        }
+        return null;
     }
 }

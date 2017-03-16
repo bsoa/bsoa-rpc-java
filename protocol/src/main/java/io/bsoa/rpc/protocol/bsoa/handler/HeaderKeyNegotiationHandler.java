@@ -16,6 +16,7 @@
 package io.bsoa.rpc.protocol.bsoa.handler;
 
 import io.bsoa.rpc.common.json.JSON;
+import io.bsoa.rpc.common.utils.CommonUtils;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
 import io.bsoa.rpc.message.NegotiationRequest;
 import io.bsoa.rpc.protocol.bsoa.BsoaNegotiationHandler;
@@ -34,15 +35,15 @@ import java.util.Map;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public class HeaderCacheNegotiationHandler implements BsoaNegotiationHandler {
+public class HeaderKeyNegotiationHandler implements BsoaNegotiationHandler {
     /**
      * slf4j Logger for this class
      */
-    public static final Logger LOGGER = LoggerFactory.getLogger(HeaderCacheNegotiationHandler.class);
+    public static final Logger LOGGER = LoggerFactory.getLogger(HeaderKeyNegotiationHandler.class);
 
     @Override
     public String command() {
-        return "headerCache";
+        return "headerKey";
     }
 
     @Override
@@ -53,16 +54,21 @@ public class HeaderCacheNegotiationHandler implements BsoaNegotiationHandler {
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info("Receive client header cache negotiation info : {}", map);
         }
-        Map<String, Boolean> result = new HashMap<>();
+        Map<String, String> result = new HashMap<>();
         for (Map.Entry<String, String> entry : map.entrySet()) {
-            Byte key = Byte.valueOf(entry.getKey());
-            String value = entry.getValue();
             try {
-                // 服务端不生成key，完成听客户端的
-                context.putHeadCache(key, value);
-                result.put(entry.getKey(), true);
+                String refValue = entry.getKey();
+                Short refIndex = context.getHeaderKey(refValue);
+                if (refIndex == null) {
+                    // 客户端发来的true,服务端发来的是false
+                    boolean consumerToProvider = CommonUtils.isTrue(entry.getValue());
+                    refIndex = context.getAvailableRefIndex(consumerToProvider);
+                    if (refValue != null) { // 服务端生成key，返回给客户端
+                        context.putHeadCache(refIndex, refValue);
+                    }
+                }
+                result.put(refValue, refIndex + "");
             } catch (Exception e) {
-                result.put(entry.getKey(), false);
                 LOGGER.warn("", e);
             }
         }

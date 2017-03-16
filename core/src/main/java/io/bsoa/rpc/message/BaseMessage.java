@@ -22,6 +22,7 @@ import java.util.Map;
 
 import static io.bsoa.rpc.message.MessageConstants.COMPRESS_NONE;
 import static io.bsoa.rpc.message.MessageConstants.DIRECTION_FORWARD;
+import static io.bsoa.rpc.message.MessageConstants.DIRECTION_ONEWAY;
 import static io.bsoa.rpc.message.MessageConstants.PROTOCOL_NONE;
 import static io.bsoa.rpc.message.MessageConstants.SERIALIZATION_NONE;
 
@@ -38,10 +39,6 @@ public abstract class BaseMessage {
      * 消息类型：（在"bsoa"协议中，占6bit，和调用方向组成一个byte）
      */
     private transient final byte messageType;
-
-    private BaseMessage() {
-        this.messageType = 0;
-    }
 
     /**
      * 子类必须实现
@@ -324,5 +321,15 @@ public abstract class BaseMessage {
      */
     public Map<Byte, Object> getHeaders() {
         return headers;
+    }
+
+    /**
+     * Is one-way message
+     *
+     * @return
+     * @see MessageConstants#DIRECTION_ONEWAY
+     */
+    public boolean isOneWay() {
+        return directionType == DIRECTION_ONEWAY;
     }
 }

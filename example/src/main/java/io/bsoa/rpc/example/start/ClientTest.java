@@ -16,6 +16,7 @@
 package io.bsoa.rpc.example.start;
 
 import io.bsoa.rpc.config.ConsumerConfig;
+import io.bsoa.rpc.context.BsoaContext;
 import io.bsoa.test.EchoService;
 import io.bsoa.test.HelloService;
 import org.slf4j.Logger;
@@ -48,6 +49,8 @@ public class ClientTest {
                 .setUrl("bsoa://127.0.0.1:22000")
                 .setRegister(false);
         EchoService echoService =  consumerConfig2.refer();
+
+        LOGGER.warn("started at pid {}", BsoaContext.PID);
 
         try {
             for (int i = 0; i < 100; i++) {
