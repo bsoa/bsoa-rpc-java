@@ -32,7 +32,7 @@ public class ChannelContext {
      * 每个长连接独立的一个缓存，最多256条
      * TODO 是否分将缓存 全局静态区和动态区
      */
-    protected TwoWayMap<Byte, String> headerCache = new TwoWayMap<>();
+    protected volatile TwoWayMap<Byte, String> headerCache;
     /**
      * 对方版本
      */
@@ -61,12 +61,38 @@ public class ChannelContext {
      * @param value the value
      */
     public void putHeadCache(Byte key, String value) {
-        if (!headerCache.containsKey(key)) {
-            if (headerCache.size() > 255) {
-                throw new BsoaRuntimeException(22222, "Value of old is not match current");
+        if (headerCache == null) {
+            synchronized (this) {
+                if (headerCache == null) {
+                    headerCache = new TwoWayMap<>();
+                }
+            }
+        }
+        if (headerCache != null && !headerCache.containsKey(key)) {
+            if (headerCache.size() >= 255) {
+                throw new BsoaRuntimeException(22222, "Cache of channel is full! size >= 255");
             }
             headerCache.put(key, value);
         }
+    }
+    
+    public Byte getAvailableRefIndex() {
+        if (headerCache == null) {
+            synchronized (this) {
+                if (headerCache == null) {
+                    headerCache = new TwoWayMap<>();
+                }
+            }
+        }
+        if (headerCache.size() >= 255) {
+            return null;
+        }
+        for (byte i = Byte.MIN_VALUE; i < Byte.MAX_VALUE; i++) {
+            if (!headerCache.containsKey(i)) {
+                return i;
+            }
+        }
+        return null;
     }
 
     /**
@@ -76,10 +102,10 @@ public class ChannelContext {
      * @param value the value
      */
     public void invalidateHeadCache(Byte key, String value) {
-        if (headerCache.containsKey(key)) {
+        if (headerCache!=null && headerCache.containsKey(key)) {
             String old = headerCache.get(key);
-            if (old.equals(value)) {
-                throw new BsoaRuntimeException(22222, "Cache of channel is full! size > 255");
+            if (!old.equals(value)) {
+                throw new BsoaRuntimeException(22222, "Value of old is not match current");
             }
             headerCache.remove(key);
         }
@@ -92,7 +118,7 @@ public class ChannelContext {
      * @return the header
      */
     public String getHeader(Byte key) {
-        if (key != null) {
+        if (key != null && headerCache!=null) {
             return headerCache.get(key);
         }
         return null;
@@ -105,7 +131,7 @@ public class ChannelContext {
      * @return the header
      */
     public Byte getHeaderKey(String value) {
-        if (StringUtils.isNotEmpty(value)) {
+        if (StringUtils.isNotEmpty(value) && headerCache!=null) {
             return headerCache.getKey(value);
         }
         return null;

@@ -58,6 +58,7 @@ public class HeaderCacheNegotiationHandler implements BsoaNegotiationHandler {
             Byte key = Byte.valueOf(entry.getKey());
             String value = entry.getValue();
             try {
+                // 服务端不生成key，完成听客户端的
                 context.putHeadCache(key, value);
                 result.put(entry.getKey(), true);
             } catch (Exception e) {

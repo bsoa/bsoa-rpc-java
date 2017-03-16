@@ -35,6 +35,7 @@ import io.bsoa.rpc.protocol.bsoa.handler.ServerBusyNegotiationHandler;
 import io.bsoa.rpc.protocol.bsoa.handler.ServerClosingNegotiationHandler;
 import io.bsoa.rpc.protocol.bsoa.handler.VersionNegotiationHandler;
 import io.bsoa.rpc.transport.AbstractChannel;
+import io.bsoa.rpc.transport.ChannelContext;
 import io.bsoa.rpc.transport.ClientTransport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -205,13 +206,15 @@ public class BsoaProtocolNegotiator implements ProtocolNegotiator {
         request.setProtocolType(BsoaProtocolInfo.PROTOCOL_CODE);
         request.setCmd("headerCache");
         Map<String, String> map = new HashMap<>();
-        int cacheId = 0;// clientTransport.getChannel().context().; //申请一个cache TODO
-        map.put(cacheId + "", providerInfo.getInterfaceId());
-        request.setData(JSON.toJSONString(map));
-        String result = syncSend(clientTransport, request);
-        if (CommonUtils.isTrue(result)) {
-            LOGGER.info("------------{}", result);
-            // 保留下来这个缓存  cacheId  TODO
+        ChannelContext context =  clientTransport.getChannel().context();
+        Byte cacheId = context.getAvailableRefIndex(); //申请一个cache
+        if (cacheId != null) {
+            map.put(cacheId + "", providerInfo.getInterfaceId());
+            request.setData(JSON.toJSONString(map));
+            String result = syncSend(clientTransport, request);
+            if (CommonUtils.isTrue(result)) {
+                context.putHeadCache(cacheId, providerInfo.getInterfaceId());
+            }
         }
     }
 }
