@@ -39,6 +39,7 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.EmbeddedValueResolverAware;
 import org.springframework.context.annotation.ScannedGenericBeanDefinition;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
@@ -47,6 +48,7 @@ import org.springframework.core.type.classreading.CachingMetadataReaderFactory;
 import org.springframework.core.type.classreading.MetadataReader;
 import org.springframework.core.type.classreading.MetadataReaderFactory;
 import org.springframework.util.ClassUtils;
+import org.springframework.util.StringValueResolver;
 import org.springframework.util.SystemPropertyUtils;
 
 import java.io.IOException;
@@ -66,7 +68,7 @@ import java.util.concurrent.ConcurrentMap;
  * @author <a href=mailto:zhanggeng@howtimeflies.org>Geng Zhang</a>
  */
 public class AnnotationBean implements InitializingBean, DisposableBean,
-        BeanFactoryPostProcessor, BeanPostProcessor, ApplicationContextAware {
+        BeanFactoryPostProcessor, BeanPostProcessor, ApplicationContextAware, EmbeddedValueResolverAware {
     /**
      * slf4j Logger for this class
      */
@@ -720,5 +722,12 @@ public class AnnotationBean implements InitializingBean, DisposableBean,
             }
         }
         return false;
+    }
+
+    private StringValueResolver resolver = null;
+
+    @Override
+    public void setEmbeddedValueResolver(StringValueResolver resolver) {
+        this.resolver = resolver;
     }
 }

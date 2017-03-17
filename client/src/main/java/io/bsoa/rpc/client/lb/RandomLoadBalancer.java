@@ -22,7 +22,7 @@ import io.bsoa.rpc.ext.Extension;
 import io.bsoa.rpc.message.RpcRequest;
 
 import java.util.List;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * 负载均衡随机算法:全部列表按权重随机选择
@@ -37,7 +37,7 @@ public class RandomLoadBalancer extends AbstractLoadBalancer {
     /**
      * 随机
      */
-    private final Random random = new Random();
+    private final ThreadLocalRandom random = ThreadLocalRandom.current();
 
     /**
      * 构造函数
@@ -64,7 +64,7 @@ public class RandomLoadBalancer extends AbstractLoadBalancer {
         }
         if (totalWeight > 0 && !sameWeight) {
             // 如果权重不相同且权重大于0则按总权重数随机
-            int offset = random.nextInt(totalWeight);
+            int offset =  ThreadLocalRandom.current().nextInt(totalWeight);
             // 并确定随机值落在哪个片断上
             for (int i = 0; i < length; i++) {
                 offset -= getWeight(providerInfos.get(i));
@@ -75,7 +75,7 @@ public class RandomLoadBalancer extends AbstractLoadBalancer {
             }
         } else {
             // 如果权重相同或权重为0则均等随机
-            providerInfo = providerInfos.get(random.nextInt(length));
+            providerInfo = providerInfos.get(ThreadLocalRandom.current().nextInt(length));
         }
         return providerInfo;
     }

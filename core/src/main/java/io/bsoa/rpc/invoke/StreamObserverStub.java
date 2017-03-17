@@ -24,7 +24,6 @@ import io.bsoa.rpc.exception.BsoaRpcException;
 import io.bsoa.rpc.exception.BsoaRuntimeException;
 import io.bsoa.rpc.message.HeadKey;
 import io.bsoa.rpc.message.MessageBuilder;
-import io.bsoa.rpc.message.MessageConstants;
 import io.bsoa.rpc.message.RPCMessage;
 import io.bsoa.rpc.message.RpcRequest;
 import io.bsoa.rpc.message.RpcResponse;
@@ -129,7 +128,7 @@ public class StreamObserverStub<V> implements StreamObserver<V>, Serializable {
         request.setCompressType(compressType); // 默认开启压缩
         request.setProtocolType(protocolType);
         request.setSerializationType(serializationType);
-        request.setDirectionType(MessageConstants.DIRECTION_ONEWAY); // 单向
+        // request.setDirectionType(MessageConstants.DIRECTION_FORWARD);
         request.addHeadKey(HeadKey.STREAM_INS_KEY, this.streamInsKey);  //最重要
         RpcResponse response = (RpcResponse) clientTransport.syncSend(request, timeout);
         if (response.hasError()) {
