@@ -18,45 +18,45 @@ package io.bsoa.rpc.base;
 /**
  * <p></p>
  * <p>
- * Created by zhangg on 2017/2/23 18:42. <br/>
+ * Created by zhangg on 2017/2/23 19:02. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public interface Destroyable {
-
+public interface Initializable {
     /**
-     * 销毁接口
+     * 初始化
      */
-    public void destroy();
+    public void init();
 
     /**
-     * 有条件的销毁
+     * 初始化动作
      *
-     * @param destroyHook 销毁钩子
+     * @param hook 初始化钩子
      */
-    public default void destroy(DestroyHook destroyHook) {
-        if (destroyHook != null) {
-            destroyHook.preDestroy();
+    public default void init(InitializeHook hook) {
+        if (hook != null) {
+            hook.preInitialize();
         }
-        destroy();
-        if (destroyHook != null) {
-            destroyHook.postDestroy();
+        init();
+        if (hook != null) {
+            hook.postInitialize();
         }
     }
 
     /**
-     * 销毁钩子
+     * 初始化钩子
      */
-    interface DestroyHook {
+    @FunctionalInterface
+    interface InitializeHook {
         /**
-         * 销毁前要做的事情
+         * 加载前要做的事情
          */
-        public void preDestroy();
+        public default void preInitialize() {
+        }
 
         /**
-         * 銷毀后要做的事情
+         * 加载后要做的事情
          */
-        public default void postDestroy() {
-        }
+        public void postInitialize();
     }
 }

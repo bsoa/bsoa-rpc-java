@@ -1,5 +1,5 @@
 bulkheads  线程隔离
-
+ReferenceCounted
 
 =====transport========
 建立长链接后进行匹配(包括版本,服务等)

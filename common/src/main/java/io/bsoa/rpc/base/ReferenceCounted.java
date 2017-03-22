@@ -17,45 +17,28 @@ package io.bsoa.rpc.base;
 
 /**
  * <p></p>
- * <p>
- * Created by zhangg on 2017/2/23 19:02. <br/>
+ *
+ * Created by zhangg on 2017/3/22 19:10. <br/>
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public interface Initializable {
-    /**
-     * 初始化
-     */
-    public void init();
+public interface ReferenceCounted {
 
     /**
-     * 初始化动作
+     * Returns the reference count of this object.  If {@code 0}, it means this object has been deallocated.
+     */
+    int refCnt();
+
+    /**
+     * Increases the reference count by {@code 1}.
+     */
+    ReferenceCounted retain();
+
+    /**
+     * Decreases the reference count by {@code 1} and deallocates this object if the reference count reaches at
+     * {@code 0}.
      *
-     * @param hook 初始化钩子
+     * @return {@code true} if and only if the reference count became {@code 0} and this object has been deallocated
      */
-    public default void init(InitializeHook hook) {
-        if (hook != null) {
-            hook.preInitialize();
-        }
-        init();
-        if (hook != null) {
-            hook.postInitialize();
-        }
-    }
-
-    /**
-     * 初始化钩子
-     */
-    interface InitializeHook {
-        /**
-         * 加载前要做的事情
-         */
-        public default void preInitialize() {
-        }
-
-        /**
-         * 加载后要做的事情
-         */
-        public void postInitialize();
-    }
+    boolean release();
 }

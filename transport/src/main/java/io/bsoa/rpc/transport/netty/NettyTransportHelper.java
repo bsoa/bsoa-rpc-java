@@ -75,7 +75,6 @@ public class NettyTransportHelper {
     public static EventLoopGroup getServerBossEventLoopGroup(ServerTransportConfig config) {
         String type = config.getProtocolType();
         EventLoopGroup bossGroup = serverBossGroups.get(type);
-        AtomicInteger count;
         if (bossGroup == null) {
             synchronized (NettyTransportHelper.class) {
                 bossGroup = serverBossGroups.get(config.getProtocolType());
