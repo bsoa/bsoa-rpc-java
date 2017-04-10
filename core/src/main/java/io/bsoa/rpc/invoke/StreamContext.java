@@ -56,7 +56,7 @@ public class StreamContext {
     /**
      * 保留的响应是StreamObserver的方法和实际传递类的对应关系
      */
-    private static ConcurrentHashMap<String, Class> streamMethodRes = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<String, Class> streamMethodResp = new ConcurrentHashMap<>();
 
     /**
      * 保存StreamObserver的实际实例
@@ -165,7 +165,7 @@ public class StreamContext {
      * @param clazz StreamObserver实现类
      */
     public static void registryReturnOfStreamMethod(String key, Class clazz) {
-        streamMethodRes.put(key, clazz);
+        streamMethodResp.put(key, clazz);
     }
 
     /**
@@ -175,7 +175,7 @@ public class StreamContext {
      * @return 是否有StreamObserver参数
      */
     public static boolean hasStreamObserverReturn(String key) {
-        return streamMethodRes.containsKey(key);
+        return streamMethodResp.containsKey(key);
     }
 
     /**
@@ -185,6 +185,6 @@ public class StreamContext {
      * @return 实际类型
      */
     public static Class getReturnTypeOfStreamMethod(String key) {
-        return streamMethodRes.get(key);
+        return streamMethodResp.get(key);
     }
 }

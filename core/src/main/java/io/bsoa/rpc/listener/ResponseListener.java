@@ -22,14 +22,14 @@ package io.bsoa.rpc.listener;
  *
  * @author <a href=mailto:zhanggeng@howtimeflies.org>GengZhang</a>
  */
-public interface ResponseListener {
+public interface ResponseListener<T> {
 
     /**
      * 得到正常返回的结果
      *
      * @param result the result 正常返回结果
      */
-    public void onResult(Object result);
+    public void onResult(T result);
 
     /**
      * 捕获到异常后
